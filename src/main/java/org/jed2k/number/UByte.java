@@ -309,8 +309,8 @@ public final class UByte extends UNumber<Byte> implements Comparable<UByte>, Ser
     }
 
     @Override
-    protected void assignValue(Byte t) {
-        value = t.shortValue();
+    protected void assignValue(Byte src) {
+        value = src.shortValue();
         rangeCheck(value);
     }
 }

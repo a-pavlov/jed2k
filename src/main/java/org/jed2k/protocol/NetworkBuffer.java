@@ -7,7 +7,6 @@ import org.jed2k.number.UInteger;
 import org.jed2k.number.ULong;
 import org.jed2k.number.UShort;
 
-
 public class NetworkBuffer extends Buffer{
     private ByteBuffer originator;
     public NetworkBuffer(ByteBuffer originator){
@@ -58,5 +57,23 @@ public class NetworkBuffer extends Buffer{
     public Buffer get(ULong v) {
         v.assign(originator.getLong());
         return this;
+    }
+
+    @Override
+    public Buffer get(UInt8 v) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Buffer put(UInt8 v) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Buffer put(Serializable v) {
+      // TODO Auto-generated method stub
+      return null;
     }
 }

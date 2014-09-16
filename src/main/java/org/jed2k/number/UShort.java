@@ -188,8 +188,8 @@ public final class UShort extends UNumber<Short> implements Comparable<UShort>, 
     }
 
     @Override
-    protected void assignValue(Short t) {
-        value = t.intValue();
+    protected void assignValue(Short src) {
+        value = src.intValue();
         rangeCheck();
     }
 }

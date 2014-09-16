@@ -333,8 +333,8 @@ public final class UInteger extends UNumber<Integer> implements Comparable<UInte
     }
 
     @Override
-    protected void assignValue(Integer t) {
-        value = t.intValue();
+    protected void assignValue(Integer src) {
+        value = src.intValue();
         rangeCheck(value);
     }
 }

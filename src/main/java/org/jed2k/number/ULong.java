@@ -201,12 +201,12 @@ public final class ULong extends UNumber<Long> implements Comparable<ULong>, Ser
     }
 
     @Override
-    protected void assignValue(Long t) {
-        if (t >= 0) {
-            this.value = BigInteger.valueOf(t);
+    protected void assignValue(Long src) {
+        if (src >= 0) {
+            this.value = BigInteger.valueOf(src);
         }
         else {
-            this.value = BigInteger.valueOf(t & Long.MAX_VALUE).add(MAX_VALUE_LONG);
+            this.value = BigInteger.valueOf(src & Long.MAX_VALUE).add(MAX_VALUE_LONG);
         }
     }
 }

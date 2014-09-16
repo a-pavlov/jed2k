@@ -15,4 +15,10 @@ public abstract class Buffer{
     public abstract Buffer get(UInteger v);
     public abstract Buffer put(ULong v);
     public abstract Buffer get(ULong v);
+    
+    public abstract Buffer get(UInt8 v);
+    public abstract Buffer put(UInt8 v);
+    
+    public abstract Buffer put(Serializable v);
+    
 }

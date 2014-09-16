@@ -42,7 +42,7 @@ import java.math.BigInteger;
  *
  * @author Lukas Eder
  */
-public abstract class UNumber<T> extends Number {
+public abstract class UNumber<Base> extends Number {
 
     /**
      * Generated UID
@@ -57,10 +57,10 @@ public abstract class UNumber<T> extends Number {
         return new BigInteger(toString());
     }
 
-    protected abstract void assignValue(T t);
+    protected abstract void assignValue(Base t);
 
-    public UNumber<T> assign(T t){
-        assignValue(t);
+    public UNumber<Base> assign(Base src){
+        assignValue(src);
         return this;
     }
 }
