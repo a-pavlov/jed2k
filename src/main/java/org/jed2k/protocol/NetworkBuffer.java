@@ -70,10 +70,4 @@ public class NetworkBuffer extends Buffer{
       // TODO Auto-generated method stub
       return null;
     }
-
-    @Override
-    public Buffer put(Serializable v) {
-      // TODO Auto-generated method stub
-      return null;
-    }
 }

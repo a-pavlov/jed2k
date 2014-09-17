@@ -19,6 +19,4 @@ public abstract class Buffer{
     public abstract Buffer get(UInt8 v);
     public abstract Buffer put(UInt8 v);
     
-    public abstract Buffer put(Serializable v);
-    
 }
