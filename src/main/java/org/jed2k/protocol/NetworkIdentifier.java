@@ -13,6 +13,6 @@ public final class NetworkIdentifier implements Serializable {
 
     @Override
     public Buffer put(Buffer dst) {
-        return dst.put(client_id).put(port);        
+        return dst.put(client_id).put(port);
     }
 }

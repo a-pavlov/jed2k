@@ -8,7 +8,7 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
   private Collection<Elem> collection;
   private Class<Elem> clazz;
   
-  ContainerHolder(CS size_factor, Collection<Elem> collection, Class<Elem> clazz){
+  public ContainerHolder(CS size_factor, Collection<Elem> collection, Class<Elem> clazz){
       size = size_factor;
       this.collection = collection;
       this.clazz = clazz;
@@ -38,6 +38,10 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
       e.put(dst);      
     }
     return dst;
+  }
+  
+  public boolean isConsistent(){
+      return size.intValue() == collection.size();
   }
   
 }
