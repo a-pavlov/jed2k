@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class ContainerHolder<CS extends UNumber, Elem extends Serializable> implements Serializable {
-  private CS size;
-  private Collection<Elem> collection;
+  public CS size;
+  public Collection<Elem> collection;
   private Class<Elem> clazz;
   
   public ContainerHolder(CS size_factor, Collection<Elem> collection, Class<Elem> clazz){
-      size = size_factor;
+      this.size = size_factor;
       this.collection = collection;
       this.clazz = clazz;
   }
@@ -43,5 +43,13 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
   public boolean isConsistent(){
       return size.intValue() == collection.size();
   }
+  
+  public final int size(){
+    return size.intValue();
+  }
+  
+  public final int sizeCollection(){
+    return collection.size();
+  }  
   
 }

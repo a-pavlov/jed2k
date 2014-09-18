@@ -1,10 +1,11 @@
 package org.jed2k.protocol;
 
-import static org.jed2k.protocol.Unsigned.uint8;
+import static org.jed2k.protocol.Unsigned.uint16;
+import static org.jed2k.protocol.Unsigned.uint32;
 
 public final class NetworkIdentifier implements Serializable {
-    public final UInt8 client_id = uint8();
-    public final UInt8 port = uint8();
+    public final UInt32 client_id = uint32();
+    public final UInt16 port = uint16();
 
     @Override
     public Buffer get(Buffer src) {

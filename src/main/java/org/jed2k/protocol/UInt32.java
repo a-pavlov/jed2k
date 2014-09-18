@@ -22,6 +22,22 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
     
     private int value;
 
+    
+    public UInt32(){
+      value = 0;
+    }
+    
+    public UInt32(byte value){
+      this.value = (int)value;
+    }
+    
+    public UInt32(short value){
+      this.value = (int)(value);
+    }
+    
+    public UInt32(int value){
+      this.value = value;
+    }
 
     @Override
     public Buffer get(Buffer src) {
