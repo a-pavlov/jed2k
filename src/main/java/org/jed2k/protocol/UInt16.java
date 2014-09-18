@@ -65,6 +65,7 @@ public class UInt16 extends UNumber implements Comparable<UInt16>{
         return value & MAX_VALUE;
     }
     
+    @Override
     public UInt16 assign(short value){
         this.value = value;
         return this;
@@ -85,6 +86,18 @@ public class UInt16 extends UNumber implements Comparable<UInt16>{
         }
 
         return false;
+    }
+
+    @Override
+    public UNumber assign(byte value) {
+      this.value = value;
+      return this;
+    }
+
+    @Override
+    public UNumber assign(int value) {
+      this.value = (short)value;
+      return this;
     }
     
 }

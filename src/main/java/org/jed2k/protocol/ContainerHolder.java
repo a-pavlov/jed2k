@@ -31,6 +31,7 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
 
   @Override
   public Buffer put(Buffer dst) {
+    size.assign(collection.size());
     size.put(dst);
     Iterator<Elem> itr = collection.iterator();
     while(itr.hasNext()){

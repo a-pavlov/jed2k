@@ -68,8 +68,21 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
     return dst.put(this);
   }
   
-  UInt8 assign(byte b){
+  @Override
+  public UNumber assign(byte b){
     container = b;
+    return this;
+  }
+
+  @Override
+  public UNumber assign(short value) {
+    container = (byte)value;
+    return this;
+  }
+
+  @Override
+  public UNumber assign(int value) {
+    container = (byte)value;
     return this;
   }
 }

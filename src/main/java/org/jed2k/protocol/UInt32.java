@@ -80,9 +80,22 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
     public long longValue() {
         return value & MAX_VALUE;        
     }    
-        
-    UInt32 assign(int value){
+
+    @Override
+    public UInt32 assign(int value){
         this.value = value;
         return this;
+    }
+
+    @Override
+    public UNumber assign(byte value) {
+      this.value = value;
+      return this;
+    }
+
+    @Override
+    public UNumber assign(short value) {
+      this.value = value;
+      return this;
     }
 }
