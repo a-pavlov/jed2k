@@ -1,7 +1,5 @@
 package org.jed2k.protocol;
 
-import static org.jed2k.protocol.Unsigned.uint8;
-
 enum ClientServerTcp{
   OP_LOGINREQUEST(0x01), // <HASH 16><ID 4><PORT 2><1 Tag_set>
   OP_REJECT(0x05), // (null)
@@ -51,9 +49,9 @@ enum ClientServerTcp{
                               // settings 1>(UserHash16 if
                               // obf&0x08))[count]
 
-  public UInt8 value;
+  public byte value;
 
   ClientServerTcp(int v) {
-      value = uint8(v);
+      value = (byte)v;
   }
 }

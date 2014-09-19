@@ -98,4 +98,49 @@ public class NetworkBuffer extends Buffer{
         originator.putInt(v.intValue());
         return this;
     }
+
+    @Override
+    public Buffer get(byte[] v) {        
+        originator.get(v);
+        return this;
+    }
+
+    @Override
+    public Buffer put(byte[] v) {
+        originator.put(v);
+        return this;
+    }
+
+    @Override
+    public Buffer put(byte v) {
+        originator.put(v);
+        return this;
+    }
+
+    @Override
+    public Buffer put(short v) {
+        originator.putShort(v);
+        return this;
+    }
+
+    @Override
+    public Buffer put(int v) {
+        originator.putInt(v);
+        return this;
+    }
+
+    @Override
+    public byte getByte() {
+        return originator.get();
+    }
+
+    @Override
+    public short getShort() {
+        return originator.getShort();
+    }
+
+    @Override
+    public int getInt() {
+        return originator.getInt();        
+    }
 }
