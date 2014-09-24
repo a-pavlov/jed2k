@@ -29,10 +29,12 @@ public abstract class Buffer{
     public abstract Buffer put(byte v);
     public abstract Buffer put(short v);
     public abstract Buffer put(int v);
+    public abstract Buffer put(float v);
     
     public abstract byte getByte();
     public abstract short getShort();
     public abstract int getInt();
+    public abstract float getFloat();
     //public abstract Buffer get(UBytes v);
     //public abstract Buffer put(UBytes v);
 }

@@ -6,5 +6,5 @@ public abstract class UNumber extends Number implements Serializable {
   
   public abstract UNumber assign(byte value);
   public abstract UNumber assign(short value);
-  public abstract UNumber assign(int value);   
+  public abstract UNumber assign(int value);
 }

@@ -20,7 +20,7 @@ public class ByteContainer<CS extends UNumber> implements Serializable{
     @Override
     public Buffer put(Buffer dst) {
         size.assign(value!=null?value.length:0);
-        return dst.put(value);        
+        return dst.put(value);
     }
     
     @Override

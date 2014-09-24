@@ -84,5 +84,5 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
   public UNumber assign(int value) {
     container = (byte)value;
     return this;
-  }
+  } 
 }

@@ -128,6 +128,12 @@ public class NetworkBuffer extends Buffer{
         originator.putInt(v);
         return this;
     }
+    
+    @Override
+    public Buffer put(float v) {
+        originator.putFloat(v);
+        return this;
+    }
 
     @Override
     public byte getByte() {
@@ -141,6 +147,11 @@ public class NetworkBuffer extends Buffer{
 
     @Override
     public int getInt() {
-        return originator.getInt();        
+        return originator.getInt();
+    }
+    
+    @Override
+    public float getFloat() {
+        return originator.getFloat();
     }
 }
