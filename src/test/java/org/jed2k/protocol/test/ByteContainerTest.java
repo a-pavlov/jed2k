@@ -6,6 +6,7 @@ import static org.jed2k.protocol.Unsigned.uint8;
 import java.nio.ByteBuffer;
 
 import org.jed2k.protocol.ByteContainer;
+import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt8;
 import org.junit.Test;
 import org.jed2k.protocol.NetworkBuffer;
@@ -13,7 +14,7 @@ import org.jed2k.protocol.NetworkBuffer;
 public class ByteContainerTest{
     
     @Test
-    public void testSerialize(){
+    public void testSerialize() throws ProtocolException{
         byte[] source = { (byte)0x07,
                 (byte)0x20, (byte)0x20, (byte)0x30, (byte)0x31, (byte)0x32, (byte)0x20, (byte)0x20};
         NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(source));

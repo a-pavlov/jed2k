@@ -11,14 +11,14 @@ public class ByteContainer<CS extends UNumber> implements Serializable{
     }
     
     @Override
-    public Buffer get(Buffer src) {
+    public Buffer get(Buffer src) throws ProtocolException {
         size.get(src);
         value = new byte[size.intValue()];
         return src.get(value);
     }
 
     @Override
-    public Buffer put(Buffer dst) {
+    public Buffer put(Buffer dst) throws ProtocolException {
         size.assign(value!=null?value.length:0);
         return dst.put(value);
     }

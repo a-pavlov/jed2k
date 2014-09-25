@@ -1,8 +1,9 @@
 package org.jed2k.protocol.tag;
 
 import org.jed2k.protocol.Buffer;
+import org.jed2k.protocol.ProtocolException;
 
-public class FloatTag extends Tag {
+public final class FloatTag extends Tag {
     private float value;
     
     private FloatTag(byte type, byte id, String name, float value) {
@@ -11,13 +12,13 @@ public class FloatTag extends Tag {
     }
 
     @Override
-    public Buffer get(Buffer src) {
+    public Buffer get(Buffer src) throws ProtocolException {
         value = src.getFloat();
         return src;
     }
     
     @Override
-    public Buffer put(Buffer dst) {
+    public Buffer put(Buffer dst) throws ProtocolException {
         return super.put(dst).put(value);
     }
     

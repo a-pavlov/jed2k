@@ -8,12 +8,12 @@ public final class NetworkIdentifier implements Serializable {
     public final UInt16 port = uint16();
 
     @Override
-    public Buffer get(Buffer src) {
+    public Buffer get(Buffer src) throws ProtocolException {
         return src.get(client_id).get(port);
     }
 
     @Override
-    public Buffer put(Buffer dst) {
+    public Buffer put(Buffer dst) throws ProtocolException {
         return dst.put(client_id).put(port);
     }
 }

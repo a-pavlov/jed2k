@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 
 import org.jed2k.protocol.Buffer;
 import org.jed2k.protocol.ByteContainer;
+import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.UInt32;
@@ -109,7 +110,7 @@ public abstract class Tag implements Serializable{
     }
     
     @Override
-    public Buffer put(Buffer dst){       
+    public Buffer put(Buffer dst) throws ProtocolException {       
         if (name == null){
             dst.put((byte)(type | 0x80));
             dst.put(id);
@@ -121,7 +122,7 @@ public abstract class Tag implements Serializable{
         return dst;
     }
         
-    public static Tag extractTag(Buffer src){
+    public static Tag extractTag(Buffer src) throws ProtocolException {
         byte type = src.getByte();
         byte id = FT_UNDEFINED;
         String name = null;

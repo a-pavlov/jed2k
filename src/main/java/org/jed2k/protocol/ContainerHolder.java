@@ -1,5 +1,7 @@
 package org.jed2k.protocol;
 
+import java.nio.BufferOverflowException;
+import java.nio.ReadOnlyBufferException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -15,22 +17,24 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
   }
   
   @Override
-  public Buffer get(Buffer src) {
+  public Buffer get(Buffer src) throws ProtocolException {
     size.get(src);
-    for(int i = 0; i < size.intValue(); ++i){
-        try{
+    try {
+        for(int i = 0; i < size.intValue(); ++i){
             Elem e = clazz.newInstance();
             e.get(src);
             collection.add(e);
-        }catch(Exception e){
-            
         }
+    } catch(InstantiationException e) {
+        throw new ProtocolException(e);
+    } catch (IllegalAccessException e1) {
+        throw new ProtocolException(e1);
     }
     return src;
   }
 
   @Override
-  public Buffer put(Buffer dst) {
+  public Buffer put(Buffer dst)  throws ProtocolException {
     size.assign(collection.size());
     size.put(dst);
     Iterator<Elem> itr = collection.iterator();

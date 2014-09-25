@@ -1,8 +1,9 @@
 package org.jed2k.protocol.tag;
 
 import org.jed2k.protocol.Buffer;
+import org.jed2k.protocol.ProtocolException;
 
-public class BooleanTag extends Tag{
+public final class BooleanTag extends Tag{
     private boolean value;
     
     private BooleanTag(byte type, byte id, String name, boolean value) {
@@ -11,13 +12,13 @@ public class BooleanTag extends Tag{
     }
 
     @Override
-    public Buffer get(Buffer src) {
+    public Buffer get(Buffer src) throws ProtocolException {
         value = (src.getByte() == 0x00);            
         return src;
     }
     
     @Override 
-    public Buffer put(Buffer dst) {
+    public Buffer put(Buffer dst) throws ProtocolException {
         byte bval = (value)?(byte)0x01:(byte)0x00;
         super.put(dst).put(bval);
         return dst;

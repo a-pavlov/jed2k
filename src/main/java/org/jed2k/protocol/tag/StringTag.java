@@ -3,6 +3,7 @@ package org.jed2k.protocol.tag;
 import java.io.UnsupportedEncodingException;
 
 import org.jed2k.protocol.Buffer;
+import org.jed2k.protocol.ProtocolException;
 
 
 public class StringTag extends Tag {
@@ -14,7 +15,7 @@ public class StringTag extends Tag {
     }
 
     @Override
-    public Buffer get(Buffer src) {
+    public Buffer get(Buffer src) throws ProtocolException {
         short size = 0;
         if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16){
             size = (short)(type - Tag.TAGTYPE_STR1 + 1);
@@ -27,17 +28,16 @@ public class StringTag extends Tag {
         try {
             value = new String(data, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ProtocolException(e);
         }
         
         return src;
     }
     
     @Override
-    public Buffer put(Buffer dst) {
+    public Buffer put(Buffer dst) throws ProtocolException {
         try {
-            byte[] data = value.getBytes("UTF-8");                      
+            byte[] data = value.getBytes("UTF-8");  
             super.put(dst);
             if (type == Tag.TAGTYPE_STRING)
                 dst.put((short)data.length);            

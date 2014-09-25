@@ -8,6 +8,7 @@ import static org.jed2k.protocol.Unsigned.uint8;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
+import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt8;
 import org.junit.Test;
 import org.jed2k.protocol.NetworkBuffer;
@@ -33,7 +34,7 @@ public class UInt8Test{
     }
     
     @Test(expected=BufferUnderflowException.class)
-    public void testSerialize(){
+    public void testSerialize() throws ProtocolException {
         byte[] data = { (byte)1, (byte)2, (byte)3 };
         NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(data));
         UInt8 value = uint8();

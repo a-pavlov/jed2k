@@ -59,12 +59,12 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
   }  
 
   @Override
-  public Buffer get(Buffer src) {
+  public Buffer get(Buffer src) throws ProtocolException {
     return src.get(this);
   }
 
   @Override
-  public Buffer put(Buffer dst) {
+  public Buffer put(Buffer dst) throws ProtocolException {
     return dst.put(this);
   }
   

@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 
 import org.jed2k.hash.MD4;
 import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt8;
 import org.junit.Test;
 import org.jed2k.protocol.NetworkBuffer;
@@ -31,7 +32,7 @@ public class HashTest{
     }
     
     @Test
-    public void testElementarySerialization() {
+    public void testElementarySerialization() throws ProtocolException {
         NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(terminal));
         Hash h = new Hash();
         h.get(nb);

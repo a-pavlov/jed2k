@@ -11,6 +11,7 @@ import org.junit.Test;
 import static org.jed2k.protocol.Unsigned.uint8;
 
 import org.jed2k.protocol.NetworkBuffer;
+import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt8;
 import org.jed2k.protocol.ContainerHolder;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -18,7 +19,7 @@ import org.jed2k.protocol.NetworkIdentifier;
 public class ContainerHolderTest{
     
     @Test
-    public void testHolderSerialization(){
+    public void testHolderSerialization() throws ProtocolException{
       byte source[] = {(byte)0x02, // size
           (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x00,   // net identifier 1
           (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x06, (byte)0x00};  // net identifier 2

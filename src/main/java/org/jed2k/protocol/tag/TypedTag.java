@@ -1,12 +1,13 @@
 package org.jed2k.protocol.tag;
 
 import org.jed2k.protocol.Buffer;
+import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.UInt8;
 import org.jed2k.protocol.UNumber;
 
-public class TypedTag<T extends UNumber> extends Tag{
+public final class TypedTag<T extends UNumber> extends Tag{
     private final T value;
     
     private TypedTag(byte type, byte id, String name, T value) {
@@ -15,12 +16,12 @@ public class TypedTag<T extends UNumber> extends Tag{
     }
 
     @Override
-    public Buffer get(Buffer src) {
+    public Buffer get(Buffer src) throws ProtocolException  {
         return value.get(src);
     }
 
     @Override
-    public Buffer put(Buffer src) {
+    public Buffer put(Buffer src) throws ProtocolException {
         return value.put(super.put(src));
     }
 

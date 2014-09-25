@@ -59,12 +59,12 @@ public final class Hash implements Serializable{
     }
 
     @Override
-    public Buffer get(Buffer src) {
+    public Buffer get(Buffer src) throws ProtocolException {
         return src.get(value);
     }
 
     @Override
-    public Buffer put(Buffer dst) {
+    public Buffer put(Buffer dst) throws ProtocolException {
         return dst.put(value);
     }
 }
