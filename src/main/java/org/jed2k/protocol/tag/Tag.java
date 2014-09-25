@@ -7,19 +7,19 @@ import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
-import org.jed2k.protocol.UInt32;
-import org.jed2k.protocol.UInt8;
 
 import static org.jed2k.protocol.Unsigned.uint8;
 import static org.jed2k.protocol.Unsigned.uint16;
 import static org.jed2k.protocol.Unsigned.uint32;
+import static org.jed2k.protocol.Unsigned.uint64;
 import static org.jed2k.protocol.tag.TypedTag.valueOf;
 import static org.jed2k.protocol.tag.FloatTag.valueOf;
 import static org.jed2k.protocol.tag.BooleanTag.valueOf;
 import static org.jed2k.protocol.tag.StringTag.valueOf;
+import static org.jed2k.protocol.tag.ArrayTag.valueOf;
 
-public abstract class Tag implements Serializable{
-       
+public abstract class Tag implements Serializable {
+
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
     public static final byte TAGTYPE_HASH16       = (byte)0x01;
     public static final byte TAGTYPE_STRING       = (byte)0x02;
@@ -152,6 +152,8 @@ public abstract class Tag implements Serializable{
         case TAGTYPE_UINT32:
             result = valueOf(id, name, uint32());
             break;
+        case TAGTYPE_UINT64:
+            result = valueOf(id, name, uint64());
         case TAGTYPE_FLOAT32:
             result = valueOf(id, name, 0.0f);
             break;
@@ -176,11 +178,16 @@ public abstract class Tag implements Serializable{
         case TAGTYPE_STR16:
             result = valueOf(id, name, new String());
             break;
-            
-        default:
+        case TAGTYPE_BLOB:
+            result = valueOf(id, name, (byte[])null);
             break;
+        case TAGTYPE_BOOLARRAY:
+            result = new BoolArrayTag(Tag.TAGTYPE_BOOLARRAY, id, name);
+            break;
+        default:
+            throw new ProtocolException(null);
         };
-        
+                
         result.get(src);
         return result;
     }
@@ -197,4 +204,15 @@ public abstract class Tag implements Serializable{
         return valueOf(id, name, uint8(value));
     }
     
+    public static Tag tag(byte id, String name, boolean value) {
+        return valueOf(id, name, value);
+    }
+    
+    public static Tag tag(byte id, String name, float value) {
+        return valueOf(id, name, value);
+    }
+    
+    public static Tag tag(byte id, String name, String value) throws ProtocolException {
+        return valueOf(id, name, value);
+    }
 }

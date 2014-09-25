@@ -23,8 +23,17 @@ public class ByteContainer<CS extends UNumber> implements Serializable{
         return dst.put(value);
     }
     
+    public String asString() throws ProtocolException {
+        try {
+            if (value != null)  return new String(value, "UTF-8");
+            return null;
+        } catch(UnsupportedEncodingException e) {
+            throw new ProtocolException(e);
+        }        
+    }
+    
     @Override
-    public String toString(){
+    public String toString() {
         try{
             if (value != null)
                 return new String(value, "UTF-8");

@@ -1,7 +1,5 @@
 package org.jed2k.protocol;
 
-import java.nio.BufferOverflowException;
-import java.nio.ReadOnlyBufferException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -10,7 +8,7 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
   public Collection<Elem> collection;
   private Class<Elem> clazz;
   
-  public ContainerHolder(CS size_factor, Collection<Elem> collection, Class<Elem> clazz){
+  public ContainerHolder(CS size_factor, Collection<Elem> collection, Class<Elem> clazz) {
       this.size = size_factor;
       this.collection = collection;
       this.clazz = clazz;

@@ -16,4 +16,6 @@ public final class Unsigned{
   public static UInt32 uint32(short value) { return new UInt32(value); }
   public static UInt32 uint32(int value) { return new UInt32(value); }
   
+  
+  public static UInt64 uint64() { return new UInt64(); }  
 }

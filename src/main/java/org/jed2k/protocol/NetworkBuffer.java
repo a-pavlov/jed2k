@@ -47,6 +47,18 @@ public class NetworkBuffer extends Buffer{
         originator.putInt(v.intValue());
         return this;
     }
+    
+    @Override
+    public Buffer get(UInt64 v) {
+        v.assign(originator.getLong());
+        return this;
+    }
+
+    @Override
+    public Buffer put(UInt64 v) {
+        originator.putLong(v.longValue());
+        return this;
+    }
 
     @Override
     public Buffer get(byte[] v) {        

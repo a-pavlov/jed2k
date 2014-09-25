@@ -48,18 +48,13 @@ public class StringTag extends Tag {
         return dst;
     }
 
-    static public StringTag valueOf(byte id, String name, String value){
-            
-        byte type = Tag.FT_UNDEFINED;
+    static public StringTag valueOf(byte id, String name, String value) throws ProtocolException {
+        byte type = Tag.TAGTYPE_STRING;
         try {
-        int bytesCount = value.getBytes("UTF-8").length; 
-        if (bytesCount <= 16) {
-            type = (byte)(Tag.TAGTYPE_STR1 + bytesCount - 1);
-        }
-       
-            
+            int bytesCount = value.getBytes("UTF-8").length; 
+            if (bytesCount <= 16) type = (byte)(Tag.TAGTYPE_STR1 + bytesCount - 1);
         } catch(UnsupportedEncodingException ex) {
-            
+            throw new ProtocolException(ex);
         }
         
         return new StringTag(type, id, name, value);

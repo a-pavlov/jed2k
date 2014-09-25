@@ -7,6 +7,8 @@ public abstract class Buffer {
     public abstract Buffer put(UInt16 v) throws ProtocolException;
     public abstract Buffer get(UInt32 v) throws ProtocolException;
     public abstract Buffer put(UInt32 v) throws ProtocolException;
+    public abstract Buffer get(UInt64 v) throws ProtocolException;
+    public abstract Buffer put(UInt64 v) throws ProtocolException;
     public abstract Buffer get(byte[] v) throws ProtocolException;
     public abstract Buffer put(byte[] v) throws ProtocolException;
     
