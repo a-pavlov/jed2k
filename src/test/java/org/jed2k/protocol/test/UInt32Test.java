@@ -2,7 +2,6 @@ package org.jed2k.protocol.test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 import java.nio.ByteBuffer;
 

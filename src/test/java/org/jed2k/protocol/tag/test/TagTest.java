@@ -2,17 +2,15 @@ package org.jed2k.protocol.tag.test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-
 import org.junit.Test;
 
-import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertEquals;
-
 import org.jed2k.protocol.ContainerHolder;
 import org.jed2k.protocol.NetworkBuffer;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.tag.Tag;
+import static org.jed2k.protocol.tag.Tag.tag;
 
 import static org.jed2k.protocol.Unsigned.uint16;
 
@@ -29,7 +27,7 @@ public class TagTest {
     
     
     @Test
-    public void testTag() throws ProtocolException {                
+    public void testTagReading() throws ProtocolException {                
         byte[] source =
             {   /* 2 bytes list size*/      (byte)0x09, (byte)0x00,
                 /*1 byte*/          (byte)(Tag.TAGTYPE_UINT8 | 0x80),   (byte)0x10, (byte)0xED,
@@ -47,6 +45,31 @@ public class TagTest {
         NetworkBuffer nb = new NetworkBuffer(ob);
         tags.get(nb);
         assertEquals(9, tags.size());
-        assertEquals(0, ob.remaining());        
+        assertEquals(0, ob.remaining());
+        assertEquals(0xED, atags.get(0).intValue());
+        assertEquals(0x0D0A, atags.get(1).intValue());
+        assertEquals(0x0807060504030201l, atags.get(2).longValue());
+        assertEquals("ABCD", atags.get(3).name());
+        assertEquals("STRING", atags.get(3).stringValue());
+        assertEquals("IVAN", atags.get(4).name());
+        assertEquals("APPLE", atags.get(4).stringValue());
+    }
+    
+    @Test
+    public void testTagWriting() throws ProtocolException {
+        ByteBuffer bf = ByteBuffer.allocate(100);
+        NetworkBuffer nb = new NetworkBuffer(bf);
+        tag(Tag.FT_UNDEFINED, "Test name", "XXX data").put(tag(Tag.FT_FILEHASH, null, 100).put(nb));
+        bf.flip();
+        Tag itag = new Tag();
+        itag.get(nb);
+        assertEquals(Tag.FT_FILEHASH, itag.id());
+        assertEquals(100, itag.intValue());       
+        Tag stag = new Tag();
+        stag.get(nb);
+        assertEquals("Test name", stag.name());
+        assertEquals("XXX data", stag.stringValue());
+        assertEquals(Tag.TAGTYPE_STR8, stag.type());
+        assertEquals(0, bf.remaining());
     }
 }

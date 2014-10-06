@@ -2,8 +2,6 @@ package org.jed2k.protocol.test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-
 import static org.jed2k.protocol.Unsigned.uint16;
 import org.jed2k.protocol.UInt16;
 
