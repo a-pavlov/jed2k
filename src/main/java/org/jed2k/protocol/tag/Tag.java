@@ -2,6 +2,7 @@ package org.jed2k.protocol.tag;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.logging.Logger;
 
 import org.jed2k.Utils;
 import org.jed2k.protocol.Buffer;
@@ -20,6 +21,8 @@ import static org.jed2k.protocol.Unsigned.uint64;
 
 public final class Tag implements Serializable {
 
+    private static Logger log = Logger.getLogger(Tag.class.getName());
+    
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
     public static final byte TAGTYPE_HASH16       = (byte)0x01;
     public static final byte TAGTYPE_STRING       = (byte)0x02;
@@ -223,13 +226,16 @@ public final class Tag implements Serializable {
         if ((type & 0x80) != 0){
             type = (byte)(type & 0x7f);
             id = src.getByte();
-        } else {            
-            ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());            
-            if (bc.size.intValue() == 1) {
+            log.info("process new type");
+        } else {
+            log.info("process old type");
+            ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());
+            bc.get(src);
+            if (bc.size.intValue() == 1) {                
                 id = bc.value[0];
             } else {
                 name = bc.toString();
-            }
+            }            
         }
         
         switch(type){
@@ -244,6 +250,7 @@ public final class Tag implements Serializable {
             break;
         case TAGTYPE_UINT64:
             value = uint64();
+            break;
         case TAGTYPE_FLOAT32:
             value = new FloatSerial(0.0f);
             break;
@@ -266,6 +273,7 @@ public final class Tag implements Serializable {
         case TAGTYPE_STR14:
         case TAGTYPE_STR15:
         case TAGTYPE_STR16:
+        case TAGTYPE_STRING:
             value = new StringSerial(type, null);
             break;
         case TAGTYPE_BLOB:

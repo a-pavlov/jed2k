@@ -32,10 +32,10 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
     }
     
     public UInt32(short value){
-      this.value = (int)(value);
+      this.value = (int)(value) & 0xffff;
     }
     
-    public UInt32(int value){
+    public UInt32(int value) {
       this.value = value;
     }
 
@@ -57,7 +57,6 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
         if (longValue() > o.longValue()) return 1;
         return 0;
     }
-
 
     @Override
     public double doubleValue() {
@@ -98,4 +97,15 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
       this.value = value;
       return this;
     }
+    
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        
+        if (obj instanceof UInt32) {
+            return value == ((UInt32) obj).value;
+        }
+
+        return false;
+    }
+
 }

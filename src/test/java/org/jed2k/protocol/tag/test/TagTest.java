@@ -26,8 +26,10 @@ public class TagTest {
         assertEquals(Tag.TAGTYPE_FLOAT32, floatTag.type());
     }
     
+    
+    
     @Test
-    public void testTag(){                
+    public void testTag() throws ProtocolException {                
         byte[] source =
             {   /* 2 bytes list size*/      (byte)0x09, (byte)0x00,
                 /*1 byte*/          (byte)(Tag.TAGTYPE_UINT8 | 0x80),   (byte)0x10, (byte)0xED,
@@ -38,11 +40,13 @@ public class TagTest {
                 /*blob*/            (byte)(Tag.TAGTYPE_BLOB | 0x80),    (byte)0x0A, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x0D, (byte)0x0A, (byte)0x0B,
                 /*float*/           (byte)(Tag.TAGTYPE_FLOAT32 | 0x80), (byte)0x15, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04,
                 /*bool*/            (byte)(Tag.TAGTYPE_BOOL | 0x80),    (byte)0x15, (byte)0x01,
-                /*hash*/            (byte)(Tag.TAGTYPE_HASH16 | 0x80),  (byte)0x20, (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, (byte)0x09, (byte)0x0A, (byte)0x0B, (byte)0x0C, (byte)0x0D, (byte)0x0E, (byte)0x0F,
-                /*invalid blob*/    (byte)(Tag.TAGTYPE_BLOB | 0x80),    (byte)0x0A, (byte)0xFF, (byte)0xFF, (byte)0xEE, (byte)0xFF, (byte)0x0D, (byte)0x0A, (byte)0x0B};
-        
+                /*hash*/            (byte)(Tag.TAGTYPE_HASH16 | 0x80),  (byte)0x20, (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, (byte)0x09, (byte)0x0A, (byte)0x0B, (byte)0x0C, (byte)0x0D, (byte)0x0E, (byte)0x0F };        
         ArrayList<Tag> atags = new ArrayList<Tag>();
         ContainerHolder<UInt16, Tag> tags = new ContainerHolder<UInt16, Tag>(uint16(), atags, Tag.class);
-        NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(source));
+        ByteBuffer ob = ByteBuffer.wrap(source);
+        NetworkBuffer nb = new NetworkBuffer(ob);
+        tags.get(nb);
+        assertEquals(9, tags.size());
+        assertEquals(0, ob.remaining());        
     }
 }
