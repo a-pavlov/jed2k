@@ -25,8 +25,8 @@ public class UInt32Test{
         assertTrue(value.intValue() == 0);
         value.assign((short)1000);
         assertTrue(value.intValue() == 1000);
-        value.assign(0xffff);
-        assertEquals(0xffff, value.intValue());
+        value.assign((short)0xffff);
+        assertEquals(-1, value.intValue());
     }
     
     @Test
