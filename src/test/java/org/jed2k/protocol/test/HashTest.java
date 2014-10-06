@@ -1,17 +1,11 @@
 package org.jed2k.protocol.test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-import static org.jed2k.protocol.Unsigned.uint8;
-
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import org.jed2k.hash.MD4;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.ProtocolException;
-import org.jed2k.protocol.UInt8;
 import org.junit.Test;
 import org.jed2k.protocol.NetworkBuffer;
 

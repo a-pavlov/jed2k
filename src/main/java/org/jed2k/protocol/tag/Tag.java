@@ -392,4 +392,8 @@ public final class Tag implements Serializable {
         
         return new Tag(type, id, name, new StringSerial(type, value));
     }
+    
+    public static Tag tag(byte id, String name, Hash value) throws ProtocolException {
+        return new Tag(TAGTYPE_HASH16, id, name, value);
+    }
 }
