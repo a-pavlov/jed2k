@@ -2,7 +2,7 @@ package org.jed2k.protocol;
 
 import java.io.UnsupportedEncodingException;
 
-public class ByteContainer<CS extends UNumber> implements Serializable{
+public class ByteContainer<CS extends UNumber> implements Serializable {
     public CS size;
     public byte[] value;
     

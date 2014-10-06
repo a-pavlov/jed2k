@@ -1,24 +1,24 @@
 package org.jed2k.protocol.tag;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
+import org.jed2k.Utils;
 import org.jed2k.protocol.Buffer;
 import org.jed2k.protocol.ByteContainer;
+import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
+import org.jed2k.protocol.UInt32;
+import org.jed2k.protocol.UNumber;
 
 import static org.jed2k.protocol.Unsigned.uint8;
 import static org.jed2k.protocol.Unsigned.uint16;
 import static org.jed2k.protocol.Unsigned.uint32;
 import static org.jed2k.protocol.Unsigned.uint64;
-import static org.jed2k.protocol.tag.TypedTag.valueOf;
-import static org.jed2k.protocol.tag.FloatTag.valueOf;
-import static org.jed2k.protocol.tag.BooleanTag.valueOf;
-import static org.jed2k.protocol.tag.StringTag.valueOf;
-import static org.jed2k.protocol.tag.ArrayTag.valueOf;
 
-public abstract class Tag implements Serializable {
+public final class Tag implements Serializable {
 
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
     public static final byte TAGTYPE_HASH16       = (byte)0x01;
@@ -98,67 +98,157 @@ public abstract class Tag implements Serializable {
     public static final byte FT_COMPLETE_SOURCES   = (byte)0x30;    // nr. of sources which share a
     public static final byte FT_FAST_RESUME_DATA   = (byte)0x31;   // fast resume data array
     
-    protected final byte type;
-    protected final byte id;    
-    String name;
     
-    public Tag(byte type, byte id, String name){
+    private static class FloatSerial implements Serializable {
+        public float value;        
+        
+        FloatSerial(float value) {
+            this.value = value;
+        }
+        
+        @Override
+        public Buffer get(Buffer src) throws ProtocolException {
+            value = src.getFloat();
+            return src;
+        }
+
+        @Override
+        public Buffer put(Buffer dst) throws ProtocolException {  return dst.put(value); }
+    }
+    
+    private static class BooleanSerial implements Serializable {
+        public boolean value;
+        
+        BooleanSerial(boolean value) {
+            this.value = value;
+        }
+        
+        @Override
+        public Buffer get(Buffer src) throws ProtocolException {
+            value = (src.getByte() == 0x00);    
+            return src;
+        }
+
+        @Override
+        public Buffer put(Buffer dst) throws ProtocolException {
+            byte bval = (value)?(byte)0x01:(byte)0x00;
+            return dst.put(bval);
+        }        
+    }
+    
+    private static class StringSerial implements Serializable {
+        public byte type;
+        public String value = null;
+        
+        StringSerial(byte type, String value) {
+            this.type = type;
+            this.value = value;
+        }
+        
+        @Override
+        public Buffer get(Buffer src) throws ProtocolException {
+            short size = 0;
+            if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16){
+                size = (short)(type - Tag.TAGTYPE_STR1 + 1);
+            } else {
+                size = src.getShort();
+            }
+            
+            byte[] data = new byte[size];
+            src.get(data);
+            try {
+                value = new String(data, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new ProtocolException(e);
+            }
+            
+            return src;
+        }
+        
+        @Override
+        public Buffer put(Buffer dst) throws ProtocolException {
+            try {
+                byte[] data = value.getBytes("UTF-8");
+                if (type == Tag.TAGTYPE_STRING)
+                    dst.put((short)data.length);            
+                dst.put(data);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return dst;
+        }
+    }
+    
+    public final class BoolArraySerial implements Serializable {    
+        private final UInt16 length = uint16();
+        private byte value[] = null;               
+        
+        @Override
+        public Buffer put(Buffer dst) throws ProtocolException {
+            assert(false);
+            return dst;
+        }
+
+        @Override
+        public Buffer get(Buffer src) throws ProtocolException {
+            length.get(src);
+            value = new byte[length.intValue() / 8];
+            return src.get(value);
+        }
+    }
+    
+    protected byte type;
+    protected byte id;
+    String name = null;
+    Serializable value = null;
+    float float_value;    
+    
+    private Tag(byte type, byte id, String name, Serializable value) {
         this.type = type;
         this.id = id;
         this.name = name;
-        assert(name != null || this.id != FT_UNDEFINED);
+        this.value = value;
     }
     
-    @Override
-    public Buffer put(Buffer dst) throws ProtocolException {       
-        if (name == null){
-            dst.put((byte)(type | 0x80));
-            dst.put(id);
-        } else {
-            byte[] data = name.getBytes(Charset.forName("UTF-8"));
-            dst.put(type).put((short)data.length).put(data);
-        }
-        
-        return dst;
+    // uninitialized instance of Tag
+    public Tag() {
+        this.type = TAGTYPE_UNDEFINED;
+        this.id = FT_UNDEFINED;
     }
+    
+    @Override 
+    public Buffer get(Buffer src) throws ProtocolException {
+        this.type = src.getByte();
         
-    public static Tag extractTag(Buffer src) throws ProtocolException {
-        byte type = src.getByte();
-        byte id = FT_UNDEFINED;
-        String name = null;
         if ((type & 0x80) != 0){
             type = (byte)(type & 0x7f);
             id = src.getByte();
-        } else {
-            
-            ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());
-            
-            if (bc.size.intValue() == 1){
+        } else {            
+            ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());            
+            if (bc.size.intValue() == 1) {
                 id = bc.value[0];
             } else {
                 name = bc.toString();
-            }           
+            }
         }
-        
-        Tag result = null;
         
         switch(type){
         case TAGTYPE_UINT8:
-            result = valueOf(id, name, uint8());
+            value = uint8();
             break;
         case TAGTYPE_UINT16:
-            result = valueOf(id, name, uint16());
+            value = uint16();
             break;
         case TAGTYPE_UINT32:
-            result = valueOf(id, name, uint32());
+            value = uint32();
             break;
         case TAGTYPE_UINT64:
-            result = valueOf(id, name, uint64());
+            value = uint64();
         case TAGTYPE_FLOAT32:
-            result = valueOf(id, name, 0.0f);
+            value = new FloatSerial(0.0f);
             break;
         case TAGTYPE_BOOL:
-            result = valueOf(id, name, false);
+            value = new BooleanSerial(false);
             break;
         case TAGTYPE_STR1:
         case TAGTYPE_STR2:
@@ -176,43 +266,122 @@ public abstract class Tag implements Serializable {
         case TAGTYPE_STR14:
         case TAGTYPE_STR15:
         case TAGTYPE_STR16:
-            result = valueOf(id, name, new String());
+            value = new StringSerial(type, null);
             break;
         case TAGTYPE_BLOB:
-            result = valueOf(id, name, (byte[])null);
+            value = new ByteContainer<UInt32>(uint32());
             break;
         case TAGTYPE_BOOLARRAY:
-            result = new BoolArrayTag(Tag.TAGTYPE_BOOLARRAY, id, name);
+            value = new BoolArraySerial();
+            break;
+        case TAGTYPE_HASH16:
+            value = new Hash();
             break;
         default:
-            throw new ProtocolException(null);
+            throw new ProtocolException("Unknown tag type " + Utils.byte2String(type));
         };
-                
-        result.get(src);
-        return result;
+        
+        assert(value != null);
+        value.get(src);        
+        return src;
     }
     
-    public static Tag tag(byte id, String name, int value) {
-        return valueOf(id, name, uint32(value));
+    @Override
+    public Buffer put(Buffer dst) throws ProtocolException {
+        assert(initialized());
+        assert(value != null);
+        if (name == null){
+            dst.put((byte)(type | 0x80));
+            dst.put(id);
+        } else {
+            byte[] data = name.getBytes(Charset.forName("UTF-8"));
+            dst.put(type).put((short)data.length).put(data);
+        }
+        
+        return value.put(dst);
+    }
+    
+    public final boolean initialized() {
+        return type != TAGTYPE_UNDEFINED && (id != FT_UNDEFINED || name != null);
+    }
+    
+    public final byte type() {
+        return type;
+    }
+    
+    public final byte id() {
+        return id;
+    }
+    
+    public final String name() {
+        return name;
+    }
+    
+    public final String stringValue() throws ProtocolException {
+        assert(initialized());
+        StringSerial ss = (StringSerial)value;
+        if (ss == null) throw new ProtocolException("Ivalid cast tag to string");
+        return ss.value;
+    }
+    
+    public final int intValue() throws ProtocolException {
+        assert(initialized());
+        UNumber n = (UNumber)value;
+        if (value == null)  throw new ProtocolException("Invalid cast tag to int");        
+        return n.intValue();
+    }
+    
+    public final long longValue() throws ProtocolException {
+        assert(initialized());
+        UNumber n = (UNumber)value;
+        if (n == null) throw new ProtocolException("Invalid cast tag to long");
+        return n.longValue();
+    }
+    
+    public final float floatValue() throws ProtocolException {
+        assert(initialized());
+        FloatSerial fs = (FloatSerial)value;
+        if (fs == null) throw new ProtocolException("Invalid cast tag to float");
+        return fs.value;
+    }
+    
+    public final Hash hashValue() throws ProtocolException {
+        assert(initialized());
+        Hash h = (Hash)value;
+        if (h == null) throw new ProtocolException("Invalid cast tag to hash");
+        return h;
+    }
+    
+    public static Tag tag(byte id, String name, int value) {        
+        return new Tag(TAGTYPE_UINT32, id, name, uint32(value));
     }
     
     public static Tag tag(byte id, String name, short value) {
-        return valueOf(id, name, uint16(value));
+        return new Tag(TAGTYPE_UINT16, id, name, uint16(value));
     }
     
     public static Tag tag(byte id, String name, byte value) {
-        return valueOf(id, name, uint8(value));
+        return new Tag(TAGTYPE_UINT8, id, name, uint8(value));
     }
     
     public static Tag tag(byte id, String name, boolean value) {
-        return valueOf(id, name, value);
+        return new Tag(TAGTYPE_BOOL, id, name, new BooleanSerial(value));
     }
     
     public static Tag tag(byte id, String name, float value) {
-        return valueOf(id, name, value);
+        return new Tag(TAGTYPE_FLOAT32, id, name, new FloatSerial(value));
     }
     
     public static Tag tag(byte id, String name, String value) throws ProtocolException {
-        return valueOf(id, name, value);
+        byte type = Tag.TAGTYPE_STRING;
+        
+        try {
+            int bytesCount = value.getBytes("UTF-8").length; 
+            if (bytesCount <= 16) type = (byte)(Tag.TAGTYPE_STR1 + bytesCount - 1);
+        } catch(UnsupportedEncodingException ex) {
+            throw new ProtocolException(ex);
+        }
+        
+        return new Tag(type, id, name, new StringSerial(type, value));
     }
 }

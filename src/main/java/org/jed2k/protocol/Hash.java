@@ -1,9 +1,10 @@
 package org.jed2k.protocol;
 
 import org.jed2k.hash.MD4;
+import static org.jed2k.Utils.byte2String;
 
 public final class Hash implements Serializable{
-    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+    
     private final byte[] value = { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
@@ -39,13 +40,7 @@ public final class Hash implements Serializable{
     
     @Override
     public String toString() {
-        char[] hexChars = new char[value.length * 2];
-        for ( int j = 0; j < value.length; j++ ) {
-            int v = value[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
+        return byte2String(value);
     }
     
     @Override
