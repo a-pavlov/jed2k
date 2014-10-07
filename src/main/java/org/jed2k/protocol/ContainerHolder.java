@@ -18,7 +18,7 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
   public Buffer get(Buffer src) throws ProtocolException {
     size.get(src);
     try {
-        for(int i = 0; i < size.intValue(); ++i){
+        for(int i = 0; i < size.intValue(); ++i) {            
             Elem e = clazz.newInstance();
             e.get(src);
             collection.add(e);

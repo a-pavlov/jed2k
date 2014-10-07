@@ -24,8 +24,6 @@ public class TagTest {
         assertEquals(Tag.TAGTYPE_FLOAT32, floatTag.type());
     }
     
-    
-    
     @Test
     public void testTagReading() throws ProtocolException {                
         byte[] source =
