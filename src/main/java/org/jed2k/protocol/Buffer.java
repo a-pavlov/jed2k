@@ -21,4 +21,7 @@ public abstract class Buffer {
     public abstract short getShort() throws ProtocolException;
     public abstract int getInt() throws ProtocolException;
     public abstract float getFloat() throws ProtocolException;
+    public abstract Buffer position(int newPosition) throws ProtocolException;
+    public abstract int limit();
+    public abstract int remaining();
 }

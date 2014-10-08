@@ -1,22 +1,20 @@
 package org.jed2k.protocol;
 
-import static org.jed2k.protocol.Unsigned.uint8;
-
 public class PacketKey implements Comparable<PacketKey> {
-    public final UInt8 protocol = uint8();
-    public final UInt8 packet   = uint8();
+    public final byte protocol;
+    public final byte packet;
 
-    PacketKey(byte protocol, byte packet) {
-        this.protocol.assign(protocol);
-        this.packet.assign(packet);
+    PacketKey(byte protocol, byte packet) {        
+        this.protocol   = protocol;
+        this.packet     = packet;
     }
 
     @Override
     public int compareTo(PacketKey pk) {
-        if (this.protocol.compareTo(pk.protocol) == 1) return 1;
-        if (this.protocol.compareTo(pk.protocol) == -1) return -1;
-        if (this.packet.compareTo(pk.packet) == 1) return 1;
-        if (this.packet.compareTo(pk.packet) == -1) return -1;
+        if (protocol > pk.protocol) return 1;
+        if (protocol < pk.protocol) return -1;
+        if (packet > pk.packet) return 1;
+        if (packet < pk.packet) return -1;
         return 0;
     }
 }

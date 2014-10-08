@@ -115,4 +115,24 @@ public class NetworkBuffer extends Buffer{
     public float getFloat() {
         return originator.getFloat();
     }
+    
+    @Override
+    public Buffer position(int newPosition) throws ProtocolException {
+        try {
+            originator.position(newPosition);
+            return this;
+        } catch(IllegalArgumentException ex) {
+            throw new ProtocolException(ex);
+        }
+    }
+    
+    @Override
+    public int limit() {
+        return originator.limit();
+    }
+
+    @Override
+    public int remaining() {
+        return originator.remaining();
+    }
 }
