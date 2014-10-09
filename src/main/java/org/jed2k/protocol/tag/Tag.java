@@ -101,6 +101,29 @@ public final class Tag implements Serializable {
     public static final byte FT_COMPLETE_SOURCES   = (byte)0x30;    // nr. of sources which share a
     public static final byte FT_FAST_RESUME_DATA   = (byte)0x31;   // fast resume data array
     
+    public static final byte CT_NAME                         = (byte)0x01;
+    public static final byte CT_SERVER_UDPSEARCH_FLAGS       = (byte)0x0E;
+    public static final byte CT_PORT                         = (byte)0x0F;
+    public static final byte CT_VERSION                      = (byte)0x11;
+    public static final byte CT_SERVER_FLAGS                 = (byte)0x20; // currently only used to inform a server about supported features
+    public static final byte CT_EMULECOMPAT_OPTIONS          = (byte)0xEF;
+    public static final byte CT_EMULE_RESERVED1              = (byte)0xF0;
+    public static final byte CT_EMULE_RESERVED2              = (byte)0xF1;
+    public static final byte CT_EMULE_RESERVED3              = (byte)0xF2;
+    public static final byte CT_EMULE_RESERVED4              = (byte)0xF3;
+    public static final byte CT_EMULE_RESERVED5              = (byte)0xF4;
+    public static final byte CT_EMULE_RESERVED6              = (byte)0xF5;
+    public static final byte CT_EMULE_RESERVED7              = (byte)0xF6;
+    public static final byte CT_EMULE_RESERVED8              = (byte)0xF7;
+    public static final byte CT_EMULE_RESERVED9              = (byte)0xF8;
+    public static final byte CT_EMULE_UDPPORTS               = (byte)0xF9;
+    public static final byte CT_EMULE_MISCOPTIONS1           = (byte)0xFA;
+    public static final byte CT_EMULE_VERSION                = (byte)0xFB;
+    public static final byte CT_EMULE_BUDDYIP                = (byte)0xFC;
+    public static final byte CT_EMULE_BUDDYUDP               = (byte)0xFD;
+    public static final byte CT_EMULE_MISCOPTIONS2           = (byte)0xFE;
+    public static final byte CT_EMULE_RESERVED13             = (byte)0xFF;
+    
     
     private static class FloatSerial implements Serializable {
         public float value;        

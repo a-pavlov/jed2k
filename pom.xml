@@ -5,7 +5,7 @@
 
     <groupId>org.dkf</groupId>
     <artifactId>jed2k</artifactId>
-    <version>0.9.2-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>jed2k</name>
@@ -24,6 +24,20 @@
         <finalName>${project.artifactId}-${project.version}</finalName>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.jed2k.Conn</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -60,6 +74,7 @@
                 </configuration>
             </plugin>
 
+            <!-- 
             <plugin>
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -90,7 +105,7 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
+-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-eclipse-plugin</artifactId>

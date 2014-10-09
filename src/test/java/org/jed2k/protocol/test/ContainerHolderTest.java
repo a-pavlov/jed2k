@@ -32,10 +32,10 @@ public class ContainerHolderTest{
       assertEquals(2, cni.size());
       assertEquals(2, cni.sizeCollection());
       
-      assertEquals(1, nets.get(0).client_id.intValue());
-      assertEquals(2, nets.get(1).client_id.intValue());
+      assertEquals(1, nets.get(0).ip);
+      assertEquals(2, nets.get(1).ip);
       
-      assertEquals(5, nets.get(0).port.intValue());
-      assertEquals(6, nets.get(1).port.intValue());
+      assertEquals(5, nets.get(0).port);
+      assertEquals(6, nets.get(1).port);
     }
 }

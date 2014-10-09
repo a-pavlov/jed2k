@@ -19,11 +19,9 @@ public class NetworkIdentifierTest{
     };
     
     NetworkIdentifier ni = new NetworkIdentifier();
-    assertTrue(ni.client_id != null);
-    assertTrue(ni.port != null);
     NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(source));
     ni.get(nb);
-    assertEquals(1, ni.client_id.intValue());
-    assertEquals(1, ni.port.intValue());    
+    assertEquals(1, ni.ip);
+    assertEquals(1, ni.port);    
   }
 }

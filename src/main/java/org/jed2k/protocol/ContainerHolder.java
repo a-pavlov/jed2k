@@ -14,6 +14,10 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
       this.clazz = clazz;
   }
   
+  public void add(Elem e) {
+      collection.add(e);
+  }
+  
   @Override
   public Buffer get(Buffer src) throws ProtocolException {
     size.get(src);

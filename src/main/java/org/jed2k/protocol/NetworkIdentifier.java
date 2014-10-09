@@ -1,19 +1,26 @@
 package org.jed2k.protocol;
 
-import static org.jed2k.protocol.Unsigned.uint16;
-import static org.jed2k.protocol.Unsigned.uint32;
-
 public final class NetworkIdentifier implements Serializable {
-    public final UInt32 client_id = uint32();
-    public final UInt16 port = uint16();
+    public int ip = 0;
+    public short port = 0;
 
+    public NetworkIdentifier() {
+    }
+    
+    public NetworkIdentifier(int ip, short port) {
+        this.ip = ip;
+        this.port = port;
+    }
+    
     @Override
     public Buffer get(Buffer src) throws ProtocolException {
-        return src.get(client_id).get(port);
+        ip = src.getInt();
+        port = src.getShort();
+        return src;
     }
 
     @Override
     public Buffer put(Buffer dst) throws ProtocolException {
-        return dst.put(client_id).put(port);
+        return dst.put(ip).put(port);
     }
 }
