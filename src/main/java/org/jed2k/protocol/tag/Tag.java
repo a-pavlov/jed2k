@@ -185,6 +185,7 @@ public final class Tag implements Serializable {
             try {
                 value = new String(data, "UTF-8");
             } catch (UnsupportedEncodingException e) {
+                log.severe(e.getMessage());
                 throw new ProtocolException(e);
             }
             
@@ -199,7 +200,8 @@ public final class Tag implements Serializable {
                     dst.put((short)data.length);            
                 dst.put(data);
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                log.severe(e.getMessage());
+                throw new ProtocolException(e);
             }
             return dst;
         }
@@ -309,6 +311,7 @@ public final class Tag implements Serializable {
             value = new Hash();
             break;
         default:
+            log.warning("Unknown tag type: " + Utils.byte2String(type));
             throw new ProtocolException("Unknown tag type " + Utils.byte2String(type));
         };
         
@@ -328,6 +331,7 @@ public final class Tag implements Serializable {
             byte[] data = name.getBytes(Charset.forName("UTF-8"));
             dst.put(type).put((short)data.length).put(data);
         }
+       
         
         return value.put(dst);
     }
