@@ -29,7 +29,7 @@ public class ContainerHolderTest{
       assertTrue(cni != null);
       NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(source));
       cni.get(nb);
-      assertEquals(2, cni.size());
+      assertEquals(2, cni.count());
       assertEquals(2, cni.sizeCollection());
       
       assertEquals(1, nets.get(0).ip);

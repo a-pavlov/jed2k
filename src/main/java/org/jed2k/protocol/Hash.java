@@ -62,4 +62,9 @@ public final class Hash implements Serializable{
     public Buffer put(Buffer dst) throws ProtocolException {
         return dst.put(value);
     }
+
+    @Override
+    public int size() {
+        return MD4.HASH_SIZE;
+    }
 }

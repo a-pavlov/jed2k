@@ -2,7 +2,6 @@ package org.jed2k.protocol;
 
 import java.math.BigInteger;
 
-
 public class UInt64 extends UNumber implements Comparable<UInt64>{
     /**
      * Generated UID
@@ -102,5 +101,10 @@ public class UInt64 extends UNumber implements Comparable<UInt64>{
     public UNumber assign(long value) {
         this.value = value;
         return this;
+    }
+
+    @Override
+    public int size() {
+        return 8;        
     }
 }

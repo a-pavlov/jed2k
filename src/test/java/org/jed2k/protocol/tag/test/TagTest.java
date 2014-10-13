@@ -42,7 +42,7 @@ public class TagTest {
         ByteBuffer ob = ByteBuffer.wrap(source);
         NetworkBuffer nb = new NetworkBuffer(ob);
         tags.get(nb);
-        assertEquals(9, tags.size());
+        assertEquals(9, tags.count());
         assertEquals(0, ob.remaining());
         assertEquals(0xED, atags.get(0).intValue());
         assertEquals(0x0D0A, atags.get(1).intValue());

@@ -11,5 +11,10 @@ public class ServerList implements Serializable {
     public Buffer put(Buffer dst) throws ProtocolException {
         return dst;
     }
+
+    @Override
+    public int size() {        
+        return 0;
+    }
     
 }

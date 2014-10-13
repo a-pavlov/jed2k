@@ -1,5 +1,7 @@
 package org.jed2k.protocol;
 
+import static org.jed2k.Utils.sizeof;
+
 public class UInt8 extends UNumber implements Comparable<UInt8> {
   
   private static final long    serialVersionUID = -6821055240959745390L;
@@ -84,5 +86,10 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
   public UNumber assign(int value) {
     container = (byte)value;
     return this;
-  } 
+  }
+
+@Override
+public int size() {
+    return sizeof(container);
+} 
 }

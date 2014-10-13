@@ -1,5 +1,7 @@
 package org.jed2k.protocol;
 
+import static org.jed2k.Utils.sizeof;
+
 public class ServerStatus implements Serializable {
     public int usersCount = 0;
     public int filesCount = 0;
@@ -15,6 +17,11 @@ public class ServerStatus implements Serializable {
     @Override
     public Buffer put(Buffer dst) throws ProtocolException {
         return dst.put(usersCount).put(filesCount);        
+    }
+
+    @Override
+    public int size() {
+        return sizeof(usersCount) + sizeof(filesCount);
     }
     
 }

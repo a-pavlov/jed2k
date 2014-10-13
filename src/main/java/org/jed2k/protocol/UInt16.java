@@ -1,5 +1,6 @@
 package org.jed2k.protocol;
 
+import static org.jed2k.Utils.sizeof;
 
 public class UInt16 extends UNumber implements Comparable<UInt16>{
 
@@ -98,6 +99,11 @@ public class UInt16 extends UNumber implements Comparable<UInt16>{
     public UNumber assign(int value) {
       this.value = (short)value;
       return this;
+    }
+
+    @Override
+    public int size() {
+        return sizeof(value);
     }
     
 }

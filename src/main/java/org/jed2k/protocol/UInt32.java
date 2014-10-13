@@ -1,5 +1,6 @@
 package org.jed2k.protocol;
 
+import static org.jed2k.Utils.sizeof;
 
 public class UInt32 extends UNumber implements Comparable<UInt32>{
     /**
@@ -106,6 +107,11 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
         }
 
         return false;
+    }
+
+    @Override
+    public int size() {
+        return sizeof(value);
     }
 
 }

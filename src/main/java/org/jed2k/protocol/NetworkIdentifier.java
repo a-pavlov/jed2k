@@ -1,4 +1,5 @@
 package org.jed2k.protocol;
+import static org.jed2k.Utils.sizeof;
 
 public final class NetworkIdentifier implements Serializable {
     public int ip = 0;
@@ -22,5 +23,10 @@ public final class NetworkIdentifier implements Serializable {
     @Override
     public Buffer put(Buffer dst) throws ProtocolException {
         return dst.put(ip).put(port);
+    }
+    
+    @Override
+    public int size() {
+        return sizeof(ip) + sizeof(port);
     }
 }

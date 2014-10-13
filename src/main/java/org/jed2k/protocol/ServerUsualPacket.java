@@ -18,4 +18,9 @@ public class ServerUsualPacket implements Serializable {
     public Buffer put(Buffer dst) throws ProtocolException {
         return properties.put(point.put(hash.put(dst)));
     }
+
+    @Override
+    public int size() {
+        return hash.size() + point.size() + properties.size();
+    }
 }

@@ -1,6 +1,7 @@
 package org.jed2k.protocol.tag;
 
 import java.io.UnsupportedEncodingException;
+
 import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ import static org.jed2k.protocol.Unsigned.uint8;
 import static org.jed2k.protocol.Unsigned.uint16;
 import static org.jed2k.protocol.Unsigned.uint32;
 import static org.jed2k.protocol.Unsigned.uint64;
+import static org.jed2k.Utils.sizeof;
 
 public final class Tag implements Serializable {
 
@@ -140,6 +142,12 @@ public final class Tag implements Serializable {
 
         @Override
         public Buffer put(Buffer dst) throws ProtocolException {  return dst.put(value); }
+
+        @Override
+        public int size() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
     }
     
     private static class BooleanSerial implements Serializable {
@@ -159,6 +167,11 @@ public final class Tag implements Serializable {
         public Buffer put(Buffer dst) throws ProtocolException {
             byte bval = (value)?(byte)0x01:(byte)0x00;
             return dst.put(bval);
+        }
+
+        @Override
+        public int size() {
+            return sizeof(value);
         }        
     }
     
@@ -205,6 +218,12 @@ public final class Tag implements Serializable {
             }
             return dst;
         }
+
+        @Override
+        public int size() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
     }
     
     public final class BoolArraySerial implements Serializable {    
@@ -222,6 +241,11 @@ public final class Tag implements Serializable {
             length.get(src);
             value = new byte[length.intValue() / 8];
             return src.get(value);
+        }
+
+        @Override
+        public int size() {
+            return length.size() + length.size()/8;
         }
     }
     
@@ -422,5 +446,11 @@ public final class Tag implements Serializable {
     
     public static Tag tag(byte id, String name, Hash value) throws ProtocolException {
         return new Tag(TAGTYPE_HASH16, id, name, value);
+    }
+
+    @Override
+    public int size() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

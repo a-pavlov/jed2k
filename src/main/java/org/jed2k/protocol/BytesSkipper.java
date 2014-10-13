@@ -17,4 +17,11 @@ public class BytesSkipper implements Serializable {
         assert(false);
         return dst;
     }
+
+    @Override
+    public int size() {
+        return skip_amount;
+    }
+    
+    
 }

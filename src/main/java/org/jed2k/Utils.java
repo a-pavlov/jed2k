@@ -18,4 +18,24 @@ public final class Utils {
         byte b[] = {value};
         return byte2String(b);
     }
+    
+    public static final int sizeof(byte value) {
+        return 1;
+    }
+    
+    public static final int sizeof(short value) {
+        return 2;
+    }
+    
+    public static final int sizeof(int value) {
+        return 4;
+    }
+    
+    public static final int sizeof(float value) {
+        return 4;
+    }
+    
+    public static final int sizeof(boolean value) {
+        return 1;
+    }
 }
