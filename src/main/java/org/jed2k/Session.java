@@ -11,9 +11,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
+import org.jed2k.protocol.ProtocolException;
+
 public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName()); 
-    private Selector selector = null;
+    Selector selector = null;
     private ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<Runnable>();
     private ServerConnection sc = null;
     private ServerSocketChannel ssc = null;
@@ -27,7 +29,9 @@ public class Session extends Thread {
             ssc.socket().bind(new InetSocketAddress(4661));
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
-            
+            ServerConnection sc = new ServerConnection(this, new InetSocketAddress("emule.is74.ru", 4661));
+            sc.connect();
+            boolean once = true;
             while(!isInterrupted()) {
                 int channelCount = selector.select(1000);
                 if (channelCount != 0) {
@@ -49,14 +53,25 @@ public class Session extends Thread {
                       } else if (key.isConnectable()) {
                           // a connection was established with a remote server.
                           log.info("Key is connectable");
-    
+                          ServerConnection sconn = (ServerConnection)key.attachment();
+                          sconn.finishConnection();
+                          key.interestOps(SelectionKey.OP_WRITE);
                       } else if (key.isReadable()) {
                           // a channel is ready for reading
                           log.info("Key is readable");
+                          ServerConnection sconn = (ServerConnection)key.attachment();
+                          sconn.read();
     
                       } else if (key.isWritable()) {
                           // a channel is ready for writing
                           log.info("Key is writeable");
+                          ServerConnection sconn = (ServerConnection)key.attachment();
+                          if (once) {
+                              sconn.writeHello();
+                              once = false;
+                          }
+                          
+                          key.interestOps(SelectionKey.OP_READ);
                       }
     
                       keyIterator.remove();
@@ -72,7 +87,10 @@ public class Session extends Thread {
             }
         }
         catch(IOException e) {
-            
+            log.severe(e.getMessage());
+        }
+        catch(ProtocolException e) {
+            log.severe(e.getMessage());
         }
         finally {
             log.info("Session finished");
@@ -93,7 +111,7 @@ public class Session extends Thread {
                     sc.close();
                 }
                 
-                sc = new ServerConnection(address);
+                sc = new ServerConnection(Session.this, address);
             }
         });
     }
