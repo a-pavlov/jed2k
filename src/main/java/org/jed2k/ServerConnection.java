@@ -1,8 +1,10 @@
 package org.jed2k;
 
 import java.io.IOException;
+
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -13,11 +15,13 @@ import java.util.logging.Logger;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
 import org.jed2k.protocol.NetworkBuffer;
+import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.tag.Tag.tag;
+import static org.jed2k.Utils.byte2String;
 
 public class ServerConnection {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
@@ -29,12 +33,15 @@ public class ServerConnection {
     private LinkedList<Serializable> outgoingOrder = new LinkedList<Serializable>();
     private boolean writeInProgress = false;
     private SelectionKey key = null;
+    private final PacketCombiner packetCombainer = new PacketCombiner();
     
     public ServerConnection(Session ses, final InetSocketAddress address) {
             this.ses = ses;
             this.address = address;
             bufferIncoming = ByteBuffer.allocate(1024);
-            bufferOutgoing = ByteBuffer.allocate(1024);            
+            bufferOutgoing = ByteBuffer.allocate(1024);          
+            bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
+            bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
     }
     
     public boolean prepareConnection() {
@@ -70,15 +77,29 @@ public class ServerConnection {
     public void readyRead() {
         try {
             int bytes = socket.read(bufferIncoming);
-            log.info("Read bytes: " + bytes);
             if (bytes == -1) {
                 close();
+                return;
+            }
+            
+            //bufferIncoming.flip();
+            byte[] rspData = new byte[bytes];
+            System.arraycopy(bufferIncoming.array(), 0, rspData, 0, bytes);
+            log.info(byte2String(rspData));
+            log.info("Read bytes: " + bytes);            
+            
+            Serializable packet = packetCombainer.combine(new NetworkBuffer(bufferIncoming));
+            if (packet != null) {
+                log.info("receive packet");
             }
             // process incoming packet
         } catch(IOException e) {
             log.warning(e.getMessage());
-            close();
+        } catch(ProtocolException e) {
+            log.warning(e.getMessage());
         }
+        
+        close();
     }
     
     public void readyWrite() {

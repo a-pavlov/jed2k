@@ -1,4 +1,5 @@
 package org.jed2k.protocol;
+import static org.jed2k.Utils.byte2String;
 
 public class PacketHeader implements Serializable {
     public static byte OP_UNDEFINED     = (byte)0;
@@ -34,11 +35,11 @@ public class PacketHeader implements Serializable {
         packet = src.getByte();
         
         if (!isDefined()) {
-            throw new ProtocolException("Incorrect packet header content");
+            throw new ProtocolException("Incorrect packet header content protocol: " + byte2String(protocol) + " opcode " + byte2String(packet));
         }
         
         if (size > MAX_SIZE || size < 0) {
-            throw new ProtocolException("Packet size too large");
+            throw new ProtocolException("Packet size too large: " + size);
         }
         
         return src;

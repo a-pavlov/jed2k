@@ -2,8 +2,11 @@ package org.jed2k.protocol;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 public class PacketCombiner {
+    
+    private static Logger log = Logger.getLogger(PacketCombiner.class.getName());
     
     enum ProtocolType {
         OP_EDONKEYHEADER(0xE3), 
@@ -87,14 +90,16 @@ public class PacketCombiner {
     static {
         supportedPackets = new TreeMap<PacketKey, Class<? extends Serializable>>();
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_LOGINREQUEST.value, LoginRequest.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERLIST.value, ServerList.class);        
-        
+        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERLIST.value, ServerList.class);
+        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERMESSAGE.value, ServerMessage.class);
+        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERSTATUS.value, ServerStatus.class);        
     }
     
     public Serializable combine(Buffer src) throws ProtocolException {
         if (!header.isDefined()) {
             if (src.remaining() >= header.size()) {
                 header.get(src);
+                log.info("header initialized, size: " + header.size);
             } else {
                 return null;
             }
