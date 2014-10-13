@@ -30,14 +30,13 @@ public class Session extends Thread {
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
             ServerConnection sc = new ServerConnection(this, new InetSocketAddress("emule.is74.ru", 4661));
+            sc.prepareConnection();
             sc.connect();
-            boolean once = true;
             while(!isInterrupted()) {
                 int channelCount = selector.select(1000);
                 if (channelCount != 0) {
                     // process channels
                     Set<SelectionKey> selectedKeys = selector.selectedKeys();
-    
                     Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
     
                     while(keyIterator.hasNext()) {
@@ -49,28 +48,21 @@ public class Session extends Thread {
                           log.info("Key is acceptable");
                           SocketChannel socket = ssc.accept();
                           socket.close();
-    
                       } else if (key.isConnectable()) {
                           // a connection was established with a remote server.
                           log.info("Key is connectable");
                           ServerConnection sconn = (ServerConnection)key.attachment();
-                          sconn.finishConnection();
-                          key.interestOps(SelectionKey.OP_WRITE);
+                          sconn.readyConnect();
                       } else if (key.isReadable()) {
                           // a channel is ready for reading
                           log.info("Key is readable");
                           ServerConnection sconn = (ServerConnection)key.attachment();
-                          sconn.read();
-    
+                          sconn.readyRead();
                       } else if (key.isWritable()) {
                           // a channel is ready for writing
                           log.info("Key is writeable");
                           ServerConnection sconn = (ServerConnection)key.attachment();
-                          if (once) {
-                              sconn.writeHello();
-                              once = false;
-                          }
-                          
+                          sconn.readyWrite();                          
                           key.interestOps(SelectionKey.OP_READ);
                       }
     
@@ -87,9 +79,6 @@ public class Session extends Thread {
             }
         }
         catch(IOException e) {
-            log.severe(e.getMessage());
-        }
-        catch(ProtocolException e) {
             log.severe(e.getMessage());
         }
         finally {
