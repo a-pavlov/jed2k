@@ -113,6 +113,7 @@ public class ServerConnection {
             }
             
             if (writeInProgress) {
+                bufferOutgoing.flip();
                 socket.write(bufferOutgoing);
             } else {
                 key.interestOps(SelectionKey.OP_READ);
