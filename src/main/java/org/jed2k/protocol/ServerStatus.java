@@ -5,8 +5,7 @@ import static org.jed2k.Utils.sizeof;
 public class ServerStatus implements Serializable {
     public int usersCount = 0;
     public int filesCount = 0;
-    
-    
+        
     @Override
     public Buffer get(Buffer src) throws ProtocolException {
         usersCount = src.getInt();
@@ -24,4 +23,8 @@ public class ServerStatus implements Serializable {
         return sizeof(usersCount) + sizeof(filesCount);
     }
     
+    @Override
+    public String toString() {
+        return "users: " + usersCount + " files: " + filesCount;  
+    }
 }

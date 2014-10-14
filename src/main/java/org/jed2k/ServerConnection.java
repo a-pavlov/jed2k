@@ -83,15 +83,10 @@ public class ServerConnection {
                 return;
             }
             
-            bufferIncoming.flip();
-            byte[] rspData = new byte[bytes];
-            System.arraycopy(bufferIncoming.array(), 0, rspData, 0, bytes);
-            log.info(byte2String(rspData));
-            log.info("Read bytes: " + bytes);            
-            
+            bufferIncoming.flip();            
             Serializable packet = packetCombainer.unpack(new NetworkBuffer(bufferIncoming));
             if (packet != null) {
-                log.info("receive packet");
+                log.info("receive " + packet);
             }
             // process incoming packet
         } catch(IOException e) {

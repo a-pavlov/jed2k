@@ -49,6 +49,6 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     @Override
     public int size() {
         return size.size() + size.intValue();        
-    }   
+    }
     
 }
