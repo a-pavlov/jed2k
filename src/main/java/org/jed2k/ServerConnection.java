@@ -35,29 +35,30 @@ public class ServerConnection {
     private SelectionKey key = null;
     private final PacketCombiner packetCombainer = new PacketCombiner();
     
-    public ServerConnection(Session ses, final InetSocketAddress address) {
+    private ServerConnection(Session ses, final InetSocketAddress address) {
             this.ses = ses;
             this.address = address;
-            bufferIncoming = ByteBuffer.allocate(1024);
-            bufferOutgoing = ByteBuffer.allocate(1024);          
-            bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
-            bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
+            
     }
     
-    public boolean prepareConnection() {
+    public static ServerConnection getServerConnection(Session ses, final InetSocketAddress address) {
         try {
-            socket = SocketChannel.open();
-            socket.configureBlocking(false);
-            key = socket.register(ses.selector, SelectionKey.OP_CONNECT, this);
-            assert(key != null);
-            return true;
+            ServerConnection res = new ServerConnection(ses, address);
+            res.bufferIncoming = ByteBuffer.allocate(1024);
+            res.bufferOutgoing = ByteBuffer.allocate(1024);
+            res.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
+            res.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
+            res.socket = SocketChannel.open();
+            res.socket.configureBlocking(false);
+            res.key = res.socket.register(ses.selector, SelectionKey.OP_CONNECT, res);
+            return res;
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
             
-        }    
+        }
         
-        return false;
+        return null;
     }
     
     public void readyConnect() {
@@ -82,13 +83,13 @@ public class ServerConnection {
                 return;
             }
             
-            //bufferIncoming.flip();
+            bufferIncoming.flip();
             byte[] rspData = new byte[bytes];
             System.arraycopy(bufferIncoming.array(), 0, rspData, 0, bytes);
             log.info(byte2String(rspData));
             log.info("Read bytes: " + bytes);            
             
-            Serializable packet = packetCombainer.combine(new NetworkBuffer(bufferIncoming));
+            Serializable packet = packetCombainer.unpack(new NetworkBuffer(bufferIncoming));
             if (packet != null) {
                 log.info("receive packet");
             }
@@ -107,8 +108,7 @@ public class ServerConnection {
             writeInProgress = !outgoingOrder.isEmpty();
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
-                Serializable packet = itr.next();
-                packet.put(new NetworkBuffer(bufferOutgoing));
+                packetCombainer.pack(itr.next(), new NetworkBuffer(bufferOutgoing));                
                 itr.remove();
             }
             

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
+import java.net.InetSocketAddress;
 
 public class Conn {
     private static Logger log = Logger.getLogger(Conn.class.getName());
@@ -24,6 +25,11 @@ public class Conn {
                     e.printStackTrace();
                 }
                 break;
+            }
+            
+            String[] parts = command.split("\\s+");
+            if (parts[0].compareTo("connect") == 0 && parts.length == 3) {
+                s.connectoTo(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])));
             }
         }       
         

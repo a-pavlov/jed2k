@@ -45,10 +45,14 @@ public class TagTest {
         assertEquals(9, tags.count());
         assertEquals(0, ob.remaining());
         assertEquals(0xED, atags.get(0).intValue());
+        assertEquals(3, atags.get(0).size());
         assertEquals(0x0D0A, atags.get(1).intValue());
+        assertEquals(4, atags.get(1).size());
         assertEquals(0x0807060504030201l, atags.get(2).longValue());
+        assertEquals(1 + 2 + "0123".length() + 8, atags.get(2).size());
         assertEquals("ABCD", atags.get(3).name());
         assertEquals("STRING", atags.get(3).stringValue());
+        assertEquals(1 + 2 + "abcd".length() + 2 + "string".length(), atags.get(3).size());
         assertEquals("IVAN", atags.get(4).name());
         assertEquals("APPLE", atags.get(4).stringValue());
     }
@@ -62,12 +66,14 @@ public class TagTest {
         Tag itag = new Tag();
         itag.get(nb);
         assertEquals(Tag.FT_FILEHASH, itag.id());
-        assertEquals(100, itag.intValue());       
+        assertEquals(100, itag.intValue());    
+        assertEquals(6, itag.size());
         Tag stag = new Tag();
         stag.get(nb);
         assertEquals("Test name", stag.name());
         assertEquals("XXX data", stag.stringValue());
         assertEquals(Tag.TAGTYPE_STR8, stag.type());
+        assertEquals(20, stag.size());
         assertEquals(0, bf.remaining());
     }
 }

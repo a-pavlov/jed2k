@@ -1,8 +1,11 @@
 package org.jed2k.protocol;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+
+import static org.jed2k.Utils.byte2String;
 
 public class PacketCombiner {
     
@@ -78,28 +81,33 @@ public class PacketCombiner {
     }
     
     private PacketHeader header = new PacketHeader();
+    private PacketHeader outgoingHeader = new PacketHeader();
     private static final Map<PacketKey, Class<? extends Serializable>> supportedPackets;
+    private static final Map<Class<? extends Serializable>, PacketKey> struct2Key;
     
     private static void addHandler(byte protocol, byte type, Class<? extends Serializable> clazz) {
         PacketKey pk = new PacketKey(protocol, type);
         assert(!supportedPackets.containsKey(pk));
         assert(clazz != null);
         supportedPackets.put(pk, clazz);
-    }
+        struct2Key.put(clazz, pk);
+    }    
     
     static {
         supportedPackets = new TreeMap<PacketKey, Class<? extends Serializable>>();
+        struct2Key = new HashMap<Class<? extends Serializable>, PacketKey>();
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_LOGINREQUEST.value, LoginRequest.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERLIST.value, ServerList.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERMESSAGE.value, ServerMessage.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERSTATUS.value, ServerStatus.class);        
     }
     
-    public Serializable combine(Buffer src) throws ProtocolException {
+    public Serializable unpack(Buffer src) throws ProtocolException {
         if (!header.isDefined()) {
             if (src.remaining() >= header.size()) {
                 header.get(src);
-                log.info("header initialized, size: " + header.size);
+                log.info("header initialized " + header);
+                header.size--;
             } else {
                 return null;
             }
@@ -124,8 +132,25 @@ public class PacketCombiner {
             
             ph.get(src);
             return ph;
+        } else {
+            log.info("remaining " + src.remaining() + " less than packet size body " + header.size);
         }
         
         return null;
+    }
+    
+    public void pack(Serializable object, Buffer dst) throws ProtocolException {
+        PacketKey key = struct2Key.get(object.getClass());
+        assert(key != null);        
+        outgoingHeader.reset(key, object.size() + 1);
+        assert(outgoingHeader.isDefined());
+        log.info(outgoingHeader.toString());
+        outgoingHeader.put(dst);
+        object.put(dst);
+        //NetworkBuffer nb = (NetworkBuffer)dst;
+        //nb.origin().flip();
+        //log.info(outgoingHeader.toString());
+        //log.info("PacketKey: " + key);
+        //log.info(byte2String(nb.origin().array()));
     }
 }

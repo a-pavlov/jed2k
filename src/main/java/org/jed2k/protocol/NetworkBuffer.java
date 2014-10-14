@@ -135,4 +135,8 @@ public class NetworkBuffer extends Buffer{
     public int remaining() {
         return originator.remaining();
     }
+    
+    public ByteBuffer origin() {
+        return originator;
+    }
 }

@@ -29,9 +29,7 @@ public class Session extends Thread {
             ssc.socket().bind(new InetSocketAddress(4661));
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
-            ServerConnection sc = new ServerConnection(this, new InetSocketAddress("emule.is74.ru", 4661));
-            sc.prepareConnection();
-            sc.connect();
+
             while(!isInterrupted()) {
                 int channelCount = selector.select(1000);
                 if (channelCount != 0) {
@@ -100,7 +98,8 @@ public class Session extends Thread {
                     sc.close();
                 }
                 
-                sc = new ServerConnection(Session.this, address);
+                sc = ServerConnection.getServerConnection(Session.this, address);
+                if (sc != null) sc.connect();               
             }
         });
     }

@@ -145,8 +145,7 @@ public final class Tag implements Serializable {
 
         @Override
         public int size() {
-            // TODO Auto-generated method stub
-            return 0;
+            return sizeof(value);            
         }
     }
     
@@ -177,52 +176,46 @@ public final class Tag implements Serializable {
     
     private static class StringSerial implements Serializable {
         public byte type;
-        public String value = null;
+        byte[] value = null;
         
-        StringSerial(byte type, String value) {
+        StringSerial(byte type, byte[] value) {
             this.type = type;
             this.value = value;
         }
-        
+                
         @Override
         public Buffer get(Buffer src) throws ProtocolException {
             short size = 0;
-            if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16){
+            if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16) {
                 size = (short)(type - Tag.TAGTYPE_STR1 + 1);
             } else {
                 size = src.getShort();
             }
             
-            byte[] data = new byte[size];
-            src.get(data);
-            try {
-                value = new String(data, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                log.severe(e.getMessage());
-                throw new ProtocolException(e);
-            }
-            
-            return src;
+            value = new byte[size];
+            return src.get(value);            
         }
         
         @Override
         public Buffer put(Buffer dst) throws ProtocolException {
-            try {
-                byte[] data = value.getBytes("UTF-8");
-                if (type == Tag.TAGTYPE_STRING)
-                    dst.put((short)data.length);            
-                dst.put(data);
-            } catch (UnsupportedEncodingException e) {
-                log.severe(e.getMessage());
-                throw new ProtocolException(e);
-            }
-            return dst;
-        }
+            if (type == Tag.TAGTYPE_STRING) dst.put((short)value.length);            
+            return dst.put(value);            
+        }        
 
         @Override
         public int size() {
-            // TODO Auto-generated method stub
-            return 0;
+            assert(value != null);
+            // for modern tag we do not write 2 bytes for length - so first is 0, but for ordinary string +2 bytes for size
+            return value.length + ((type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16)?0:2);
+        }
+        
+        public String stringValue() throws ProtocolException {
+            assert(value != null);
+            try {                
+                return new String(value, "UTF-8");
+            } catch(UnsupportedEncodingException e) {
+                throw new ProtocolException(e);
+            }
         }
     }
     
@@ -340,7 +333,7 @@ public final class Tag implements Serializable {
         };
         
         assert(value != null);
-        value.get(src);        
+        value.get(src);
         return src;
     }
     
@@ -380,7 +373,7 @@ public final class Tag implements Serializable {
         assert(initialized());
         StringSerial ss = (StringSerial)value;
         if (ss == null) throw new ProtocolException("Ivalid cast tag to string");
-        return ss.value;
+        return ss.stringValue();
     }
     
     public final int intValue() throws ProtocolException {
@@ -433,15 +426,17 @@ public final class Tag implements Serializable {
     
     public static Tag tag(byte id, String name, String value) throws ProtocolException {
         byte type = Tag.TAGTYPE_STRING;
+        byte[] bytes = null;
         
         try {
-            int bytesCount = value.getBytes("UTF-8").length; 
-            if (bytesCount <= 16) type = (byte)(Tag.TAGTYPE_STR1 + bytesCount - 1);
+            bytes = value.getBytes("UTF-8"); 
+            if (bytes.length <= 16) type = (byte)(Tag.TAGTYPE_STR1 + bytes.length - 1);
         } catch(UnsupportedEncodingException ex) {
             throw new ProtocolException(ex);
         }
         
-        return new Tag(type, id, name, new StringSerial(type, value));
+        assert(bytes != null);
+        return new Tag(type, id, name, new StringSerial(type, bytes));
     }
     
     public static Tag tag(byte id, String name, Hash value) throws ProtocolException {
@@ -450,7 +445,11 @@ public final class Tag implements Serializable {
 
     @Override
     public int size() {
-        // TODO Auto-generated method stub
-        return 0;
+        // TODO - fix twice conversion
+        if (name == null){
+            return value.size() + 2;    // type + id
+        } else {                  // type + len + name
+            return value.size() + 1 + 2 + name.getBytes(Charset.forName("UTF-8")).length;
+        }        
     }
 }

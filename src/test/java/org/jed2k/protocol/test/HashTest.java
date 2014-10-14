@@ -17,7 +17,7 @@ public class HashTest{
             (byte)0xE0, (byte)0xC0, (byte)0x89, (byte)0xC0};
 
     @Test
-    public void testInitialization(){
+    public void testInitialization() {
         Hash h = new Hash();
         assertEquals(h, Hash.INVALID);
         assertEquals(h, Hash.fromString("00000000000000000000000000000000"));
@@ -39,5 +39,13 @@ public class HashTest{
         Hash h2 = new Hash();
         h2.get(nbw);
         assertEquals(Hash.LIBED2K, h2);
+    }
+    
+    @Test
+    public void testCompare() {
+        Hash h = new Hash();
+        assertEquals(0, h.compareTo(h));
+        assertEquals(-1, h.compareTo(Hash.TERMINAL));
+        assertEquals(1, Hash.fromString("10000000000000000000000000000000").compareTo(Hash.fromString("0FFFFFFFF00000000000000000000CCC")));
     }
 }

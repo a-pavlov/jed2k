@@ -23,4 +23,9 @@ public class ServerUsualPacket implements Serializable {
     public int size() {
         return hash.size() + point.size() + properties.size();
     }
+    
+    public Tag get(int index) {
+        assert(index < properties.size());
+        return ((ArrayList<Tag>)properties.collection).get(index);
+    }
 }

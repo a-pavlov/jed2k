@@ -22,10 +22,16 @@ public class PacketHeader implements Serializable {
         size = 0;
         packet = OP_UNDEFINED;
     }
+    
+    public void reset(PacketKey key, int size) {
+        this.protocol = key.protocol;
+        this.size = size;
+        this.packet = key.packet;
+    }
 
     @Override
     public String toString() {
-        return new String("Protocol: " + protocol + " size: " + " packet: " + packet);
+        return "packet header {" + byte2String(protocol) + ":" + size + ":" + byte2String(packet) + "}";
     }
 
     @Override

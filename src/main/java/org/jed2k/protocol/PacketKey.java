@@ -1,5 +1,7 @@
 package org.jed2k.protocol;
 
+import static org.jed2k.Utils.byte2String;
+
 public class PacketKey implements Comparable<PacketKey> {
     public final byte protocol;
     public final byte packet;
@@ -16,5 +18,10 @@ public class PacketKey implements Comparable<PacketKey> {
         if (packet > pk.packet) return 1;
         if (packet < pk.packet) return -1;
         return 0;
+    }
+    
+    @Override
+    public String toString() {
+        return "PK {" + byte2String(protocol) + ":" + byte2String(packet) + "}";
     }
 }
