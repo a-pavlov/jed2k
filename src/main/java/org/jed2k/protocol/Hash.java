@@ -4,7 +4,7 @@ import org.jed2k.hash.MD4;
 
 import static org.jed2k.Utils.byte2String;
 
-public final class Hash implements Serializable, Comparable {
+public final class Hash implements Serializable, Comparable<Hash> {
     
     private final byte[] value = { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -70,9 +70,7 @@ public final class Hash implements Serializable, Comparable {
     }
 
     @Override
-    public int compareTo(Object arg) {
-        assert(arg instanceof Hash);
-        Hash h = (Hash)arg;
+    public int compareTo(Hash h) {
         int diff = 0;
         for(int i = 0; i < value.length; ++ i) {
             diff = ((short)value[i] & 0xff) - ((short)h.value[i] & 0xff);

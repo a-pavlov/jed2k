@@ -113,5 +113,10 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
     public int size() {
         return sizeof(value);
     }
+    
+    @Override
+    public String toString() {
+        return "uint32{" + intValue() + "}";
+    }
 
 }

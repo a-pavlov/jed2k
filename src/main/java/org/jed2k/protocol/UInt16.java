@@ -106,4 +106,9 @@ public class UInt16 extends UNumber implements Comparable<UInt16>{
         return sizeof(value);
     }
     
+    @Override
+    public String toString() {
+        return "uint16{" + intValue() + "}";
+    }
+    
 }

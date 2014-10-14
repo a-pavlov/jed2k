@@ -126,6 +126,101 @@ public final class Tag implements Serializable {
     public static final byte CT_EMULE_MISCOPTIONS2           = (byte)0xFE;
     public static final byte CT_EMULE_RESERVED13             = (byte)0xFF;
     
+    public static String type2String(byte id) {
+        switch(id) {
+            case TAGTYPE_UNDEFINED: return "TAGTYPE_UNDEFINED";
+            case TAGTYPE_HASH16: return "TAGTYPE_HASH16";
+            case TAGTYPE_STRING: return "TAGTYPE_STRING";
+            case TAGTYPE_UINT32: return "TAGTYPE_UINT32";
+            case TAGTYPE_FLOAT32: return "TAGTYPE_FLOAT32";
+            case TAGTYPE_BOOL: return "TAGTYPE_BOOL";
+            case TAGTYPE_BOOLARRAY: return "TAGTYPE_BOOLARRAY";
+            case TAGTYPE_BLOB: return "TAGTYPE_BLOB";
+            case TAGTYPE_UINT16: return "TAGTYPE_UINT16";
+            case TAGTYPE_UINT8: return "TAGTYPE_UINT8";
+            case TAGTYPE_BSOB: return "TAGTYPE_BSOB";
+            case TAGTYPE_UINT64: return "TAGTYPE_UINT64";
+    
+            case TAGTYPE_STR1: return "TAGTYPE_STR1";
+            case TAGTYPE_STR2: return "TAGTYPE_STR2";
+            case TAGTYPE_STR3: return "TAGTYPE_STR3";
+            case TAGTYPE_STR4: return "TAGTYPE_STR4";
+            case TAGTYPE_STR5: return "TAGTYPE_STR5";
+            case TAGTYPE_STR6: return "TAGTYPE_STR6";
+            case TAGTYPE_STR7: return "TAGTYPE_STR7";
+            case TAGTYPE_STR8: return "TAGTYPE_STR8";
+            case TAGTYPE_STR9: return "TAGTYPE_STR9";
+            case TAGTYPE_STR10: return "TAGTYPE_STR10";
+            case TAGTYPE_STR11: return "TAGTYPE_STR11";
+            case TAGTYPE_STR12: return "TAGTYPE_STR12";
+            case TAGTYPE_STR13: return "TAGTYPE_STR13";
+            case TAGTYPE_STR14: return "TAGTYPE_STR14";
+            case TAGTYPE_STR15: return "TAGTYPE_STR15";
+            case TAGTYPE_STR16: return "TAGTYPE_STR16";
+            case TAGTYPE_STR17: return "TAGTYPE_STR17"; 
+            case TAGTYPE_STR18: return "TAGTYPE_STR18";               
+            case TAGTYPE_STR19: return "TAGTYPE_STR19";
+            case TAGTYPE_STR20: return "TAGTYPE_STR20";
+            case TAGTYPE_STR21: return "TAGTYPE_STR21";
+            case TAGTYPE_STR22: return "TAGTYPE_STR22";        
+            default: return "UNKNOWN";
+        }
+    }
+    
+    public static String id2String(byte id) {
+        switch(id) {
+            case FT_UNDEFINED: return "FT_UNDEFINED";
+            case FT_FILENAME: return "FT_FILENAME/CT_NAME";
+            case FT_FILESIZE: return "FT_FILESIZE";
+            case FT_FILESIZE_HI: return "FT_FILESIZE_HI";
+            case FT_FILETYPE: return "FT_FILETYPE";
+            case FT_FILEFORMAT: return "FT_FILEFORMAT";
+            case FT_LASTSEENCOMPLETE: return "FT_LASTSEENCOMPLETE";
+            case FT_TRANSFERRED: return "FT_TRANSFERRED";
+            case FT_GAPSTART: return "FT_GAPSTART";
+            case FT_GAPEND: return "FT_GAPEND";
+            case FT_PARTFILENAME: return "FT_PARTFILENAME";
+            case FT_OLDDLPRIORITY: return "FT_OLDDLPRIORITY";
+            case FT_STATUS: return "FT_STATUS";
+            case FT_SOURCES: return "FT_SOURCES";
+            case FT_PERMISSIONS: return "FT_PERMISSIONS";
+            case FT_OLDULPRIORITY: return "FT_OLDULPRIORITY";
+            case FT_DLPRIORITY: return "FT_DLPRIORITY";
+            case FT_ULPRIORITY: return "FT_ULPRIORITY";
+            case FT_KADLASTPUBLISHKEY: return "FT_KADLASTPUBLISHKEY/CT_SERVER_FLAGS";
+            case FT_KADLASTPUBLISHSRC: return "FT_KADLASTPUBLISHSRC";
+            case FT_FLAGS: return "FT_FLAGS";
+            case FT_DL_ACTIVE_TIME: return "FT_DL_ACTIVE_TIME";
+            case FT_CORRUPTEDPARTS: return "FT_CORRUPTEDPARTS";
+            case FT_DL_PREVIEW: return "FT_DL_PREVIEW";
+            case FT_KADLASTPUBLISHNOTES: return "FT_KADLASTPUBLISHNOTES";
+            case FT_AICH_HASH: return "FT_AICH_HASH";
+            case FT_FILEHASH: return "FT_FILEHASH";
+            case FT_COMPLETE_SOURCES: return "FT_COMPLETE_SOURCES";
+            case FT_FAST_RESUME_DATA: return "FT_FAST_RESUME_DATA";
+            case CT_SERVER_UDPSEARCH_FLAGS: return "CT_SERVER_UDPSEARCH_FLAGS";
+            case CT_PORT: return "CT_PORT";
+            case CT_VERSION: return "CT_VERSION";
+            case CT_EMULECOMPAT_OPTIONS: return "CT_EMULECOMPAT_OPTIONS";
+            case CT_EMULE_RESERVED1: return "CT_EMULE_RESERVED1";
+            case CT_EMULE_RESERVED2: return "CT_EMULE_RESERVED2";
+            case CT_EMULE_RESERVED3: return "CT_EMULE_RESERVED3";
+            case CT_EMULE_RESERVED4: return "CT_EMULE_RESERVED4";
+            case CT_EMULE_RESERVED5: return "CT_EMULE_RESERVED5";
+            case CT_EMULE_RESERVED6: return "CT_EMULE_RESERVED6";
+            case CT_EMULE_RESERVED7: return "CT_EMULE_RESERVED7";
+            case CT_EMULE_RESERVED8: return "CT_EMULE_RESERVED8";
+            case CT_EMULE_RESERVED9: return "CT_EMULE_RESERVED9";
+            case CT_EMULE_UDPPORTS: return "CT_EMULE_UDPPORTS";
+            case CT_EMULE_MISCOPTIONS1: return "CT_EMULE_MISCOPTIONS1";
+            case CT_EMULE_VERSION: return "CT_EMULE_VERSION";
+            case CT_EMULE_BUDDYIP: return "CT_EMULE_BUDDYIP";
+            case CT_EMULE_BUDDYUDP: return "CT_EMULE_BUDDYUDP";
+            case CT_EMULE_MISCOPTIONS2: return "CT_EMULE_MISCOPTIONS2";
+            case CT_EMULE_RESERVED13: return "CT_EMULE_RESERVED13";
+            default: return "UNKNOWN";
+        }
+    }
     
     private static class FloatSerial implements Serializable {
         public float value;        
@@ -146,6 +241,11 @@ public final class Tag implements Serializable {
         @Override
         public int size() {
             return sizeof(value);            
+        }
+        
+        @Override
+        public String toString() {
+            return Float.toString(value);
         }
     }
     
@@ -171,7 +271,12 @@ public final class Tag implements Serializable {
         @Override
         public int size() {
             return sizeof(value);
-        }        
+        }
+        
+        @Override
+        public String toString() {
+            return value?"true":"false";
+        }
     }
     
     private static class StringSerial implements Serializable {
@@ -217,6 +322,17 @@ public final class Tag implements Serializable {
                 throw new ProtocolException(e);
             }
         }
+        
+        @Override
+        public String toString() {
+            try {
+                return stringValue();
+            } catch (ProtocolException e){
+                log.warning(e.getMessage());
+            }
+            
+            return new String();
+        }
     }
     
     public final class BoolArraySerial implements Serializable {    
@@ -242,11 +358,10 @@ public final class Tag implements Serializable {
         }
     }
     
-    protected byte type;
-    protected byte id;
+    private byte type;
+    private byte id;
     String name = null;
     Serializable value = null;
-    float float_value;    
     
     private Tag(byte type, byte id, String name, Serializable value) {
         this.type = type;
@@ -451,5 +566,10 @@ public final class Tag implements Serializable {
         } else {                  // type + len + name
             return value.size() + 1 + 2 + name.getBytes(Charset.forName("UTF-8")).length;
         }        
+    }
+    
+    @Override
+    public String toString() {
+        return type2String(type) + " " + ((name!=null)?name:id2String(id)) + " " + value.toString();
     }
 }

@@ -154,6 +154,7 @@ public class ServerConnection {
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
         login.properties.add(tag(Tag.CT_NAME, null, "jed2k"));
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
+        log.info(login.toString());
         return login;
     }
        

@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
-import static org.jed2k.Utils.byte2String;
-
 public class PacketCombiner {
     
     private static Logger log = Logger.getLogger(PacketCombiner.class.getName());
@@ -147,10 +145,5 @@ public class PacketCombiner {
         log.info(outgoingHeader.toString());
         outgoingHeader.put(dst);
         object.put(dst);
-        //NetworkBuffer nb = (NetworkBuffer)dst;
-        //nb.origin().flip();
-        //log.info(outgoingHeader.toString());
-        //log.info("PacketKey: " + key);
-        //log.info(byte2String(nb.origin().array()));
     }
 }

@@ -107,4 +107,9 @@ public class UInt64 extends UNumber implements Comparable<UInt64>{
     public int size() {
         return 8;        
     }
+    
+    @Override
+    public String toString() {
+        return "uint64{" + longValue() + "}";
+    }
 }

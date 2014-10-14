@@ -68,6 +68,19 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
         }
         
         return sz + size.size();
-    }  
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(size.toString());
+        sb.append(" ");
+        Iterator<Elem> itr = collection.iterator();
+        while(itr.hasNext()) {
+            sb.append(itr.next()).append(" ");            
+        }
+        
+        return sb.toString();
+    }
   
 }
