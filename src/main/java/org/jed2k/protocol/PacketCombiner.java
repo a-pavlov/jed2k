@@ -97,6 +97,7 @@ public class PacketCombiner {
         struct2Key = new HashMap<Class<? extends Serializable>, PacketKey>();
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_LOGINREQUEST.value, LoginRequest.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERLIST.value, ServerList.class);
+        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_GETSERVERLIST.value, ServerGetList.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERMESSAGE.value, ServerMessage.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERSTATUS.value, ServerStatus.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_IDCHANGE.value, ServerIdChange.class);
@@ -108,6 +109,7 @@ public class PacketCombiner {
                 header.get(src);
                 log.info("header initialized " + header);                
             } else {
+                log.info("remaining less than header size");
                 return null;
             }
         }
@@ -130,6 +132,7 @@ public class PacketCombiner {
             }
             
             ph.get(src);
+            header.reset();
             return ph;
         } else {
             log.info("remaining " + src.remaining() + " less than packet size body " + header.sizePacket());

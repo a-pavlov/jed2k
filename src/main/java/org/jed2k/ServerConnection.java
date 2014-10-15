@@ -17,9 +17,11 @@ import org.jed2k.protocol.LoginRequest;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.Serializable;
+import org.jed2k.protocol.ServerGetList;
 import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.tag.Tag.tag;
+import static org.jed2k.Utils.byte2String;
 
 public class ServerConnection {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
@@ -82,10 +84,20 @@ public class ServerConnection {
             }
             
             bufferIncoming.flip();
-            Serializable packet = packetCombainer.unpack(bufferIncoming);
-            if (packet != null) {
-                log.info("receive " + packet);
+            log.info(byte2String(bufferIncoming.array()));
+            while(true) {
+                log.info("before read remaining: " + bufferIncoming.remaining());
+                Serializable packet = packetCombainer.unpack(bufferIncoming);
+                if (packet != null) {
+                    log.info("receive " + packet + " remaining " + bufferIncoming.remaining());
+                    //write(new ServerGetList());                    
+                } else {
+                    bufferIncoming.compact();
+                    break;
+                }
             }
+            
+            return;
             // process incoming packet
         } catch(IOException e) {
             log.warning(e.getMessage());
@@ -152,6 +164,7 @@ public class ServerConnection {
     }
        
     public void close() {
+        log.info("close socket");
         try {
             socket.close();
         } catch(IOException e) {
@@ -162,6 +175,7 @@ public class ServerConnection {
     }
     
     public void write(Serializable packet) {
+        log.info("write packet " + packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);
