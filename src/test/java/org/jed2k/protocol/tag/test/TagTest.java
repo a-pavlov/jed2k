@@ -1,17 +1,19 @@
 package org.jed2k.protocol.tag.test;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+
 import org.jed2k.protocol.ContainerHolder;
-import org.jed2k.protocol.NetworkBuffer;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.tag.Tag;
-import static org.jed2k.protocol.tag.Tag.tag;
 
+import static org.jed2k.protocol.tag.Tag.tag;
 import static org.jed2k.protocol.Unsigned.uint16;
 
 public class TagTest {
@@ -39,11 +41,11 @@ public class TagTest {
                 /*hash*/            (byte)(Tag.TAGTYPE_HASH16 | 0x80),  (byte)0x20, (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, (byte)0x09, (byte)0x0A, (byte)0x0B, (byte)0x0C, (byte)0x0D, (byte)0x0E, (byte)0x0F };        
         ArrayList<Tag> atags = new ArrayList<Tag>();
         ContainerHolder<UInt16, Tag> tags = new ContainerHolder<UInt16, Tag>(uint16(), atags, Tag.class);
-        ByteBuffer ob = ByteBuffer.wrap(source);
-        NetworkBuffer nb = new NetworkBuffer(ob);
+        ByteBuffer nb = ByteBuffer.wrap(source);  
+        nb.order(ByteOrder.LITTLE_ENDIAN);
         tags.get(nb);
         assertEquals(9, tags.count());
-        assertEquals(0, ob.remaining());
+        assertEquals(0, nb.remaining());
         assertEquals(0xED, atags.get(0).intValue());
         assertEquals(3, atags.get(0).size());
         assertEquals(0x0D0A, atags.get(1).intValue());
@@ -59,10 +61,10 @@ public class TagTest {
     
     @Test
     public void testTagWriting() throws ProtocolException {
-        ByteBuffer bf = ByteBuffer.allocate(100);
-        NetworkBuffer nb = new NetworkBuffer(bf);
+        ByteBuffer nb = ByteBuffer.allocate(100);
+        nb.order(ByteOrder.LITTLE_ENDIAN);
         tag(Tag.FT_UNDEFINED, "Test name", "XXX data").put(tag(Tag.FT_FILEHASH, null, 100).put(nb));
-        bf.flip();
+        nb.flip();
         Tag itag = new Tag();
         itag.get(nb);
         assertEquals(Tag.FT_FILEHASH, itag.id());
@@ -74,6 +76,6 @@ public class TagTest {
         assertEquals("XXX data", stag.stringValue());
         assertEquals(Tag.TAGTYPE_STR8, stag.type());
         assertEquals(20, stag.size());
-        assertEquals(0, bf.remaining());
+        assertEquals(0, nb.remaining());
     }
 }

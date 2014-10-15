@@ -1,7 +1,7 @@
 package org.jed2k.protocol.tag;
 
 import java.io.UnsupportedEncodingException;
-
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
@@ -230,13 +230,15 @@ public final class Tag implements Serializable {
         }
         
         @Override
-        public Buffer get(Buffer src) throws ProtocolException {
+        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
             value = src.getFloat();
             return src;
         }
 
         @Override
-        public Buffer put(Buffer dst) throws ProtocolException {  return dst.put(value); }
+        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {  
+            return dst.putFloat(value); 
+        }
 
         @Override
         public int size() {
@@ -257,13 +259,13 @@ public final class Tag implements Serializable {
         }
         
         @Override
-        public Buffer get(Buffer src) throws ProtocolException {
-            value = (src.getByte() == 0x00);    
+        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+            value = (src.get() == 0x00);    
             return src;
         }
 
         @Override
-        public Buffer put(Buffer dst) throws ProtocolException {
+        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
             byte bval = (value)?(byte)0x01:(byte)0x00;
             return dst.put(bval);
         }
@@ -289,7 +291,7 @@ public final class Tag implements Serializable {
         }
                 
         @Override
-        public Buffer get(Buffer src) throws ProtocolException {
+        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
             short size = 0;
             if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16) {
                 size = (short)(type - Tag.TAGTYPE_STR1 + 1);
@@ -302,9 +304,9 @@ public final class Tag implements Serializable {
         }
         
         @Override
-        public Buffer put(Buffer dst) throws ProtocolException {
-            if (type == Tag.TAGTYPE_STRING) dst.put((short)value.length);            
-            return dst.put(value);            
+        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+            if (type == Tag.TAGTYPE_STRING) dst.putShort((short)value.length);            
+            return dst.put(value);
         }        
 
         @Override
@@ -340,13 +342,13 @@ public final class Tag implements Serializable {
         private byte value[] = null;               
         
         @Override
-        public Buffer put(Buffer dst) throws ProtocolException {
+        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
             assert(false);
             return dst;
         }
 
         @Override
-        public Buffer get(Buffer src) throws ProtocolException {
+        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
             length.get(src);
             value = new byte[length.intValue() / 8];
             return src.get(value);
@@ -377,12 +379,12 @@ public final class Tag implements Serializable {
     }
     
     @Override 
-    public Buffer get(Buffer src) throws ProtocolException {
-        this.type = src.getByte();
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        this.type = src.get();
         
         if ((type & 0x80) != 0){
             type = (byte)(type & 0x7f);
-            id = src.getByte();
+            id = src.get();
             log.info("process new type");
         } else {
             log.info("process old type");
@@ -453,7 +455,7 @@ public final class Tag implements Serializable {
     }
     
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
         assert(initialized());
         assert(value != null);
         if (name == null){
@@ -461,7 +463,7 @@ public final class Tag implements Serializable {
             dst.put(id);
         } else {
             byte[] data = name.getBytes(Charset.forName("UTF-8"));
-            dst.put(type).put((short)data.length).put(data);
+            dst.put(type).putShort((short)data.length).put(data);
         }
        
         

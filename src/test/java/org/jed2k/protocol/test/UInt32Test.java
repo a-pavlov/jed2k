@@ -4,13 +4,12 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static org.jed2k.protocol.Unsigned.uint32;
 
-import org.jed2k.protocol.NetworkBuffer;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt32;
-
 import org.junit.Test;
 
 public class UInt32Test{
@@ -38,7 +37,8 @@ public class UInt32Test{
     @Test
     public void serializationTest() throws ProtocolException {
         byte[] source = { 0x03, 0x00, 0x00, 0x00 };
-        NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(source));
+        ByteBuffer nb = ByteBuffer.wrap(source);
+        nb.order(ByteOrder.LITTLE_ENDIAN);
         UInt32 u = uint32();
         u.get(nb);
         assertEquals(3, u.intValue());

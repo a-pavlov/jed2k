@@ -2,6 +2,8 @@ package org.jed2k.protocol;
 
 import static org.jed2k.Utils.sizeof;
 
+import java.nio.ByteBuffer;
+
 public class UInt16 extends UNumber implements Comparable<UInt16>{
 
     private static final long serialVersionUID = -6821055240959745390L;
@@ -37,13 +39,14 @@ public class UInt16 extends UNumber implements Comparable<UInt16>{
     }
     
     @Override
-    public Buffer get(Buffer src) throws ProtocolException {
-        return src.get(this);        
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        value = src.getShort(); 
+        return src;
     }
 
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
-        return dst.put(this);
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        return dst.putShort(value);
     }
 
     @Override

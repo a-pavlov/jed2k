@@ -1,6 +1,7 @@
 package org.jed2k.protocol;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 public class ByteContainer<CS extends UNumber> implements Serializable {
     public CS size;
@@ -11,14 +12,14 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     }
     
     @Override
-    public Buffer get(Buffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
         size.get(src);
         value = new byte[size.intValue()];
         return src.get(value);
     }
 
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
         size.assign(value!=null?value.length:0);
         return dst.put(value);
     }

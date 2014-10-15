@@ -1,5 +1,6 @@
 package org.jed2k.protocol;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -101,7 +102,7 @@ public class PacketCombiner {
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_IDCHANGE.value, ServerIdChange.class);
     }
     
-    public Serializable unpack(Buffer src) throws ProtocolException {
+    public Serializable unpack(ByteBuffer src) throws ProtocolException {
         if (!header.isDefined()) {
             if (src.remaining() >= header.size()) {
                 header.get(src);
@@ -138,7 +139,7 @@ public class PacketCombiner {
         return null;
     }
     
-    public void pack(Serializable object, Buffer dst) throws ProtocolException {
+    public void pack(Serializable object, ByteBuffer dst) throws ProtocolException {
         PacketKey key = struct2Key.get(object.getClass());
         assert(key != null);        
         outgoingHeader.reset(key, object.size() + 1);

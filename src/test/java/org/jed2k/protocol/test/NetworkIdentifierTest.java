@@ -5,9 +5,9 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.junit.Test;
-import org.jed2k.protocol.NetworkBuffer;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.ProtocolException;
 
@@ -19,7 +19,8 @@ public class NetworkIdentifierTest{
     };
     
     NetworkIdentifier ni = new NetworkIdentifier();
-    NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(source));
+    ByteBuffer nb = ByteBuffer.wrap(source);
+    nb.order(ByteOrder.LITTLE_ENDIAN);
     ni.get(nb);
     assertEquals(1, ni.ip);
     assertEquals(1, ni.port);    

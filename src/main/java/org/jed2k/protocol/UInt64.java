@@ -1,6 +1,7 @@
 package org.jed2k.protocol;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 public class UInt64 extends UNumber implements Comparable<UInt64>{
     /**
@@ -41,14 +42,15 @@ public class UInt64 extends UNumber implements Comparable<UInt64>{
     }
 
     @Override
-    public Buffer get(Buffer src) throws ProtocolException {
-        return src.get(this);
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        value = src.getLong();
+        return src;
     }
 
 
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
-        return dst.put(this);
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        return dst.putLong(value);
     }
 
 

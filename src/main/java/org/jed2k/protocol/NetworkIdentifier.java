@@ -1,6 +1,8 @@
 package org.jed2k.protocol;
 import static org.jed2k.Utils.sizeof;
 
+import java.nio.ByteBuffer;
+
 public final class NetworkIdentifier implements Serializable {
     public int ip = 0;
     public short port = 0;
@@ -14,15 +16,15 @@ public final class NetworkIdentifier implements Serializable {
     }
     
     @Override
-    public Buffer get(Buffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
         ip = src.getInt();
         port = src.getShort();
         return src;
     }
 
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
-        return dst.put(ip).put(port);
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        return dst.putInt(ip).putShort(port);
     }
     
     @Override

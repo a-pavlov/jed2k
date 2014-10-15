@@ -5,12 +5,11 @@ import static junit.framework.Assert.assertEquals;
 import static org.jed2k.protocol.tag.Tag.tag;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.junit.Test;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
-import org.jed2k.protocol.NetworkBuffer;
-import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.Serializable;
@@ -19,8 +18,8 @@ import org.jed2k.protocol.tag.Tag;
 public class PacketCombinerTest {
     @Test
     public void testPackUnpack() throws ProtocolException {
-        ByteBuffer bb = ByteBuffer.allocate(1024);
-        NetworkBuffer nb = new NetworkBuffer(bb);
+        ByteBuffer nb = ByteBuffer.allocate(1024);
+        nb.order(ByteOrder.LITTLE_ENDIAN);
         LoginRequest login = new LoginRequest();
         login.hash = Hash.EMULE;        
         int version = 10;
@@ -32,7 +31,7 @@ public class PacketCombinerTest {
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
         PacketCombiner combiner = new PacketCombiner();
         combiner.pack(login, nb);
-        bb.flip();
+        nb.flip();
         Serializable pkt = combiner.unpack(nb);
         assertTrue(pkt != null);
         LoginRequest login2 = (LoginRequest)pkt;

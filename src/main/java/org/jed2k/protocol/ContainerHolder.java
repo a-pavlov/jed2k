@@ -1,5 +1,6 @@
 package org.jed2k.protocol;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -19,7 +20,7 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
       }
       
       @Override
-      public Buffer get(Buffer src) throws ProtocolException {
+      public ByteBuffer get(ByteBuffer src) throws ProtocolException {
         size.get(src);
         try {
             for(int i = 0; i < size.intValue(); ++i) {            
@@ -36,7 +37,7 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
       }
     
       @Override
-      public Buffer put(Buffer dst)  throws ProtocolException {
+      public ByteBuffer put(ByteBuffer dst)  throws ProtocolException {
         size.assign(collection.size());
         size.put(dst);
         Iterator<Elem> itr = collection.iterator();

@@ -2,13 +2,15 @@ package org.jed2k.protocol;
 
 import static org.jed2k.Utils.sizeof;
 
+import java.nio.ByteBuffer;
+
 public class ServerIdChange implements Serializable {
     public int clientId = 0;
     public int tcpFlags = 0;
     public int auxPort  = 0;
     
     @Override
-    public Buffer get(Buffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
         clientId = src.getInt();
         tcpFlags = src.getInt();
         auxPort = src.getInt();
@@ -16,8 +18,8 @@ public class ServerIdChange implements Serializable {
     }
 
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
-        return dst.put(clientId).put(tcpFlags).put(auxPort);
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        return dst.putInt(clientId).putInt(tcpFlags).putInt(auxPort);
     }
 
     @Override

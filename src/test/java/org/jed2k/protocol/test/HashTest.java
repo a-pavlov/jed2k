@@ -1,13 +1,14 @@
 package org.jed2k.protocol.test;
 
 import static junit.framework.Assert.assertEquals;
+
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.jed2k.hash.MD4;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.ProtocolException;
 import org.junit.Test;
-import org.jed2k.protocol.NetworkBuffer;
 
 public class HashTest{
     private final byte[] terminal = {
@@ -27,13 +28,15 @@ public class HashTest{
     
     @Test
     public void testElementarySerialization() throws ProtocolException {
-        NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(terminal));
+        ByteBuffer nb = ByteBuffer.wrap(terminal);
+        nb.order(ByteOrder.LITTLE_ENDIAN);
         Hash h = new Hash();
         h.get(nb);
         assertEquals(Hash.TERMINAL, h);
         
         ByteBuffer buff = ByteBuffer.allocate(MD4.HASH_SIZE);
-        NetworkBuffer nbw = new NetworkBuffer(buff);
+        buff.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer nbw = buff;
         Hash.LIBED2K.put(nbw);
         buff.flip();
         Hash h2 = new Hash();

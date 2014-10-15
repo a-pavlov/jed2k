@@ -7,11 +7,11 @@ import static org.jed2k.protocol.Unsigned.uint8;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt8;
 import org.junit.Test;
-import org.jed2k.protocol.NetworkBuffer;
 
 public class UInt8Test{
     
@@ -36,7 +36,8 @@ public class UInt8Test{
     @Test(expected=BufferUnderflowException.class)
     public void testSerialize() throws ProtocolException {
         byte[] data = { (byte)1, (byte)2, (byte)3 };
-        NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(data));
+        ByteBuffer nb = ByteBuffer.wrap(data);
+        nb.order(ByteOrder.LITTLE_ENDIAN);
         UInt8 value = uint8();
         value.get(nb);
         assertTrue(value.intValue() == 1);

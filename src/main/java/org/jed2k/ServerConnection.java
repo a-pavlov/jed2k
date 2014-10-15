@@ -14,14 +14,12 @@ import java.util.logging.Logger;
 
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
-import org.jed2k.protocol.NetworkBuffer;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.tag.Tag.tag;
-import static org.jed2k.Utils.byte2String;
 
 public class ServerConnection {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
@@ -84,7 +82,7 @@ public class ServerConnection {
             }
             
             bufferIncoming.flip();            
-            Serializable packet = packetCombainer.unpack(new NetworkBuffer(bufferIncoming));
+            Serializable packet = packetCombainer.unpack(bufferIncoming);
             if (packet != null) {
                 log.info("receive " + packet);
             }
@@ -103,7 +101,7 @@ public class ServerConnection {
             writeInProgress = !outgoingOrder.isEmpty();
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
-                packetCombainer.pack(itr.next(), new NetworkBuffer(bufferOutgoing));                
+                packetCombainer.pack(itr.next(), bufferOutgoing);                
                 itr.remove();
             }
             

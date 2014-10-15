@@ -1,6 +1,8 @@
 package org.jed2k.protocol;
 import static org.jed2k.Utils.byte2String;
 
+import java.nio.ByteBuffer;
+
 public class PacketHeader implements Serializable {
     public static byte OP_UNDEFINED     = (byte)0;
     public static byte OP_EDONKEYHEADER = (byte)0xE3;
@@ -35,10 +37,10 @@ public class PacketHeader implements Serializable {
     }
 
     @Override
-    public Buffer get(Buffer src) throws ProtocolException {
-        protocol = src.getByte();
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        protocol = src.get();
         size = src.getInt();
-        packet = src.getByte();
+        packet = src.get();
         
         if (!isDefined()) {
             throw new ProtocolException("Incorrect packet header content protocol: " + byte2String(protocol) + " opcode " + byte2String(packet));
@@ -52,8 +54,8 @@ public class PacketHeader implements Serializable {
     }
 
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
-        return dst.put(protocol).put(size).put(packet);
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        return dst.put(protocol).putInt(size).put(packet);
     }
     
     public final int size() {

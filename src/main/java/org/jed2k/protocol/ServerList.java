@@ -1,6 +1,8 @@
 package org.jed2k.protocol;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+
 import static org.jed2k.protocol.Unsigned.uint8;
 
 public class ServerList extends ContainerHolder<UInt8, NetworkIdentifier> {
@@ -10,12 +12,12 @@ public class ServerList extends ContainerHolder<UInt8, NetworkIdentifier> {
     }
 
     @Override
-    public Buffer get(Buffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
         return src;
     }
 
     @Override
-    public Buffer put(Buffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
         return dst;
     }
 

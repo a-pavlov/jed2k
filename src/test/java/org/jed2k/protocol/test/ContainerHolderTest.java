@@ -4,17 +4,16 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.LinkedList;
 
 import org.junit.Test;
-
-import static org.jed2k.protocol.Unsigned.uint8;
-
-import org.jed2k.protocol.NetworkBuffer;
 import org.jed2k.protocol.ProtocolException;
 import org.jed2k.protocol.UInt8;
 import org.jed2k.protocol.ContainerHolder;
 import org.jed2k.protocol.NetworkIdentifier;
+
+import static org.jed2k.protocol.Unsigned.uint8;
 
 public class ContainerHolderTest{
     
@@ -27,7 +26,8 @@ public class ContainerHolderTest{
       LinkedList<NetworkIdentifier> nets = new LinkedList<NetworkIdentifier>();
       ContainerHolder<UInt8, NetworkIdentifier> cni = new ContainerHolder<UInt8, NetworkIdentifier>(uint8(), nets, NetworkIdentifier.class);
       assertTrue(cni != null);
-      NetworkBuffer nb = new NetworkBuffer(ByteBuffer.wrap(source));
+      ByteBuffer nb = ByteBuffer.wrap(source);
+      nb.order(ByteOrder.LITTLE_ENDIAN);
       cni.get(nb);
       assertEquals(2, cni.count());
       assertEquals(2, cni.sizeCollection());
