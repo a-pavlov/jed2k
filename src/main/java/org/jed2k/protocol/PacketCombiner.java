@@ -106,14 +106,13 @@ public class PacketCombiner {
         if (!header.isDefined()) {
             if (src.remaining() >= header.size()) {
                 header.get(src);
-                log.info("header initialized " + header);
-                header.size--;
+                log.info("header initialized " + header);                
             } else {
                 return null;
             }
         }
         
-        if (src.remaining() >= header.size) {
+        if (src.remaining() >= header.sizePacket()) {
             PacketKey key = header.key();
             Class<? extends Serializable> clazz = supportedPackets.get(key);
             Serializable ph = null;
@@ -127,25 +126,29 @@ public class PacketCombiner {
                     throw new ProtocolException(e);                    
                 }
             } else {
-                ph = new BytesSkipper(header.size);
+                ph = new BytesSkipper(header.sizePacket());
             }
             
             ph.get(src);
             return ph;
         } else {
-            log.info("remaining " + src.remaining() + " less than packet size body " + header.size);
+            log.info("remaining " + src.remaining() + " less than packet size body " + header.sizePacket());
         }
         
         return null;
     }
     
-    public void pack(Serializable object, ByteBuffer dst) throws ProtocolException {
+    public boolean pack(Serializable object, ByteBuffer dst) throws ProtocolException {
         PacketKey key = struct2Key.get(object.getClass());
-        assert(key != null);        
-        outgoingHeader.reset(key, object.size() + 1);
-        assert(outgoingHeader.isDefined());
-        log.info(outgoingHeader.toString());
-        outgoingHeader.put(dst);
-        object.put(dst);
+        assert(key != null);
+        if ((outgoingHeader.size() + object.size()) < dst.remaining()) {
+            outgoingHeader.reset(key, object.size() + 1);
+            assert(outgoingHeader.isDefined());
+            outgoingHeader.put(dst);
+            object.put(dst);
+            return true;
+        }
+        
+        return false;
     }
 }
