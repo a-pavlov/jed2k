@@ -1,5 +1,7 @@
 package org.jed2k.protocol;
+
 import static org.jed2k.Utils.sizeof;
+import static org.jed2k.Utils.int2Address;
 
 import java.nio.ByteBuffer;
 
@@ -30,5 +32,10 @@ public final class NetworkIdentifier implements Serializable {
     @Override
     public int size() {
         return sizeof(ip) + sizeof(port);
+    }
+    
+    @Override
+    public String toString() {
+        return int2Address(ip) + ":" + port; 
     }
 }

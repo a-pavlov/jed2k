@@ -81,7 +81,7 @@ public class ServerConnection {
                 return;
             }
             
-            bufferIncoming.flip();            
+            bufferIncoming.flip();
             Serializable packet = packetCombainer.unpack(bufferIncoming);
             if (packet != null) {
                 log.info("receive " + packet);
@@ -101,7 +101,7 @@ public class ServerConnection {
             writeInProgress = !outgoingOrder.isEmpty();
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
-                packetCombainer.pack(itr.next(), bufferOutgoing);                
+                packetCombainer.pack(itr.next(), bufferOutgoing);
                 itr.remove();
             }
             

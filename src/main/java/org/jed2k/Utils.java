@@ -1,5 +1,8 @@
 package org.jed2k;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
     
@@ -37,5 +40,21 @@ public final class Utils {
     
     public static final int sizeof(boolean value) {
         return 1;
+    }
+    
+    public static InetAddress int2Address(int ip) {
+        byte[] raw = { (byte)(ip >> 24), 
+                        (byte)((ip >> 16) & 0xff), 
+                        (byte)((ip >> 8) & 0xff), 
+                        (byte)(ip & 0xff)
+                        };
+        try {
+            return InetAddress.getByAddress(raw);
+        } catch (UnknownHostException e) {            
+            // this must't happens since raw data length always 4 
+            e.printStackTrace();
+        }
+        
+        return null;
     }
 }
