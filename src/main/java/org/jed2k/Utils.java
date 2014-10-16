@@ -57,4 +57,12 @@ public final class Utils {
         
         return null;
     }
+    
+    public static int lowPart(long value) {
+        return (int)value;
+    }
+    
+    public static int hiPart(long value) {
+        return (int)(value >> 32);
+    }
 }
