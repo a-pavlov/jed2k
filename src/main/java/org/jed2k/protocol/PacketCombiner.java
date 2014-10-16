@@ -131,7 +131,14 @@ public class PacketCombiner {
                 ph = new BytesSkipper(header.sizePacket());
             }
             
-            ph.get(src);
+            if (ph instanceof SoftSerializable) {
+                SoftSerializable ssp = (SoftSerializable)ph;
+                assert(ssp != null);
+                ssp.get(src, header.sizePacket());
+            } else {
+                ph.get(src);
+            }
+            
             header.reset();
             return ph;
         } else {

@@ -4,7 +4,7 @@ import static org.jed2k.Utils.sizeof;
 
 import java.nio.ByteBuffer;
 
-public class ServerIdChange implements Serializable {
+public class ServerIdChange extends SoftSerializable {
     public int clientId = 0;
     public int tcpFlags = 0;
     public int auxPort  = 0;
@@ -14,6 +14,24 @@ public class ServerIdChange implements Serializable {
         clientId = src.getInt();
         tcpFlags = src.getInt();
         auxPort = src.getInt();
+        return src;
+    }
+    
+    @Override
+    public ByteBuffer get(ByteBuffer src, int limit) {
+        clientId = src.getInt();
+        limit -= sizeof(clientId);
+        
+        if (limit >= sizeof(tcpFlags)) {
+            tcpFlags = src.getInt();
+            limit -= sizeof(tcpFlags);
+        }
+        
+        if (limit >= sizeof(auxPort)) {
+            auxPort = src.getInt();
+            limit -= sizeof(auxPort);
+        }
+        
         return src;
     }
 
