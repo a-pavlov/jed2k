@@ -84,12 +84,10 @@ public class ServerConnection {
             }
             
             bufferIncoming.flip();
-            log.info(byte2String(bufferIncoming.array()));
-            while(true) {
-                log.info("before read remaining: " + bufferIncoming.remaining());
+            
+            while(true) {                
                 Serializable packet = packetCombainer.unpack(bufferIncoming);
-                if (packet != null) {
-                    log.info("receive " + packet + " remaining " + bufferIncoming.remaining());
+                if (packet != null) {                    
                     //write(new ServerGetList());                    
                 } else {
                     bufferIncoming.compact();

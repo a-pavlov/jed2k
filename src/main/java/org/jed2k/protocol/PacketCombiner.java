@@ -109,7 +109,6 @@ public class PacketCombiner {
                 header.get(src);
                 log.info("header initialized " + header);                
             } else {
-                log.info("remaining less than header size");
                 return null;
             }
         }
