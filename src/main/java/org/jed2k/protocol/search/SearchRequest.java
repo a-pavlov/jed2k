@@ -4,8 +4,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.ProtocolException;
-import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
+import org.jed2k.protocol.search.SearchEntry.Operator;
 
 import static org.jed2k.protocol.Unsigned.uint16;
 
@@ -17,8 +17,8 @@ public class SearchRequest {
     static byte SEARCH_TYPE_UINT64     = 0x08;
     
     
-    public static Serializable makeEntry(byte operator) {
-        return new BooleanEntry(operator);
+    public static SearchEntry makeEntry(Operator value) {
+        return new BooleanEntry(value);
     }
     
     private static ByteContainer<UInt16> generateTag(String name, byte id) throws ProtocolException {
@@ -39,7 +39,7 @@ public class SearchRequest {
         return tag;
     }
     
-    public static Serializable makeEntry(String name, byte id, String value) throws ProtocolException {                
+    public static SearchEntry makeEntry(String name, byte id, String value) throws ProtocolException {                
         try {
             return new StringEntry(new ByteContainer<UInt16>(uint16(), value.getBytes("UTF-8")), generateTag(name, id));
         } catch(UnsupportedEncodingException e) {
@@ -47,7 +47,7 @@ public class SearchRequest {
         }
     }
     
-    public static Serializable makeEntry(String name, byte id, byte operator, long value) throws ProtocolException {
+    public static SearchEntry makeEntry(String name, byte id, byte operator, long value) throws ProtocolException {
         return new NumericEntry(value, operator, generateTag(name, id));
     }
 }

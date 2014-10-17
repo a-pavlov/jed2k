@@ -3,16 +3,15 @@ package org.jed2k.protocol.search;
 import java.nio.ByteBuffer;
 
 import org.jed2k.protocol.ProtocolException;
-import org.jed2k.protocol.Serializable;
 
 import static org.jed2k.Utils.sizeof;
 
-public class BooleanEntry implements Serializable {
+public class BooleanEntry extends SearchEntry {
 
-    private byte operator = 0;
+    private final Operator value;
     
-    BooleanEntry(byte operator) {
-        this.operator = operator;
+    BooleanEntry(Operator value) {
+        this.value = value;
     }
     
     @Override
@@ -24,12 +23,23 @@ public class BooleanEntry implements Serializable {
     @Override
     public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
         dst.put(SearchRequest.SEARCH_TYPE_BOOL);
-        dst.put(operator);
+        assert(value == Operator.OPER_AND || value == Operator.OPER_OR || value == Operator.OPER_NOT);
+        dst.put(value.value);
         return dst;
     }
 
     @Override
     public int size() {
-        return sizeof(operator) + sizeof(SearchRequest.SEARCH_TYPE_BOOL);
+        return sizeof(value.value) + sizeof(SearchRequest.SEARCH_TYPE_BOOL);
+    }
+
+    @Override
+    public Operator getOperator() {
+        return value;        
+    }
+
+    @Override
+    public boolean isOperator() {
+        return true;
     }
 }
