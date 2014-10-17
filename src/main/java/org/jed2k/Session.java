@@ -40,30 +40,33 @@ public class Session extends Thread {
                     while(keyIterator.hasNext()) {
     
                       SelectionKey key = keyIterator.next();
-    
-                      if(key.isAcceptable()) {
-                          // a connection was accepted by a ServerSocketChannel.
-                          log.info("Key is acceptable");
-                          SocketChannel socket = ssc.accept();
-                          socket.close();
-                      } else if (key.isConnectable()) {
-                          // a connection was established with a remote server.
-                          log.info("Key is connectable");
-                          ServerConnection sconn = (ServerConnection)key.attachment();
-                          sconn.readyConnect();
-                      } else if (key.isReadable()) {
-                          // a channel is ready for reading
-                          log.info("Key is readable");
-                          ServerConnection sconn = (ServerConnection)key.attachment();
-                          sconn.readyRead();
-                      } else if (key.isWritable()) {
-                          // a channel is ready for writing
-                          log.info("Key is writeable");
-                          ServerConnection sconn = (ServerConnection)key.attachment();
-                          sconn.readyWrite();                          
-                          key.interestOps(SelectionKey.OP_READ);
+                      
+                      if (key.isValid()) {
+        
+                          if(key.isAcceptable()) {
+                              // a connection was accepted by a ServerSocketChannel.
+                              log.info("Key is acceptable");
+                              SocketChannel socket = ssc.accept();
+                              socket.close();
+                          } else if (key.isConnectable()) {
+                              // a connection was established with a remote server.
+                              log.info("Key is connectable");
+                              ServerConnection sconn = (ServerConnection)key.attachment();
+                              sconn.readyConnect();
+                          } else if (key.isReadable()) {
+                              // a channel is ready for reading
+                              log.info("Key is readable");
+                              ServerConnection sconn = (ServerConnection)key.attachment();
+                              sconn.readyRead();
+                          } else if (key.isWritable()) {
+                              // a channel is ready for writing
+                              log.info("Key is writeable");
+                              ServerConnection sconn = (ServerConnection)key.attachment();
+                              sconn.readyWrite();                          
+                              key.interestOps(SelectionKey.OP_READ);
+                          }
                       }
-    
+                      
                       keyIterator.remove();
                     }
                 }
