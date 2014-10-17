@@ -7,8 +7,13 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     public CS size;
     public byte[] value;
     
-    public ByteContainer(CS size){
+    public ByteContainer(CS size) {
         this.size = size;
+    }
+    
+    public ByteContainer(CS size, byte[] value) {
+        this.size = size;
+        this.value = value;
     }
     
     @Override
@@ -20,6 +25,7 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        assert(value != null);
         size.assign(value!=null?value.length:0);
         return dst.put(value);
     }
