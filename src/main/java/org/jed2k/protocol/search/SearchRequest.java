@@ -1,9 +1,9 @@
 package org.jed2k.protocol.search;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.logging.Logger;
 
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
@@ -15,6 +15,9 @@ import org.jed2k.protocol.tag.Tag;
 import static org.jed2k.protocol.Unsigned.uint16;
 
 public class SearchRequest implements Serializable {
+    
+    private static Logger log = Logger.getLogger(SearchRequest.class.getName());
+    
     static byte SEARCH_TYPE_BOOL       = 0x00;
     static byte SEARCH_TYPE_STR        = 0x01;
     static byte SEARCH_TYPE_STR_TAG    = 0x02;
@@ -101,12 +104,12 @@ public class SearchRequest implements Serializable {
         return false;
     }
     
-    private static void appendItem(ArrayList<Serializable> dst, final Serializable sre) {
+    private static void appendItem(ArrayList<Serializable> dst, final Serializable sre) throws ProtocolException {
         if (!(sre instanceof BooleanEntry))
         {
             if (!dst.isEmpty())
             {
-                if ((isOperator(dst.get(dst.size()-1)) && !isOperator(sre)) ||                                                              // xxx xxx
+                if ((!isOperator(dst.get(dst.size()-1)) && !isOperator(sre)) ||                                                              // xxx xxx
                 (!isOperator(dst.get(dst.size()-1)) && sre instanceof OpenParen) ||                                 // xxx (
                 (dst.get(dst.size()-1) instanceof CloseParen && !isOperator(sre)) ||                                 // ) xxx
                 (dst.get(dst.size()-1) instanceof CloseParen && sre  instanceof OpenParen))  // ) (
@@ -114,10 +117,10 @@ public class SearchRequest implements Serializable {
                     dst.add(makeEntry(BooleanEntry.Operator.OPER_AND));
                 }
 
-                //if (dst.back().getOperator() == search_request_entry::SRE_OBR && sre.getOperator() == search_request_entry::SRE_CBR)
-                //{
-                //    throw libed2k_exception(errors::empty_brackets);
-                //}
+                if (dst.get(dst.size()-1) instanceof OpenParen && sre instanceof CloseParen)
+                {
+                    throw new ProtocolException("Empty brackets on add item");
+                }
             }
         }
 
@@ -281,7 +284,7 @@ public class SearchRequest implements Serializable {
                 
                 if (entry instanceof OpenParen) {
                     if (operators_stack.empty()) {
-                        throw new ProtocolException("Incorrect brackets count");
+                        throw new ProtocolException("Open paren without close paren");
                     }
 
                     // roll up
@@ -289,7 +292,7 @@ public class SearchRequest implements Serializable {
                         res.add(operators_stack.pop());
                         
                         if (operators_stack.empty()) {
-                            throw new ProtocolException("Incorrect brackets count");
+                            throw new ProtocolException("Empty brackets found ()");
                         }
                     }
 
@@ -331,13 +334,7 @@ public class SearchRequest implements Serializable {
     private static ByteContainer<UInt16> generateTag(String name, byte id) throws ProtocolException {
         ByteContainer<UInt16> tag;
         if (name != null) {
-            try {
-                byte[] content = name.getBytes("UTF-8");
-                tag = new ByteContainer<UInt16>(uint16(content.length), content);
-            } catch(UnsupportedEncodingException e) {
-                throw new ProtocolException(e);
-            }
-                        
+            tag = ByteContainer.fromString16(name);
         } else {
             byte[] nm = {id};
             tag = new ByteContainer<UInt16>(uint16(1), nm);
@@ -347,19 +344,11 @@ public class SearchRequest implements Serializable {
     }
     
     public static Serializable makeEntry(String value) throws ProtocolException {
-        try {
-            return new StringEntry(new ByteContainer<UInt16>(uint16(), value.getBytes("UTF-8")), null);
-        } catch(UnsupportedEncodingException e) {
-            throw new ProtocolException(e);
-        }
+            return new StringEntry(ByteContainer.fromString16(value), null);
     }
     
-    public static Serializable makeEntry(String name, byte id, String value) throws ProtocolException {                
-        try {
-            return new StringEntry(new ByteContainer<UInt16>(uint16(), value.getBytes("UTF-8")), generateTag(name, id));
-        } catch(UnsupportedEncodingException e) {
-            throw new ProtocolException(e);
-        }
+    public static Serializable makeEntry(String name, byte id, String value) throws ProtocolException {
+            return new StringEntry(ByteContainer.fromString16(value), generateTag(name, id));        
     }
     
     public static Serializable makeEntry(String name, byte id, byte operator, long value) throws ProtocolException {
@@ -401,6 +390,10 @@ public class SearchRequest implements Serializable {
             int mediaLength,
             int mediaBitrate,
             String value) throws ProtocolException {
+        ArrayList<Serializable> a = new ArrayList<Serializable>();
+        a = string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount, 
+                fileType, fileExtension, codec, mediaLength, mediaBitrate, value);
+        log.info(dbgString(a));
         return new SearchRequest(packRequest(string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount, 
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value)));
     }
@@ -409,5 +402,24 @@ public class SearchRequest implements Serializable {
         ArrayList<Serializable> ival = new ArrayList<Serializable>();
         ival.add(makeEntry("related::" + value.toString()));
         return new SearchRequest(ival);
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < value.size(); ++i) {
+            sb.append(" ").append(value.get(i));
+        }
+        
+        return sb.toString();
+    }
+    
+    public static String dbgString(ArrayList<Serializable> a) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < a.size(); ++i) {
+            sb.append(" ").append(a.get(i));
+        }
+        
+        return sb.toString();
     }
 }

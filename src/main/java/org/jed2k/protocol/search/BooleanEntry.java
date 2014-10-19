@@ -45,4 +45,13 @@ public class BooleanEntry implements Serializable {
     public int size() {
         return sizeof(value.value) + sizeof(SearchRequest.SEARCH_TYPE_BOOL);
     }
+    
+    @Override
+    public String toString() {
+        if (value == Operator.OPER_AND) return " AND ";
+        if (value == Operator.OPER_OR) return " OR ";
+        if (value == Operator.OPER_NOT) return " NOT ";
+        assert(false);
+        return " UNKNOWN "; 
+    }
 }

@@ -2,6 +2,9 @@ package org.jed2k.protocol;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import static org.jed2k.protocol.Unsigned.uint8;
+import static org.jed2k.protocol.Unsigned.uint16;
+import static org.jed2k.protocol.Unsigned.uint32;
 
 public class ByteContainer<CS extends UNumber> implements Serializable {
     public CS size;
@@ -39,10 +42,28 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
         }        
     }
     
-    public static<CS extends UNumber> ByteContainer<CS> fromString(CS size, String value) throws ProtocolException {
+    public static<CS extends UNumber> ByteContainer<UInt8> fromString8(String value) throws ProtocolException {
         try {           
             byte[] content = value.getBytes("UTF-8");
-            return new ByteContainer<CS>(size, content);
+            return new ByteContainer<UInt8>(uint8(), content);
+        } catch(UnsupportedEncodingException e) {
+            throw new ProtocolException(e);
+        }
+    }
+    
+    public static<CS extends UNumber> ByteContainer<UInt16> fromString16(String value) throws ProtocolException {
+        try {           
+            byte[] content = value.getBytes("UTF-8");
+            return new ByteContainer<UInt16>(uint16(), content);
+        } catch(UnsupportedEncodingException e) {
+            throw new ProtocolException(e);
+        }
+    }
+    
+    public static<CS extends UNumber> ByteContainer<UInt32> fromString32(String value) throws ProtocolException {
+        try {           
+            byte[] content = value.getBytes("UTF-8");
+            return new ByteContainer<UInt32>(uint32(), content);
         } catch(UnsupportedEncodingException e) {
             throw new ProtocolException(e);
         }

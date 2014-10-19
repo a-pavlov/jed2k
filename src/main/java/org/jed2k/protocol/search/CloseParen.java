@@ -25,4 +25,9 @@ public class CloseParen implements Serializable {
         return 0;
     }
     
+    @Override
+    public String toString() {
+        return ")";
+    }
+    
 }
