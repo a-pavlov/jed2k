@@ -39,6 +39,15 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
         }        
     }
     
+    public static<CS extends UNumber> ByteContainer<CS> fromString(CS size, String value) throws ProtocolException {
+        try {           
+            byte[] content = value.getBytes("UTF-8");
+            return new ByteContainer<CS>(size, content);
+        } catch(UnsupportedEncodingException e) {
+            throw new ProtocolException(e);
+        }
+    }
+    
     @Override
     public String toString() {
         try{

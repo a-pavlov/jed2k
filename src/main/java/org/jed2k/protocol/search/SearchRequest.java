@@ -1,51 +1,117 @@
 package org.jed2k.protocol.search;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Stack;
 
 import org.jed2k.protocol.ByteContainer;
+import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.ProtocolException;
+import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
-import org.jed2k.protocol.search.SearchEntry.Operator;
+import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.Unsigned.uint16;
 
-public class SearchRequest {
+public class SearchRequest implements Serializable {
     static byte SEARCH_TYPE_BOOL       = 0x00;
     static byte SEARCH_TYPE_STR        = 0x01;
     static byte SEARCH_TYPE_STR_TAG    = 0x02;
     static byte SEARCH_TYPE_UINT32     = 0x03;
     static byte SEARCH_TYPE_UINT64     = 0x08;
     
+    // Media values for FT_FILETYPE
+    private static final String ED2KFTSTR_AUDIO = "Audio";
+    private static final String ED2KFTSTR_VIDEO = "Video";
+    private static final String ED2KFTSTR_IMAGE = "Image";
+    private static final String ED2KFTSTR_DOCUMENT = "Doc";
+    private static final String ED2KFTSTR_PROGRAM = "Pro";
+    private static final String ED2KFTSTR_ARCHIVE = "Arc";  // *Mule internal use only
+    private static final String ED2KFTSTR_CDIMAGE = "Iso";  // *Mule internal use only
+    private static final String ED2KFTSTR_EMULECOLLECTION = "EmuleCollection";
+    private static final String ED2KFTSTR_FOLDER  = "Folder"; // Value for eD2K tag FT_FILETYPE
+    private static final String ED2KFTSTR_USER = "User"; // eMule internal use only
+
+    // Additional media meta data tags from eDonkeyHybrid (note also the uppercase/lowercase)
+    private static final String FT_ED2K_MEDIA_ARTIST = "Artist";    // <string>
+    private static final String FT_ED2K_MEDIA_ALBUM = "Album";     // <string>
+    private static final String FT_ED2K_MEDIA_TITLE = "Title";     // <string>
+    private static final String FT_ED2K_MEDIA_LENGTH = "length";    // <string> !!!
+    private static final String FT_ED2K_MEDIA_BITRATE = "bitrate";   // <uint32>
+    private static final String FT_ED2K_MEDIA_CODEC = "codec";    // <string>
     
-    public static SearchEntry makeEntry(Operator value) {
+    public enum FileType {
+        ED2KFT_ANY               (0),
+        ED2KFT_AUDIO             (1),    // ED2K protocol value (eserver 17.6+)
+        ED2KFT_VIDEO             (2),    // ED2K protocol value (eserver 17.6+)
+        ED2KFT_IMAGE             (3),    // ED2K protocol value (eserver 17.6+)
+        ED2KFT_PROGRAM           (4),    // ED2K protocol value (eserver 17.6+)
+        ED2KFT_DOCUMENT          (5),    // ED2K protocol value (eserver 17.6+)
+        ED2KFT_ARCHIVE           (6),    // ED2K protocol value (eserver 17.6+)
+        ED2KFT_CDIMAGE           (7),    // ED2K protocol value (eserver 17.6+)
+        ED2KFT_EMULECOLLECTION   (8);
+        
+        public final byte value;
+        
+        private FileType(int value) {
+            this.value = (byte)value;
+        }
+    }
+    
+    public enum Operator {
+        ED2K_SEARCH_OP_EQUAL(0),
+        ED2K_SEARCH_OP_GREATER(1),
+        ED2K_SEARCH_OP_LESS(2),
+        ED2K_SEARCH_OP_GREATER_EQUAL(3),
+        ED2K_SEARCH_OP_LESS_EQUAL(4),
+        ED2K_SEARCH_OP_NOTEQUAL(5);
+        
+        public final byte value;
+        
+        private Operator(int value) {
+            this.value = (byte)value;
+        }
+    }
+    
+    private ArrayList<Serializable> value;
+    
+    SearchRequest(ArrayList<Serializable> value) {
+        this.value = value;
+    }
+    
+    public static Serializable makeEntry(BooleanEntry.Operator value) {
         return new BooleanEntry(value);
     }
     
-    private static SearchEntry.Operator string2Operator(String value) {
-        if (value == "AND") return Operator.OPER_AND;
-        if (value == "OR")  return Operator.OPER_OR;
-        if (value == "NOT") return Operator.OPER_NOT;
-        return Operator.OPER_NONE;
+    private static BooleanEntry.Operator string2Operator(String value) {
+        if (value == "AND") return BooleanEntry.Operator.OPER_AND;
+        if (value == "OR")  return BooleanEntry.Operator.OPER_OR;
+        if (value == "NOT") return BooleanEntry.Operator.OPER_NOT;
+        return null;
+    }
+       
+    private static boolean isOperator(Serializable value) {
+        if (value instanceof BooleanEntry || 
+                value instanceof  OpenParen ||
+                value instanceof CloseParen) {
+            return true;
+        }
+        
+        return false;
     }
     
-    private static boolean isQuote(char value) {
-        return (value == '"');
-    }
-    
-    private static void appendItem(ArrayList<SearchEntry> dst, final SearchEntry sre) {
+    private static void appendItem(ArrayList<Serializable> dst, final Serializable sre) {
         if (!(sre instanceof BooleanEntry))
         {
             if (!dst.isEmpty())
             {
-                if ((!dst.get(dst.size()-1).isOperator() && !sre.isOperator()) ||                                                              // xxx xxx
-                (!dst.get(dst.size()-1).isOperator() && sre.getOperator() == Operator.OPER_OPEN_PAREN) ||                                 // xxx (
-                (dst.get(dst.size()-1).getOperator() == Operator.OPER_CLOSE_PAREN && !sre.isOperator()) ||                                 // ) xxx
-                (dst.get(dst.size()-1).getOperator() == Operator.OPER_CLOSE_PAREN && sre.getOperator() == Operator.OPER_OPEN_PAREN))  // ) (
+                if ((isOperator(dst.get(dst.size()-1)) && !isOperator(sre)) ||                                                              // xxx xxx
+                (!isOperator(dst.get(dst.size()-1)) && sre instanceof OpenParen) ||                                 // xxx (
+                (dst.get(dst.size()-1) instanceof CloseParen && !isOperator(sre)) ||                                 // ) xxx
+                (dst.get(dst.size()-1) instanceof CloseParen && sre  instanceof OpenParen))  // ) (
                 {
-                    dst.add(makeEntry(Operator.OPER_AND));
+                    dst.add(makeEntry(BooleanEntry.Operator.OPER_AND));
                 }
 
                 //if (dst.back().getOperator() == search_request_entry::SRE_OBR && sre.getOperator() == search_request_entry::SRE_CBR)
@@ -58,11 +124,72 @@ public class SearchRequest {
         dst.add(sre);
     }
     
-    private static ArrayList<SearchEntry> string2Entries(String value) throws ProtocolException {        
+    private static ArrayList<Serializable> string2Entries(
+            long minSize,
+            long maxSize,
+            int sourcesCount,
+            int completeSourcesCount,
+            String fileType,
+            String fileExtension,
+            String codec,
+            int mediaLength,
+            int mediaBitrate,
+            String value) throws ProtocolException {        
         boolean verbatim = false;        
         StringBuilder item = new StringBuilder();
-        ArrayList<SearchEntry> res = new ArrayList<SearchEntry>();
+        ArrayList<Serializable> res = new ArrayList<Serializable>();
+        
+        if (fileType.compareTo(ED2KFTSTR_FOLDER) == 0) // for folders we search emule collections exclude ed2k links - user brackets to correct expr
+        {
+            appendItem(res, new OpenParen());
+            appendItem(res, makeEntry(null, Tag.FT_FILETYPE, ED2KFTSTR_EMULECOLLECTION));
+            appendItem(res, makeEntry(BooleanEntry.Operator.OPER_NOT));
+            appendItem(res, makeEntry("ED2K:\\"));
+            appendItem(res, new CloseParen());
+        }
+        else
+        {
+            if (!fileType.isEmpty())
+            {
+                if ((fileType.compareTo(ED2KFTSTR_ARCHIVE) == 0) || (fileType.compareTo(ED2KFTSTR_CDIMAGE) == 0))
+                {
+                    appendItem(res, makeEntry(null, Tag.FT_FILETYPE, ED2KFTSTR_PROGRAM));
+                }
+                else
+                {
+                    appendItem(res, makeEntry(null, Tag.FT_FILETYPE, fileType)); // I don't check this value!
+                }
+            }
 
+            // if type is not folder - process file parameters now
+            if (fileType.compareTo(ED2KFTSTR_EMULECOLLECTION) != 0)
+            {
+                if (minSize != 0)
+                    appendItem(res, makeEntry(null, Tag.FT_FILESIZE, Operator.ED2K_SEARCH_OP_GREATER.value, minSize));
+
+                if (maxSize != 0)
+                    appendItem(res, makeEntry(null, Tag.FT_FILESIZE, Operator.ED2K_SEARCH_OP_LESS.value, maxSize));
+
+                if (sourcesCount != 0)
+                    appendItem(res, makeEntry(null, Tag.FT_SOURCES, Operator.ED2K_SEARCH_OP_GREATER.value, sourcesCount));
+
+                if (completeSourcesCount != 0)
+                    appendItem(res, makeEntry(null, Tag.FT_COMPLETE_SOURCES, Operator.ED2K_SEARCH_OP_GREATER.value, completeSourcesCount));
+
+                if (!fileExtension.isEmpty())
+                    appendItem(res, makeEntry(null, Tag.FT_FILEFORMAT, fileExtension)); // I don't check this value!
+
+                if (!codec.isEmpty())
+                    appendItem(res, makeEntry(null, Tag.FT_MEDIA_CODEC, codec)); // I don't check this value!
+
+                if (mediaLength != 0)
+                    appendItem(res, makeEntry(null, Tag.FT_MEDIA_LENGTH, Operator.ED2K_SEARCH_OP_GREATER_EQUAL.value, mediaLength)); // I don't check this value!
+
+                if (mediaBitrate != 0)
+                    appendItem(res, makeEntry(null, Tag.FT_MEDIA_BITRATE, Operator.ED2K_SEARCH_OP_GREATER_EQUAL.value, mediaBitrate)); // I don't check this value!
+            }
+        }
+        
         for (int i = 0; i < value.length(); ++i)
         {
             char c = value.charAt(i);
@@ -79,9 +206,9 @@ public class SearchRequest {
                     }
                     else if (item.length() != 0)
                     {                        
-                        SearchEntry.Operator so = string2Operator(item.toString());
+                        BooleanEntry.Operator so = string2Operator(item.toString());
 
-                        if (so != Operator.OPER_NONE)
+                        if (so != null)
                         {
                             // add boolean operator
                             if (res.isEmpty() || (res.get(res.size()-1) instanceof BooleanEntry) || (c == ')'))
@@ -104,11 +231,11 @@ public class SearchRequest {
                     }
 
                     if (c == '(') {
-                        appendItem(res, makeEntry(Operator.OPER_OPEN_PAREN));
+                        appendItem(res, new OpenParen());
                     }
 
                     if (c == ')') {
-                        appendItem(res, makeEntry(Operator.OPER_CLOSE_PAREN));
+                        appendItem(res, new CloseParen());
                     }
 
                     break;
@@ -129,9 +256,9 @@ public class SearchRequest {
         if (item.length() != 0)
         {
             // add last item - check it is not operator
-            SearchEntry.Operator so = string2Operator(item.toString());
+            BooleanEntry.Operator so = string2Operator(item.toString());
 
-            if (so != Operator.OPER_NONE)
+            if (so != null)
             {
                 throw new ProtocolException("Operator on end of expression");
             }
@@ -142,23 +269,23 @@ public class SearchRequest {
         }
         
         return res;
-    }
+    }        
     
-    private static ArrayList<SearchEntry> packRequest(ArrayList<SearchEntry> source) throws ProtocolException {
-        ArrayList<SearchEntry> res = new ArrayList<SearchEntry>();
-        Stack<SearchEntry> operators_stack = new Stack<SearchEntry>();
+    private static ArrayList<Serializable> packRequest(ArrayList<Serializable> source) throws ProtocolException {
+        ArrayList<Serializable> res = new ArrayList<Serializable>();
+        Stack<Serializable> operators_stack = new Stack<Serializable>();
         
         for(int i = source.size() - 1; i >= 0; --i) {
-            SearchEntry entry = source.get(i);
-            if (entry.isOperator()) {
+            Serializable entry = source.get(i);
+            if (isOperator(entry)) {
                 
-                if (entry.getOperator() == Operator.OPER_OPEN_PAREN) {
+                if (entry instanceof OpenParen) {
                     if (operators_stack.empty()) {
                         throw new ProtocolException("Incorrect brackets count");
                     }
 
                     // roll up
-                    while(operators_stack.peek().getOperator() != Operator.OPER_CLOSE_PAREN) {
+                    while(operators_stack.peek() instanceof CloseParen) {
                         res.add(operators_stack.pop());
                         
                         if (operators_stack.empty()) {
@@ -173,9 +300,9 @@ public class SearchRequest {
 
                 // we have normal operator and on stack top we have normal operator
                 // prepare result - move operator from top to result and replace top
-                if ((entry.getOperator().value <= Operator.OPER_NOT.value) &&
+                if ((entry instanceof BooleanEntry) &&
                         !operators_stack.empty() &&
-                        (operators_stack.peek().getOperator().value <= Operator.OPER_NOT.value))
+                        (operators_stack.peek() instanceof BooleanEntry))
                 {
                     res.add(operators_stack.pop());                    
                 }
@@ -190,7 +317,7 @@ public class SearchRequest {
 
         if (!operators_stack.empty())
         {
-            if (operators_stack.peek().getOperator().value > Operator.OPER_NOT.value)
+            if (operators_stack.peek() instanceof OpenParen || operators_stack.peek() instanceof CloseParen)
             {
                 throw new ProtocolException("Incorrect brackets count");
             }
@@ -219,7 +346,7 @@ public class SearchRequest {
         return tag;
     }
     
-    public static SearchEntry makeEntry(String value) throws ProtocolException {
+    public static Serializable makeEntry(String value) throws ProtocolException {
         try {
             return new StringEntry(new ByteContainer<UInt16>(uint16(), value.getBytes("UTF-8")), null);
         } catch(UnsupportedEncodingException e) {
@@ -227,7 +354,7 @@ public class SearchRequest {
         }
     }
     
-    public static SearchEntry makeEntry(String name, byte id, String value) throws ProtocolException {                
+    public static Serializable makeEntry(String name, byte id, String value) throws ProtocolException {                
         try {
             return new StringEntry(new ByteContainer<UInt16>(uint16(), value.getBytes("UTF-8")), generateTag(name, id));
         } catch(UnsupportedEncodingException e) {
@@ -235,7 +362,52 @@ public class SearchRequest {
         }
     }
     
-    public static SearchEntry makeEntry(String name, byte id, byte operator, long value) throws ProtocolException {
+    public static Serializable makeEntry(String name, byte id, byte operator, long value) throws ProtocolException {
         return new NumericEntry(value, operator, generateTag(name, id));
+    }
+
+    @Override
+    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        assert(false);
+        return src;
+    }
+
+    @Override
+    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        for(int i = 0; i < value.size(); ++i) {
+            value.get(i).put(dst);
+        }
+        
+        return dst;
+    }
+
+    @Override
+    public int size() {
+        int res = 0;
+        for(int i = 0; i < value.size(); ++i) {
+            res += value.get(i).size();
+        }
+        return res;
+    }
+    
+    public static SearchRequest makeRequest(
+            long minSize,
+            long maxSize,
+            int sourcesCount,
+            int completeSourcesCount,
+            String fileType,
+            String fileExtension,
+            String codec,
+            int mediaLength,
+            int mediaBitrate,
+            String value) throws ProtocolException {
+        return new SearchRequest(packRequest(string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount, 
+                fileType, fileExtension, codec, mediaLength, mediaBitrate, value)));
+    }
+    
+    public static SearchRequest makeRelatedSearchRequest(Hash value) throws ProtocolException {
+        ArrayList<Serializable> ival = new ArrayList<Serializable>();
+        ival.add(makeEntry("related::" + value.toString()));
+        return new SearchRequest(ival);
     }
 }

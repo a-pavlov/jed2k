@@ -6,7 +6,6 @@ import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import org.jed2k.Utils;
-import org.jed2k.protocol.Buffer;
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.ProtocolException;
@@ -102,6 +101,20 @@ public final class Tag implements Serializable {
     public static final byte FT_FILEHASH           = (byte)0x28;
     public static final byte FT_COMPLETE_SOURCES   = (byte)0x30;    // nr. of sources which share a
     public static final byte FT_FAST_RESUME_DATA   = (byte)0x31;   // fast resume data array
+    
+    public static final byte FT_PUBLISHINFO        = (byte)0x33;    // <uint32>
+    public static final byte FT_ATTRANSFERRED      = (byte)0x50;    // <uint32>
+    public static final byte FT_ATREQUESTED        = (byte)0x51;    // <uint32>
+    public static final byte FT_ATACCEPTED         = (byte)0x52;    // <uint32>
+    public static final byte FT_CATEGORY           = (byte)0x53;    // <uint32>
+    public static final byte FT_ATTRANSFERREDHI    = (byte)0x54;    // <uint32>
+    public static final byte FT_MEDIA_ARTIST       = (byte)0xD0;    // <string>
+    public static final byte FT_MEDIA_ALBUM        = (byte)0xD1;    // <string>
+    public static final byte FT_MEDIA_TITLE        = (byte)0xD2;    // <string>
+    public static final byte FT_MEDIA_LENGTH       = (byte)0xD3;    // <uint32> !!!
+    public static final byte FT_MEDIA_BITRATE      = (byte)0xD4;    // <uint32>
+    public static final byte FT_MEDIA_CODEC        = (byte)0xD5;    // <string>
+    public static final byte FT_FILERATING         = (byte)0xF7;    // <uint8>
     
     public static final byte CT_NAME                         = (byte)0x01;
     public static final byte CT_SERVER_UDPSEARCH_FLAGS       = (byte)0x0E;

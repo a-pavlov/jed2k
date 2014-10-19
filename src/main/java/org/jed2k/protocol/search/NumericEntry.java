@@ -4,11 +4,12 @@ import java.nio.ByteBuffer;
 
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.ProtocolException;
+import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
 
 import static org.jed2k.Utils.sizeof;
 
-public class NumericEntry extends SearchEntry {
+public class NumericEntry implements Serializable {
     
     private static long UINT_MAX = 0xffffffffl;
     private long value;
@@ -51,15 +52,4 @@ public class NumericEntry extends SearchEntry {
     public int size() {
         return sizeof(SearchRequest.SEARCH_TYPE_UINT32) + ((value <= UINT_MAX)?sizeof(value)/2:sizeof(value)) + tag.size();        
     }
-
-    @Override
-    public Operator getOperator() {
-        return Operator.OPER_NONE;        
-    }
-
-    @Override
-    public boolean isOperator() {
-        return false;
-    }
-    
 }
