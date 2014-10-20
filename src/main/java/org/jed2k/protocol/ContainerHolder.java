@@ -3,6 +3,7 @@ package org.jed2k.protocol;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
+import org.jed2k.exception.JED2KException;
 
 public class ContainerHolder<CS extends UNumber, Elem extends Serializable> implements Serializable {
       public CS size;
@@ -20,7 +21,7 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
       }
       
       @Override
-      public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+      public ByteBuffer get(ByteBuffer src) throws JED2KException {
         size.get(src);
         try {
             for(int i = 0; i < size.intValue(); ++i) {            
@@ -29,15 +30,15 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
                 collection.add(e);
             }
         } catch(InstantiationException e) {
-            throw new ProtocolException(e);
+            throw new JED2KException(e);
         } catch (IllegalAccessException e1) {
-            throw new ProtocolException(e1);
+            throw new JED2KException(e1);
         }
         return src;
       }
     
       @Override
-      public ByteBuffer put(ByteBuffer dst)  throws ProtocolException {
+      public ByteBuffer put(ByteBuffer dst)  throws JED2KException {
         size.assign(collection.size());
         size.put(dst);
         Iterator<Elem> itr = collection.iterator();

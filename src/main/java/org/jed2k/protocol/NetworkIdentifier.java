@@ -2,6 +2,7 @@ package org.jed2k.protocol;
 
 import static org.jed2k.Utils.sizeof;
 import static org.jed2k.Utils.int2Address;
+import org.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
 
@@ -18,14 +19,14 @@ public final class NetworkIdentifier implements Serializable {
     }
     
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         ip = src.getInt();
         port = src.getShort();
         return src;
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return dst.putInt(ip).putShort(port);
     }
     

@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.tag.Tag;
@@ -104,7 +104,7 @@ public class SearchRequest implements Serializable {
         return false;
     }
     
-    private static void appendItem(ArrayList<Serializable> dst, final Serializable sre) throws ProtocolException {
+    private static void appendItem(ArrayList<Serializable> dst, final Serializable sre) throws JED2KException {
         if (!(sre instanceof BooleanEntry))
         {
             if (!dst.isEmpty())
@@ -119,7 +119,7 @@ public class SearchRequest implements Serializable {
 
                 if (dst.get(dst.size()-1) instanceof OpenParen && sre instanceof CloseParen)
                 {
-                    throw new ProtocolException("Empty brackets on add item");
+                    throw new JED2KException("Empty brackets on add item");
                 }
             }
         }
@@ -137,7 +137,7 @@ public class SearchRequest implements Serializable {
             String codec,
             int mediaLength,
             int mediaBitrate,
-            String value) throws ProtocolException {        
+            String value) throws JED2KException {        
         boolean verbatim = false;        
         StringBuilder item = new StringBuilder();
         ArrayList<Serializable> res = new ArrayList<Serializable>();
@@ -217,7 +217,7 @@ public class SearchRequest implements Serializable {
                             if (res.isEmpty() || (res.get(res.size()-1) instanceof BooleanEntry) || (c == ')'))
                             {
                                 // operator in begin, operator before previous operator and operator before close bracket is error
-                                throw new ProtocolException("Operator incorrect place");                                
+                                throw new JED2KException("Operator incorrect place");                                
                             }
                             else
                             {
@@ -253,7 +253,7 @@ public class SearchRequest implements Serializable {
 
         // check unclosed quotes
         if (verbatim) {
-            throw new ProtocolException("Unclosed quotation mark");
+            throw new JED2KException("Unclosed quotation mark");
         }
 
         if (item.length() != 0)
@@ -263,7 +263,7 @@ public class SearchRequest implements Serializable {
 
             if (so != null)
             {
-                throw new ProtocolException("Operator on end of expression");
+                throw new JED2KException("Operator on end of expression");
             }
             else
             {                
@@ -274,7 +274,7 @@ public class SearchRequest implements Serializable {
         return res;
     }        
     
-    private static ArrayList<Serializable> packRequest(ArrayList<Serializable> source) throws ProtocolException {
+    private static ArrayList<Serializable> packRequest(ArrayList<Serializable> source) throws JED2KException {
         ArrayList<Serializable> res = new ArrayList<Serializable>();
         Stack<Serializable> operators_stack = new Stack<Serializable>();
         
@@ -284,7 +284,7 @@ public class SearchRequest implements Serializable {
                 
                 if (entry instanceof OpenParen) {
                     if (operators_stack.empty()) {
-                        throw new ProtocolException("Open paren without close paren");
+                        throw new JED2KException("Open paren without close paren");
                     }
 
                     // roll up
@@ -292,7 +292,7 @@ public class SearchRequest implements Serializable {
                         res.add(operators_stack.pop());
                         
                         if (operators_stack.empty()) {
-                            throw new ProtocolException("Empty brackets found ()");
+                            throw new JED2KException("Empty brackets found ()");
                         }
                     }
 
@@ -322,7 +322,7 @@ public class SearchRequest implements Serializable {
         {
             if (operators_stack.peek() instanceof OpenParen || operators_stack.peek() instanceof CloseParen)
             {
-                throw new ProtocolException("Incorrect brackets count");
+                throw new JED2KException("Incorrect brackets count");
             }
 
             res.add(operators_stack.pop());
@@ -331,7 +331,7 @@ public class SearchRequest implements Serializable {
         return res;
     }
     
-    private static ByteContainer<UInt16> generateTag(String name, byte id) throws ProtocolException {
+    private static ByteContainer<UInt16> generateTag(String name, byte id) throws JED2KException {
         ByteContainer<UInt16> tag;
         if (name != null) {
             tag = ByteContainer.fromString16(name);
@@ -343,26 +343,26 @@ public class SearchRequest implements Serializable {
         return tag;
     }
     
-    public static Serializable makeEntry(String value) throws ProtocolException {
+    public static Serializable makeEntry(String value) throws JED2KException {
             return new StringEntry(ByteContainer.fromString16(value), null);
     }
     
-    public static Serializable makeEntry(String name, byte id, String value) throws ProtocolException {
+    public static Serializable makeEntry(String name, byte id, String value) throws JED2KException {
             return new StringEntry(ByteContainer.fromString16(value), generateTag(name, id));        
     }
     
-    public static Serializable makeEntry(String name, byte id, byte operator, long value) throws ProtocolException {
+    public static Serializable makeEntry(String name, byte id, byte operator, long value) throws JED2KException {
         return new NumericEntry(value, operator, generateTag(name, id));
     }
 
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         assert(false);
         return src;
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         for(int i = 0; i < value.size(); ++i) {
             value.get(i).put(dst);
         }
@@ -389,7 +389,7 @@ public class SearchRequest implements Serializable {
             String codec,
             int mediaLength,
             int mediaBitrate,
-            String value) throws ProtocolException {
+            String value) throws JED2KException {
         ArrayList<Serializable> a = new ArrayList<Serializable>();
         a = string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount, 
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value);
@@ -398,7 +398,7 @@ public class SearchRequest implements Serializable {
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value)));
     }
     
-    public static SearchRequest makeRelatedSearchRequest(Hash value) throws ProtocolException {
+    public static SearchRequest makeRelatedSearchRequest(Hash value) throws JED2KException {
         ArrayList<Serializable> ival = new ArrayList<Serializable>();
         ival.add(makeEntry("related::" + value.toString()));
         return new SearchRequest(ival);

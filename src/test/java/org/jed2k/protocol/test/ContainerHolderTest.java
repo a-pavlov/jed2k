@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 import java.util.LinkedList;
 
 import org.junit.Test;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.UInt8;
 import org.jed2k.protocol.ContainerHolder;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -18,7 +18,7 @@ import static org.jed2k.protocol.Unsigned.uint8;
 public class ContainerHolderTest{
     
     @Test
-    public void testHolderSerialization() throws ProtocolException{
+    public void testHolderSerialization() throws JED2KException{
       byte source[] = {(byte)0x02, // size
           (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x00,   // net identifier 1
           (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x06, (byte)0x00};  // net identifier 2

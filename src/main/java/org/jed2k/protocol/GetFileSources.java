@@ -2,6 +2,7 @@ package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
 import static org.jed2k.Utils.sizeof;
+import org.jed2k.exception.JED2KException;
 
 public class GetFileSources implements Serializable {
     public Hash hash = new Hash();
@@ -9,7 +10,7 @@ public class GetFileSources implements Serializable {
     public int hiPart   = 0;
     
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         hash.get(src);
         int val = src.getInt();
         
@@ -25,7 +26,7 @@ public class GetFileSources implements Serializable {
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         hash.put(dst);
         
         if (hiPart != 0) {

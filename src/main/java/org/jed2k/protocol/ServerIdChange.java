@@ -1,7 +1,7 @@
 package org.jed2k.protocol;
 
 import static org.jed2k.Utils.sizeof;
-
+import org.jed2k.exception.JED2KException;
 import java.nio.ByteBuffer;
 
 public class ServerIdChange extends SoftSerializable {
@@ -10,7 +10,7 @@ public class ServerIdChange extends SoftSerializable {
     public int auxPort  = 0;
     
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         clientId = src.getInt();
         tcpFlags = src.getInt();
         auxPort = src.getInt();
@@ -36,7 +36,7 @@ public class ServerIdChange extends SoftSerializable {
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return dst.putInt(clientId).putInt(tcpFlags).putInt(auxPort);
     }
 

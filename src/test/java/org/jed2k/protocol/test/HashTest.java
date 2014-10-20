@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 
 import org.jed2k.hash.MD4;
 import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.junit.Test;
 
 public class HashTest{
@@ -27,7 +27,7 @@ public class HashTest{
     }
     
     @Test
-    public void testElementarySerialization() throws ProtocolException {
+    public void testElementarySerialization() throws JED2KException {
         ByteBuffer nb = ByteBuffer.wrap(terminal);
         nb.order(ByteOrder.LITTLE_ENDIAN);
         Hash h = new Hash();

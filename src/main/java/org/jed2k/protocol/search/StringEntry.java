@@ -3,7 +3,7 @@ package org.jed2k.protocol.search;
 import java.nio.ByteBuffer;
 
 import org.jed2k.protocol.ByteContainer;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 
 import org.jed2k.protocol.UInt16;
@@ -21,13 +21,13 @@ public class StringEntry implements Serializable {
     }
     
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         assert(false);
         return src;
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         if (tag != null) {
             dst.put(SearchRequest.SEARCH_TYPE_STR_TAG);            
         } else {
@@ -52,7 +52,7 @@ public class StringEntry implements Serializable {
     public String toString() {        
         try {
             return value.asString();
-        } catch (ProtocolException e) {
+        } catch (JED2KException e) {
             return " Exception ";            
         }
     }

@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
 import org.jed2k.protocol.PacketHeader;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.ServerIdChange;
@@ -34,14 +34,14 @@ public class PacketCombinerTest {
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
         try {
             login.properties.add(tag(Tag.CT_NAME, null, "jed2k"));
-        } catch(ProtocolException e) {
+        } catch(JED2KException e) {
             
         }
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
     }
     
     @Test
-    public void testPackUnpack() throws ProtocolException {
+    public void testPackUnpack() throws JED2KException {
         ByteBuffer nb = ByteBuffer.allocate(1024);
         nb.order(ByteOrder.LITTLE_ENDIAN);        
         PacketCombiner combiner = new PacketCombiner();
@@ -58,7 +58,7 @@ public class PacketCombinerTest {
     }
     
     @Test
-    public void testBufferOverflow() throws ProtocolException {
+    public void testBufferOverflow() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(128);
         LinkedList<Serializable> order = new LinkedList<Serializable>();
         order.add(new ServerIdChange());

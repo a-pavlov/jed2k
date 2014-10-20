@@ -1,7 +1,8 @@
 package org.jed2k.protocol;
-import static org.jed2k.Utils.byte2String;
 
+import static org.jed2k.Utils.byte2String;
 import java.nio.ByteBuffer;
+import org.jed2k.exception.JED2KException;
 
 public class PacketHeader implements Serializable {
     public static byte OP_UNDEFINED     = (byte)0;
@@ -37,24 +38,24 @@ public class PacketHeader implements Serializable {
     }
 
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         protocol = src.get();
         size = src.getInt();
         packet = src.get();
         
         if (!isDefined()) {
-            throw new ProtocolException("Incorrect packet header content protocol: " + byte2String(protocol) + " opcode " + byte2String(packet));
+            throw new JED2KException("Incorrect packet header content protocol: " + byte2String(protocol) + " opcode " + byte2String(packet));
         }
         
         if (size > MAX_SIZE || size < 0) {
-            throw new ProtocolException("Packet size too large: " + size);
+            throw new JED2KException("Packet size too large: " + size);
         }
         
         return src;
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return dst.put(protocol).putInt(size).put(packet);
     }
     

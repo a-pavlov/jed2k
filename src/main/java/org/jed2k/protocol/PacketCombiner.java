@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+import org.jed2k.exception.JED2KException;
 
 public class PacketCombiner {
     
@@ -114,7 +115,7 @@ public class PacketCombiner {
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACK_FAIL.value, CallbackRequestFailed.class);
     }
     
-    public Serializable unpack(ByteBuffer src) throws ProtocolException {
+    public Serializable unpack(ByteBuffer src) throws JED2KException {
         if (!header.isDefined()) {
             if (src.remaining() >= header.size()) {
                 header.get(src);
@@ -133,9 +134,9 @@ public class PacketCombiner {
                 try {
                     ph = clazz.newInstance();
                 } catch(InstantiationException e) {
-                    throw new ProtocolException(e);
+                    throw new JED2KException(e);
                 } catch (IllegalAccessException e) {
-                    throw new ProtocolException(e);                    
+                    throw new JED2KException(e);                    
                 }
             } else {
                 ph = new BytesSkipper(header.sizePacket());
@@ -158,7 +159,7 @@ public class PacketCombiner {
         return null;
     }
     
-    public boolean pack(Serializable object, ByteBuffer dst) throws ProtocolException {
+    public boolean pack(Serializable object, ByteBuffer dst) throws JED2KException {
         PacketKey key = struct2Key.get(object.getClass());
         assert(key != null);
         if ((outgoingHeader.size() + object.size()) < dst.remaining()) {

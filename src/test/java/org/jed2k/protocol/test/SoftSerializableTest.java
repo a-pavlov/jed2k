@@ -8,7 +8,7 @@ import static org.jed2k.protocol.Unsigned.uint32;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.ServerIdChange;
 import org.jed2k.protocol.SoftSerializable;
@@ -20,7 +20,7 @@ public class SoftSerializableTest {
     private static byte[] source = {0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00 };
     
     @Test
-    public void testSoftSerialization() throws ProtocolException {
+    public void testSoftSerialization() throws JED2KException {
         ByteBuffer bb = ByteBuffer.wrap(source);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         Serializable sig = new ServerIdChange();
@@ -42,7 +42,7 @@ public class SoftSerializableTest {
     }
     
     @Test
-    public void testSoftSerializationMiddle() throws ProtocolException {
+    public void testSoftSerializationMiddle() throws JED2KException {
         ByteBuffer bb = ByteBuffer.wrap(source);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         Serializable sig = new ServerIdChange();
@@ -62,7 +62,7 @@ public class SoftSerializableTest {
     }
     
     @Test
-    public void testSoftSerializationFull() throws ProtocolException {
+    public void testSoftSerializationFull() throws JED2KException {
         ByteBuffer bb = ByteBuffer.wrap(source);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         Serializable sig = new ServerIdChange();

@@ -2,7 +2,7 @@ package org.jed2k.protocol.search;
 
 import java.nio.ByteBuffer;
 
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 
 import static org.jed2k.Utils.sizeof;
@@ -28,13 +28,13 @@ public class BooleanEntry implements Serializable {
     }
     
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         assert(false);
         return src;
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         dst.put(SearchRequest.SEARCH_TYPE_BOOL);
         assert(value == Operator.OPER_AND || value == Operator.OPER_OR || value == Operator.OPER_NOT);
         dst.put(value.value);

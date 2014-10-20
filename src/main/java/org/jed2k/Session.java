@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 
 public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName()); 

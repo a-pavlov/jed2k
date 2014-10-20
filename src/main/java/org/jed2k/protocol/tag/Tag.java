@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import org.jed2k.Utils;
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.UInt32;
@@ -243,13 +243,13 @@ public final class Tag implements Serializable {
         }
         
         @Override
-        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        public ByteBuffer get(ByteBuffer src) throws JED2KException {
             value = src.getFloat();
             return src;
         }
 
         @Override
-        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {  
+        public ByteBuffer put(ByteBuffer dst) throws JED2KException {  
             return dst.putFloat(value); 
         }
 
@@ -272,13 +272,13 @@ public final class Tag implements Serializable {
         }
         
         @Override
-        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        public ByteBuffer get(ByteBuffer src) throws JED2KException {
             value = (src.get() == 0x00);    
             return src;
         }
 
         @Override
-        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        public ByteBuffer put(ByteBuffer dst) throws JED2KException {
             byte bval = (value)?(byte)0x01:(byte)0x00;
             return dst.put(bval);
         }
@@ -304,7 +304,7 @@ public final class Tag implements Serializable {
         }
                 
         @Override
-        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        public ByteBuffer get(ByteBuffer src) throws JED2KException {
             short size = 0;
             if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16) {
                 size = (short)(type - Tag.TAGTYPE_STR1 + 1);
@@ -317,7 +317,7 @@ public final class Tag implements Serializable {
         }
         
         @Override
-        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        public ByteBuffer put(ByteBuffer dst) throws JED2KException {
             if (type == Tag.TAGTYPE_STRING) dst.putShort((short)value.length);            
             return dst.put(value);
         }        
@@ -329,12 +329,12 @@ public final class Tag implements Serializable {
             return value.length + ((type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16)?0:2);
         }
         
-        public String stringValue() throws ProtocolException {
+        public String stringValue() throws JED2KException {
             assert(value != null);
             try {                
                 return new String(value, "UTF-8");
             } catch(UnsupportedEncodingException e) {
-                throw new ProtocolException(e);
+                throw new JED2KException(e);
             }
         }
         
@@ -342,7 +342,7 @@ public final class Tag implements Serializable {
         public String toString() {
             try {
                 return stringValue();
-            } catch (ProtocolException e){
+            } catch (JED2KException e){
                 log.warning(e.getMessage());
             }
             
@@ -355,13 +355,13 @@ public final class Tag implements Serializable {
         private byte value[] = null;               
         
         @Override
-        public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+        public ByteBuffer put(ByteBuffer dst) throws JED2KException {
             assert(false);
             return dst;
         }
 
         @Override
-        public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+        public ByteBuffer get(ByteBuffer src) throws JED2KException {
             length.get(src);
             value = new byte[length.intValue() / 8];
             return src.get(value);
@@ -392,7 +392,7 @@ public final class Tag implements Serializable {
     }
     
     @Override 
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         this.type = src.get();
         
         if ((type & 0x80) != 0){
@@ -459,7 +459,7 @@ public final class Tag implements Serializable {
             break;
         default:
             log.warning("Unknown tag type: " + Utils.byte2String(type));
-            throw new ProtocolException("Unknown tag type " + Utils.byte2String(type));
+            throw new JED2KException("Unknown tag type " + Utils.byte2String(type));
         };
         
         assert(value != null);
@@ -468,7 +468,7 @@ public final class Tag implements Serializable {
     }
     
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         assert(initialized());
         assert(value != null);
         if (name == null){
@@ -499,38 +499,38 @@ public final class Tag implements Serializable {
         return name;
     }
     
-    public final String stringValue() throws ProtocolException {
+    public final String stringValue() throws JED2KException {
         assert(initialized());
         StringSerial ss = (StringSerial)value;
-        if (ss == null) throw new ProtocolException("Ivalid cast tag to string");
+        if (ss == null) throw new JED2KException("Ivalid cast tag to string");
         return ss.stringValue();
     }
     
-    public final int intValue() throws ProtocolException {
+    public final int intValue() throws JED2KException {
         assert(initialized());
         UNumber n = (UNumber)value;
-        if (value == null)  throw new ProtocolException("Invalid cast tag to int");        
+        if (value == null)  throw new JED2KException("Invalid cast tag to int");        
         return n.intValue();
     }
     
-    public final long longValue() throws ProtocolException {
+    public final long longValue() throws JED2KException {
         assert(initialized());
         UNumber n = (UNumber)value;
-        if (n == null) throw new ProtocolException("Invalid cast tag to long");
+        if (n == null) throw new JED2KException("Invalid cast tag to long");
         return n.longValue();
     }
     
-    public final float floatValue() throws ProtocolException {
+    public final float floatValue() throws JED2KException {
         assert(initialized());
         FloatSerial fs = (FloatSerial)value;
-        if (fs == null) throw new ProtocolException("Invalid cast tag to float");
+        if (fs == null) throw new JED2KException("Invalid cast tag to float");
         return fs.value;
     }
     
-    public final Hash hashValue() throws ProtocolException {
+    public final Hash hashValue() throws JED2KException {
         assert(initialized());
         Hash h = (Hash)value;
-        if (h == null) throw new ProtocolException("Invalid cast tag to hash");
+        if (h == null) throw new JED2KException("Invalid cast tag to hash");
         return h;
     }
     
@@ -554,7 +554,7 @@ public final class Tag implements Serializable {
         return new Tag(TAGTYPE_FLOAT32, id, name, new FloatSerial(value));
     }
     
-    public static Tag tag(byte id, String name, String value) throws ProtocolException {
+    public static Tag tag(byte id, String name, String value) throws JED2KException {
         byte type = Tag.TAGTYPE_STRING;
         byte[] bytes = null;
         
@@ -562,14 +562,14 @@ public final class Tag implements Serializable {
             bytes = value.getBytes("UTF-8"); 
             if (bytes.length <= 16) type = (byte)(Tag.TAGTYPE_STR1 + bytes.length - 1);
         } catch(UnsupportedEncodingException ex) {
-            throw new ProtocolException(ex);
+            throw new JED2KException(ex);
         }
         
         assert(bytes != null);
         return new Tag(type, id, name, new StringSerial(type, bytes));
     }
     
-    public static Tag tag(byte id, String name, Hash value) throws ProtocolException {
+    public static Tag tag(byte id, String name, Hash value) throws JED2KException {
         return new Tag(TAGTYPE_HASH16, id, name, value);
     }
 

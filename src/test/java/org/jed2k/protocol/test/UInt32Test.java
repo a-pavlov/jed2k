@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 
 import static org.jed2k.protocol.Unsigned.uint32;
 
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.UInt32;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class UInt32Test{
     }
     
     @Test
-    public void serializationTest() throws ProtocolException {
+    public void serializationTest() throws JED2KException {
         byte[] source = { 0x03, 0x00, 0x00, 0x00 };
         ByteBuffer nb = ByteBuffer.wrap(source);
         nb.order(ByteOrder.LITTLE_ENDIAN);

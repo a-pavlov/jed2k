@@ -1,9 +1,8 @@
 package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
-
 import org.jed2k.hash.MD4;
-
+import org.jed2k.exception.JED2KException;
 import static org.jed2k.Utils.byte2String;
 
 public final class Hash implements Serializable, Comparable<Hash> {
@@ -57,12 +56,12 @@ public final class Hash implements Serializable, Comparable<Hash> {
     }
 
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         return src.get(value);
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return dst.put(value);
     }
 

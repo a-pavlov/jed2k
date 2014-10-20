@@ -2,7 +2,7 @@ package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
-
+import org.jed2k.exception.JED2KException;
 import static org.jed2k.protocol.Unsigned.uint32;
 import static org.jed2k.Utils.sizeof;
 
@@ -12,14 +12,14 @@ public class SearchResult extends SoftSerializable {
     public byte moreResults = 0;
     
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         files.get(src);
         moreResults = src.get();        
         return src;
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         files.put(dst);
         return dst.put(moreResults);       
     }
@@ -30,7 +30,7 @@ public class SearchResult extends SoftSerializable {
     }
 
     @Override
-    public ByteBuffer get(ByteBuffer src, int limit) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src, int limit) throws JED2KException {
         files.get(src);
         if (limit - files.size() > 0) moreResults = src.get();
         return src;        

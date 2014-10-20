@@ -9,11 +9,11 @@ import java.nio.ByteOrder;
 
 import org.junit.Test;
 import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 
 public class NetworkIdentifierTest{
   @Test
-  public void testSerialize() throws ProtocolException {
+  public void testSerialize() throws JED2KException {
     byte source[] = {
       (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00,  (byte)0x01, (byte)0x00      
     };

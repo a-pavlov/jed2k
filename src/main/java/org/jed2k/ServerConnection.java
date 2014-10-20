@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
 import org.jed2k.protocol.PacketCombiner;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.ServerGetList;
 import org.jed2k.protocol.tag.Tag;
@@ -68,7 +68,7 @@ public class ServerConnection {
             return;
         } catch(IOException e) {            
             log.warning(e.getMessage());            
-        } catch(ProtocolException e) {
+        } catch(JED2KException e) {
             log.warning(e.getMessage());            
         }
         
@@ -99,7 +99,7 @@ public class ServerConnection {
             // process incoming packet
         } catch(IOException e) {
             log.warning(e.getMessage());
-        } catch(ProtocolException e) {
+        } catch(JED2KException e) {
             log.warning(e.getMessage());
         }
         
@@ -124,7 +124,7 @@ public class ServerConnection {
             
             return;
         }
-        catch(ProtocolException e) {
+        catch(JED2KException e) {
             log.warning(e.getMessage());
             assert(false);
         } catch (IOException e) {
@@ -143,7 +143,7 @@ public class ServerConnection {
         }
     }
     
-    public Serializable hello() throws ProtocolException {
+    public Serializable hello() throws JED2KException {
         LoginRequest login = new LoginRequest();
         int version = 0x3c;
         int capability = LoginRequest.CAPABLE_AUXPORT | LoginRequest.CAPABLE_NEWTAGS | LoginRequest.CAPABLE_UNICODE | LoginRequest.CAPABLE_LARGEFILES;

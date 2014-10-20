@@ -1,6 +1,7 @@
 package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
+import org.jed2k.exception.JED2KException;
 
 public class BytesSkipper implements Serializable {
     private final int skip_amount; 
@@ -10,13 +11,13 @@ public class BytesSkipper implements Serializable {
     }
     
     @Override
-    public ByteBuffer get(ByteBuffer src) throws ProtocolException {
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
         src.position(skip_amount);
         return src;
     }
 
     @Override
-    public ByteBuffer put(ByteBuffer dst) throws ProtocolException {
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         assert(false);
         return dst;
     }

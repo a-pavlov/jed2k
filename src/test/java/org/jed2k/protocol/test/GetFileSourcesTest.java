@@ -7,13 +7,13 @@ import java.nio.ByteOrder;
 
 import org.jed2k.protocol.GetFileSources;
 import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.junit.Test;
 
 public class GetFileSourcesTest {    
     
     @Test
-    public void testPutGet() throws ProtocolException {
+    public void testPutGet() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(28);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         GetFileSources gfs = new GetFileSources();

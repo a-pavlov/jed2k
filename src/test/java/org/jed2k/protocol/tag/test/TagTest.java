@@ -9,7 +9,7 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 
 import org.jed2k.protocol.ContainerHolder;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.tag.Tag;
 
@@ -19,7 +19,7 @@ import static org.jed2k.protocol.Unsigned.uint16;
 public class TagTest {
     
     @Test
-    public void initialTest() throws ProtocolException {
+    public void initialTest() throws JED2KException {
         Tag floatTag = Tag.tag(Tag.FT_DL_PREVIEW, null, 0.1f);
         assertEquals(0.1f, floatTag.floatValue());
         assertEquals(Tag.FT_DL_PREVIEW, floatTag.id());
@@ -27,7 +27,7 @@ public class TagTest {
     }
     
     @Test
-    public void testTagReading() throws ProtocolException {                
+    public void testTagReading() throws JED2KException {                
         byte[] source =
             {   /* 2 bytes list size*/      (byte)0x09, (byte)0x00,
                 /*1 byte*/          (byte)(Tag.TAGTYPE_UINT8 | 0x80),   (byte)0x10, (byte)0xED,
@@ -60,7 +60,7 @@ public class TagTest {
     }
     
     @Test
-    public void testTagWriting() throws ProtocolException {
+    public void testTagWriting() throws JED2KException {
         ByteBuffer nb = ByteBuffer.allocate(100);
         nb.order(ByteOrder.LITTLE_ENDIAN);
         tag(Tag.FT_UNDEFINED, "Test name", "XXX data").put(tag(Tag.FT_FILEHASH, null, 100).put(nb));

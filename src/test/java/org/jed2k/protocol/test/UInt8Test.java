@@ -9,7 +9,7 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.UInt8;
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ public class UInt8Test{
     }
     
     @Test(expected=BufferUnderflowException.class)
-    public void testSerialize() throws ProtocolException {
+    public void testSerialize() throws JED2KException {
         byte[] data = { (byte)1, (byte)2, (byte)3 };
         ByteBuffer nb = ByteBuffer.wrap(data);
         nb.order(ByteOrder.LITTLE_ENDIAN);

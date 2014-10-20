@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.jed2k.protocol.ByteContainer;
-import org.jed2k.protocol.ProtocolException;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.UInt8;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static org.jed2k.protocol.Unsigned.uint32;
 public class ByteContainerTest{
     
     @Test
-    public void testSerialize() throws ProtocolException{
+    public void testSerialize() throws JED2KException{
         byte[] source = { (byte)0x07,
                 (byte)0x20, (byte)0x20, (byte)0x30, (byte)0x31, (byte)0x32, (byte)0x20, (byte)0x20};
         ByteBuffer nb = ByteBuffer.wrap(source);
@@ -29,7 +29,7 @@ public class ByteContainerTest{
     }
     
     @Test
-    public void testSerialize2() throws ProtocolException {
+    public void testSerialize2() throws JED2KException {
         byte[] source = { (byte)0x07, (byte)0x00, (byte)0x00, (byte)0x00,
                 (byte)0x20, (byte)0x20, (byte)0x30, (byte)0x31, (byte)0x32, (byte)0x20, (byte)0x20};
         ByteBuffer nb = ByteBuffer.wrap(source);
