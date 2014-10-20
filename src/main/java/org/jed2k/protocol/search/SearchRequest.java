@@ -88,9 +88,9 @@ public class SearchRequest implements Serializable {
     }
     
     private static BooleanEntry.Operator string2Operator(String value) {
-        if (value == "AND") return BooleanEntry.Operator.OPER_AND;
-        if (value == "OR")  return BooleanEntry.Operator.OPER_OR;
-        if (value == "NOT") return BooleanEntry.Operator.OPER_NOT;
+        if (value.compareTo("AND") == 0) return BooleanEntry.Operator.OPER_AND;
+        if (value.compareTo("OR") == 0)  return BooleanEntry.Operator.OPER_OR;
+        if (value.compareTo("NOT") == 0) return BooleanEntry.Operator.OPER_NOT;
         return null;
     }
        
@@ -109,10 +109,10 @@ public class SearchRequest implements Serializable {
         {
             if (!dst.isEmpty())
             {
-                if ((!isOperator(dst.get(dst.size()-1)) && !isOperator(sre)) ||                                                              // xxx xxx
-                (!isOperator(dst.get(dst.size()-1)) && sre instanceof OpenParen) ||                                 // xxx (
-                (dst.get(dst.size()-1) instanceof CloseParen && !isOperator(sre)) ||                                 // ) xxx
-                (dst.get(dst.size()-1) instanceof CloseParen && sre  instanceof OpenParen))  // ) (
+                if ((!isOperator(dst.get(dst.size()-1)) && !isOperator(sre)) ||           // xxx xxx
+                (!isOperator(dst.get(dst.size()-1)) && sre instanceof OpenParen) ||       // xxx (
+                (dst.get(dst.size()-1) instanceof CloseParen && !isOperator(sre)) ||      // ) xxx
+                (dst.get(dst.size()-1) instanceof CloseParen && sre instanceof OpenParen))// ) (
                 {
                     dst.add(makeEntry(BooleanEntry.Operator.OPER_AND));
                 }
@@ -288,7 +288,7 @@ public class SearchRequest implements Serializable {
                     }
 
                     // roll up
-                    while(operators_stack.peek() instanceof CloseParen) {
+                    while(!(operators_stack.peek() instanceof CloseParen)) {
                         res.add(operators_stack.pop());
                         
                         if (operators_stack.empty()) {

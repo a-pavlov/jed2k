@@ -19,14 +19,14 @@ public class SearchTest {
     @Test
     public void testTrvialParse() throws ProtocolException {
         String bracket_expr[] = {
-            "(a b)c d"//,
-            /*"(a AND b) AND c d",
+            "(a b)c d",
+            "(a AND b) AND c d",
             "(a b) c AND d",
             "(((a b)))c d",
             "(((a b)))(c)(d)",
             "(((a AND b)))AND((c))AND((d))",
             "(((\"a\" AND \"b\")))AND((c))AND((\"d\"))",
-            "   (   (  (  a    AND b   )  )   )  AND  ((c  )  )    AND (  (  d  )   )"*/
+            "   (   (  (  a    AND b   )  )   )  AND  ((c  )  )    AND (  (  d  )   )"
         };
         
         for(int i = 0; i < bracket_expr.length; ++i) {
