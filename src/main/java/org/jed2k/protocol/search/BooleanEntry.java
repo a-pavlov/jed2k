@@ -48,10 +48,14 @@ public class BooleanEntry implements Serializable {
     
     @Override
     public String toString() {
-        if (value == Operator.OPER_AND) return " AND ";
-        if (value == Operator.OPER_OR) return " OR ";
-        if (value == Operator.OPER_NOT) return " NOT ";
+        if (value == Operator.OPER_AND) return "AND";
+        if (value == Operator.OPER_OR) return "OR";
+        if (value == Operator.OPER_NOT) return "NOT";
         assert(false);
-        return " UNKNOWN "; 
+        return "UNKNOWN"; 
+    }
+    
+    public Operator operator() {
+        return value;
     }
 }

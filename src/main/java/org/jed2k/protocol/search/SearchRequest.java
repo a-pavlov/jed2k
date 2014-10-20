@@ -1,7 +1,9 @@
 package org.jed2k.protocol.search;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.logging.Logger;
 
@@ -78,10 +80,11 @@ public class SearchRequest implements Serializable {
         }
     }
     
-    private ArrayList<Serializable> value;
+    private ArrayDeque<Serializable> value;
     
-    SearchRequest(ArrayList<Serializable> value) {
+    SearchRequest(ArrayDeque<Serializable> value) {
         this.value = value;
+        log.info(dbgString(value));
     }
     
     public static Serializable makeEntry(BooleanEntry.Operator value) {
@@ -275,8 +278,8 @@ public class SearchRequest implements Serializable {
         return res;
     }        
     
-    private static ArrayList<Serializable> packRequest(ArrayList<Serializable> source) throws JED2KException {
-        ArrayList<Serializable> res = new ArrayList<Serializable>();
+    private static ArrayDeque<Serializable> packRequest(ArrayList<Serializable> source) throws JED2KException {
+        ArrayDeque<Serializable> res = new ArrayDeque<Serializable>();
         Stack<Serializable> operators_stack = new Stack<Serializable>();
         
         for(int i = source.size() - 1; i >= 0; --i) {
@@ -290,7 +293,7 @@ public class SearchRequest implements Serializable {
 
                     // roll up
                     while(!(operators_stack.peek() instanceof CloseParen)) {
-                        res.add(operators_stack.pop());
+                        res.addFirst(operators_stack.pop());
                         
                         if (operators_stack.empty()) {
                             throw new JED2KException(SearchCode.INCORRECT_PARENS_COUNT);
@@ -308,14 +311,14 @@ public class SearchRequest implements Serializable {
                         !operators_stack.empty() &&
                         (operators_stack.peek() instanceof BooleanEntry))
                 {
-                    res.add(operators_stack.pop());                    
+                    res.addFirst(operators_stack.pop());                    
                 }
 
                 operators_stack.push(entry);
             }
             else
             {
-                res.add(entry);
+                res.addFirst(entry);
             }
         }
 
@@ -326,7 +329,7 @@ public class SearchRequest implements Serializable {
                 throw new JED2KException(SearchCode.INCORRECT_PARENS_COUNT);
             }
 
-            res.add(operators_stack.pop());
+            res.addFirst(operators_stack.pop());
         }
         
         return res;
@@ -364,9 +367,11 @@ public class SearchRequest implements Serializable {
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        for(int i = 0; i < value.size(); ++i) {
-            value.get(i).put(dst);
-        }
+        Iterator<Serializable> itr = value.iterator();        
+        while(itr.hasNext()) {
+            Serializable s = itr.next();
+            s.put(dst);
+        }        
         
         return dst;
     }
@@ -374,10 +379,33 @@ public class SearchRequest implements Serializable {
     @Override
     public int size() {
         int res = 0;
-        for(int i = 0; i < value.size(); ++i) {
-            res += value.get(i).size();
+        
+        Iterator<Serializable> itr = value.iterator();        
+        while(itr.hasNext()) {
+            res += itr.next().size();            
         }
+        
         return res;
+    }
+    
+    public int count() {
+        assert(value != null);
+        return value.size();
+    }
+    
+    public Serializable entry(int index) {
+        assert(value != null);
+        assert(value.size() > index);
+        //assert(value.get(index) != null);
+        Iterator<Serializable> itr = value.iterator();
+        int current = 0;        
+        while(itr.hasNext()) {
+            Serializable s = itr.next();
+            if (current == index) return s;
+            ++current;            
+        }
+        
+        return null;
     }
     
     public static SearchRequest makeRequest(
@@ -400,7 +428,7 @@ public class SearchRequest implements Serializable {
     }
     
     public static SearchRequest makeRelatedSearchRequest(Hash value) throws JED2KException {
-        ArrayList<Serializable> ival = new ArrayList<Serializable>();
+        ArrayDeque<Serializable> ival = new ArrayDeque<Serializable>();
         ival.add(makeEntry("related::" + value.toString()));
         return new SearchRequest(ival);
     }
@@ -408,19 +436,21 @@ public class SearchRequest implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < value.size(); ++i) {
-            sb.append(" ").append(value.get(i));
+        Iterator<Serializable> itr = value.iterator();        
+        while(itr.hasNext()) {
+            sb.append(" ").append(itr.next());
         }
         
         return sb.toString();
     }
     
-    public static String dbgString(ArrayList<Serializable> a) {
+    public static String dbgString(Iterable<Serializable> a) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < a.size(); ++i) {
-            sb.append(" ").append(a.get(i));
-        }
-        
+        Iterator<Serializable> itr = a.iterator();
+        while(itr.hasNext()) {
+            Serializable s = itr.next();
+            sb.append(" ").append(s.toString());
+        }        
         return sb.toString();
     }
 }
