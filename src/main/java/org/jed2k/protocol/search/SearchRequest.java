@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.exception.SearchCode;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.tag.Tag;
@@ -119,7 +120,7 @@ public class SearchRequest implements Serializable {
 
                 if (dst.get(dst.size()-1) instanceof OpenParen && sre instanceof CloseParen)
                 {
-                    throw new JED2KException("Empty brackets on add item");
+                    throw new JED2KException(SearchCode.EMPTY_OPEN_CLOSE_PAREN);
                 }
             }
         }
@@ -217,7 +218,7 @@ public class SearchRequest implements Serializable {
                             if (res.isEmpty() || (res.get(res.size()-1) instanceof BooleanEntry) || (c == ')'))
                             {
                                 // operator in begin, operator before previous operator and operator before close bracket is error
-                                throw new JED2KException("Operator incorrect place");                                
+                                throw new JED2KException(SearchCode.OPERATOR_AT_BEGIN_OF_EXPRESSION);                                
                             }
                             else
                             {
@@ -253,7 +254,7 @@ public class SearchRequest implements Serializable {
 
         // check unclosed quotes
         if (verbatim) {
-            throw new JED2KException("Unclosed quotation mark");
+            throw new JED2KException(SearchCode.UNCLOSED_QUOTATION_MARK);
         }
 
         if (item.length() != 0)
@@ -263,7 +264,7 @@ public class SearchRequest implements Serializable {
 
             if (so != null)
             {
-                throw new JED2KException("Operator on end of expression");
+                throw new JED2KException(SearchCode.OPERATOR_AT_END_OF_EXPRESSION);
             }
             else
             {                
@@ -284,7 +285,7 @@ public class SearchRequest implements Serializable {
                 
                 if (entry instanceof OpenParen) {
                     if (operators_stack.empty()) {
-                        throw new JED2KException("Open paren without close paren");
+                        throw new JED2KException(SearchCode.INCORRECT_PARENS_COUNT);
                     }
 
                     // roll up
@@ -292,7 +293,7 @@ public class SearchRequest implements Serializable {
                         res.add(operators_stack.pop());
                         
                         if (operators_stack.empty()) {
-                            throw new JED2KException("Empty brackets found ()");
+                            throw new JED2KException(SearchCode.INCORRECT_PARENS_COUNT);
                         }
                     }
 
@@ -322,7 +323,7 @@ public class SearchRequest implements Serializable {
         {
             if (operators_stack.peek() instanceof OpenParen || operators_stack.peek() instanceof CloseParen)
             {
-                throw new JED2KException("Incorrect brackets count");
+                throw new JED2KException(SearchCode.INCORRECT_PARENS_COUNT);
             }
 
             res.add(operators_stack.pop());
