@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.util.logging.Logger;
 import java.net.InetSocketAddress;
 
+import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.search.SearchRequest;
+
 public class Conn {
     private static Logger log = Logger.getLogger(Conn.class.getName());
     
@@ -16,8 +19,10 @@ public class Conn {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
         
-        while ((command = in.readLine()) != null){            
-            if (command.compareTo("exit") == 0 || command.compareTo("quit") == 0) {
+        while ((command = in.readLine()) != null){
+            String[] parts = command.split("\\s+");
+            
+            if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
                 s.interrupt();                
                 try {
                     s.join();
@@ -26,11 +31,19 @@ public class Conn {
                 }
                 break;
             }
-            
-            String[] parts = command.split("\\s+");
+                        
             if (parts[0].compareTo("connect") == 0 && parts.length == 3) {
                 s.connectoTo(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])));
+            } else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
+                String searchExpression = command.substring("search".length());
+                log.info("search for:" + searchExpression);
+                try {
+                    s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, searchExpression));
+                } catch(JED2KException e) {
+                    log.warning(e.getMessage());
+                }
             }
+            
         }       
         
         log.info("Conn finished");        

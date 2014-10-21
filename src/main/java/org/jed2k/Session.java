@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.search.SearchRequest;
 
 public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName()); 
@@ -114,6 +115,17 @@ public class Session extends Thread {
                 if (sc != null) {
                     sc.close();
                     sc = null;
+                }
+            }
+        });
+    }
+    
+    public void search(final SearchRequest value) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                if (sc != null) {
+                    sc.write(value);
                 }
             }
         });
