@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.search.SearchRequest;
 
 public class PacketCombiner {
     
@@ -91,7 +92,7 @@ public class PacketCombiner {
         assert(clazz != null);
         supportedPackets.put(pk, clazz);
         struct2Key.put(clazz, pk);
-    }    
+    }
     
     static {
         supportedPackets = new TreeMap<PacketKey, Class<? extends Serializable>>();
@@ -105,6 +106,7 @@ public class PacketCombiner {
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERIDENT.value, ServerInfo.class);
         
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SEARCHRESULT.value, SearchResult.class);
+        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SEARCHREQUEST.value, SearchRequest.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_QUERY_MORE_RESULT.value, SearchMore.class);        
         
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_GETSOURCES.value, GetFileSources.class);
@@ -119,7 +121,6 @@ public class PacketCombiner {
         if (!header.isDefined()) {
             if (src.remaining() >= header.size()) {
                 header.get(src);
-                log.info("header initialized " + header);                
             } else {
                 return null;
             }
@@ -161,6 +162,7 @@ public class PacketCombiner {
     
     public boolean pack(Serializable object, ByteBuffer dst) throws JED2KException {
         PacketKey key = struct2Key.get(object.getClass());
+        log.info("pack for class " + object.getClass().getName());
         assert(key != null);
         if ((outgoingHeader.size() + object.size()) < dst.remaining()) {
             outgoingHeader.reset(key, object.size() + 1);
