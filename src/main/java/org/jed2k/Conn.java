@@ -36,8 +36,9 @@ public class Conn {
                 s.connectoTo(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 String searchExpression = command.substring("search".length());
-                log.info("search for:" + searchExpression);
+                log.info("search expressionr:" + searchExpression);
                 try {
+                    log.info("search request: " + s);
                     s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, searchExpression));
                 } catch(JED2KException e) {
                     log.warning(e.getMessage());
