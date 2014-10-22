@@ -2,12 +2,17 @@ package org.jed2k.protocol;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.logging.Logger;
+
 import static org.jed2k.protocol.Unsigned.uint8;
 import static org.jed2k.protocol.Unsigned.uint16;
 import static org.jed2k.protocol.Unsigned.uint32;
+
 import org.jed2k.exception.JED2KException;
 
 public class ByteContainer<CS extends UNumber> implements Serializable {
+    private static Logger log = Logger.getLogger(ByteBuffer.class.getName());
+    
     public CS size;
     public byte[] value;
     
@@ -18,6 +23,7 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     public ByteContainer(CS size, byte[] value) {
         this.size = size;
         this.value = value;
+        this.size.assign(value.length);
     }
     
     @Override
@@ -78,7 +84,7 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
                 return new String(value, "UTF-8");
         }
         catch(UnsupportedEncodingException ex){
-            // Suppress exception
+            log.warning(ex.getMessage());
         }
         
         return new String();

@@ -152,9 +152,8 @@ public class ServerConnection {
         int versionClient = (LoginRequest.JED2K_VERSION_MAJOR << 24) | (LoginRequest.JED2K_VERSION_MINOR << 17) | (LoginRequest.JED2K_VERSION_TINY << 10) | (1 << 7);
 
         login.hash = Hash.EMULE;
-        login.point.ip = 0;
-        login.point.port = 4661;
-
+        login.point.reset(0, (short)4661);
+        
         login.properties.add(tag(Tag.CT_VERSION, null, version));
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
         login.properties.add(tag(Tag.CT_NAME, null, "jed2k"));

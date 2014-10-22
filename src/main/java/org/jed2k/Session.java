@@ -7,11 +7,16 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.search.SearchRequest;
 
 public class Session extends Thread {
@@ -20,6 +25,13 @@ public class Session extends Thread {
     private ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<Runnable>();
     private ServerConnection sc = null;
     private ServerSocketChannel ssc = null;
+    
+    private Map<Hash, Transfer> transfers = new TreeMap<Hash, Transfer>();
+    private Set<PeerConnection> connections = new TreeSet<PeerConnection>();
+    
+    PeerConnection getConnection() {
+        return new PeerConnection();
+    }
     
     @Override
     public void run() {
