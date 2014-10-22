@@ -44,8 +44,8 @@ public class ServerConnection {
     public static ServerConnection getServerConnection(Session ses, final InetSocketAddress address) {
         try {
             ServerConnection res = new ServerConnection(ses, address);
-            res.bufferIncoming = ByteBuffer.allocate(1024);
-            res.bufferOutgoing = ByteBuffer.allocate(1024);
+            res.bufferIncoming = ByteBuffer.allocate(4096);
+            res.bufferOutgoing = ByteBuffer.allocate(4096);
             res.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
             res.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
             res.socket = SocketChannel.open();
@@ -78,6 +78,7 @@ public class ServerConnection {
     public void readyRead() {
         try {
             int bytes = socket.read(bufferIncoming);
+            log.info("ready to read byte: " + bytes);
             if (bytes == -1) {
                 close();
                 return;
@@ -87,8 +88,8 @@ public class ServerConnection {
             
             while(true) {                
                 Serializable packet = packetCombainer.unpack(bufferIncoming);
-                if (packet != null) {                    
-                    //write(new ServerGetList());                    
+                if (packet != null) {         
+                    log.info(packet.toString());          
                 } else {
                     bufferIncoming.compact();
                     break;
@@ -108,6 +109,7 @@ public class ServerConnection {
     
     public void readyWrite() {
         try {
+            bufferOutgoing.clear();
             writeInProgress = !outgoingOrder.isEmpty();
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
@@ -119,7 +121,7 @@ public class ServerConnection {
                 bufferOutgoing.flip();
                 socket.write(bufferOutgoing);
             } else {
-                key.interestOps(SelectionKey.OP_READ);
+                key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
             }
             
             return;
@@ -176,7 +178,7 @@ public class ServerConnection {
         log.info("write packet " + packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {
-            key.interestOps(SelectionKey.OP_WRITE);
+            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
             readyWrite();
         }
     }

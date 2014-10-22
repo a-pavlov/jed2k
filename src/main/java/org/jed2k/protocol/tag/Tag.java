@@ -47,29 +47,29 @@ public final class Tag implements Serializable {
     public static final byte TAGTYPE_STR7         = (byte)0x17;
     public static final byte TAGTYPE_STR8         = (byte)0x18;
     public static final byte TAGTYPE_STR9         = (byte)0x19;
-    public static final byte TAGTYPE_STR10        = (byte)0x20;
-    public static final byte TAGTYPE_STR11        = (byte)0x21;
-    public static final byte TAGTYPE_STR12        = (byte)0x22;
-    public static final byte TAGTYPE_STR13        = (byte)0x23;
-    public static final byte TAGTYPE_STR14        = (byte)0x24;
-    public static final byte TAGTYPE_STR15        = (byte)0x25;
-    public static final byte TAGTYPE_STR16        = (byte)0x26;
-    public static final byte TAGTYPE_STR17        = (byte)0x27;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
+    public static final byte TAGTYPE_STR10        = (byte)0x1A;
+    public static final byte TAGTYPE_STR11        = (byte)0x1B;
+    public static final byte TAGTYPE_STR12        = (byte)0x1C;
+    public static final byte TAGTYPE_STR13        = (byte)0x1D;
+    public static final byte TAGTYPE_STR14        = (byte)0x1E;
+    public static final byte TAGTYPE_STR15        = (byte)0x1F;
+    public static final byte TAGTYPE_STR16        = (byte)0x20;
+    public static final byte TAGTYPE_STR17        = (byte)0x21;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
                     // only because of a flaw, those tags are handled correctly,
                     // but should not be handled at all
-    public static final byte TAGTYPE_STR18        = (byte)0x28;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
+    public static final byte TAGTYPE_STR18        = (byte)0x22;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
             //  only because of a flaw, those tags are handled correctly,
             // but should not be handled at all
-    public static final byte TAGTYPE_STR19        = (byte)0x29;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
+    public static final byte TAGTYPE_STR19        = (byte)0x23;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
             // only because of a flaw, those tags are handled correctly,
             // but should not be handled at all
-    public static final byte TAGTYPE_STR20        = (byte)0x30;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
+    public static final byte TAGTYPE_STR20        = (byte)0x24;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
             // only because of a flaw, those tags are handled correctly,
             // but should not be handled at all
-    public static final byte TAGTYPE_STR21        = (byte)0x31;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
+    public static final byte TAGTYPE_STR21        = (byte)0x25;  // accepted by eMule 0.42f (02-Mai-2004) in receiving code
             // only because of a flaw, those tags are handled correctly,
             // but should not be handled at all
-    public static final byte TAGTYPE_STR22        = (byte)0x32;
+    public static final byte TAGTYPE_STR22        = (byte)0x26;
     
     
     public static final byte FT_UNDEFINED          = (byte)0x00;    // undefined tag
@@ -398,9 +398,7 @@ public final class Tag implements Serializable {
         if ((type & 0x80) != 0){
             type = (byte)(type & 0x7f);
             id = src.get();
-            log.info("process new type");
         } else {
-            log.info("process old type");
             ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());
             bc.get(src);
             if (bc.size.intValue() == 1) {                

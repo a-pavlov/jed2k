@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.UInt8;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class ByteContainerTest{
     }
     
     @Test
-    public void testSerialize2() throws JED2KException {
+    public void testGet() throws JED2KException {
         byte[] source = { (byte)0x07, (byte)0x00, (byte)0x00, (byte)0x00,
                 (byte)0x20, (byte)0x20, (byte)0x30, (byte)0x31, (byte)0x32, (byte)0x20, (byte)0x20};
         ByteBuffer nb = ByteBuffer.wrap(source);
@@ -38,5 +39,22 @@ public class ByteContainerTest{
         bc.get(nb);
         assertEquals(7, bc.size.intValue());
         assertEquals(new String("  012  "), bc.toString());
+    }
+    
+    @Test
+    public void testPut() throws JED2KException {
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        ByteContainer<UInt16> bc = ByteContainer.fromString16("1234");
+        assertEquals(6, bc.size());
+        bc.put(bb);
+        assertEquals(4, bb.remaining());
+        bb.flip();
+        assertEquals(4, bb.getShort());
+        for(int i = 1; i <=4; ++i) {
+            assertEquals(((byte)(i+0x30) & 0xff), bb.get());
+        }
+        
+        assertEquals(0, bb.remaining());
     }
 }

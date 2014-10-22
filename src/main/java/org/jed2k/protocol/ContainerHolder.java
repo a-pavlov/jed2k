@@ -3,9 +3,12 @@ package org.jed2k.protocol;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.logging.Logger;
+
 import org.jed2k.exception.JED2KException;
 
 public class ContainerHolder<CS extends UNumber, Elem extends Serializable> implements Serializable {
+      private static Logger log = Logger.getLogger(ContainerHolder.class.getName());
       public CS size;
       public Collection<Elem> collection;
       private Class<Elem> clazz;
@@ -30,10 +33,11 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
                 collection.add(e);
             }
         } catch(InstantiationException e) {
-            throw new JED2KException(e);
+            assert(false);            
         } catch (IllegalAccessException e1) {
-            throw new JED2KException(e1);
+            assert(false);
         }
+        
         return src;
       }
     

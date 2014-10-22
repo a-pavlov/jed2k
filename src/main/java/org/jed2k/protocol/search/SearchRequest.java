@@ -367,6 +367,7 @@ public class SearchRequest implements Serializable {
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        assert(value != null);
         Iterator<Serializable> itr = value.iterator();        
         while(itr.hasNext()) {
             Serializable s = itr.next();

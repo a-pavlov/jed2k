@@ -30,8 +30,9 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         assert(value != null);
-        size.assign(value!=null?value.length:0);
-        return dst.put(value);
+        assert(value.length != 0);
+        size.assign(value.length);
+        return size.put(dst).put(value);
     }
     
     public String asString() throws JED2KException {
@@ -86,7 +87,7 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     
     @Override
     public int size() {
-        return size.size() + size.intValue();        
+        return size.size() + value.length;        
     }
     
 }

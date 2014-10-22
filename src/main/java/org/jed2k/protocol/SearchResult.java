@@ -35,4 +35,9 @@ public class SearchResult extends SoftSerializable {
         if (limit - files.size() > 0) moreResults = src.get();
         return src;        
     }
+    
+    @Override
+    public String toString() {
+        return files.toString() + ((moreResults==(byte)0)?"false":"true");
+    }
 }
