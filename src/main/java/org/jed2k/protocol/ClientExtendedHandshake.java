@@ -20,7 +20,7 @@ public class ClientExtendedHandshake implements Serializable {
     }
 
     @Override
-    public int size() {
-        return version.size() + properties.size();
+    public int bytesCount() {
+        return version.bytesCount() + properties.bytesCount();
     }
 }

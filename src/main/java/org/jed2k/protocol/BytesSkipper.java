@@ -23,7 +23,7 @@ public class BytesSkipper implements Serializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return skip_amount;
     }
     

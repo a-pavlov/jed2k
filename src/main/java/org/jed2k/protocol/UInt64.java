@@ -107,7 +107,7 @@ public class UInt64 extends UNumber implements Comparable<UInt64>{
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return 8;        
     }
     

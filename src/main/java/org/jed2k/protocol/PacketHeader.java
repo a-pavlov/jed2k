@@ -59,7 +59,7 @@ public class PacketHeader implements Serializable {
         return dst.put(protocol).putInt(size).put(packet);
     }
     
-    public final int size() {
+    public final int bytesCount() {
         return 6;
     }
     

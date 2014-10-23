@@ -23,7 +23,7 @@ public class ServerList extends ContainerHolder<UInt8, NetworkIdentifier> {
     }
 
     @Override
-    public int size() {        
+    public int bytesCount() {        
         return 0;
     }
     

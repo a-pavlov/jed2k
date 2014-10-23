@@ -41,7 +41,7 @@ public class ServerIdChange extends SoftSerializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return sizeof(clientId) + sizeof(tcpFlags) + sizeof(auxPort);        
     }
     

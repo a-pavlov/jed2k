@@ -49,7 +49,7 @@ public class NumericEntry implements Serializable {
     }
 
     @Override
-    public int size() {
-        return sizeof(SearchRequest.SEARCH_TYPE_UINT32) + ((value <= UINT_MAX)?sizeof(value)/2:sizeof(value)) + tag.size();        
+    public int bytesCount() {
+        return sizeof(SearchRequest.SEARCH_TYPE_UINT32) + ((value <= UINT_MAX)?sizeof(value)/2:sizeof(value)) + tag.bytesCount();        
     }
 }

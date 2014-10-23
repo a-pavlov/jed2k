@@ -105,7 +105,7 @@ public class UInt16 extends UNumber implements Comparable<UInt16>{
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return sizeof(value);
     }
     

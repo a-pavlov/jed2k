@@ -24,12 +24,12 @@ public class ServerUsualPacket implements Serializable {
     }
 
     @Override
-    public int size() {
-        return hash.size() + point.size() + properties.size();
+    public int bytesCount() {
+        return hash.bytesCount() + point.bytesCount() + properties.bytesCount();
     }
     
     public Tag get(int index) {
-        assert(index < properties.size());
+        assert(index < properties.bytesCount());
         return ((ArrayList<Tag>)properties.collection).get(index);
     }
     

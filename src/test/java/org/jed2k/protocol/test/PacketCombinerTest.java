@@ -62,7 +62,7 @@ public class PacketCombinerTest {
         ByteBuffer bb = ByteBuffer.allocate(128);
         LinkedList<Serializable> order = new LinkedList<Serializable>();
         order.add(new ServerIdChange());
-        assert(login.size() < 120);
+        assert(login.bytesCount() < 120);
         order.add(login);
         order.add(login);
         order.add(login);
@@ -79,7 +79,7 @@ public class PacketCombinerTest {
             while(itr.hasNext()) {
                 Serializable pkt = itr.next();                
                 if (combiner.pack(pkt, bb)) {
-                    byteCount += pkt.size() + ph.size();
+                    byteCount += pkt.bytesCount() + ph.bytesCount();
                     itr.remove();
                 } else {
                     break;

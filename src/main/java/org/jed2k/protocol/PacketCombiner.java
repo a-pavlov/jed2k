@@ -119,7 +119,7 @@ public class PacketCombiner {
     
     public Serializable unpack(ByteBuffer src) throws JED2KException {
         if (!header.isDefined()) {
-            if (src.remaining() >= header.size()) {
+            if (src.remaining() >= header.bytesCount()) {
                 header.get(src);
             } else {
                 return null;
@@ -164,8 +164,8 @@ public class PacketCombiner {
         PacketKey key = struct2Key.get(object.getClass());
         log.info("pack for class " + object.getClass().getName());
         assert(key != null);
-        if ((outgoingHeader.size() + object.size()) < dst.remaining()) {
-            outgoingHeader.reset(key, object.size() + 1);
+        if ((outgoingHeader.bytesCount() + object.bytesCount()) < dst.remaining()) {
+            outgoingHeader.reset(key, object.bytesCount() + 1);
             assert(outgoingHeader.isDefined());
             outgoingHeader.put(dst);
             object.put(dst);

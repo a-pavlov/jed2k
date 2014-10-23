@@ -21,8 +21,8 @@ public class FoundFileSources implements Serializable {
     }
 
     @Override
-    public int size() {
-        return hash.size() + sources.size();
+    public int bytesCount() {
+        return hash.bytesCount() + sources.bytesCount();
     }
     
     

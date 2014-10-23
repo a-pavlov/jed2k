@@ -7,8 +7,7 @@ import static org.jed2k.protocol.Unsigned.uint32;
 import static org.jed2k.Utils.sizeof;
 
 public class SearchResult extends SoftSerializable {
-    public ContainerHolder<UInt32, SharedFileEntry> files = 
-            new ContainerHolder<UInt32, SharedFileEntry>(uint32(), new LinkedList<SharedFileEntry>(), SharedFileEntry.class);
+    public ContainerHolder<UInt32, SharedFileEntry> files = ContainerHolder.make32(new LinkedList<SharedFileEntry>(), SharedFileEntry.class);
     public byte moreResults = 0;
     
     @Override
@@ -25,14 +24,14 @@ public class SearchResult extends SoftSerializable {
     }
 
     @Override
-    public int size() {
-        return files.size() + sizeof(moreResults);        
+    public int bytesCount() {
+        return files.bytesCount() + sizeof(moreResults);        
     }
 
     @Override
     public ByteBuffer get(ByteBuffer src, int limit) throws JED2KException {
         files.get(src);
-        if (limit - files.size() > 0) moreResults = src.get();
+        if (limit - files.bytesCount() > 0) moreResults = src.get();
         return src;        
     }
     

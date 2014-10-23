@@ -66,7 +66,7 @@ public final class Hash implements Serializable, Comparable<Hash> {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return MD4.HASH_SIZE;
     }
 

@@ -378,12 +378,12 @@ public class SearchRequest implements Serializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         int res = 0;
         
         Iterator<Serializable> itr = value.iterator();        
         while(itr.hasNext()) {
-            res += itr.next().size();            
+            res += itr.next().bytesCount();            
         }
         
         return res;

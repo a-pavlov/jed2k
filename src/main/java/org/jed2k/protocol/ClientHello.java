@@ -20,7 +20,7 @@ public class ClientHello extends ClientHelloAnswer {
     }
     
     @Override
-    public int size() {
-        return sizeof(hashLength) + super.size();
+    public int bytesCount() {
+        return sizeof(hashLength) + super.bytesCount();
     }
 }

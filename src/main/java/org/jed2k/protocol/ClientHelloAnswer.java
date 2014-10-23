@@ -30,7 +30,7 @@ public class ClientHelloAnswer implements Serializable {
     }
 
     @Override
-    public int size() {
-        return hash.size() + point.size() + properties.size() + serverPoint.size();
+    public int bytesCount() {
+        return hash.bytesCount() + point.bytesCount() + properties.bytesCount() + serverPoint.bytesCount();
     }    
 }

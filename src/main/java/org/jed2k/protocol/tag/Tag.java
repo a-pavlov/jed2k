@@ -254,7 +254,7 @@ public final class Tag implements Serializable {
         }
 
         @Override
-        public int size() {
+        public int bytesCount() {
             return sizeof(value);            
         }
         
@@ -284,7 +284,7 @@ public final class Tag implements Serializable {
         }
 
         @Override
-        public int size() {
+        public int bytesCount() {
             return sizeof(value);
         }
         
@@ -323,7 +323,7 @@ public final class Tag implements Serializable {
         }        
 
         @Override
-        public int size() {
+        public int bytesCount() {
             assert(value != null);
             // for modern tag we do not write 2 bytes for length - so first is 0, but for ordinary string +2 bytes for size
             return value.length + ((type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16)?0:2);
@@ -368,8 +368,8 @@ public final class Tag implements Serializable {
         }
 
         @Override
-        public int size() {
-            return length.size() + length.size()/8;
+        public int bytesCount() {
+            return length.bytesCount() + length.bytesCount()/8;
         }
     }
     
@@ -572,12 +572,12 @@ public final class Tag implements Serializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         // TODO - fix twice conversion
         if (name == null){
-            return value.size() + 2;    // type + id
+            return value.bytesCount() + 2;    // type + id
         } else {                  // type + len + name
-            return value.size() + 1 + 2 + name.getBytes(Charset.forName("UTF-8")).length;
+            return value.bytesCount() + 1 + 2 + name.getBytes(Charset.forName("UTF-8")).length;
         }        
     }
     

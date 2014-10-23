@@ -33,7 +33,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     }
     
     @Override
-    public int size() {
+    public int bytesCount() {
         return sizeof(ip) + sizeof(port);
     }
     

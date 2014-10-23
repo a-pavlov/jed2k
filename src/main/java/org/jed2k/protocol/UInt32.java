@@ -113,7 +113,7 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return sizeof(value);
     }
     

@@ -42,7 +42,7 @@ public class BooleanEntry implements Serializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return sizeof(value.value) + sizeof(SearchRequest.SEARCH_TYPE_BOOL);
     }
     

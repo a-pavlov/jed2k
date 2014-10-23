@@ -43,8 +43,8 @@ public class GetFileSources implements Serializable {
     }
 
     @Override
-    public int size() {
-        return hash.size() + sizeof(lowPart) + ((hiPart != 0)?sizeof(hiPart):0);      
+    public int bytesCount() {
+        return hash.bytesCount() + sizeof(lowPart) + ((hiPart != 0)?sizeof(hiPart):0);      
     }
     
 }

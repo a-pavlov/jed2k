@@ -17,7 +17,7 @@ public class CallbackRequestIncoming implements Serializable {
     }
 
     @Override
-    public int size() {
-        return point.size();
+    public int bytesCount() {
+        return point.bytesCount();
     }   
 }

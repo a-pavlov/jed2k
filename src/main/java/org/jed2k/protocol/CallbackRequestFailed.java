@@ -16,7 +16,7 @@ public class CallbackRequestFailed implements Serializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return 0;
     }
 }

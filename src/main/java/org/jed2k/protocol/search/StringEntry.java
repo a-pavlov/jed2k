@@ -44,8 +44,8 @@ public class StringEntry implements Serializable {
     }
 
     @Override
-    public int size() {
-        return sizeof(SearchRequest.SEARCH_TYPE_STR) + ((tag != null)?tag.size():0) + value.size();
+    public int bytesCount() {
+        return sizeof(SearchRequest.SEARCH_TYPE_STR) + ((tag != null)?tag.bytesCount():0) + value.bytesCount();
     }
     
     @Override

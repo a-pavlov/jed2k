@@ -92,8 +92,8 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
 
     
     @Override
-    public int size() {
-        return size.size() + value.length;        
+    public int bytesCount() {
+        return size.bytesCount() + value.length;        
     }
     
 }

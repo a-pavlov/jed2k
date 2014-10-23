@@ -95,7 +95,7 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return sizeof(container);
     }
     

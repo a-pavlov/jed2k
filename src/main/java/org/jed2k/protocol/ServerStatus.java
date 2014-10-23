@@ -21,7 +21,7 @@ public class ServerStatus implements Serializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         return sizeof(usersCount) + sizeof(filesCount);
     }
     

@@ -46,7 +46,7 @@ public class ByteContainerTest{
         ByteBuffer bb = ByteBuffer.allocate(10);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         ByteContainer<UInt16> bc = ByteContainer.fromString16("1234");
-        assertEquals(6, bc.size());
+        assertEquals(6, bc.bytesCount());
         bc.put(bb);
         assertEquals(4, bb.remaining());
         bb.flip();

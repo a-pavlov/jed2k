@@ -19,7 +19,7 @@ public class OpenParen implements Serializable {
     }
 
     @Override
-    public int size() {
+    public int bytesCount() {
         assert(false);
         return 0;
     }
