@@ -1,17 +1,23 @@
 package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
+import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.jed2k.exception.JED2KException;
 
-public class ContainerHolder<CS extends UNumber, Elem extends Serializable> implements Serializable {
+import static org.jed2k.protocol.Unsigned.uint32;
+import static org.jed2k.protocol.Unsigned.uint16;
+import static org.jed2k.protocol.Unsigned.uint8;
+
+public class ContainerHolder<CS extends UNumber, Elem extends Serializable> extends AbstractCollection<Elem> implements Serializable {
       private static Logger log = Logger.getLogger(ContainerHolder.class.getName());
-      public CS size;
-      public Collection<Elem> collection;
-      private Class<Elem> clazz;
+      
+      public final CS size;
+      public final Collection<Elem> collection;
+      private final Class<Elem> clazz;
       
       public ContainerHolder(CS size_factor, Collection<Elem> collection, Class<Elem> clazz) {
           this.size = size_factor;
@@ -19,13 +25,22 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
           this.clazz = clazz;
       }
       
-      public void add(Elem e) {
-          collection.add(e);
+      public static <T extends Serializable> ContainerHolder<UInt8, T> make8(Collection<T> template, Class<T> clazz) {
+          return new ContainerHolder<UInt8, T>(uint8(template.size()), template, clazz);
+      }
+      
+      public static <T extends Serializable> ContainerHolder<UInt16, T> make16(Collection<T> template, Class<T> clazz) {
+          return new ContainerHolder<UInt16, T>(uint16(template.size()), template, clazz);
+      }
+      
+      public static <T extends Serializable> ContainerHolder<UInt32, T> make32(Collection<T> template, Class<T> clazz) {
+          return new ContainerHolder<UInt32, T>(uint32(template.size()), template, clazz);
       }
       
       @Override
       public ByteBuffer get(ByteBuffer src) throws JED2KException {
         size.get(src);
+        
         try {
             for(int i = 0; i < size.intValue(); ++i) {            
                 Elem e = clazz.newInstance();
@@ -64,6 +79,10 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
       public final int sizeCollection(){
         return collection.size();
       }
+      
+      public Collection<Elem> collection() {
+          return collection;
+      }
 
     @Override
     public int size() {
@@ -87,6 +106,16 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable> impl
         }
         
         return sb.toString();
+    }
+
+    @Override
+    public Iterator<Elem> iterator() {
+        return collection.iterator();
+    }
+    
+    @Override
+    public boolean add(Elem e) {
+        return collection.add(e);
     }
   
 }
