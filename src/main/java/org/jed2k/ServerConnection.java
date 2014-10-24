@@ -12,9 +12,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+import org.jed2k.protocol.Dispatchable;
+import org.jed2k.protocol.Dispatcher;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
 import org.jed2k.protocol.PacketCombiner;
+import org.jed2k.protocol.SearchResult;
+import org.jed2k.protocol.ServerIdChange;
+import org.jed2k.protocol.ServerInfo;
+import org.jed2k.protocol.ServerList;
+import org.jed2k.protocol.ServerMessage;
+import org.jed2k.protocol.ServerStatus;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.ServerGetList;
@@ -23,7 +31,7 @@ import org.jed2k.protocol.tag.Tag;
 import static org.jed2k.protocol.tag.Tag.tag;
 import static org.jed2k.Utils.byte2String;
 
-public class ServerConnection {
+public class ServerConnection implements Dispatcher {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
     private final Session ses;
     private final InetSocketAddress address;
@@ -36,9 +44,8 @@ public class ServerConnection {
     private final PacketCombiner packetCombainer = new PacketCombiner();
     
     private ServerConnection(Session ses, final InetSocketAddress address) {
-            this.ses = ses;
-            this.address = address;
-            
+        this.ses = ses;
+        this.address = address;
     }
     
     public static ServerConnection getServerConnection(Session ses, final InetSocketAddress address) {
@@ -61,7 +68,7 @@ public class ServerConnection {
         return null;
     }
     
-    public void readyConnect() {
+    public void onConnectable() {
         try {
             socket.finishConnect();
             write(hello());
@@ -75,7 +82,7 @@ public class ServerConnection {
         close();
     }
     
-    public void readyRead() {
+    public void onReadable() {
         try {
             int bytes = socket.read(bufferIncoming);
             log.info("ready to read byte: " + bytes);
@@ -87,17 +94,18 @@ public class ServerConnection {
             bufferIncoming.flip();
             
             while(true) {                
-                Serializable packet = packetCombainer.unpack(bufferIncoming);
-                if (packet != null) {         
-                    log.info(packet.toString());          
+                Serializable packet = packetCombainer.unpack(bufferIncoming);                
+                
+                if (packet != null && (packet instanceof Dispatchable)) {
+                    // packet was completely in buffer
+                    ((Dispatchable)packet).dispatch(this);
                 } else {
+                    // buffer too low, try to compact it and read again
                     bufferIncoming.compact();
                     break;
                 }
             }
-            
             return;
-            // process incoming packet
         } catch(IOException e) {
             log.warning(e.getMessage());
         } catch(JED2KException e) {
@@ -107,7 +115,7 @@ public class ServerConnection {
         close();
     }
     
-    public void readyWrite() {
+    public void onWriteable() {
         try {
             bufferOutgoing.clear();
             writeInProgress = !outgoingOrder.isEmpty();
@@ -178,7 +186,43 @@ public class ServerConnection {
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
-            readyWrite();
+            onWriteable();
         }
+    }
+
+    @Override
+    public boolean onServerIdChange(ServerIdChange value) {
+        log.info("server id changed: " + value);
+        return true;
+    }
+
+    @Override
+    public boolean onServerInfo(ServerInfo value) {
+        log.info("server info: " + value);
+        return true;
+    }
+
+    @Override
+    public boolean onServerList(ServerList value) {
+        log.info("server list: " + value);
+        return true;
+    }
+
+    @Override
+    public boolean onServerMessage(ServerMessage value) {
+        log.info("server message: " + value);
+        return true;
+    }
+
+    @Override
+    public boolean onServerStatus(ServerStatus value) {
+        log.info("server status: " + value);
+        return true;
+    }
+
+    @Override
+    public boolean onSearchResult(SearchResult value) {
+        log.info("search result: " + value);
+        return true;
     }
 }

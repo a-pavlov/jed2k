@@ -6,7 +6,7 @@ import org.jed2k.exception.JED2KException;
 
 import static org.jed2k.protocol.Unsigned.uint8;
 
-public class ServerList extends ContainerHolder<UInt8, NetworkIdentifier> {
+public class ServerList extends ContainerHolder<UInt8, NetworkIdentifier> implements Dispatchable {
 
     public ServerList() {
         super(uint8(), new ArrayList<NetworkIdentifier>(), NetworkIdentifier.class);
@@ -26,5 +26,9 @@ public class ServerList extends ContainerHolder<UInt8, NetworkIdentifier> {
     public int bytesCount() {        
         return 0;
     }
-    
+
+    @Override
+    public boolean dispatch(Dispatcher dispatcher) {
+        return dispatcher.onServerList(this);
+    }
 }

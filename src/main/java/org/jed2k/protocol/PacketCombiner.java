@@ -117,7 +117,7 @@ public class PacketCombiner {
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACK_FAIL.value, CallbackRequestFailed.class);
     }
     
-    public Serializable unpack(ByteBuffer src) throws JED2KException {
+    public Serializable unpack(ByteBuffer src) throws JED2KException {        
         if (!header.isDefined()) {
             if (src.remaining() >= header.bytesCount()) {
                 header.get(src);
@@ -143,12 +143,19 @@ public class PacketCombiner {
                 ph = new BytesSkipper(header.sizePacket());
             }
             
-            if (ph instanceof SoftSerializable) {
-                SoftSerializable ssp = (SoftSerializable)ph;
-                assert(ssp != null);
-                ssp.get(src, header.sizePacket());
-            } else {
-                ph.get(src);
+            try {
+                if (ph instanceof SoftSerializable) {
+                    SoftSerializable ssp = (SoftSerializable)ph;
+                    assert(ssp != null);
+                    ssp.get(src, header.sizePacket());
+                } else {
+                    ph.get(src);
+                }
+            } catch(JED2KException e) {
+                throw e;
+            } catch(Exception e) {
+                // catch any exception and convert it to our
+                throw new JED2KException(e);
             }
             
             header.reset();

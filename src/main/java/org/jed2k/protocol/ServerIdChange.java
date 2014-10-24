@@ -4,7 +4,7 @@ import static org.jed2k.Utils.sizeof;
 import org.jed2k.exception.JED2KException;
 import java.nio.ByteBuffer;
 
-public class ServerIdChange extends SoftSerializable {
+public class ServerIdChange extends SoftSerializable implements Dispatchable {
     public int clientId = 0;
     public int tcpFlags = 0;
     public int auxPort  = 0;
@@ -48,5 +48,10 @@ public class ServerIdChange extends SoftSerializable {
     @Override
     public String toString() {
         return "Id: " + clientId + " tcpf: " + tcpFlags + " auxp: " + auxPort;
+    }
+
+    @Override
+    public boolean dispatch(Dispatcher dispatcher) {
+        return dispatcher.onServerIdChange(this);
     }
 }

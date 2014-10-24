@@ -65,17 +65,17 @@ public class Session extends Thread {
                               // a connection was established with a remote server.
                               log.info("Key is connectable");
                               ServerConnection sconn = (ServerConnection)key.attachment();
-                              sconn.readyConnect();
+                              sconn.onConnectable();
                           } else if (key.isReadable()) {
                               // a channel is ready for reading
                               log.info("Key is readable");
                               ServerConnection sconn = (ServerConnection)key.attachment();
-                              sconn.readyRead();
+                              sconn.onReadable();
                           } else if (key.isWritable()) {
                               // a channel is ready for writing
                               log.info("Key is writeable");
                               ServerConnection sconn = (ServerConnection)key.attachment();
-                              sconn.readyWrite();                          
+                              sconn.onWriteable();                          
                               key.interestOps(SelectionKey.OP_READ);
                           }
                       }

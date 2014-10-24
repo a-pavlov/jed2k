@@ -4,7 +4,7 @@ import static org.jed2k.Utils.sizeof;
 import java.nio.ByteBuffer;
 import org.jed2k.exception.JED2KException;
 
-public class ServerStatus implements Serializable {
+public class ServerStatus implements Serializable, Dispatchable {
     public int usersCount = 0;
     public int filesCount = 0;
         
@@ -28,5 +28,10 @@ public class ServerStatus implements Serializable {
     @Override
     public String toString() {
         return "users: " + usersCount + " files: " + filesCount;  
+    }
+
+    @Override
+    public boolean dispatch(Dispatcher dispatcher) {
+        return dispatcher.onServerStatus(this);
     }
 }
