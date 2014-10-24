@@ -5,20 +5,13 @@ import java.util.ArrayList;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.tag.Tag;
-import static org.jed2k.protocol.Unsigned.uint32;
 
-public class ClientHelloAnswer implements Serializable {
-    private Hash hash;
-    private NetworkIdentifier point;
-    private ContainerHolder<UInt32, Tag> properties;
-    private NetworkIdentifier serverPoint;
-    
-    public ClientHelloAnswer() {
-        hash = new Hash();
-        point = new NetworkIdentifier();
-        properties = new ContainerHolder<UInt32, Tag>(uint32(), new ArrayList<Tag>(), Tag.class);
-    }
-    
+public class ClientHelloAnswer implements Serializable, Dispatchable {
+    public final Hash hash = new Hash();
+    public final NetworkIdentifier point = new NetworkIdentifier();
+    public final ContainerHolder<UInt32, Tag> properties = ContainerHolder.make32(new ArrayList<Tag>(), Tag.class);
+    public final NetworkIdentifier serverPoint = new NetworkIdentifier();
+       
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         return serverPoint.get(properties.get(point.get(hash.get(src))));
@@ -32,5 +25,10 @@ public class ClientHelloAnswer implements Serializable {
     @Override
     public int bytesCount() {
         return hash.bytesCount() + point.bytesCount() + properties.bytesCount() + serverPoint.bytesCount();
+    }
+
+    @Override
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onClientHelloAnswer(this);
     }    
 }

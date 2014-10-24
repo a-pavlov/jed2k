@@ -28,7 +28,7 @@ public class ServerList extends ContainerHolder<UInt8, NetworkIdentifier> implem
     }
 
     @Override
-    public boolean dispatch(Dispatcher dispatcher) {
-        return dispatcher.onServerList(this);
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onServerList(this);
     }
 }

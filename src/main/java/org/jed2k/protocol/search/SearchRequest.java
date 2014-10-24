@@ -80,7 +80,7 @@ public class SearchRequest implements Serializable {
         }
     }
     
-    private ArrayDeque<Serializable> value;
+    private final ArrayDeque<Serializable> value;
     
     SearchRequest(ArrayDeque<Serializable> value) {
         this.value = value;

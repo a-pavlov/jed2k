@@ -9,8 +9,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 public final class NetworkIdentifier implements Serializable, Comparable<NetworkIdentifier> {
-    private int ip = 0;
-    private short port = 0;
+    public int ip = 0;
+    public short port = 0;
 
     public NetworkIdentifier() {
     }
@@ -39,20 +39,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     
     @Override
     public String toString() {
-        return int2Address(ip) + ":" + port(); 
-    }
-    
-    public void reset(int ip, short port) {
-        this.ip = ip;
-        this.port = port;
-    }
-    
-    public int ip() {
-        return ip;
-    }
-    
-    public int port() {
-        return (port & 0xffff);
+        return int2Address(ip) + ":" + port; 
     }
         
     public InetSocketAddress toInetSocketAddress() throws JED2KException {

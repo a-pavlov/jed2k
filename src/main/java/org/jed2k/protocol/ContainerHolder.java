@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import org.jed2k.exception.JED2KException;
 
@@ -14,10 +13,8 @@ import static org.jed2k.protocol.Unsigned.uint8;
 
 public class ContainerHolder<CS extends UNumber, Elem extends Serializable>
         extends AbstractCollection<Elem> implements Serializable {
-    private static Logger log = Logger.getLogger(ContainerHolder.class
-            .getName());
 
-    public final CS size;
+    private final CS size;
     public final Collection<Elem> collection;
     private final Class<Elem> clazz;
     

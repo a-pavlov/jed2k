@@ -1,9 +1,11 @@
 package org.jed2k.protocol;
 
+import org.jed2k.exception.JED2KException;
+
 public class ServerInfo extends ServerUsualPacket implements Dispatchable {
 
     @Override
-    public boolean dispatch(Dispatcher dispatcher) {
-        return dispatcher.onServerInfo(this);
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onServerInfo(this);
     }
 }

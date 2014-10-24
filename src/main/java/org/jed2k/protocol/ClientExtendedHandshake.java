@@ -1,13 +1,15 @@
 package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.tag.Tag;
 
 public class ClientExtendedHandshake implements Serializable {
-    private UInt16 version;
-    private ContainerHolder<UInt16, Tag> properties;
+    
+    public final UInt16 version = Unsigned.uint16();
+    public final ContainerHolder<UInt16, Tag> properties = ContainerHolder.make16(new LinkedList<Tag>(), Tag.class);
     
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

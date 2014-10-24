@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.jed2k.exception.JED2KException;
 import static org.jed2k.Utils.sizeof;
 
-public class ClientHello extends ClientHelloAnswer {
+public class ClientHello extends ClientHelloAnswer implements Dispatchable {
     private byte hashLength;
     
     @Override
@@ -22,5 +22,10 @@ public class ClientHello extends ClientHelloAnswer {
     @Override
     public int bytesCount() {
         return sizeof(hashLength) + super.bytesCount();
+    }
+
+    @Override
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onClientHello(this);
     }
 }

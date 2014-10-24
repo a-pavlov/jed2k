@@ -15,7 +15,7 @@ public class PeerConnection {
             if (((PeerConnection)o).hasPort() && hasPort()) {
                 return point.equals(((PeerConnection) o).point);
             } else {
-                return point.ip() == ((PeerConnection)o).point.ip(); 
+                return point.ip == ((PeerConnection)o).point.ip; 
             }
         }
         

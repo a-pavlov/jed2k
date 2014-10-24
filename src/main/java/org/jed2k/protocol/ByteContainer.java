@@ -13,7 +13,7 @@ import org.jed2k.exception.JED2KException;
 public class ByteContainer<CS extends UNumber> implements Serializable {
     private static Logger log = Logger.getLogger(ByteBuffer.class.getName());
     
-    public CS size;
+    public final CS size;
     public byte[] value;
     
     public ByteContainer(CS size) {

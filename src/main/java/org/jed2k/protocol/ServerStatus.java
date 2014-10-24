@@ -31,7 +31,7 @@ public class ServerStatus implements Serializable, Dispatchable {
     }
 
     @Override
-    public boolean dispatch(Dispatcher dispatcher) {
-        return dispatcher.onServerStatus(this);
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onServerStatus(this);
     }
 }

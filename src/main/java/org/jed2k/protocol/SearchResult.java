@@ -7,7 +7,7 @@ import static org.jed2k.protocol.Unsigned.uint32;
 import static org.jed2k.Utils.sizeof;
 
 public class SearchResult extends SoftSerializable implements Dispatchable {
-    public ContainerHolder<UInt32, SharedFileEntry> files = ContainerHolder.make32(new LinkedList<SharedFileEntry>(), SharedFileEntry.class);
+    public final ContainerHolder<UInt32, SharedFileEntry> files = ContainerHolder.make32(new LinkedList<SharedFileEntry>(), SharedFileEntry.class);
     public byte moreResults = 0;
     
     @Override
@@ -41,7 +41,7 @@ public class SearchResult extends SoftSerializable implements Dispatchable {
     }
 
     @Override
-    public boolean dispatch(Dispatcher dispatcher) {
-        return dispatcher.onSearchResult(this);
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onSearchResult(this);
     }
 }

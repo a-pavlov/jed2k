@@ -7,6 +7,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.util.logging.Logger;
 
+import org.jed2k.protocol.ClientExtHello;
+import org.jed2k.protocol.ClientExtHelloAnswer;
+import org.jed2k.protocol.ClientHello;
+import org.jed2k.protocol.ClientHelloAnswer;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
 import org.jed2k.protocol.SearchResult;
@@ -65,7 +69,8 @@ public class ServerConnection extends Connection {
         int versionClient = (LoginRequest.JED2K_VERSION_MAJOR << 24) | (LoginRequest.JED2K_VERSION_MINOR << 17) | (LoginRequest.JED2K_VERSION_TINY << 10) | (1 << 7);
 
         login.hash = Hash.EMULE;
-        login.point.reset(0, (short)4661);
+        login.point.ip = 0;
+        login.point.port = (short)4661;
         
         login.properties.add(tag(Tag.CT_VERSION, null, version));
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
@@ -76,38 +81,54 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    public boolean onServerIdChange(ServerIdChange value) {
+    public void onServerIdChange(ServerIdChange value) throws JED2KException {
         log.info("server id changed: " + value);
-        return true;
     }
 
     @Override
-    public boolean onServerInfo(ServerInfo value) {
+    public void onServerInfo(ServerInfo value) throws JED2KException {
         log.info("server info: " + value);
-        return true;
     }
 
     @Override
-    public boolean onServerList(ServerList value) {
+    public void onServerList(ServerList value) throws JED2KException {
         log.info("server list: " + value);
-        return true;
     }
 
     @Override
-    public boolean onServerMessage(ServerMessage value) {
+    public void onServerMessage(ServerMessage value) throws JED2KException {
         log.info("server message: " + value);
-        return true;
     }
 
     @Override
-    public boolean onServerStatus(ServerStatus value) {
+    public void onServerStatus(ServerStatus value) throws JED2KException {
         log.info("server status: " + value);
-        return true;
     }
 
     @Override
-    public boolean onSearchResult(SearchResult value) {
+    public void onSearchResult(SearchResult value) throws JED2KException {
         log.info("search result: " + value);
-        return true;
+    }
+
+    @Override
+    public void onClientHello(ClientHello value) throws JED2KException {
+        throw new JED2KException("Unsupported packet");        
+    }
+
+    @Override
+    public void onClientHelloAnswer(ClientHelloAnswer value)
+            throws JED2KException {
+        throw new JED2KException("Unsupported packet");
+    }
+
+    @Override
+    public void onClientExtHello(ClientExtHello value) throws JED2KException {
+        throw new JED2KException("Unsupported packet");
+    }
+
+    @Override
+    public void onClientExtHelloAnswer(ClientExtHelloAnswer value)
+            throws JED2KException {
+        throw new JED2KException("Unsupported packet");
     }
 }

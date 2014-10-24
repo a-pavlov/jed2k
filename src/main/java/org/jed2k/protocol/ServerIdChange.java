@@ -51,7 +51,7 @@ public class ServerIdChange extends SoftSerializable implements Dispatchable {
     }
 
     @Override
-    public boolean dispatch(Dispatcher dispatcher) {
-        return dispatcher.onServerIdChange(this);
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onServerIdChange(this);
     }
 }
