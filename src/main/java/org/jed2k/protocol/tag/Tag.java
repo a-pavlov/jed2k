@@ -138,6 +138,7 @@ public final class Tag implements Serializable {
     public static final byte CT_EMULE_BUDDYUDP               = (byte)0xFD;
     public static final byte CT_EMULE_MISCOPTIONS2           = (byte)0xFE;
     public static final byte CT_EMULE_RESERVED13             = (byte)0xFF;
+    public static final byte CT_MOD_VERSION                  = (byte)0x55;
     
     public static String type2String(byte id) {
         switch(id) {
@@ -231,6 +232,7 @@ public final class Tag implements Serializable {
             case CT_EMULE_BUDDYUDP: return "CT_EMULE_BUDDYUDP";
             case CT_EMULE_MISCOPTIONS2: return "CT_EMULE_MISCOPTIONS2";
             case CT_EMULE_RESERVED13: return "CT_EMULE_RESERVED13";
+            case CT_MOD_VERSION: return "CT_MOD_VERSION";
             default: return "UNKNOWN";
         }
     }

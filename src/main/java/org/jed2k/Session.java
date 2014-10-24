@@ -28,11 +28,13 @@ public class Session extends Thread {
     
     private Map<Hash, Transfer> transfers = new TreeMap<Hash, Transfer>();
     private Set<PeerConnection> connections = new TreeSet<PeerConnection>();
+    Settings settings = new Settings();
     
-    PeerConnection getConnection() {
-        return new PeerConnection();
-    }
-    
+    // from last established server connection 
+    int clientId    = 0;
+    int tcpFlags    = 0;
+    int auxPort     = 0;
+        
     @Override
     public void run() {
         try {

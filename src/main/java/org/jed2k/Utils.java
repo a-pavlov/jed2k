@@ -65,4 +65,8 @@ public final class Utils {
     public static int hiPart(long value) {
         return (int)(value >> 32);
     }
+    
+    public static long makeFullED2KVersion(int client_id, int a, int b, int c) {
+        return ((((long)client_id) << 24) | (((long)a << 17)) | (((long)b << 10)) | (((long)c << 7)));
+    }
 }

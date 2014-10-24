@@ -18,6 +18,19 @@ public final class Hash implements Serializable, Comparable<Hash> {
     public static final Hash EMULE      = fromString("31D6CFE0D10EE931B73C59D7E0C06FC0");
     public static final Hash INVALID    = new Hash();
     
+    public Hash(){
+        
+    }
+    
+    public Hash(Hash h) {
+        assign(h);
+    }
+    
+    public Hash assign(Hash h) {
+        System.arraycopy(h.value, 0, value, 0, MD4.HASH_SIZE);
+        return this;
+    }
+    
     public static Hash fromString(String value) {
         assert(value.length() == MD4.HASH_SIZE*2);
         if (value.length() != MD4.HASH_SIZE*2) return INVALID;

@@ -26,16 +26,18 @@ public abstract class Connection implements Dispatcher {
     private boolean writeInProgress = false;
     private SelectionKey key = null;
     private final PacketCombiner packetCombainer = new PacketCombiner();
+    final Session session;
     
     protected Connection(Session ses, 
             InetSocketAddress address, 
             ByteBuffer bufferIncoming,
-            ByteBuffer bufferOutgoing) throws IOException {
+            ByteBuffer bufferOutgoing, Session session) throws IOException {
         this.address = address;        
         this.bufferIncoming = bufferIncoming;
         this.bufferOutgoing = bufferOutgoing;
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
-        this.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);       
+        this.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
+        this.session = session;
         socket = SocketChannel.open();
         socket.configureBlocking(false);
         key = socket.register(ses.selector, SelectionKey.OP_CONNECT, this);
@@ -114,6 +116,8 @@ public abstract class Connection implements Dispatcher {
         close();
     }
     
+    protected abstract void onClose();
+    
     public void connect() {    
         try {
             socket.connect(address);
@@ -130,6 +134,7 @@ public abstract class Connection implements Dispatcher {
         } catch(IOException e) {
             log.warning(e.getMessage());
         } finally {
+            onClose();
             key.cancel();
         }
     }

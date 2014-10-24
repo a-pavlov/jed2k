@@ -31,15 +31,16 @@ public class ServerConnection extends Connection {
     private ServerConnection(Session ses, 
             final InetSocketAddress address, 
             ByteBuffer incomingBuffer,
-            ByteBuffer outgoingBuffer) throws IOException {
-        super(ses, address, incomingBuffer, outgoingBuffer);
+            ByteBuffer outgoingBuffer, 
+            Session session) throws IOException {
+        super(ses, address, incomingBuffer, outgoingBuffer, session);
     }    
     
     public static ServerConnection makeConnection(Session ses, final InetSocketAddress address) {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return  new ServerConnection(ses, address, ibuff, obuff);
+            return  new ServerConnection(ses, address, ibuff, obuff, ses);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
@@ -83,6 +84,9 @@ public class ServerConnection extends Connection {
     @Override
     public void onServerIdChange(ServerIdChange value) throws JED2KException {
         log.info("server id changed: " + value);
+        session.clientId = value.clientId;
+        session.tcpFlags = value.tcpFlags;
+        session.auxPort = value.auxPort;
     }
 
     @Override
@@ -130,5 +134,12 @@ public class ServerConnection extends Connection {
     public void onClientExtHelloAnswer(ClientExtHelloAnswer value)
             throws JED2KException {
         throw new JED2KException("Unsupported packet");
+    }
+
+    @Override
+    protected void onClose() {
+        session.clientId = 0;
+        session.tcpFlags = 0;
+        session.auxPort = 0;
     }
 }
