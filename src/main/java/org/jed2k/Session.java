@@ -114,7 +114,7 @@ public class Session extends Thread {
                     sc.close();
                 }
                 
-                sc = ServerConnection.getServerConnection(Session.this, address);
+                sc = ServerConnection.makeConnection(Session.this, address);
                 if (sc != null) sc.connect();               
             }
         });
