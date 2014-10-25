@@ -13,11 +13,13 @@ import org.jed2k.protocol.ClientHello;
 import org.jed2k.protocol.ClientHelloAnswer;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
+import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.SearchResult;
 import org.jed2k.protocol.ServerIdChange;
 import org.jed2k.protocol.ServerInfo;
 import org.jed2k.protocol.ServerList;
 import org.jed2k.protocol.ServerMessage;
+import org.jed2k.protocol.ServerPacketCombiner;
 import org.jed2k.protocol.ServerStatus;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
@@ -28,19 +30,19 @@ import static org.jed2k.protocol.tag.Tag.tag;
 public class ServerConnection extends Connection {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
     
-    private ServerConnection(Session ses, 
-            final InetSocketAddress address, 
+    private ServerConnection(final InetSocketAddress address, 
             ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer, 
+            PacketCombiner packetCombiner,
             Session session) throws IOException {
-        super(ses, address, incomingBuffer, outgoingBuffer, session);
+        super(address, incomingBuffer, outgoingBuffer, packetCombiner, session);
     }    
     
     public static ServerConnection makeConnection(Session ses, final InetSocketAddress address) {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return  new ServerConnection(ses, address, ibuff, obuff, ses);
+            return  new ServerConnection(address, ibuff, obuff, new ServerPacketCombiner(), ses);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
@@ -48,19 +50,6 @@ public class ServerConnection extends Connection {
         }
         
         return null;
-    }
-    
-    @Override 
-    public void onConnectable() {
-        try {
-            super.onConnectable();
-            write(hello());
-            return;
-        } catch(JED2KException e) {
-            log.warning(e.getMessage());
-        }
-        
-        close();
     }
     
     private Serializable hello() throws JED2KException {
@@ -135,9 +124,14 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         throw new JED2KException("Unsupported packet");
     }
+    
+    @Override
+    protected void onConnect() throws JED2KException {
+        write(hello());
+    }
 
     @Override
-    protected void onClose() {
+    protected void onDisconnect() {
         session.clientId = 0;
         session.tcpFlags = 0;
         session.auxPort = 0;

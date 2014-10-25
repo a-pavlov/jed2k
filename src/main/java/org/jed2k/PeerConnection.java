@@ -3,18 +3,23 @@ package org.jed2k;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SocketChannel;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.hash.MD4;
 import org.jed2k.protocol.ClientExtHello;
 import org.jed2k.protocol.ClientExtHelloAnswer;
 import org.jed2k.protocol.ClientHello;
 import org.jed2k.protocol.ClientHelloAnswer;
 import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.SearchResult;
 import org.jed2k.protocol.ServerIdChange;
 import org.jed2k.protocol.ServerInfo;
 import org.jed2k.protocol.ServerList;
 import org.jed2k.protocol.ServerMessage;
+import org.jed2k.protocol.ServerPacketCombiner;
 import org.jed2k.protocol.ServerStatus;
 import org.jed2k.protocol.tag.Tag;
 
@@ -22,11 +27,36 @@ import com.sun.corba.se.spi.ior.MakeImmutable;
 
 public class PeerConnection extends Connection {
     NetworkIdentifier point;
+    private boolean active = false;   // true when we connect to peer, false when incoming connection
     
-    PeerConnection(Session ses, InetSocketAddress address, 
+    PeerConnection(InetSocketAddress address, 
             ByteBuffer incomingBuffer,
-            ByteBuffer outgoingBuffer, Session session) throws IOException {
-        super(ses, address, incomingBuffer, outgoingBuffer, session);
+            ByteBuffer outgoingBuffer,
+            PacketCombiner packetCombiner,
+            Session session) throws IOException {
+        super(address, incomingBuffer, outgoingBuffer, packetCombiner, session);
+    }
+    
+    PeerConnection(ByteBuffer incomingBuffer,
+            ByteBuffer outgoingBuffer,
+            PacketCombiner packetCombiner,
+            Session session, 
+            SocketChannel socket) throws IOException {
+        super(incomingBuffer, outgoingBuffer, packetCombiner, session, socket);
+    }
+    
+    public static PeerConnection make(SocketChannel socket, Session session) {
+        try {
+            ByteBuffer ibuff = ByteBuffer.allocate(4096);
+            ByteBuffer obuff = ByteBuffer.allocate(4096);
+            return  new PeerConnection(ibuff, obuff, new ServerPacketCombiner(), session, socket);
+        } catch(ClosedChannelException e) {
+            
+        } catch(IOException e) {
+            
+        }
+        
+        return null;
     }
     
     private class MiscOptions {
@@ -60,9 +90,9 @@ public class PeerConnection extends Connection {
     private class MiscOptions2 {
         public int value = 0;
         private final int LARGE_FILE_OFFSET = 4;
-        private final int MULTIP_OFFSET  =   5;
-        private final int SRC_EXT_OFFSET =   10;
-        private final int CAPTHA_OFFSET =    11;
+        private final int MULTIP_OFFSET = 5;
+        private final int SRC_EXT_OFFSET = 10;
+        private final int CAPTHA_OFFSET = 11;
         
         public boolean supportCaptcha() {
             return ((value >> CAPTHA_OFFSET) & 0x01) == 1;
@@ -110,8 +140,7 @@ public class PeerConnection extends Connection {
         return false;
     }
     
-    private void fillHello(final ClientHelloAnswer hello) throws JED2KException {
-        Settings s = session.settings;
+    private ClientHelloAnswer prepareHello(final ClientHelloAnswer hello) throws JED2KException {
         hello.hash.assign(session.settings.userAgent);
         hello.point.ip = session.clientId;
         hello.point.port = session.settings.listenPort;
@@ -139,6 +168,7 @@ public class PeerConnection extends Connection {
         
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS1, null, mo.intValue()));
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS2, null, mo2.value));
+        return hello;
     }
 
     @Override
@@ -179,10 +209,7 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onClientHello(ClientHello value) throws JED2KException {
-        // TODO Auto-generated method stub
-        ClientHelloAnswer cha = new ClientHelloAnswer();
-        fillHello(cha);
-        write(cha);
+        write(prepareHello(new ClientHelloAnswer()));
     }
 
     @Override
@@ -206,8 +233,12 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    protected void onClose() {
-        // TODO Auto-generated method stub
+    protected void onConnect() throws JED2KException {
+        write(prepareHello(new ClientHello()));
+    }
+    
+    @Override
+    protected void onDisconnect() {
         
     }
 }

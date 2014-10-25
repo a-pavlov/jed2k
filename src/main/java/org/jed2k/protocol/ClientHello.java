@@ -3,10 +3,12 @@ package org.jed2k.protocol;
 import java.nio.ByteBuffer;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.hash.MD4;
+
 import static org.jed2k.Utils.sizeof;
 
 public class ClientHello extends ClientHelloAnswer implements Dispatchable {
-    private byte hashLength;
+    public byte hashLength = (byte)MD4.HASH_SIZE;
     
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

@@ -44,6 +44,8 @@ public class Session extends Thread {
             ssc.socket().bind(new InetSocketAddress(4661));
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
+            
+            PeerConnection p = null;
 
             while(!isInterrupted()) {
                 int channelCount = selector.select(1000);
@@ -62,23 +64,19 @@ public class Session extends Thread {
                               // a connection was accepted by a ServerSocketChannel.
                               log.info("Key is acceptable");
                               SocketChannel socket = ssc.accept();
-                              socket.close();
+                              p = PeerConnection.make(socket, this);      
                           } else if (key.isConnectable()) {
                               // a connection was established with a remote server.
                               log.info("Key is connectable");
-                              ServerConnection sconn = (ServerConnection)key.attachment();
-                              sconn.onConnectable();
+                              ((Connection)key.attachment()).onConnectable();
                           } else if (key.isReadable()) {
                               // a channel is ready for reading
                               log.info("Key is readable");
-                              ServerConnection sconn = (ServerConnection)key.attachment();
-                              sconn.onReadable();
+                              ((Connection)key.attachment()).onReadable();                              
                           } else if (key.isWritable()) {
                               // a channel is ready for writing
                               log.info("Key is writeable");
-                              ServerConnection sconn = (ServerConnection)key.attachment();
-                              sconn.onWriteable();                          
-                              key.interestOps(SelectionKey.OP_READ);
+                              ((Connection)key.attachment()).onWriteable();                              
                           }
                       }
                       

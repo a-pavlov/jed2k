@@ -53,6 +53,11 @@ public final class Hash implements Serializable, Comparable<Hash> {
         return res;
     }
     
+    public byte at(int index) {
+        assert(index < MD4.HASH_SIZE);
+        return value[index];
+    }
+    
     @Override
     public String toString() {
         return byte2String(value);

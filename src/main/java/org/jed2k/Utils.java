@@ -3,6 +3,8 @@ package org.jed2k;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.jed2k.protocol.Hash;
+
 public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
     
@@ -68,5 +70,30 @@ public final class Utils {
     
     public static long makeFullED2KVersion(int client_id, int a, int b, int c) {
         return ((((long)client_id) << 24) | (((long)a << 17)) | (((long)b << 10)) | (((long)c << 7)));
+    }
+    
+    ClientSoftware uagent2csoft(final Hash hash)
+    {
+        if ( hash.at(5) == (byte)13 && hash.at(14) == (byte)110 ) {
+            return ClientSoftware.SO_OLDEMULE;
+        }
+        
+        if ( hash.at(5) == (byte)14 && hash.at(14) == (byte)111 ) {
+            return ClientSoftware.SO_EMULE;
+        }
+        
+        if ( hash.at(5) == 'M' && hash.at(14) == 'L' ) {
+            return ClientSoftware.SO_MLDONKEY;
+        }
+        
+        if ( hash.at(5) == 'L' && hash.at(14) == 'K') {
+            return ClientSoftware.SO_LIBED2K;
+        }
+        
+        if (hash.at(5) == 'Q' && hash.at(14) == 'M') {
+            return ClientSoftware.SO_QMULE;
+        }
+
+        return ClientSoftware.SO_UNKNOWN;
     }
 }

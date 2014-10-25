@@ -17,6 +17,7 @@ import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.ServerIdChange;
+import org.jed2k.protocol.ServerPacketCombiner;
 import org.jed2k.protocol.ServerStatus;
 import org.jed2k.protocol.tag.Tag;
 
@@ -44,7 +45,7 @@ public class PacketCombinerTest {
     public void testPackUnpack() throws JED2KException {
         ByteBuffer nb = ByteBuffer.allocate(1024);
         nb.order(ByteOrder.LITTLE_ENDIAN);        
-        PacketCombiner combiner = new PacketCombiner();
+        PacketCombiner combiner = new ServerPacketCombiner();
         combiner.pack(login, nb);
         nb.flip();
         Serializable pkt = combiner.unpack(nb);
@@ -70,7 +71,7 @@ public class PacketCombinerTest {
         order.add(login);
         order.add(new ServerIdChange());
         order.add(new ServerStatus());
-        PacketCombiner combiner = new PacketCombiner();        
+        PacketCombiner combiner = new ServerPacketCombiner();        
         PacketHeader ph = new PacketHeader();
         int flushCount = 0;
         while(!order.isEmpty()) {

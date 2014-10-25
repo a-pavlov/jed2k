@@ -25,30 +25,51 @@ public abstract class Connection implements Dispatcher {
     private LinkedList<Serializable> outgoingOrder = new LinkedList<Serializable>();
     private boolean writeInProgress = false;
     private SelectionKey key = null;
-    private final PacketCombiner packetCombainer = new PacketCombiner();
+    private final PacketCombiner packetCombainer;
     final Session session;
     
-    protected Connection(Session ses, 
-            InetSocketAddress address, 
+    protected Connection(InetSocketAddress address, 
             ByteBuffer bufferIncoming,
-            ByteBuffer bufferOutgoing, Session session) throws IOException {
+            ByteBuffer bufferOutgoing,
+            PacketCombiner packetCombiner,
+            Session session) throws IOException {
         this.address = address;        
         this.bufferIncoming = bufferIncoming;
         this.bufferOutgoing = bufferOutgoing;
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
         this.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
+        this.packetCombainer = packetCombiner;
         this.session = session;
         socket = SocketChannel.open();
         socket.configureBlocking(false);
-        key = socket.register(ses.selector, SelectionKey.OP_CONNECT, this);
+        key = socket.register(session.selector, SelectionKey.OP_CONNECT, this);
     }
-       
+    
+    protected Connection(ByteBuffer bufferIncoming,
+            ByteBuffer bufferOutgoing, 
+            PacketCombiner packetCombiner,
+            Session session, SocketChannel socket) throws IOException {
+        this.address = null;
+        this.bufferIncoming = bufferIncoming;
+        this.bufferOutgoing = bufferOutgoing;
+        this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
+        this.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
+        this.packetCombainer = packetCombiner;
+        this.session = session;
+        this.socket = socket;
+        this.socket.configureBlocking(false);
+        key = socket.register(session.selector, SelectionKey.OP_READ, this);
+    }
+    
     public void onConnectable() {
         try {
             socket.finishConnect();
+            onConnect();
             return;
         } catch(IOException e) {            
             log.warning(e.getMessage());            
+        } catch(JED2KException e) {
+            log.warning(e.getMessage());
         }
         
         close();
@@ -101,7 +122,7 @@ public abstract class Connection implements Dispatcher {
                 bufferOutgoing.flip();
                 socket.write(bufferOutgoing);
             } else {
-                key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                key.interestOps(SelectionKey.OP_READ);
             }
             
             return;
@@ -116,7 +137,8 @@ public abstract class Connection implements Dispatcher {
         close();
     }
     
-    protected abstract void onClose();
+    protected abstract void onConnect() throws JED2KException;
+    protected abstract void onDisconnect();
     
     public void connect() {    
         try {
@@ -134,7 +156,7 @@ public abstract class Connection implements Dispatcher {
         } catch(IOException e) {
             log.warning(e.getMessage());
         } finally {
-            onClose();
+            onDisconnect();
             key.cancel();
         }
     }
@@ -143,7 +165,7 @@ public abstract class Connection implements Dispatcher {
         log.info("write packet " + packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {
-            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+            key.interestOps(SelectionKey.OP_WRITE);
             onWriteable();
         }
     }
