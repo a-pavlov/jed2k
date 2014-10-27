@@ -19,7 +19,7 @@ public class Conn {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
         
-        while ((command = in.readLine()) != null){
+        while ((command = in.readLine()) != null) {
             String[] parts = command.split("\\s+");
             
             if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
@@ -43,6 +43,8 @@ public class Conn {
                 } catch(JED2KException e) {
                     log.warning(e.getMessage());
                 }
+            } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
+                s.connectToPeer(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])));
             }
             
         }       

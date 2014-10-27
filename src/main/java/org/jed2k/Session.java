@@ -6,6 +6,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class Session extends Thread {
     private ServerSocketChannel ssc = null;
     
     private Map<Hash, Transfer> transfers = new TreeMap<Hash, Transfer>();
-    private Set<PeerConnection> connections = new TreeSet<PeerConnection>();
+    private ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); //new TreeSet<PeerConnection>();
     Settings settings = new Settings();
     
     // from last established server connection 
@@ -64,7 +65,7 @@ public class Session extends Thread {
                               // a connection was accepted by a ServerSocketChannel.
                               log.info("Key is acceptable");
                               SocketChannel socket = ssc.accept();
-                              p = PeerConnection.make(socket, this);      
+                              p = PeerConnection.make(socket, this);
                           } else if (key.isConnectable()) {
                               // a connection was established with a remote server.
                               log.info("Key is connectable");
@@ -138,6 +139,21 @@ public class Session extends Thread {
             public void run() {
                 if (sc != null) {
                     sc.write(value);
+                }
+            }
+        });
+    }
+    
+    public void connectToPeer(final InetSocketAddress address) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                PeerConnection pc = PeerConnection.make(Session.this, address);
+                if (pc != null) {
+                    connections.add(pc);
+                    pc.connect();
+                } else {
+                    log.warning("Unable to create peer connection");
                 }
             }
         });

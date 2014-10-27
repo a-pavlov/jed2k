@@ -78,7 +78,7 @@ public abstract class Connection implements Dispatcher {
     public void onReadable() {
         try {
             int bytes = socket.read(bufferIncoming);
-            log.info("ready to read byte: " + bytes);
+            log.info("ready to read bytes count: " + bytes);
             if (bytes == -1) {
                 close();
                 return;

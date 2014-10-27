@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.hash.MD4;
@@ -29,6 +30,7 @@ import com.sun.corba.se.spi.ior.MakeImmutable;
 public class PeerConnection extends Connection {
     NetworkIdentifier point;
     private boolean active = false;   // true when we connect to peer, false when incoming connection
+    private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
     
     PeerConnection(InetSocketAddress address, 
             ByteBuffer incomingBuffer,
@@ -60,18 +62,32 @@ public class PeerConnection extends Connection {
         return null;
     }
     
+    public static PeerConnection make(Session ses, final InetSocketAddress address) {
+        try {
+            ByteBuffer ibuff = ByteBuffer.allocate(4096);
+            ByteBuffer obuff = ByteBuffer.allocate(4096);
+            return  new PeerConnection(address, ibuff, obuff, new ClientPacketCombiner(), ses);
+        } catch(ClosedChannelException e) {
+            
+        } catch(IOException e) {
+            
+        }
+        
+        return null;
+    }
+    
     private class MiscOptions {
-        int aichVersion = 0;
-        int unicodeSupport = 0;
-        int udpVer = 0;
-        int dataCompVer = 0;
-        int supportSecIdent = 0;
-        int sourceExchange1Ver = 0;
-        int extendedRequestsVer = 0;
-        int acceptCommentVer = 0;
-        int noViewSharedFiles = 0;
-        int multiPacket = 0;
-        int supportsPreview = 0;
+        public int aichVersion = 0;
+        public int unicodeSupport = 0;
+        public int udpVer = 0;
+        public int dataCompVer = 0;
+        public int supportSecIdent = 0;
+        public int sourceExchange1Ver = 0;
+        public int extendedRequestsVer = 0;
+        public int acceptCommentVer = 0;
+        public int noViewSharedFiles = 0;
+        public int multiPacket = 0;
+        public int supportsPreview = 0;
         
         public int intValue() {
             return  ((aichVersion           << ((4*7)+1)) |
@@ -86,10 +102,24 @@ public class PeerConnection extends Connection {
                     (multiPacket           << 1*1) |
                     (supportsPreview       << 1*0));
         }
+        
+        public void assign(int value) {
+            aichVersion          = (value >> (4*7+1)) & 0x07;
+            unicodeSupport       = (value >> 4*7) & 0x01;
+            udpVer               = (value >> 4*6) & 0x0f;
+            dataCompVer          = (value >> 4*5) & 0x0f;
+            supportSecIdent      = (value >> 4*4) & 0x0f;
+            sourceExchange1Ver   = (value >> 4*3) & 0x0f;
+            extendedRequestsVer  = (value >> 4*2) & 0x0f;
+            acceptCommentVer     = (value >> 4*1) & 0x0f;
+            noViewSharedFiles    = (value >> 1*2) & 0x01;
+            multiPacket          = (value >> 1*1) & 0x01;
+            supportsPreview      = (value >> 1*0) & 0x01;
+        }
     }
     
     private class MiscOptions2 {
-        public int value = 0;
+        private int value = 0;
         private final int LARGE_FILE_OFFSET = 4;
         private final int MULTIP_OFFSET = 5;
         private final int SRC_EXT_OFFSET = 10;
@@ -126,6 +156,20 @@ public class PeerConnection extends Connection {
         public void setLargeFiles() {
             value |= 1 << LARGE_FILE_OFFSET;
         }
+        
+        public void assign(int value) {
+            this.value = value;
+        }
+    }
+    
+    public class RemotePeerInfo {
+        public NetworkIdentifier point = new NetworkIdentifier();
+        public String modName = new String();
+        public int version = 0;
+        public String modVersion = new String();
+        public int modNumber = 0;
+        public MiscOptions misc1 = new MiscOptions();
+        public MiscOptions2 misc2 = new MiscOptions2();
     }
     
     @Override
@@ -171,6 +215,62 @@ public class PeerConnection extends Connection {
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS2, null, mo2.value));
         return hello;
     }
+    
+    private void fillRemotePeerInformation(ClientHelloAnswer value) throws JED2KException {
+        //remotePeerInfo.point
+        Iterator<Tag> itr = value.properties.iterator();
+        while(itr.hasNext()) {
+            Tag tag = itr.next();
+            switch(tag.id()) {
+            case Tag.CT_NAME:
+                remotePeerInfo.modName = tag.stringValue();
+                break;
+            case Tag.CT_VERSION:
+                remotePeerInfo.version = tag.intValue();
+                break;
+            case Tag.CT_MOD_VERSION:
+                if (tag.isStringTag()) remotePeerInfo.modVersion = tag.stringValue(); 
+                else if (tag.isNumberTag()) remotePeerInfo.modNumber = tag.intValue();
+                break;
+            case Tag.CT_PORT:
+                //m_options.m_nPort = p->asInt();                
+            case Tag.CT_EMULE_UDPPORTS:
+                //m_options.m_nUDPPort = p->asInt() & 0xFFFF;
+                //dwEmuleTags |= 1;               
+            case Tag.CT_EMULE_BUDDYIP:
+                // 32 BUDDY IP
+                //m_options.m_buddy_point.m_nIP = p->asInt();
+            case Tag.CT_EMULE_BUDDYUDP:
+                //m_options.m_buddy_point.m_nPort = p->asInt();
+                //break;
+                break;
+            case Tag.CT_EMULE_MISCOPTIONS1:
+                remotePeerInfo.misc1.assign(tag.intValue());
+                break;
+            case Tag.CT_EMULE_MISCOPTIONS2:
+                remotePeerInfo.misc2.assign(tag.intValue());
+                break;
+
+            // Special tag for Compat. Clients Misc options.
+            case Tag.CT_EMULECOMPAT_OPTIONS:
+                //  1 Operative System Info
+                //  1 Value-based-type int tags (experimental!)
+                //m_options.m_bValueBasedTypeTags   = (p->asInt() >> 1*1) & 0x01;
+                //m_options.m_bOsInfoSupport        = (p->asInt() >> 1*0) & 0x01;                
+            case Tag.CT_EMULE_VERSION:
+                //  8 Compatible Client ID
+                //  7 Mjr Version (Doesn't really matter..)
+                //  7 Min Version (Only need 0-99)
+                //  3 Upd Version (Only need 0-5)
+                //  7 Bld Version (Only need 0-99)
+                //m_options.m_nCompatibleClient = (p->asInt() >> 24);
+                //m_options.m_nClientVersion = p->asInt() & 0x00ffffff;
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
     @Override
     public void onServerIdChange(ServerIdChange value) throws JED2KException {
@@ -210,14 +310,15 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onClientHello(ClientHello value) throws JED2KException {
+        // extract client information
+        fillRemotePeerInformation(value);
         write(prepareHello(new ClientHelloAnswer()));
     }
 
     @Override
     public void onClientHelloAnswer(ClientHelloAnswer value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        fillRemotePeerInformation(value);
     }
 
     @Override

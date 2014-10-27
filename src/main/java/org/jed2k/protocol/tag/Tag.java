@@ -499,11 +499,21 @@ public final class Tag implements Serializable {
         return name;
     }
     
+    public final boolean isStringTag() {
+        assert(value != null);
+        return value instanceof StringSerial;
+    }
+    
     public final String stringValue() throws JED2KException {
         assert(initialized());
         StringSerial ss = (StringSerial)value;
         if (ss == null) throw new JED2KException("Ivalid cast tag to string");
         return ss.stringValue();
+    }
+    
+    public final boolean isNumberTag() {
+        assert(value != null);
+        return value instanceof UNumber;
     }
     
     public final int intValue() throws JED2KException {
@@ -520,11 +530,21 @@ public final class Tag implements Serializable {
         return n.longValue();
     }
     
+    public final boolean isFloatTag() {
+        assert(value != null);
+        return value instanceof FloatSerial;
+    }
+    
     public final float floatValue() throws JED2KException {
         assert(initialized());
         FloatSerial fs = (FloatSerial)value;
         if (fs == null) throw new JED2KException("Invalid cast tag to float");
         return fs.value;
+    }
+    
+    public final boolean isHashTag() {
+        assert(value != null);
+        return value instanceof Hash;
     }
     
     public final Hash hashValue() throws JED2KException {
