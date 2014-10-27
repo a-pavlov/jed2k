@@ -140,6 +140,17 @@ public final class Tag implements Serializable {
     public static final byte CT_EMULE_RESERVED13             = (byte)0xFF;
     public static final byte CT_MOD_VERSION                  = (byte)0x55;
     
+    
+    public static final byte ET_COMPRESSION          = (byte)0x20;
+    public static final byte ET_UDPPORT              = (byte)0x21;
+    public static final byte ET_UDPVER               = (byte)0x22;
+    public static final byte ET_SOURCEEXCHANGE       = (byte)0x23;
+    public static final byte ET_COMMENTS             = (byte)0x24;
+    public static final byte ET_EXTENDEDREQUEST      = (byte)0x25;
+    public static final byte ET_COMPATIBLECLIENT     = (byte)0x26;
+    public static final byte ET_FEATURES             = (byte)0x27;
+    public static final byte ET_MOD_VERSION          = CT_MOD_VERSION;
+    
     public static String type2String(byte id) {
         switch(id) {
             case TAGTYPE_UNDEFINED: return "TAGTYPE_UNDEFINED";

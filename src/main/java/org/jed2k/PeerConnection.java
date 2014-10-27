@@ -24,8 +24,7 @@ import org.jed2k.protocol.ServerMessage;
 import org.jed2k.protocol.ServerPacketCombiner;
 import org.jed2k.protocol.ServerStatus;
 import org.jed2k.protocol.tag.Tag;
-
-import com.sun.corba.se.spi.ior.MakeImmutable;
+import static org.jed2k.protocol.tag.Tag.tag;
 
 public class PeerConnection extends Connection {
     NetworkIdentifier point;
@@ -214,9 +213,9 @@ public class PeerConnection extends Connection {
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS1, null, mo.intValue()));
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS2, null, mo2.value));
         return hello;
-    }
+    }    
     
-    private void fillRemotePeerInformation(ClientHelloAnswer value) throws JED2KException {
+    private void assignRemotePeerInformation(ClientHelloAnswer value) throws JED2KException {
         //remotePeerInfo.point
         Iterator<Tag> itr = value.properties.iterator();
         while(itr.hasNext()) {
@@ -311,20 +310,31 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientHello(ClientHello value) throws JED2KException {
         // extract client information
-        fillRemotePeerInformation(value);
+        assignRemotePeerInformation(value);
         write(prepareHello(new ClientHelloAnswer()));
     }
 
     @Override
     public void onClientHelloAnswer(ClientHelloAnswer value)
             throws JED2KException {
-        fillRemotePeerInformation(value);
+        assignRemotePeerInformation(value);
     }
 
     @Override
     public void onClientExtHello(ClientExtHello value) throws JED2KException {
         // TODO Auto-generated method stub
-        
+        ClientExtHelloAnswer answer = new ClientExtHelloAnswer();
+        answer.version.assign(0x10); // temp value
+        answer.properties.add(tag(Tag.ET_COMPRESSION, null, 0));
+        answer.properties.add(tag(Tag.ET_UDPPORT, null, 0));
+        answer.properties.add(tag(Tag.ET_UDPVER, null, 0));
+        answer.properties.add(tag(Tag.ET_SOURCEEXCHANGE, null, 0));
+        answer.properties.add(tag(Tag.ET_COMMENTS, null, 0));
+        answer.properties.add(tag(Tag.ET_EXTENDEDREQUEST, null, 0));
+        answer.properties.add(tag(Tag.ET_COMPATIBLECLIENT, null, ClientSoftware.SO_AMULE.value)); // TODO - check it
+        answer.properties.add(tag(Tag.ET_FEATURES, null, 0));
+        answer.properties.add(tag(Tag.ET_MOD_VERSION, null, session.settings.version));    
+        write(answer);
     }
 
     @Override
