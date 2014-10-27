@@ -12,6 +12,7 @@ import org.jed2k.protocol.ClientExtHello;
 import org.jed2k.protocol.ClientExtHelloAnswer;
 import org.jed2k.protocol.ClientHello;
 import org.jed2k.protocol.ClientHelloAnswer;
+import org.jed2k.protocol.ClientPacketCombiner;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.SearchResult;
@@ -49,7 +50,7 @@ public class PeerConnection extends Connection {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return  new PeerConnection(ibuff, obuff, new ServerPacketCombiner(), session, socket);
+            return  new PeerConnection(ibuff, obuff, new ClientPacketCombiner(), session, socket);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {

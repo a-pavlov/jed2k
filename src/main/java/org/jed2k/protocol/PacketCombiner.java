@@ -229,6 +229,7 @@ public abstract class PacketCombiner {
         if (!header.isDefined()) {
             if (src.remaining() >= header.bytesCount()) {
                 header.get(src);
+                log.info(header.toString());
             } else {
                 return null;
             }
@@ -248,6 +249,7 @@ public abstract class PacketCombiner {
                     throw new JED2KException(e);                    
                 }
             } else {
+                log.warning("unable to find correspond packet for " + header);
                 ph = new BytesSkipper(header.sizePacket());
             }
             
