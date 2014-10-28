@@ -96,4 +96,9 @@ public final class Utils {
 
         return ClientSoftware.SO_UNKNOWN;
     }
+    
+    
+    public static int divCeil(int a, int b) {
+        return (a + b - 1)/b;
+    }
 }

@@ -1,11 +1,14 @@
 package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
+import java.util.Random;
+
 import org.jed2k.hash.MD4;
 import org.jed2k.exception.JED2KException;
+
 import static org.jed2k.Utils.byte2String;
 
-public final class Hash implements Serializable, Comparable<Hash> {
+public class Hash implements Serializable, Comparable<Hash> {
     
     private final byte[] value = { 
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
@@ -53,9 +56,26 @@ public final class Hash implements Serializable, Comparable<Hash> {
         return res;
     }
     
+    public static Hash random() {
+        byte[] source = new byte[MD4.HASH_SIZE];
+        Random rand = new Random();
+        rand.nextBytes(source);
+        return fromBytes(source);
+    }
+    
     public byte at(int index) {
         assert(index < MD4.HASH_SIZE);
         return value[index];
+    }
+    
+    public void set(int index, byte value) {
+        assert(index < MD4.HASH_SIZE);
+        this.value[index] = value;
+    }
+    
+    public void setFingerprint(byte first, byte second) {
+        set(5, first);
+        set(14, second);
     }
     
     @Override

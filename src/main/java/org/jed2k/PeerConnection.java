@@ -186,6 +186,7 @@ public class PeerConnection extends Connection {
     
     private ClientHelloAnswer prepareHello(final ClientHelloAnswer hello) throws JED2KException {
         hello.hash.assign(session.settings.userAgent);
+        hello.hash.setFingerprint((byte)'J', (byte)'K');
         hello.point.ip = session.clientId;
         hello.point.port = session.settings.listenPort;
         
@@ -193,6 +194,7 @@ public class PeerConnection extends Connection {
         hello.properties.add(Tag.tag(Tag.CT_MOD_VERSION, null, session.settings.modName));
         hello.properties.add(Tag.tag(Tag.CT_VERSION, null, session.settings.version));
         hello.properties.add(Tag.tag(Tag.CT_EMULE_UDPPORTS, null, 0));
+        // do not send CT_EM_VERSION since it will activate secure identification we are not support
         
         MiscOptions mo = new MiscOptions();
         mo.unicodeSupport = 1;
