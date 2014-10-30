@@ -2,10 +2,13 @@ package org.jed2k.protocol;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import org.jed2k.Utils;
 
 public class BitField implements Iterable<Boolean> {
+    private static Logger log = Logger.getLogger(BitField.class.getName());
+    
     byte[]  m_bytes;
     int m_size = 0;
     
@@ -21,7 +24,7 @@ public class BitField implements Iterable<Boolean> {
     }
         
     public BitField(int bits, boolean val) {
-        resize(bits, val); 
+        resize(bits, val);
     }
     
     public BitField(byte[] b, int bits) {
@@ -82,14 +85,12 @@ public class BitField implements Iterable<Boolean> {
 
         int ret = 0;
         int num_bytes = m_size / 8;
-        for (int i = 0; i < num_bytes; ++i)
-        {
+        for (int i = 0; i < num_bytes; ++i) {
             ret += num_bits[m_bytes[i] & 0xf] + num_bits[m_bytes[i] >> 4];
         }
 
         int rest = m_size - num_bytes * 8;
-        for (int i = 0; i < rest; ++i)
-        {
+        for (int i = 0; i < rest; ++i) {
             ret += (m_bytes[num_bytes] >> (7-i)) & 1;
         }
         
@@ -104,19 +105,16 @@ public class BitField implements Iterable<Boolean> {
         resize(bits);
         
         if (s >= m_size) return;
+        
         int old_size_bytes = bitsToBytes(s);
         int new_size_bytes = bitsToBytes(m_size);
         
         if (val) {
             if (old_size_bytes != 0 && b != 0) m_bytes[old_size_bytes - 1] |= (0xff >> b);
-            if (old_size_bytes < new_size_bytes)
-                Arrays.fill(m_bytes, old_size_bytes, new_size_bytes - old_size_bytes, (byte)0xff);                
+            if (old_size_bytes < new_size_bytes) Arrays.fill(m_bytes, old_size_bytes, new_size_bytes, (byte)0xff);                
             clear_trailing_bits();
-        }
-        else
-        {
-            if (old_size_bytes < new_size_bytes)
-                Arrays.fill(m_bytes, old_size_bytes, new_size_bytes - old_size_bytes, (byte)0x00);
+        } else {
+            if (old_size_bytes < new_size_bytes) Arrays.fill(m_bytes, old_size_bytes, new_size_bytes, (byte)0x00);
         }
     }
 
@@ -134,6 +132,8 @@ public class BitField implements Iterable<Boolean> {
         int b = bitsToBytes(bits);
         
         byte[] new_bytes = new byte[b];
+        Arrays.fill(new_bytes, (byte)0);
+        
         if (m_bytes != null) {
             System.arraycopy(m_bytes, 0, new_bytes, 0, Math.min(m_bytes.length, new_bytes.length));
         }
