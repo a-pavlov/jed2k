@@ -4,6 +4,8 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -44,6 +46,18 @@ public class BitFieldTest {
     }
     
     @Test
+    public void cleanupTailTest() {
+        byte[] content = { (byte)0, (byte)0xff };
+        BitField bf = new BitField(content, 12);
+        assertEquals(4, bf.count());
+        assertTrue(bf.getBit(11));
+        assertTrue(bf.getBit(10));
+        assertTrue(bf.getBit(9));
+        assertTrue(bf.getBit(8));
+        assertFalse(bf.getBit(6));
+    }
+    
+    @Test
     public void advancedUsageTest() {
         byte[] content = { (byte)7, (byte)11, (byte)16 };
         BitField bf = new BitField(content, 22);
@@ -75,5 +89,50 @@ public class BitFieldTest {
         }
         
         assertEquals(template.length, index);
+    }
+    
+    @Test
+    public void serializeGetTest() throws JED2KException {
+        byte[] data = { 0x0c, 0x00, 0x0f, 0x70 };
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        BitField empty = new BitField();
+        empty.get(bb);
+        boolean[] template = {false, false, false, false, true, true, true, true, false, true, true, true };
+        Iterator<Boolean> itr = empty.iterator();
+        int i = 0;
+        while(itr.hasNext()) {
+            assertTrue(itr.next().compareTo(template[i++]) == 0);
+        }
+        
+        assertEquals(i, empty.size());
+        
+        byte[] wholeData = { 0x00, 0x00 };
+        bb = ByteBuffer.wrap(wholeData);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        BitField wholeBf = new BitField();
+        wholeBf.get(bb);
+        assertTrue(wholeBf.empty());
+        assertTrue(wholeBf.bytes() != null);
+        assertEquals(0, wholeBf.bytes().length);
+    }
+    
+    @Test
+    public void serializaPutTest() throws JED2KException {
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        BitField empty = new BitField();
+        empty.put(bb);
+        bb.flip();
+        assertEquals(2, bb.remaining());
+        assertEquals(0, bb.getShort());        
+        bb.clear();
+        
+        byte[] data = { (byte)0x08, (byte)0x07, (byte)0x0a, (byte)0xff };
+        BitField bfd = new BitField(data, 28);
+        bfd.put(bb);
+        bb.flip();
+        assertEquals(data.length, bb.getShort());
+        assertEquals(0xf00a0708, bb.getInt());
     }
 }

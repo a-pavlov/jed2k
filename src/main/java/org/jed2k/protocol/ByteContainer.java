@@ -35,10 +35,13 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        assert(value != null);
-        assert(value.length != 0);
-        size.assign(value.length);
-        return size.put(dst).put(value);
+        if (value == null) {
+            size.assign(0);
+            return size.put(dst);
+        } else {
+            size.assign(value.length);
+            return size.put(dst).put(value); 
+        }       
     }
     
     public String asString() throws JED2KException {

@@ -1,12 +1,14 @@
 package org.jed2k.protocol;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.jed2k.Utils;
+import org.jed2k.exception.JED2KException;
 
-public class BitField implements Iterable<Boolean> {
+public class BitField implements Iterable<Boolean>, Serializable {
     private static Logger log = Logger.getLogger(BitField.class.getName());
     
     byte[]  m_bytes;
@@ -70,7 +72,6 @@ public class BitField implements Iterable<Boolean> {
     }
 
     public byte[] bytes() {
-        assert(m_bytes != null);
         return m_bytes; 
     }
 
@@ -185,5 +186,29 @@ public class BitField implements Iterable<Boolean> {
         };
         
         return it;
+    }
+
+    @Override
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {        
+        int size = src.getShort();
+        byte[] temp = new byte[bitsToBytes(size)];
+        src.get(temp);
+        assign(temp, size);
+        return src;
+    }
+
+    @Override
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        dst.putShort((short)bitsToBytes(m_size));
+        if (m_bytes != null) {
+            dst.put(m_bytes);
+        }        
+        return dst;
+    }
+
+    @Override
+    public int bytesCount() {
+        short i = 0;
+        return Utils.sizeof(i) + ((m_bytes!=null)?m_bytes.length:0);
     }
 }
