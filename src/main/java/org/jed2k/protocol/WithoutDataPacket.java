@@ -4,23 +4,21 @@ import java.nio.ByteBuffer;
 
 import org.jed2k.exception.JED2KException;
 
-public class ClientFileStatusAnswer implements Serializable {
-    public final Hash hash = new Hash();
-    public final BitField bitfield = new BitField();
-    
+public class WithoutDataPacket implements Serializable {
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        return bitfield.get(hash.get(src));
+        return src;
     }
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        return bitfield.put(hash.put(dst));
+        return dst;
     }
 
     @Override
     public int bytesCount() {
-        return hash.bytesCount() + bitfield.bytesCount();
+        return 0;
     }
     
 }

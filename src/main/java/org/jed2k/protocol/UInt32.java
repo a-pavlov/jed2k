@@ -22,6 +22,8 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
      */
     public static final long             MAX_VALUE             = 0xffffffffL;
     
+    public static final int SIZE = 4;
+    
     
     private int value;
 

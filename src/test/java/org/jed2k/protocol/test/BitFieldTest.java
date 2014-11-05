@@ -118,7 +118,7 @@ public class BitFieldTest {
     }
     
     @Test
-    public void serializaPutTest() throws JED2KException {
+    public void serializePutTest() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(10);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         BitField empty = new BitField();

@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.Serializable;
 
 public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -42,6 +43,10 @@ public final class Utils {
     
     public static final int sizeof(boolean value) {
         return 1;
+    }
+    
+    public static final int sizeof(Serializable s) {
+        return s.bytesCount();
     }
     
     public static InetAddress int2Address(int ip) {
