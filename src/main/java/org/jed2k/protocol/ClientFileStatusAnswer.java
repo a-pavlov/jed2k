@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.jed2k.exception.JED2KException;
 
-public class ClientFileStatusAnswer implements Serializable {
+public class ClientFileStatusAnswer implements Serializable, Dispatchable {
     public final Hash hash = new Hash();
     public final BitField bitfield = new BitField();
     
@@ -21,6 +21,11 @@ public class ClientFileStatusAnswer implements Serializable {
     @Override
     public int bytesCount() {
         return hash.bytesCount() + bitfield.bytesCount();
+    }
+
+    @Override
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+       dispatcher.onClientFileStatusAnswer(this);       
     }
     
 }

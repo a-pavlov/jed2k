@@ -20,6 +20,8 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.search.SearchRequest;
 
+import com.sun.corba.se.spi.ior.MakeImmutable;
+
 public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName()); 
     Selector selector = null;
@@ -27,8 +29,9 @@ public class Session extends Thread {
     private ServerConnection sc = null;
     private ServerSocketChannel ssc = null;
     
-    private Map<Hash, Transfer> transfers = new TreeMap<Hash, Transfer>();
-    private ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); //new TreeSet<PeerConnection>();
+    Map<Hash, Transfer> transfers = new TreeMap<Hash, Transfer>();
+    private ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
+    private TreeMap<NetworkIdentifier, PeerConnection> downloaders = new TreeMap<NetworkIdentifier, PeerConnection>(); 
     Settings settings = new Settings();
     
     // from last established server connection 
@@ -107,7 +110,7 @@ public class Session extends Thread {
         }
     }
     
-    public void connectoTo(final InetSocketAddress address) {
+    public void connectoTo(final InetSocketAddress point) {
         commands.add(new Runnable() {
             @Override
             public void run() {
@@ -115,8 +118,11 @@ public class Session extends Thread {
                     sc.close();
                 }
                 
-                sc = ServerConnection.makeConnection(Session.this, address);
-                if (sc != null) sc.connect();               
+                sc = ServerConnection.makeConnection(Session.this);
+                try {
+                    if (sc != null) sc.connect(point);
+                } catch(JED2KException e) {
+                }
             }
         });
     }
@@ -144,18 +150,39 @@ public class Session extends Thread {
         });
     }
     
-    public void connectToPeer(final InetSocketAddress address) {
+    public void connectToPeer(final NetworkIdentifier point) {
         commands.add(new Runnable() {
             @Override
             public void run() {
-                PeerConnection pc = PeerConnection.make(Session.this, address);
+                PeerConnection pc = PeerConnection.make(Session.this, point, null);
                 if (pc != null) {
                     connections.add(pc);
-                    pc.connect();
+                    try {
+                        pc.connect(point.toInetSocketAddress());
+                    } catch(JED2KException e) {
+                        log.warning(e.getMessage());
+                    }
                 } else {
                     log.warning("Unable to create peer connection");
                 }
             }
         });
+    }
+    
+    PeerConnection createPeer(final NetworkIdentifier point, Transfer transfer) {
+        if (!downloaders.containsKey(point)) {            
+            PeerConnection pc = PeerConnection.make(this, point, transfer);
+            if (pc != null) {
+                downloaders.put(point, pc);
+            }
+            return pc;
+        }
+        
+        return null;
+    }
+    
+    void erasePeer(final NetworkIdentifier point) {
+        if (downloaders.containsKey(point))
+            downloaders.remove(point);
     }
 }

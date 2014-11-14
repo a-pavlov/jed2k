@@ -1,7 +1,6 @@
 package org.jed2k;
 
 import java.io.IOException;
-
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -9,10 +8,20 @@ import java.util.logging.Logger;
 
 import org.jed2k.protocol.ClientExtHello;
 import org.jed2k.protocol.ClientExtHelloAnswer;
+import org.jed2k.protocol.ClientFileAnswer;
+import org.jed2k.protocol.ClientFileRequest;
+import org.jed2k.protocol.ClientFileStatusAnswer;
+import org.jed2k.protocol.ClientFileStatusRequest;
+import org.jed2k.protocol.ClientHashSetAnswer;
+import org.jed2k.protocol.ClientHashSetRequest;
 import org.jed2k.protocol.ClientHello;
 import org.jed2k.protocol.ClientHelloAnswer;
+import org.jed2k.protocol.ClientNoFileStatus;
+import org.jed2k.protocol.ClientOutOfParts;
+import org.jed2k.protocol.FoundFileSources;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
+import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.SearchResult;
 import org.jed2k.protocol.ServerIdChange;
@@ -30,19 +39,18 @@ import static org.jed2k.protocol.tag.Tag.tag;
 public class ServerConnection extends Connection {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
     
-    private ServerConnection(final InetSocketAddress address, 
-            ByteBuffer incomingBuffer,
+    private ServerConnection(ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer, 
             PacketCombiner packetCombiner,
             Session session) throws IOException {
-        super(address, incomingBuffer, outgoingBuffer, packetCombiner, session);
+        super(incomingBuffer, outgoingBuffer, packetCombiner, session);
     }    
     
-    public static ServerConnection makeConnection(Session ses, final InetSocketAddress address) {
+    public static ServerConnection makeConnection(Session ses) {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return  new ServerConnection(address, ibuff, obuff, new ServerPacketCombiner(), ses);
+            return  new ServerConnection(ibuff, obuff, new ServerPacketCombiner(), ses);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
@@ -135,5 +143,70 @@ public class ServerConnection extends Connection {
         session.clientId = 0;
         session.tcpFlags = 0;
         session.auxPort = 0;
+    }
+
+    @Override
+    public void onClientFileRequest(ClientFileRequest value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientFileAnswer(ClientFileAnswer value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientFileStatusRequest(ClientFileStatusRequest value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientFileStatusAnswer(ClientFileStatusAnswer value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientHashSetRequest(ClientHashSetRequest value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientHashSetAnswer(ClientHashSetAnswer value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientNoFileStatus(ClientNoFileStatus value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientOutOfParts(ClientOutOfParts value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onFoundFileSources(FoundFileSources value)
+            throws JED2KException {
+        Transfer transfer = session.transfers.get(value.hash);
+        if (transfer != null) {
+            transfer.setupSources(value.sources.collection);
+        }
     }
 }

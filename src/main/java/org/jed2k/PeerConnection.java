@@ -11,9 +11,18 @@ import org.jed2k.exception.JED2KException;
 import org.jed2k.hash.MD4;
 import org.jed2k.protocol.ClientExtHello;
 import org.jed2k.protocol.ClientExtHelloAnswer;
+import org.jed2k.protocol.ClientFileAnswer;
+import org.jed2k.protocol.ClientFileRequest;
+import org.jed2k.protocol.ClientFileStatusAnswer;
+import org.jed2k.protocol.ClientFileStatusRequest;
+import org.jed2k.protocol.ClientHashSetAnswer;
+import org.jed2k.protocol.ClientHashSetRequest;
 import org.jed2k.protocol.ClientHello;
 import org.jed2k.protocol.ClientHelloAnswer;
+import org.jed2k.protocol.ClientNoFileStatus;
+import org.jed2k.protocol.ClientOutOfParts;
 import org.jed2k.protocol.ClientPacketCombiner;
+import org.jed2k.protocol.FoundFileSources;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.SearchResult;
@@ -24,19 +33,23 @@ import org.jed2k.protocol.ServerMessage;
 import org.jed2k.protocol.ServerPacketCombiner;
 import org.jed2k.protocol.ServerStatus;
 import org.jed2k.protocol.tag.Tag;
+
 import static org.jed2k.protocol.tag.Tag.tag;
 
 public class PeerConnection extends Connection {
-    NetworkIdentifier point;
     private boolean active = false;   // true when we connect to peer, false when incoming connection
     private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
+    private Transfer transfer = null;
+    private final NetworkIdentifier point = new NetworkIdentifier();
     
-    PeerConnection(InetSocketAddress address, 
+    PeerConnection(NetworkIdentifier point,
             ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer,
             PacketCombiner packetCombiner,
-            Session session) throws IOException {
-        super(address, incomingBuffer, outgoingBuffer, packetCombiner, session);
+            Session session,
+            Transfer transfer) throws IOException {
+        super(incomingBuffer, outgoingBuffer, packetCombiner, session);
+        this.transfer = transfer;
     }
     
     PeerConnection(ByteBuffer incomingBuffer,
@@ -61,11 +74,11 @@ public class PeerConnection extends Connection {
         return null;
     }
     
-    public static PeerConnection make(Session ses, final InetSocketAddress address) {
+    public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer) {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return  new PeerConnection(address, ibuff, obuff, new ClientPacketCombiner(), ses);
+            return new PeerConnection(point, ibuff, obuff, new ClientPacketCombiner(), ses, transfer);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
@@ -320,6 +333,9 @@ public class PeerConnection extends Connection {
     public void onClientHelloAnswer(ClientHelloAnswer value)
             throws JED2KException {
         assignRemotePeerInformation(value);
+        if (transfer != null) {
+            write(new ClientFileRequest(transfer.fileHash()));
+        }
     }
 
     @Override
@@ -353,6 +369,69 @@ public class PeerConnection extends Connection {
     
     @Override
     protected void onDisconnect() {
+        session.erasePeer(point);
+    }
+
+    @Override
+    public void onClientFileRequest(ClientFileRequest value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientFileAnswer(ClientFileAnswer value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientFileStatusRequest(ClientFileStatusRequest value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientFileStatusAnswer(ClientFileStatusAnswer value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientHashSetRequest(ClientHashSetRequest value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientHashSetAnswer(ClientHashSetAnswer value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientNoFileStatus(ClientNoFileStatus value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientOutOfParts(ClientOutOfParts value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onFoundFileSources(FoundFileSources value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
         
     }
 }

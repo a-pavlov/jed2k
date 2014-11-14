@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import org.jed2k.exception.JED2KException;
 
-public class ClientHashSetAnswer implements Serializable {
+public class ClientHashSetAnswer implements Serializable, Dispatchable {
     public final Hash hash = new Hash();
     public final ContainerHolder<UInt16, Hash> parts = ContainerHolder.make16(new LinkedList<Hash>(), Hash.class);
     
@@ -22,5 +22,10 @@ public class ClientHashSetAnswer implements Serializable {
     @Override
     public int bytesCount() {
         return hash.bytesCount() + parts.bytesCount();
+    }
+
+    @Override
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onClientHashSetAnswer(this);        
     }
 }

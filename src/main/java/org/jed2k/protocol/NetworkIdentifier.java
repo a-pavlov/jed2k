@@ -20,6 +20,22 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
         this.port = port;
     }
     
+    public NetworkIdentifier assign(int ip, short port) {
+        this.ip = ip;
+        this.port = port;
+        return this;
+    }
+    
+    public NetworkIdentifier assign(NetworkIdentifier point) {
+        this.ip = point.ip;
+        this.port = point.port;
+        return this;
+    }
+    
+    public boolean defined() {
+        return ip != 0 && port != 0;
+    }
+    
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         ip = src.getInt();

@@ -13,12 +13,12 @@ import java.util.logging.Logger;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.Dispatcher;
+import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.Serializable;
 
 public abstract class Connection implements Dispatcher {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
-    private final InetSocketAddress address;
     private SocketChannel socket;
     private ByteBuffer bufferIncoming;
     private ByteBuffer bufferOutgoing;
@@ -27,13 +27,15 @@ public abstract class Connection implements Dispatcher {
     private SelectionKey key = null;
     private final PacketCombiner packetCombainer;
     final Session session;
+    private long totalBytesIncoming = 0;
+    private long totalBytesOutgoing = 0;
+    private long birthdayTime = 0;  // in milliseconds
+    private long incomingSpeed = 0; // bytes per second
     
-    protected Connection(InetSocketAddress address, 
-            ByteBuffer bufferIncoming,
+    protected Connection(ByteBuffer bufferIncoming,
             ByteBuffer bufferOutgoing,
             PacketCombiner packetCombiner,
             Session session) throws IOException {
-        this.address = address;        
         this.bufferIncoming = bufferIncoming;
         this.bufferOutgoing = bufferOutgoing;
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
@@ -48,8 +50,7 @@ public abstract class Connection implements Dispatcher {
     protected Connection(ByteBuffer bufferIncoming,
             ByteBuffer bufferOutgoing, 
             PacketCombiner packetCombiner,
-            Session session, SocketChannel socket) throws IOException {
-        this.address = null;
+            Session session, SocketChannel socket) throws IOException {        
         this.bufferIncoming = bufferIncoming;
         this.bufferOutgoing = bufferOutgoing;
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
@@ -65,6 +66,7 @@ public abstract class Connection implements Dispatcher {
         try {
             socket.finishConnect();
             onConnect();
+            birthdayTime = System.nanoTime() / 1000000;    // milliseconds from system timer 
             return;
         } catch(IOException e) {            
             log.warning(e.getMessage());            
@@ -85,9 +87,10 @@ public abstract class Connection implements Dispatcher {
             }
             
             bufferIncoming.flip();
+            totalBytesIncoming += bufferIncoming.remaining();
             
             while(true) {                
-                Serializable packet = packetCombainer.unpack(bufferIncoming);                
+                Serializable packet = packetCombainer.unpack(bufferIncoming);
                 
                 if (packet != null && (packet instanceof Dispatchable)) {
                     // packet was completely in buffer
@@ -121,6 +124,7 @@ public abstract class Connection implements Dispatcher {
             if (writeInProgress) {
                 bufferOutgoing.flip();
                 socket.write(bufferOutgoing);
+                totalBytesOutgoing += bufferOutgoing.remaining();
             } else {
                 key.interestOps(SelectionKey.OP_READ);
             }
@@ -140,7 +144,7 @@ public abstract class Connection implements Dispatcher {
     protected abstract void onConnect() throws JED2KException;
     protected abstract void onDisconnect();
     
-    public void connect() {    
+    public void connect(final InetSocketAddress address) throws JED2KException {    
         try {
             socket.connect(address);
         } catch(IOException e) {
@@ -167,6 +171,13 @@ public abstract class Connection implements Dispatcher {
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);
             onWriteable();
+        }
+    }
+    
+    public void secondTick(long mSeconds) {
+        long duration = mSeconds - birthdayTime;
+        if (duration != 0) {
+            incomingSpeed = totalBytesIncoming*1000 / duration;
         }
     }
 }

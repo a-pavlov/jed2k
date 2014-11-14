@@ -11,6 +11,7 @@ public class PacketHeader implements Serializable {
     public static byte OP_PACKEDPROT    = (byte)0xD4;
     public static byte OP_EMULEPROT     = (byte)0xC5;
     public static int MAX_SIZE = 1000000;
+    public static int SIZE = 6;
     
     private byte protocol    = OP_UNDEFINED;
     private int size         = 0;

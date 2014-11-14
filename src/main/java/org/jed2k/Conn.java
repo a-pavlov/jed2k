@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import java.net.InetSocketAddress;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.search.SearchRequest;
 
 public class Conn {
@@ -33,7 +34,7 @@ public class Conn {
             }
                         
             if (parts[0].compareTo("connect") == 0 && parts.length == 3) {
-                s.connectoTo(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])));
+                s.connectoTo(new InetSocketAddress(parts[1], (short)Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 String searchExpression = command.substring("search".length());
                 log.info("search expressionr:" + searchExpression);
@@ -44,7 +45,7 @@ public class Conn {
                     log.warning(e.getMessage());
                 }
             } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
-                s.connectToPeer(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])));
+                s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short)Integer.parseInt(parts[2])));
             }
             
         }       
