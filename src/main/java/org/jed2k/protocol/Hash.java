@@ -1,6 +1,8 @@
 package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.jed2k.hash.MD4;
@@ -54,6 +56,34 @@ public class Hash implements Serializable, Comparable<Hash> {
         }
         
         return res;
+    }
+    
+    public static Hash fromHashSet(Collection<Hash> hashes) {
+        assert(!hashes.isEmpty());
+        
+        if (hashes.size() == 1) {
+            assert(hashes.iterator().hasNext());
+            return hashes.iterator().next();
+        }
+        
+        ByteBuffer buffer = ByteBuffer.allocate(MD4.HASH_SIZE*hashes.size());
+        
+        Iterator<Hash> itr = hashes.iterator();
+        
+        while(itr.hasNext()) {
+            try {
+                itr.next().put(buffer);
+            } catch(JED2KException e) {
+                return Hash.INVALID;    // impossible
+            }
+        }
+        
+        assert(buffer.remaining() == 0);
+        buffer.flip();
+        
+        MD4 md4 = new MD4();
+        md4.update(buffer.array());
+        return Hash.fromBytes(md4.engineDigest());
     }
     
     public static Hash random() {

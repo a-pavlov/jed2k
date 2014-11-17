@@ -1,8 +1,6 @@
 package org.jed2k.test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 import static org.jed2k.Utils.int2Address;
 
 import java.net.InetAddress;

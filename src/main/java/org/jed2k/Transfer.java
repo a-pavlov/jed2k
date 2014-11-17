@@ -7,7 +7,6 @@ import java.util.TreeSet;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 
-
 public class Transfer {
     private Hash fileHash;
     private Set<NetworkIdentifier> sources = new TreeSet<NetworkIdentifier>();
