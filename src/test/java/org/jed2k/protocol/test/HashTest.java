@@ -62,9 +62,9 @@ public class HashTest{
     public void testHashing() {
         LinkedList<Pair<Long, Hash>> llh = new LinkedList<Pair<Long, Hash>>();        
         llh.push(Pair.make(100l, Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5")));
-        //llh.push(Pair.make(Constants.PIECE_SIZE, Hash.fromString("E76BADB8F958D7685B4549D874699EE9")));
-        //llh.push(Pair.make(Constants.PIECE_SIZE+1, Hash.fromString("49EC2B5DEF507DEA73E106FEDB9697EE")));
-        //llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
+        llh.push(Pair.make(Constants.PIECE_SIZE, Hash.fromString("E76BADB8F958D7685B4549D874699EE9")));
+        llh.push(Pair.make(Constants.PIECE_SIZE+1, Hash.fromString("49EC2B5DEF507DEA73E106FEDB9697EE")));
+        llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
         
         Iterator<Pair<Long, Hash>> itr = llh.iterator();
         while(itr.hasNext()) {
@@ -77,9 +77,9 @@ public class HashTest{
             assertEquals(p.left.intValue(), src.length);
             
             MD4 full = new MD4();
-            full.engineUpdate(src, 0, src.length);
-            assertEquals(p.right, Hash.fromBytes(full.engineDigest()));
-            /*
+            full.update(src, 0, src.length);
+            //assertEquals(p.right, Hash.fromBytes(full.digest()));
+            
             
             Long pieces = Utils.divCeil(p.left, Constants.PIECE_SIZE);
             assertTrue(pieces.compareTo(0l) == 1);
@@ -92,22 +92,21 @@ public class HashTest{
 
                 while(in_piece_capacity > 0) {
                     int current_size = (int)Math.min(Constants.BLOCK_SIZE, in_piece_capacity);
-                    hasher.engineUpdate(src, (int)(p.left - capacity), current_size);
+                    hasher.update(src, (int)(p.left - capacity), current_size);
                     capacity -= current_size;
                     in_piece_capacity -= current_size;
                 }
 
-                part_hashset.push(Hash.fromBytes(hasher.engineDigest()));
+                part_hashset.add(Hash.fromBytes(hasher.digest()));
             }
             
             assertEquals(pieces.intValue(), part_hashset.size());
 
             if (pieces*Constants.PIECE_SIZE == p.left) {
-                part_hashset.push(Hash.TERMINAL);
+                part_hashset.add(Hash.TERMINAL);
             }
             
             assertEquals(p.right, Hash.fromHashSet(part_hashset));
-            */
         }
     }
 }
