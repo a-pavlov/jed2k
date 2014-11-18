@@ -74,12 +74,7 @@ public class HashTest{
                 src[i] = 'X';
             }
             
-            assertEquals(p.left.intValue(), src.length);
-            
-            MD4 full = new MD4();
-            full.update(src, 0, src.length);
-            //assertEquals(p.right, Hash.fromBytes(full.digest()));
-            
+            assertEquals(p.left.intValue(), src.length);           
             
             Long pieces = Utils.divCeil(p.left, Constants.PIECE_SIZE);
             assertTrue(pieces.compareTo(0l) == 1);
