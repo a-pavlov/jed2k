@@ -1,5 +1,6 @@
 package org.jed2k;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
@@ -8,15 +9,37 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 
 public class Transfer {
-    private Hash fileHash;
+    private Hash fileHash;    
     private Set<NetworkIdentifier> sources = new TreeSet<NetworkIdentifier>();
+    private long size;
+    private ArrayList<Hash> hashset;
     
-    public Transfer(Hash hash) {
+    public Transfer(Hash hash, long size) {
         this.fileHash = hash;
+        this.size = size;
+        this.hashset = null;
     }
     
     public Hash fileHash() {
         return fileHash;
+    }
+    
+    public long fileSize() {
+        return size;
+    }
+    
+    public boolean validateHashset(Collection<Hash> hashset) {
+        if (this.hashset != null) {
+            // compare
+        } else {            
+            return fileHash.equals(Hash.fromHashSet(hashset)); 
+        }
+        
+        return true;
+    }
+    
+    public PieceBlock requestBlock() {
+        return new PieceBlock(0,0);
     }
     
     public void append(PeerConnection connection) {

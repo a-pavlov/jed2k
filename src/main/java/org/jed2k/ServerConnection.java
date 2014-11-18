@@ -1,7 +1,6 @@
 package org.jed2k;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.util.logging.Logger;
@@ -18,10 +17,11 @@ import org.jed2k.protocol.ClientHello;
 import org.jed2k.protocol.ClientHelloAnswer;
 import org.jed2k.protocol.ClientNoFileStatus;
 import org.jed2k.protocol.ClientOutOfParts;
+import org.jed2k.protocol.ClientSendingPart32;
+import org.jed2k.protocol.ClientSendingPart64;
 import org.jed2k.protocol.FoundFileSources;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.LoginRequest;
-import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.SearchResult;
 import org.jed2k.protocol.ServerIdChange;
@@ -208,5 +208,19 @@ public class ServerConnection extends Connection {
         if (transfer != null) {
             transfer.setupSources(value.sources.collection);
         }
+    }
+
+    @Override
+    public void onClientSendingPart32(ClientSendingPart32 value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientSendingPart64(ClientSendingPart64 value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
     }
 }

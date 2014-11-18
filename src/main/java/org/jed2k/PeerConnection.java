@@ -1,14 +1,13 @@
 package org.jed2k;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
 import org.jed2k.exception.JED2KException;
-import org.jed2k.hash.MD4;
+import org.jed2k.protocol.BitField;
 import org.jed2k.protocol.ClientExtHello;
 import org.jed2k.protocol.ClientExtHelloAnswer;
 import org.jed2k.protocol.ClientFileAnswer;
@@ -22,6 +21,10 @@ import org.jed2k.protocol.ClientHelloAnswer;
 import org.jed2k.protocol.ClientNoFileStatus;
 import org.jed2k.protocol.ClientOutOfParts;
 import org.jed2k.protocol.ClientPacketCombiner;
+import org.jed2k.protocol.ClientRequestParts;
+import org.jed2k.protocol.ClientRequestParts32;
+import org.jed2k.protocol.ClientSendingPart32;
+import org.jed2k.protocol.ClientSendingPart64;
 import org.jed2k.protocol.FoundFileSources;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
@@ -30,8 +33,8 @@ import org.jed2k.protocol.ServerIdChange;
 import org.jed2k.protocol.ServerInfo;
 import org.jed2k.protocol.ServerList;
 import org.jed2k.protocol.ServerMessage;
-import org.jed2k.protocol.ServerPacketCombiner;
 import org.jed2k.protocol.ServerStatus;
+import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.tag.Tag.tag;
@@ -41,6 +44,8 @@ public class PeerConnection extends Connection {
     private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
     private Transfer transfer = null;
     private final NetworkIdentifier point = new NetworkIdentifier();
+    private BitField bits = null;
+    private PieceBlock[] interestedBlocks = { null, null, null };
     
     PeerConnection(NetworkIdentifier point,
             ByteBuffer incomingBuffer,
@@ -375,61 +380,98 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileRequest(ClientFileRequest value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        close();        
     }
 
     @Override
     public void onClientFileAnswer(ClientFileAnswer value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        if (transfer != null && value.hash.equals(transfer.fileHash())) {
+            write(new ClientFileStatusRequest(transfer.fileHash()));
+        } else {
+            close();
+        }
     }
 
     @Override
     public void onClientFileStatusRequest(ClientFileStatusRequest value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        write(new ClientNoFileStatus());
     }
 
     @Override
     public void onClientFileStatusAnswer(ClientFileStatusAnswer value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        bits = value.bitfield;
+        if (transfer != null) {
+            write(new ClientHashSetRequest(transfer.fileHash()));
+        } else {
+            close();
+        }
     }
 
     @Override
     public void onClientHashSetRequest(ClientHashSetRequest value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        close();
     }
 
     @Override
     public void onClientHashSetAnswer(ClientHashSetAnswer value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        if (transfer != null && transfer.validateHashset(value.parts.collection)) {
+            ClientRequestParts32 request = new ClientRequestParts32();
+            int currentInterest = 0;
+            for(int i = 0; i < ClientRequestParts.PARTS_COUNT; ++i) {
+                PieceBlock interestedBlock = transfer.requestBlock();
+                interestedBlocks[currentInterest++] = interestedBlock;
+                
+                if (interestedBlock != null) {
+                    // generate packet
+                    Pair<Long, Long> offset = Utils.range(interestedBlock, transfer.fileSize());
+                    request.beginOffset.add(new UInt32(offset.left.intValue()));
+                    request.endOffset.add(new UInt32(offset.right.intValue()));                    
+                }
+            }
+            
+            assert(request.beginOffset.size() == request.endOffset.size());
+            
+            if (!request.beginOffset.isEmpty()) {
+                write(request);
+            } else {
+                close();
+            }
+        }
     }
 
     @Override
     public void onClientNoFileStatus(ClientNoFileStatus value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        close();
     }
 
     @Override
     public void onClientOutOfParts(ClientOutOfParts value)
+            throws JED2KException {
+        close();        
+    }
+
+    @Override
+    public void onFoundFileSources(FoundFileSources value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onFoundFileSources(FoundFileSources value)
+    public void onClientSendingPart32(ClientSendingPart32 value)
+            throws JED2KException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onClientSendingPart64(ClientSendingPart64 value)
             throws JED2KException {
         // TODO Auto-generated method stub
         

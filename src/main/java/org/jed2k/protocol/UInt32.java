@@ -32,11 +32,11 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
       value = 0;
     }
     
-    public UInt32(byte value){
+    public UInt32(byte value) {
       this.value = (int)value;
     }
     
-    public UInt32(short value){
+    public UInt32(short value) {
       this.value = (int)(value) & 0xffff;
     }
     

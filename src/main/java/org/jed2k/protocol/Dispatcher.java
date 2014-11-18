@@ -27,4 +27,6 @@ public interface Dispatcher {
     public void onClientHashSetAnswer(ClientHashSetAnswer value) throws JED2KException;
     public void onClientNoFileStatus(ClientNoFileStatus value) throws JED2KException;
     public void onClientOutOfParts(ClientOutOfParts value) throws JED2KException;
+    public void onClientSendingPart32(ClientSendingPart32 value) throws JED2KException;
+    public void onClientSendingPart64(ClientSendingPart64 value) throws JED2KException;
 }
