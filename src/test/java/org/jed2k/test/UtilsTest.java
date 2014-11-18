@@ -5,6 +5,7 @@ import static org.jed2k.Utils.int2Address;
 
 import org.jed2k.Constants;
 import org.jed2k.Pair;
+import org.jed2k.PieceBlock;
 import org.jed2k.Utils;
 
 import java.net.InetAddress;
@@ -41,5 +42,14 @@ public class UtilsTest {
             assertEquals(value.right.left.intValue(), pieces);
             assertEquals(value.right.right.intValue(), blocksInLastPiece);
         }
+    }
+    
+    @Test
+    public void testBlocksRange() {
+        assertEquals(Pair.make(0l, 100l), Utils.range(new PieceBlock(0, 0), 100l));
+        assertEquals(Pair.make(Constants.BLOCK_SIZE, Constants.BLOCK_SIZE*2), Utils.range( new PieceBlock(0, 1), 10000000l));
+        assertEquals(Pair.make(Constants.BLOCK_SIZE*2, Constants.BLOCK_SIZE*3), Utils.range( new PieceBlock(0, 2), 10000000l));
+        assertEquals(Pair.make(Constants.PIECE_SIZE + Constants.BLOCK_SIZE*2, Constants.PIECE_SIZE + Constants.BLOCK_SIZE*3), Utils.range( new PieceBlock(1, 2), 100000000l));
+        assertEquals(Pair.make(Constants.PIECE_SIZE*5 + Constants.BLOCK_SIZE*3, Constants.PIECE_SIZE*5 + Constants.BLOCK_SIZE*3 + 100500), Utils.range( new PieceBlock(5, 3), Constants.PIECE_SIZE*5 + Constants.BLOCK_SIZE*3 + 100500));
     }
 }

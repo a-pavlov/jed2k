@@ -24,7 +24,7 @@ public class Hash implements Serializable, Comparable<Hash> {
     public static final Hash EMULE      = fromString("31D6CFE0D10EE931B73C59D7E0C06FC0");
     public static final Hash INVALID    = new Hash();
     
-    public Hash(){
+    public Hash() {
         
     }
     

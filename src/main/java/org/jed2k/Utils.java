@@ -73,7 +73,7 @@ public final class Utils {
         return (int)(value >> 32);
     }
     
-    Pair<Long, Long> range(PieceBlock block, long size) {
+    public static Pair<Long, Long> range(PieceBlock block, long size) {
         long begin = block.piece() * Constants.PIECE_SIZE + block.block() * Constants.BLOCK_SIZE;
         long align_size = (block.piece() + 1) * Constants.PIECE_SIZE;
         long end = Math.min(begin + Constants.BLOCK_SIZE, Math.min(align_size, size));
