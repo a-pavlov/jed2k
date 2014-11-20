@@ -89,7 +89,7 @@ public abstract class Connection implements Dispatcher {
             bufferIncoming.flip();
             totalBytesIncoming += bufferIncoming.remaining();
             
-            while(true) {                
+            while(true) {
                 Serializable packet = packetCombainer.unpack(bufferIncoming);
                 
                 if (packet != null && (packet instanceof Dispatchable)) {

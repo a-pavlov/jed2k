@@ -73,12 +73,12 @@ public class HashTest{
             for(int i = 0; i < p.left.intValue(); ++i) {
                 src[i] = 'X';
             }
-            
+                       
             assertEquals(p.left.intValue(), src.length);           
             
             Long pieces = Utils.divCeil(p.left, Constants.PIECE_SIZE);
             assertTrue(pieces.compareTo(0l) == 1);
-            LinkedList<Hash> part_hashset = new LinkedList<Hash>();            
+            LinkedList<Hash> part_hashset = new LinkedList<Hash>();
             Long capacity = p.left;
             MD4 hasher = new MD4();
             
