@@ -72,12 +72,7 @@ public class Hash implements Serializable, Comparable<Hash> {
         assert(index < MD4.HASH_SIZE);
         this.value[index] = value;
     }
-    
-    public void setFingerprint(byte first, byte second) {
-        set(5, first);
-        set(14, second);
-    }
-    
+
     @Override
     public String toString() {
         return byte2String(value);

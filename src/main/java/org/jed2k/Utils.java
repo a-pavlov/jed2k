@@ -101,4 +101,10 @@ public final class Utils {
     public static int divCeil(int a, int b) {
         return (a + b - 1)/b;
     }
+    
+    public static Hash fingerprint(Hash hash, byte first, byte second) {
+        hash.set(5, first);
+        hash.set(15, second);
+        return hash;
+    }
 }

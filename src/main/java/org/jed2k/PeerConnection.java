@@ -186,7 +186,7 @@ public class PeerConnection extends Connection {
     
     private ClientHelloAnswer prepareHello(final ClientHelloAnswer hello) throws JED2KException {
         hello.hash.assign(session.settings.userAgent);
-        hello.hash.setFingerprint((byte)'J', (byte)'K');
+        //Utils.fingerprint(hello.hash, (byte)'M', (byte)'L');
         hello.point.ip = session.clientId;
         hello.point.port = session.settings.listenPort;
         
