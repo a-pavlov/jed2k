@@ -118,4 +118,10 @@ public final class Utils {
     public static <T extends Number> Long divCeil(T a, T b) {
         return (a.longValue() + b.longValue() - 1)/b.longValue();
     }
+
+    public static Hash fingerprint(Hash hash, byte first, byte second) {
+        hash.set(5, first);
+        hash.set(15, second);
+        return hash;
+    }
 }

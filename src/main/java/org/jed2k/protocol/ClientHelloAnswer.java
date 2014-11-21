@@ -35,5 +35,5 @@ public class ClientHelloAnswer implements Serializable, Dispatchable {
     @Override
     public String toString() {
         return hash.toString() + " " + point + " " + properties;
-    }
+    }    
 }
