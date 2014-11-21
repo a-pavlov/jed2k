@@ -68,6 +68,7 @@ public class Session extends Thread {
                               // a connection was accepted by a ServerSocketChannel.
                               log.info("Key is acceptable");
                               SocketChannel socket = ssc.accept();
+                              //socket.close();
                               p = PeerConnection.make(socket, this);
                           } else if (key.isConnectable()) {
                               // a connection was established with a remote server.

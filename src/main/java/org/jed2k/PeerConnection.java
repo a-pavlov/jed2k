@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.BitField;
@@ -40,6 +41,7 @@ import org.jed2k.protocol.tag.Tag;
 import static org.jed2k.protocol.tag.Tag.tag;
 
 public class PeerConnection extends Connection {
+    private static Logger log = Logger.getLogger(PeerConnection.class.getName());
     private boolean active = false;   // true when we connect to peer, false when incoming connection
     private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
     private Transfer transfer = null;
@@ -232,6 +234,7 @@ public class PeerConnection extends Connection {
         
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS1, null, mo.intValue()));
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS2, null, mo2.value));
+        
         return hello;
     }    
     

@@ -15,6 +15,7 @@ import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.Dispatcher;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
+import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.Serializable;
 
 public abstract class Connection implements Dispatcher {
@@ -31,6 +32,8 @@ public abstract class Connection implements Dispatcher {
     private long totalBytesOutgoing = 0;
     private long birthdayTime = 0;  // in milliseconds
     private long incomingSpeed = 0; // bytes per second
+    private PacketHeader header = new PacketHeader();
+    private ByteBuffer headerBuffer = ByteBuffer.allocate(PacketHeader.SIZE);
     
     protected Connection(ByteBuffer bufferIncoming,
             ByteBuffer bufferOutgoing,
@@ -40,6 +43,7 @@ public abstract class Connection implements Dispatcher {
         this.bufferOutgoing = bufferOutgoing;
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
         this.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
+        this.headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
         this.packetCombainer = packetCombiner;
         this.session = session;
         socket = SocketChannel.open();
@@ -55,6 +59,8 @@ public abstract class Connection implements Dispatcher {
         this.bufferOutgoing = bufferOutgoing;
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
         this.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
+        this.headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        this.headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
         this.packetCombainer = packetCombiner;
         this.session = session;
         this.socket = socket;
@@ -77,29 +83,46 @@ public abstract class Connection implements Dispatcher {
         close();
     }
     
+    protected void processHeader() throws IOException, JED2KException {
+        assert(!header.isDefined());
+        assert(headerBuffer.remaining() != 0);
+        
+        int bytes = socket.read(headerBuffer);
+        if (bytes == -1) throw new JED2KException("processHeader: End of stream");
+        
+        if (headerBuffer.remaining() == 0) {
+            headerBuffer.flip();
+            assert(headerBuffer.remaining() == PacketHeader.SIZE);
+            header.get(headerBuffer);
+            headerBuffer.clear();
+            log.info("processHeader:" + header.toString());
+            bufferIncoming.limit(header.sizePacket());
+        }
+    }
+    
+    protected void processBody() throws IOException, JED2KException {
+        if(bufferIncoming.remaining() != 0) {
+            int bytes = socket.read(bufferIncoming);
+            if (bytes == -1) throw new JED2KException("processBody: End of stream");
+        }
+        
+        if (bufferIncoming.remaining() == 0) {
+            bufferIncoming.flip();
+            Serializable packet = packetCombainer.unpack(header, bufferIncoming);
+            bufferIncoming.clear();
+            header.reset();
+            if (packet != null && (packet instanceof Dispatchable)) {
+                ((Dispatchable)packet).dispatch(this);
+            }
+        }
+    }
+    
     public void onReadable() {
         try {
-            int bytes = socket.read(bufferIncoming);
-            log.info("ready to read bytes count: " + bytes);
-            if (bytes == -1) {
-                close();
-                return;
-            }
-            
-            bufferIncoming.flip();
-            totalBytesIncoming += bufferIncoming.remaining();
-            
-            while(true) {
-                Serializable packet = packetCombainer.unpack(bufferIncoming);
-                
-                if (packet != null && (packet instanceof Dispatchable)) {
-                    // packet was completely in buffer
-                    ((Dispatchable)packet).dispatch(this);
-                } else {
-                    // buffer too low, try to compact it and read again
-                    bufferIncoming.compact();
-                    break;
-                }
+            if (!header.isDefined()) {
+                processHeader();
+            } else {
+                processBody();
             }
             return;
         } catch(IOException e) {
@@ -117,7 +140,7 @@ public abstract class Connection implements Dispatcher {
             writeInProgress = !outgoingOrder.isEmpty();
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
-                packetCombainer.pack(itr.next(), bufferOutgoing);
+                if (!packetCombainer.pack(itr.next(), bufferOutgoing)) break;
                 itr.remove();
             }
             
@@ -135,7 +158,7 @@ public abstract class Connection implements Dispatcher {
             log.warning(e.getMessage());
             assert(false);
         } catch (IOException e) {
-            log.warning(e.getMessage());            
+            log.warning(e.getMessage());
         }
         
         close();

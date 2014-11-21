@@ -48,7 +48,9 @@ public class PacketCombinerTest {
         PacketCombiner combiner = new ServerPacketCombiner();
         combiner.pack(login, nb);
         nb.flip();
-        Serializable pkt = combiner.unpack(nb);
+        PacketHeader h = new PacketHeader();
+        h.get(nb);
+        Serializable pkt = combiner.unpack(h, nb);
         assertTrue(pkt != null);
         LoginRequest login2 = (LoginRequest)pkt;
         assertEquals(0, login2.hash.compareTo(Hash.EMULE));

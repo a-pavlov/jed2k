@@ -30,5 +30,10 @@ public class ClientHelloAnswer implements Serializable, Dispatchable {
     @Override
     public void dispatch(Dispatcher dispatcher) throws JED2KException {
         dispatcher.onClientHelloAnswer(this);
-    }    
+    }
+    
+    @Override
+    public String toString() {
+        return hash.toString() + " " + point + " " + properties;
+    }
 }

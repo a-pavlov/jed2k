@@ -167,7 +167,6 @@ public abstract class PacketCombiner {
         }
     }
     
-    private PacketHeader header = new PacketHeader();
     private PacketHeader outgoingHeader = new PacketHeader();
     protected static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsServer;
     protected static final Map<Class<? extends Serializable>, PacketKey> struct2KeyServer;
@@ -225,64 +224,54 @@ public abstract class PacketCombiner {
         addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFOANSWER.value, ClientExtHelloAnswer.class);
     }
     
-    public Serializable unpack(ByteBuffer src) throws JED2KException {        
-        if (!header.isDefined()) {
-            if (src.remaining() >= header.bytesCount()) {
-                header.get(src);
-                log.info(header.toString());
-            } else {
-                return null;
-            }
-        }
+    public Serializable unpack(PacketHeader header, ByteBuffer src) throws JED2KException {        
+        assert(header.isDefined());
+        assert(src.remaining() == header.sizePacket());
+                
+        PacketKey key = header.key();
+        Class<? extends Serializable> clazz = keyToPacket(key);
+        Serializable ph = null;
         
-        if (src.remaining() >= header.sizePacket()) {
-            PacketKey key = header.key();
-            Class<? extends Serializable> clazz = keyToPacket(key);
-            Serializable ph = null;
-            
-            if (clazz != null) {
-                try {
-                    ph = clazz.newInstance();
-                } catch(InstantiationException e) {
-                    throw new JED2KException(e);
-                } catch (IllegalAccessException e) {
-                    throw new JED2KException(e);                    
-                }
-            } else {
-                log.warning("unable to find correspond packet for " + header);
-                ph = new BytesSkipper(header.sizePacket());
-            }
-            
+        if (clazz != null) {
             try {
-                if (ph instanceof SoftSerializable) {
-                    SoftSerializable ssp = (SoftSerializable)ph;
-                    assert(ssp != null);
-                    ssp.get(src, header.sizePacket());
-                } else {
-                    ph.get(src);
-                }
-            } catch(JED2KException e) {
-                throw e;
-            } catch(Exception e) {
-                // catch any exception and convert it to our
+                ph = clazz.newInstance();
+            } catch(InstantiationException e) {
+                throw new JED2KException(e);
+            } catch (IllegalAccessException e) {
                 throw new JED2KException(e);
             }
-            
-            header.reset();
-            return ph;
         } else {
-            log.info("remaining " + src.remaining() + " less than packet size body " + header.sizePacket());
+            log.warning("unable to find correspond packet for " + header);
+            ph = new BytesSkipper(header.sizePacket());
         }
         
-        return null;
+        try {
+            if (ph instanceof SoftSerializable) {
+                SoftSerializable ssp = (SoftSerializable)ph;
+                assert(ssp != null);
+                ssp.get(src, header.sizePacket());
+            } else {
+                ph.get(src);
+            }
+        } catch(JED2KException e) {
+            throw e;
+        } catch(Exception e) {
+            // catch any exception and convert it to our
+            throw new JED2KException(e);
+        }
+        
+        header.reset();
+        return ph;
+        
     }
     
     public boolean pack(Serializable object, ByteBuffer dst) throws JED2KException {
         PacketKey key = classToKey(object.getClass());
-        log.info("pack for class " + object.getClass().getName());
+        log.info("pack for class " + object.getClass().getName() + " bytes " + object.bytesCount());
         assert(key != null);
         if ((outgoingHeader.bytesCount() + object.bytesCount()) < dst.remaining()) {
             outgoingHeader.reset(key, object.bytesCount() + 1);
+            log.info(outgoingHeader.toString());
             assert(outgoingHeader.isDefined());
             outgoingHeader.put(dst);
             object.put(dst);
