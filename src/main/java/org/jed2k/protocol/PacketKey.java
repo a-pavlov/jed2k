@@ -10,6 +10,10 @@ public class PacketKey implements Comparable<PacketKey> {
         this.protocol   = protocol;
         this.packet     = packet;
     }
+    
+    public static PacketKey pk(byte protocol, byte packet) {
+        return new PacketKey(protocol, packet);
+    }
 
     @Override
     public int compareTo(PacketKey pk) {

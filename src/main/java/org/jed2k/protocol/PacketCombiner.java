@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+
 import org.jed2k.exception.JED2KException;
+import org.jed2k.hash.MD4;
 import org.jed2k.protocol.search.SearchRequest;
 
 public abstract class PacketCombiner {
@@ -167,6 +169,11 @@ public abstract class PacketCombiner {
         }
     }
     
+    private static PacketKey pkClientSendingPart = PacketKey.pk(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SENDINGPART.value);
+    private static PacketKey pkClientSendingPart64 = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_SENDINGPART_I64.value);
+    private static PacketKey pkClientSendingCompPart = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_COMPRESSEDPART.value);
+    private static PacketKey pkClientSendingCompPart64 = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_COMPRESSEDPART_I64.value);
+    
     private PacketHeader outgoingHeader = new PacketHeader();
     protected static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsServer;
     protected static final Map<Class<? extends Serializable>, PacketKey> struct2KeyServer;
@@ -188,6 +195,26 @@ public abstract class PacketCombiner {
         assert(clazz != null);
         supportedPacketsClient.put(pk, clazz);
         struct2KeyClient.put(clazz, pk);
+    }
+    
+    /**
+     * Most packets in ed2k don't have payload data except packets with files parts
+     * serviceSize extracts always service size of packet - summary metadata fields size
+     * 
+     * @param ph - packet header structure
+     * @return service size of structure
+     */
+    public static int serviceSize(PacketHeader ph) {
+        int size = ph.sizePacket();
+        if (ph.key().compareTo(pkClientSendingPart) == 0)
+            size = ClientSendingPart32.SIZE;
+        else if (ph.key().compareTo(pkClientSendingPart64) == 0) // add protocol type check
+            size = ClientSendingPart64.SIZE;
+        else if (ph.key().compareTo(pkClientSendingCompPart) == 0)
+            size = MD4.HASH_SIZE + UInt32.SIZE*2;   // TODO - correct this temp code
+        else if (ph.key().compareTo(pkClientSendingCompPart64) == 0)
+            size = MD4.HASH_SIZE + UInt32.SIZE + UInt64.SIZE; // TODO - correct this temp code
+        return size;
     }
     
     static {
@@ -222,11 +249,32 @@ public abstract class PacketCombiner {
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HELLOANSWER.value, ClientHelloAnswer.class);
         addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFO.value, ClientExtHello.class);
         addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFOANSWER.value, ClientExtHelloAnswer.class);
+        
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_CANCELTRANSFER.value, ClientCancelTransfer.class);
+        
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SETREQFILEID.value, ClientFileStatusRequest.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILEREQANSNOFIL.value, ClientNoFileStatus.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILESTATUS.value, ClientFileStatusAnswer.class);
+        
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETREQUEST.value, ClientHashSetRequest.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETANSWER.value, ClientHashSetAnswer.class);
+        
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_STARTUPLOADREQ.value, ClientStartUpload.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_ACCEPTUPLOADREQ.value, ClientAcceptUpload.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_QUEUERANK.value, ClientQueueRanking.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_OUTOFPARTREQS.value, ClientOutOfParts.class);
+        
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_REQUESTPARTS.value, ClientRequestParts32.class);
+        addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_REQUESTPARTS_I64.value, ClientRequestParts64.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SENDINGPART.value, ClientSendingPart32.class);
+        addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_SENDINGPART_I64.value, ClientSendingPart64.class);
+        
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_END_OF_DOWNLOAD.value, ClientEndDownload.class);
     }
     
     public Serializable unpack(PacketHeader header, ByteBuffer src) throws JED2KException {        
         assert(header.isDefined());
-        assert(src.remaining() == header.sizePacket());
+        assert(src.remaining() == serviceSize(header));
                 
         PacketKey key = header.key();
         Class<? extends Serializable> clazz = keyToPacket(key);
@@ -242,14 +290,14 @@ public abstract class PacketCombiner {
             }
         } else {
             log.warning("unable to find correspond packet for " + header);
-            ph = new BytesSkipper(header.sizePacket());
+            ph = new BytesSkipper(serviceSize(header));
         }
         
         try {
             if (ph instanceof SoftSerializable) {
                 SoftSerializable ssp = (SoftSerializable)ph;
                 assert(ssp != null);
-                ssp.get(src, header.sizePacket());
+                ssp.get(src, serviceSize(header));
             } else {
                 ph.get(src);
             }

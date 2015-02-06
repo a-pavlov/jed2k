@@ -49,7 +49,7 @@ public class PacketHeader implements Serializable {
         }
         
         if (size > MAX_SIZE || size < 0) {
-            throw new JED2KException("Packet size too large: " + size);
+            throw new JED2KException("Packet size incorrect: " + size);
         }
         
         return src;

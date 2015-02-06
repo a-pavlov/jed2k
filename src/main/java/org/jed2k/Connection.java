@@ -96,7 +96,7 @@ public abstract class Connection implements Dispatcher {
             header.get(headerBuffer);
             headerBuffer.clear();
             log.info("processHeader:" + header.toString());
-            bufferIncoming.limit(header.sizePacket());
+            bufferIncoming.limit(PacketCombiner.serviceSize(header));
         }
     }
     

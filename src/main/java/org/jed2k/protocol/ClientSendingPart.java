@@ -6,10 +6,9 @@ import org.jed2k.exception.JED2KException;
 
 public abstract class ClientSendingPart<SizeType extends UNumber> implements Serializable {
     public final Hash hash = new Hash();
-    public final SizeType beginOffset = null;
-    public final SizeType endOffset = null;
-    public byte[] data;
-        
+    public SizeType beginOffset = null;
+    public SizeType endOffset = null;
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         return endOffset.get(beginOffset.get(hash.get(src)));
@@ -22,8 +21,8 @@ public abstract class ClientSendingPart<SizeType extends UNumber> implements Ser
     
     @Override
     public int bytesCount() {
-        return hash.bytesCount() + beginOffset.bytesCount()*2 + dataSize();                
+        return hash.bytesCount() + beginOffset.bytesCount()*2;                
     }
     
-    public abstract int dataSize();
+    public abstract int payloadSize();
 }

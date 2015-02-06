@@ -469,15 +469,13 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientSendingPart32(ClientSendingPart32 value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        // prepare to read data
     }
 
     @Override
     public void onClientSendingPart64(ClientSendingPart64 value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        // prepare to read data
     }
 }
 
