@@ -1,6 +1,7 @@
 package org.jed2k;
 
 import java.io.IOException;
+import java.io.WriteAbortedException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -140,9 +141,14 @@ public abstract class Connection implements Dispatcher {
             writeInProgress = !outgoingOrder.isEmpty();
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
+            	// try to serialize packet into buffer
                 if (!packetCombainer.pack(itr.next(), bufferOutgoing)) break;
                 itr.remove();
             }
+            
+            // if write in progress we have to have at least one packet in outgoing buffer
+            // check write not in progress or outgoing buffer position not in begin of buffer
+            assert(!writeInProgress || bufferOutgoing.position() != 0);
             
             if (writeInProgress) {
                 bufferOutgoing.flip();

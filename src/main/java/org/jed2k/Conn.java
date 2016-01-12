@@ -32,10 +32,16 @@ public class Conn {
                 }
                 break;
             }
-                        
+            
+            if (parts[0].compareTo("listen") == 0 && parts.length == 2) {
+            	Settings settings = new Settings();
+            	settings.listenPort = (short)Integer.parseInt(parts[1]);
+            	s.configureSession(settings);
+            }
             if (parts[0].compareTo("connect") == 0 && parts.length == 3) {
                 s.connectoTo(new InetSocketAddress(parts[1], (short)Integer.parseInt(parts[2])));
-            } else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
+            } 
+            else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 String searchExpression = command.substring("search".length());
                 log.info("search expressionr:" + searchExpression);
                 try {

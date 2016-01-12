@@ -38,16 +38,26 @@ public class Session extends Thread {
     int clientId    = 0;
     int tcpFlags    = 0;
     int auxPort     = 0;
+    
+    /**
+     * start listening server socket
+     */
+    private void listen() throws IOException {
+    	if (ssc != null) ssc.close();
+    	log.info("Start listening on " + settings.listenPort);
+    	ssc = ServerSocketChannel.open();
+    	ssc.socket().bind(new InetSocketAddress(settings.listenPort));
+    	ssc.configureBlocking(false);
+    	ssc.register(selector, SelectionKey.OP_ACCEPT);    	
+    }
+    
         
     @Override
     public void run() {
         try {
             log.info("Session started");
             selector = Selector.open();
-            ssc = ServerSocketChannel.open();
-            ssc.socket().bind(new InetSocketAddress(4661));
-            ssc.configureBlocking(false);
-            ssc.register(selector, SelectionKey.OP_ACCEPT);
+            listen();
             
             PeerConnection p = null;
 
@@ -185,5 +195,25 @@ public class Session extends Thread {
     void erasePeer(final NetworkIdentifier point) {
         if (downloaders.containsKey(point))
             downloaders.remove(point);
+    }
+    
+    /**
+     * 
+     * @param s contains configuration parameters for session
+     */
+    public void configureSession(final Settings s) {
+    	commands.add(new Runnable() {
+			@Override
+			public void run() {
+				boolean relisten = (settings.listenPort != s.listenPort);
+				settings = s;
+				if (relisten) try {
+					listen();
+				} catch (IOException e) {
+					// TODO - handle this correctly
+					log.warning("Unable to listen on " + settings.listenPort);
+				}
+			}
+    	});
     }
 }
