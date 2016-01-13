@@ -37,6 +37,7 @@ import org.jed2k.protocol.ServerMessage;
 import org.jed2k.protocol.ServerStatus;
 import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.tag.Tag;
+import org.jed2k.data.PieceBlock;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
@@ -430,10 +431,11 @@ public class PeerConnection extends Connection {
                 interestedBlocks[currentInterest++] = interestedBlock;
                 
                 if (interestedBlock != null) {
+                    // TODO - fix it 
                     // generate packet
-                    Pair<Long, Long> offset = Utils.range(interestedBlock, transfer.fileSize());
-                    request.beginOffset.add(new UInt32(offset.left.intValue()));
-                    request.endOffset.add(new UInt32(offset.right.intValue()));                    
+                    //Pair<Long, Long> offset = Utils.range(interestedBlock, transfer.fileSize());
+                    //request.beginOffset.add(new UInt32(offset.left.intValue()));
+                    //request.endOffset.add(new UInt32(offset.right.intValue()));                    
                 }
             }
             

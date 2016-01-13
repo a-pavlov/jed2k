@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.data.PieceBlock;
 
 public class Transfer {
     private Hash fileHash;    

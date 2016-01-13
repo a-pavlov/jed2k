@@ -1,5 +1,7 @@
 package org.jed2k;
 
+import org.jed2k.data.PieceBlock;
+
 public class SerialPolicy implements Policy {
     private int piecesCount;
     
@@ -9,8 +11,8 @@ public class SerialPolicy implements Policy {
     
     @Override
     public int priority(final PieceBlock pb) {
-        assert(pb.piece() < piecesCount);
-        return pb.left*Constants.BLOCKS_PER_PIECE + pb.right;
+        assert(pb.piece_index < piecesCount);
+        return pb.piece_index*Constants.BLOCKS_PER_PIECE + pb.piece_block;
     }
     
 }

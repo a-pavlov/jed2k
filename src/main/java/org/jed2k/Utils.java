@@ -72,15 +72,7 @@ public final class Utils {
     public static int hiPart(long value) {
         return (int)(value >> 32);
     }
-    
-    public static Pair<Long, Long> range(PieceBlock block, long size) {
-        long begin = block.piece() * Constants.PIECE_SIZE + block.block() * Constants.BLOCK_SIZE;
-        long align_size = (block.piece() + 1) * Constants.PIECE_SIZE;
-        long end = Math.min(begin + Constants.BLOCK_SIZE, Math.min(align_size, size));
-        assert(begin < end);
-        return Pair.make(begin, end);
-    }
-    
+        
     public static long makeFullED2KVersion(int client_id, int a, int b, int c) {
         return ((((long)client_id) << 24) | (((long)a << 17)) | (((long)b << 10)) | (((long)c << 7)));
     }
