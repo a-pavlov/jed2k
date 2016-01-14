@@ -26,12 +26,12 @@ public class PieceBlock implements Comparable<PieceBlock> {
         return new PieceBlock(piece, (int)(start / Constants.BLOCK_SIZE));
     }
     
-    public Pair<Long, Long> range(long size) {
+    public Range range(long size) {
         long begin = piece_index * Constants.PIECE_SIZE + piece_block * Constants.BLOCK_SIZE;
         long align_size = (piece_index + 1) * Constants.PIECE_SIZE;
         long end = Math.min(begin + Constants.BLOCK_SIZE, Math.min(align_size, size));
         assert(begin < end);
-        return Pair.make(begin, end);
+        return Range.make(begin, end);
     }
     
     public long Size(long size) {        

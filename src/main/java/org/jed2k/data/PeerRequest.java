@@ -43,11 +43,11 @@ public class PeerRequest {
         return start % Constants.BLOCK_SIZE;
     }
     
-    public Pair<Long, Long> range() {
+    public Range range() {
         long begin = piece * Constants.PIECE_SIZE + start;
         long end = begin + length;
         assert(begin < end);
-        return Pair.make(begin, end);
+        return Range.make(begin, end);
     }
     
     public Pair<PeerRequest, PeerRequest> split() {
