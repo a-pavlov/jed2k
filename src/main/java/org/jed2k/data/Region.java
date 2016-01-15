@@ -5,8 +5,14 @@ import java.util.LinkedList;
 public class Region {
 	private LinkedList<Range>	segments = new LinkedList<Range>(); 
 	
-	Region(Range seg) {
+	public Region(Range seg) {
 		segments.add(seg);
+	}
+	
+	public Region(Range[] ranges) {
+		for(Range r: ranges) {
+			segments.add(r);
+		}
 	}
 	
 	public boolean empty() {
@@ -28,8 +34,18 @@ public class Region {
     //    assert(segments.size() == 1);
     //    segments.get(0).right = segments.get(0).left + size;
     //}
+	
+    @Override
+	public boolean equals(Object obj) {
+		if (obj != null && obj instanceof Region) {
+			Region x = (Region)obj;
+			return x.segments.equals(segments);
+		}
+		
+		return false;
+	}
 
-    public Long begin() 
+	public Long begin() 
     {
         assert(segments.size() == 1);
         return segments.get(0).left;
