@@ -47,7 +47,7 @@ public class PieceInfo {
 	 * @param index - block index in peace
 	 */
 	public void finishBlock(int index) {
-		assert(index < blocks.size());
+		assert(index < blocks.size());		
 		blocks.get(index).state = BlockState.BS_FINISHED;
 		finishedCount++;
 	}

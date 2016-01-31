@@ -11,7 +11,7 @@ public class PiecePicker {
     /**
      *	all pieces before this index are finished 
      */
-    int finishedPiecesBorder;
+    private int finishedPiecesBorder;
     
     public PiecePicker(int pieceCount, int blocksInLastPiece) {
     	assert(pieceCount > 0);
@@ -28,8 +28,15 @@ public class PiecePicker {
      * returns next interested block or null if no new blocks are available for requesting
      * 
      */    
-    public PieceBlock requestBlock() {
-    	return new PieceBlock(0,0);
+    public PieceBlock requestBlock() {        
+    	for(int i = finishedPiecesBorder; i != pieces.size(); ++i) {
+    	    int block = pieces.get(i).requestBlock();
+    	    if (block != -1) {
+    	        return new PieceBlock(i, block);
+    	    }
+    	}
+    	
+    	return null;
     }
     
     /**
@@ -42,7 +49,7 @@ public class PiecePicker {
     }
     
     /**
-     * mark block as finished and update border 
+     * mark block as finished and update border
      */
     public void finishBlock(PieceBlock block) {
     	

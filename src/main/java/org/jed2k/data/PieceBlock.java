@@ -48,4 +48,14 @@ public class PieceBlock implements Comparable<PieceBlock> {
     public String toString() {
         return "[piece/block]: {" + Integer.toString(piece_index) + "/" + Integer.toString(piece_block) + "}";
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof PieceBlock) {
+            PieceBlock x = (PieceBlock)obj;
+            return this.compareTo(x) == 0;
+        }
+        
+        return false;
+    }
 }
