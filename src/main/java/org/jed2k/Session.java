@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -19,8 +18,6 @@ import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.search.SearchRequest;
-
-import com.sun.corba.se.spi.ior.MakeImmutable;
 
 public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName()); 
@@ -33,7 +30,7 @@ public class Session extends Thread {
     private ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
     private TreeMap<NetworkIdentifier, PeerConnection> downloaders = new TreeMap<NetworkIdentifier, PeerConnection>(); 
     Settings settings = new Settings();
-    long lastTick = System.nanoTime()/1000000;
+    long lastTick = Time.currentTime();
     
     // from last established server connection 
     int clientId    = 0;
@@ -63,7 +60,7 @@ public class Session extends Thread {
             PeerConnection p = null;
 
             while(!isInterrupted()) {
-                long currentTime = System.nanoTime()/1000000;
+                long currentTime = Time.currentTime();
                 long tick_interval_ms = currentTime - lastTick;                
                 
                 

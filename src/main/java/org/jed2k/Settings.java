@@ -11,4 +11,10 @@ public class Settings {
     public int modMajor = 0;
     public int modMinor = 0;
     public int modBuild = 0;
+    
+    /**
+     * send ping message to server every serverPingTimeout 
+     * milliseconds
+     */
+    public long serverPingTimeout = 0;
 }

@@ -3,6 +3,7 @@ package org.jed2k;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.security.acl.LastOwnerException;
 import java.util.logging.Logger;
 
 import org.jed2k.protocol.ClientExtHello;
@@ -30,6 +31,7 @@ import org.jed2k.protocol.ServerList;
 import org.jed2k.protocol.ServerMessage;
 import org.jed2k.protocol.ServerPacketCombiner;
 import org.jed2k.protocol.ServerStatus;
+import org.jed2k.protocol.ServerGetList;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.tag.Tag;
@@ -222,5 +224,15 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         // TODO Auto-generated method stub
         
+    }
+    
+    @Override
+    public void secondTick(long mSeconds) {        
+        // ping server when feature enabled and timeout occured
+        if (session.settings.serverPingTimeout > 0 && 
+                mSeconds - lastTick > session.settings.serverPingTimeout) {
+            log.info("Send ping message to server");
+            write(new ServerGetList());
+        }
     }
 }

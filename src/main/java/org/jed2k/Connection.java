@@ -31,7 +31,7 @@ public abstract class Connection implements Dispatcher {
     final Session session;
     private long totalBytesIncoming = 0;
     private long totalBytesOutgoing = 0;
-    private long birthdayTime = 0;  // in milliseconds
+    protected long lastTick = Time.currentTime();
     private long incomingSpeed = 0; // bytes per second
     private PacketHeader header = new PacketHeader();
     private ByteBuffer headerBuffer = ByteBuffer.allocate(PacketHeader.SIZE);
@@ -73,7 +73,7 @@ public abstract class Connection implements Dispatcher {
         try {
             socket.finishConnect();
             onConnect();
-            birthdayTime = System.nanoTime() / 1000000;    // milliseconds from system timer 
+            lastTick = Time.currentTime();
             return;
         } catch(IOException e) {            
             log.warning(e.getMessage());            
@@ -120,6 +120,7 @@ public abstract class Connection implements Dispatcher {
     
     public void onReadable() {
         try {
+            lastTick = Time.currentTime();
             if (!header.isDefined()) {
                 processHeader();
             } else {
@@ -196,6 +197,7 @@ public abstract class Connection implements Dispatcher {
     
     public void write(Serializable packet) {
         log.info("write packet " + packet);
+        lastTick = Time.currentTime();
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);
@@ -204,9 +206,6 @@ public abstract class Connection implements Dispatcher {
     }
     
     public void secondTick(long mSeconds) {
-        long duration = mSeconds - birthdayTime;
-        if (duration != 0) {
-            incomingSpeed = totalBytesIncoming*1000 / duration;
-        }
+        // do nothing
     }
 }
