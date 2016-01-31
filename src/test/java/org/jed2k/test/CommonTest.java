@@ -2,6 +2,7 @@ package org.jed2k.test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -10,6 +11,7 @@ import org.jed2k.Constants;
 import org.junit.Test;
 
 public class CommonTest {
+    private static Logger log = Logger.getLogger(CommonTest.class.getName());
     private static byte[] data = new byte[(int)Constants.PIECE_SIZE];
     private static ByteBuffer dataBuffer = ByteBuffer.wrap(data);
     
@@ -57,6 +59,24 @@ public class CommonTest {
             assertEquals((template.get(i/(int)Constants.BLOCK_SIZE) != null)?template.get(i/(int)Constants.BLOCK_SIZE):0, data[i]);
         }
         
+    }
+    
+    @Test
+    public void testSessionCounter() throws InterruptedException {
+        long sessionLastTick = System.nanoTime();
+        // some work here
+        Thread.sleep(500, 0);
+        long currentTime = System.nanoTime();
+        long tick_interval_ms = (currentTime - sessionLastTick)/1000000;
+        sessionLastTick = currentTime;
+        assertTrue(tick_interval_ms < 1000);
+        assertTrue(tick_interval_ms >= 500);
+        // some work here
+        Thread.sleep(200, 0);
+        currentTime = System.nanoTime();
+        tick_interval_ms = (currentTime - sessionLastTick)/1000000;
+        assertTrue(tick_interval_ms < 300);
+        assertTrue(tick_interval_ms >= 200);
     }
     
 }

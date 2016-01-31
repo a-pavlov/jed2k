@@ -55,7 +55,7 @@ public abstract class Connection implements Dispatcher {
     protected Connection(ByteBuffer bufferIncoming,
             ByteBuffer bufferOutgoing, 
             PacketCombiner packetCombiner,
-            Session session, SocketChannel socket) throws IOException {        
+            Session session, SocketChannel socket) throws IOException {
         this.bufferIncoming = bufferIncoming;
         this.bufferOutgoing = bufferOutgoing;
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);

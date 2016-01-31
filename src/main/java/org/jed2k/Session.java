@@ -33,6 +33,7 @@ public class Session extends Thread {
     private ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
     private TreeMap<NetworkIdentifier, PeerConnection> downloaders = new TreeMap<NetworkIdentifier, PeerConnection>(); 
     Settings settings = new Settings();
+    long lastTick = System.nanoTime()/1000000;
     
     // from last established server connection 
     int clientId    = 0;
@@ -62,6 +63,10 @@ public class Session extends Thread {
             PeerConnection p = null;
 
             while(!isInterrupted()) {
+                long currentTime = System.nanoTime()/1000000;
+                long tick_interval_ms = currentTime - lastTick;                
+                
+                
                 int channelCount = selector.select(1000);
                 if (channelCount != 0) {
                     // process channels
@@ -95,15 +100,27 @@ public class Session extends Thread {
                           }
                       }
                       
-                      keyIterator.remove();
+                          keyIterator.remove();
                     }
                 }
                 
-                // execute user's commands
-                Runnable r = commands.poll();
-                while(r != null) {
-                    r.run();
-                    r = commands.poll();
+                /**
+                 * handle user's command and process internal tasks in 
+                 * transfers, peers and other structures every 1 second
+                 */
+                if (tick_interval_ms >= 1000) {
+                    lastTick = currentTime; // move last tick to current time
+                    
+                    // second tick on server connection
+                    if (sc != null) sc.secondTick(currentTime);
+                    
+                    // TODO - run second tick on peer connections
+                    // execute user's commands
+                    Runnable r = commands.poll();
+                    while(r != null) {
+                        r.run();
+                        r = commands.poll();
+                    }
                 }
             }
         }
