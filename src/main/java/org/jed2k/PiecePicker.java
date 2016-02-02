@@ -28,7 +28,7 @@ public class PiecePicker {
      * returns next interested block or null if no new blocks are available for requesting
      * 
      */    
-    public PieceBlock requestBlock() {        
+    public PieceBlock requestBlock() {
     	for(int i = finishedPiecesBorder; i != pieces.size(); ++i) {
     	    int block = pieces.get(i).requestBlock();
     	    if (block != -1) {
