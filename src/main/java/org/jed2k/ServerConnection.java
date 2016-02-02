@@ -227,10 +227,10 @@ public class ServerConnection extends Connection {
     }
     
     @Override
-    public void secondTick(long mSeconds) {        
+    public void secondTick(long time_interval_ms) {        
         // ping server when feature enabled and timeout occured
         if (session.settings.serverPingTimeout > 0 && 
-                mSeconds - lastTick > session.settings.serverPingTimeout) {
+                Time.currentTime() - lastTick > session.settings.serverPingTimeout) {
             log.info("Send ping message to server");
             write(new ServerGetList());
         }

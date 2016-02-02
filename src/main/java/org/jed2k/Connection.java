@@ -19,7 +19,7 @@ import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.Serializable;
 
-public abstract class Connection implements Dispatcher {
+public abstract class Connection implements Dispatcher, Tickable {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
     private SocketChannel socket;
     private ByteBuffer bufferIncoming;
@@ -29,12 +29,10 @@ public abstract class Connection implements Dispatcher {
     private SelectionKey key = null;
     private final PacketCombiner packetCombainer;
     final Session session;
-    private long totalBytesIncoming = 0;
-    private long totalBytesOutgoing = 0;
     protected long lastTick = Time.currentTime();
-    private long incomingSpeed = 0; // bytes per second
     private PacketHeader header = new PacketHeader();
     private ByteBuffer headerBuffer = ByteBuffer.allocate(PacketHeader.SIZE);
+    private Statistics stat = new Statistics();
     
     protected Connection(ByteBuffer bufferIncoming,
             ByteBuffer bufferOutgoing,
@@ -98,6 +96,7 @@ public abstract class Connection implements Dispatcher {
             headerBuffer.clear();
             log.info("processHeader:" + header.toString());
             bufferIncoming.limit(PacketCombiner.serviceSize(header));
+            stat.receiveBytes(PacketHeader.SIZE, 0);
         }
     }
     
@@ -109,6 +108,7 @@ public abstract class Connection implements Dispatcher {
         
         if (bufferIncoming.remaining() == 0) {
             bufferIncoming.flip();
+            stat.receiveBytes(bufferIncoming.remaining(), 0);
             Serializable packet = packetCombainer.unpack(header, bufferIncoming);
             bufferIncoming.clear();
             header.reset();
@@ -153,8 +153,8 @@ public abstract class Connection implements Dispatcher {
             
             if (writeInProgress) {
                 bufferOutgoing.flip();
+                stat.sendBytes(bufferOutgoing.remaining(), 0);
                 socket.write(bufferOutgoing);
-                totalBytesOutgoing += bufferOutgoing.remaining();
             } else {
                 key.interestOps(SelectionKey.OP_READ);
             }
@@ -205,7 +205,8 @@ public abstract class Connection implements Dispatcher {
         }
     }
     
-    public void secondTick(long mSeconds) {
+    @Override
+    public void secondTick(long tick_interval_ms) {
         // do nothing
     }
 }

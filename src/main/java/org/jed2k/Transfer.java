@@ -9,7 +9,7 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.data.PieceBlock;
 
-public class Transfer {
+public class Transfer implements Tickable {
     private Hash fileHash;    
     private Set<NetworkIdentifier> sources = new TreeSet<NetworkIdentifier>();
     private long size;
@@ -55,4 +55,10 @@ public class Transfer {
             }
         }
     }
+
+	@Override
+	public void secondTick(long tick_interval_ms) {
+		// TODO Auto-generated method stub
+		
+	}
 }
