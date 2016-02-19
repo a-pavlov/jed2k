@@ -17,6 +17,7 @@ import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
+import org.jed2k.protocol.PacketKey;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.ServerPacketCombiner;
 
