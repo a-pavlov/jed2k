@@ -17,6 +17,7 @@ import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
+import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.PacketKey;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.ServerPacketCombiner;
@@ -63,7 +64,7 @@ public class UDPConnection {
         }
     }
     
-    public void onReadable() {
+    public void onReadable() throws JED2KException {
         bufferIncoming.clear();
         try {
             SocketAddress addr = channel.receive(bufferIncoming);
@@ -71,9 +72,14 @@ public class UDPConnection {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
         bufferIncoming.flip();
         // read packet header and body here
         stat.receiveBytes(bufferIncoming.remaining(), 0);
+        PacketHeader header = new PacketHeader();
+        header.get(bufferIncoming);
+        Serializable packet = packetCombainer.unpack(header, bufferIncoming);
+        // send packet to dispather
         // Serializable packet = packetCombainer.unpack(header, bufferIncoming);       
     }
     
