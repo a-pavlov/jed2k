@@ -7,6 +7,7 @@ public class Settings {
     public String modName = new String("jed2k");
     public String clientName = new String("jed2k");
     public short listenPort = 4661;
+    public short udpPort = 4662;
     public int version = 0x3c;
     public int modMajor = 0;
     public int modMinor = 0;

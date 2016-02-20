@@ -218,10 +218,10 @@ public abstract class PacketCombiner {
     }
     
     static {
-        supportedPacketsServer = new TreeMap<PacketKey, Class<? extends Serializable>>();
+        supportedPacketsServer = new HashMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyServer = new HashMap<Class<? extends Serializable>, PacketKey>();
        
-        supportedPacketsClient = new TreeMap<PacketKey, Class<? extends Serializable>>();
+        supportedPacketsClient = new HashMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyClient = new HashMap<Class<? extends Serializable>, PacketKey>();
         
         // client <-> server tcp messages section
