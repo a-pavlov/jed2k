@@ -1,4 +1,4 @@
-package org.jed2k.protocol.server;
+package org.jed2k.protocol.server.search;
 
 import java.nio.ByteBuffer;
 import org.jed2k.exception.JED2KException;

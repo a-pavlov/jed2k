@@ -23,7 +23,7 @@ import org.jed2k.protocol.ClientSendingPart64;
 import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.server.LoginRequest;
-import org.jed2k.protocol.server.SearchResult;
+import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.protocol.server.IdChange;
 import org.jed2k.protocol.server.ServerInfo;
 import org.jed2k.protocol.server.ServerList;

@@ -29,13 +29,12 @@ import org.jed2k.protocol.ClientSendingPart64;
 import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
-import org.jed2k.protocol.server.SearchResult;
+import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.protocol.server.IdChange;
 import org.jed2k.protocol.server.ServerInfo;
 import org.jed2k.protocol.server.ServerList;
 import org.jed2k.protocol.server.Message;
 import org.jed2k.protocol.server.Status;
-import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.tag.Tag;
 import org.jed2k.data.PieceBlock;
 
