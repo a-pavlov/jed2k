@@ -26,15 +26,15 @@ import org.jed2k.protocol.ClientRequestParts;
 import org.jed2k.protocol.ClientRequestParts32;
 import org.jed2k.protocol.ClientSendingPart32;
 import org.jed2k.protocol.ClientSendingPart64;
-import org.jed2k.protocol.FoundFileSources;
+import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
-import org.jed2k.protocol.SearchResult;
-import org.jed2k.protocol.ServerIdChange;
-import org.jed2k.protocol.ServerInfo;
-import org.jed2k.protocol.ServerList;
-import org.jed2k.protocol.ServerMessage;
-import org.jed2k.protocol.ServerStatus;
+import org.jed2k.protocol.server.SearchResult;
+import org.jed2k.protocol.server.IdChange;
+import org.jed2k.protocol.server.ServerInfo;
+import org.jed2k.protocol.server.ServerList;
+import org.jed2k.protocol.server.Message;
+import org.jed2k.protocol.server.Status;
 import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.tag.Tag;
 import org.jed2k.data.PieceBlock;
@@ -296,7 +296,7 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public void onServerIdChange(ServerIdChange value) throws JED2KException {
+    public void onServerIdChange(IdChange value) throws JED2KException {
         // TODO Auto-generated method stub
         
     }
@@ -314,13 +314,13 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public void onServerMessage(ServerMessage value) throws JED2KException {
+    public void onServerMessage(Message value) throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onServerStatus(ServerStatus value) throws JED2KException {
+    public void onServerStatus(Status value) throws JED2KException {
         // TODO Auto-generated method stub
         
     }

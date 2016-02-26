@@ -1,7 +1,7 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
 
 
-public class LoginRequest extends ServerUsualPacket {
+public class LoginRequest extends UsualPacket {
    public static int SRV_TCPFLG_COMPRESSION     = 0x00000001;
    public static int SRV_TCPFLG_NEWTAGS         = 0x00000008;
    public static int SRV_TCPFLG_UNICODE         = 0x00000010;

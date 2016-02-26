@@ -1,7 +1,9 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
 
+import org.jed2k.protocol.PacketKey;
+import org.jed2k.protocol.Serializable;
 
-public class ServerPacketCombiner extends PacketCombiner {
+public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
 
     @Override
     protected Class<? extends Serializable> keyToPacket(PacketKey key) {

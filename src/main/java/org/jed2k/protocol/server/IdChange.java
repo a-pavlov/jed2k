@@ -1,10 +1,13 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
 
-import static org.jed2k.Utils.sizeof;
+import org.jed2k.protocol.Dispatchable;
+import org.jed2k.protocol.Dispatcher;
+import org.jed2k.protocol.SoftSerializable;
 import org.jed2k.exception.JED2KException;
 import java.nio.ByteBuffer;
+import static org.jed2k.Utils.sizeof;
 
-public class ServerIdChange extends SoftSerializable implements Dispatchable {
+public class IdChange extends SoftSerializable implements Dispatchable {
     public int clientId = 0;
     public int tcpFlags = 0;
     public int auxPort  = 0;

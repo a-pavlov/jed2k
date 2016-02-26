@@ -20,18 +20,17 @@ import org.jed2k.protocol.ClientNoFileStatus;
 import org.jed2k.protocol.ClientOutOfParts;
 import org.jed2k.protocol.ClientSendingPart32;
 import org.jed2k.protocol.ClientSendingPart64;
-import org.jed2k.protocol.FoundFileSources;
+import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.LoginRequest;
-import org.jed2k.protocol.PacketCombiner;
-import org.jed2k.protocol.SearchResult;
-import org.jed2k.protocol.ServerIdChange;
-import org.jed2k.protocol.ServerInfo;
-import org.jed2k.protocol.ServerList;
-import org.jed2k.protocol.ServerMessage;
-import org.jed2k.protocol.ServerPacketCombiner;
-import org.jed2k.protocol.ServerStatus;
-import org.jed2k.protocol.ServerGetList;
+import org.jed2k.protocol.server.LoginRequest;
+import org.jed2k.protocol.server.SearchResult;
+import org.jed2k.protocol.server.IdChange;
+import org.jed2k.protocol.server.ServerInfo;
+import org.jed2k.protocol.server.ServerList;
+import org.jed2k.protocol.server.Message;
+import org.jed2k.protocol.server.PacketCombiner;
+import org.jed2k.protocol.server.Status;
+import org.jed2k.protocol.server.GetList;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.tag.Tag;
@@ -52,7 +51,7 @@ public class ServerConnection extends Connection {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return  new ServerConnection(ibuff, obuff, new ServerPacketCombiner(), ses);
+            return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
@@ -81,7 +80,7 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    public void onServerIdChange(ServerIdChange value) throws JED2KException {
+    public void onServerIdChange(IdChange value) throws JED2KException {
         log.info("server id changed: " + value);
         session.clientId = value.clientId;
         session.tcpFlags = value.tcpFlags;
@@ -99,12 +98,12 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    public void onServerMessage(ServerMessage value) throws JED2KException {
+    public void onServerMessage(Message value) throws JED2KException {
         log.info("server message: " + value);
     }
 
     @Override
-    public void onServerStatus(ServerStatus value) throws JED2KException {
+    public void onServerStatus(Status value) throws JED2KException {
         log.info("server status: " + value);
     }
 
@@ -232,7 +231,7 @@ public class ServerConnection extends Connection {
         if (session.settings.serverPingTimeout > 0 && 
                 Time.currentTime() - lastTick > session.settings.serverPingTimeout) {
             log.info("Send ping message to server");
-            write(new ServerGetList());
+            write(new GetList());
         }
     }
 }

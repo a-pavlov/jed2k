@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.protocol.search.SearchRequest;
+import org.jed2k.protocol.server.search.SearchRequest;
 
 public class Conn {
     private static Logger log = Logger.getLogger(Conn.class.getName());

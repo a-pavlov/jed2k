@@ -5,7 +5,7 @@ import static junit.framework.Assert.assertEquals;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.jed2k.protocol.GetFileSources;
+import org.jed2k.protocol.server.GetFileSources;
 import org.jed2k.protocol.Hash;
 import org.jed2k.exception.JED2KException;
 import org.junit.Test;

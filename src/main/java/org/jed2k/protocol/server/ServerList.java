@@ -1,8 +1,13 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.ContainerHolder;
+import org.jed2k.protocol.Dispatchable;
+import org.jed2k.protocol.Dispatcher;
+import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.UInt8;
 
 import static org.jed2k.protocol.Unsigned.uint8;
 

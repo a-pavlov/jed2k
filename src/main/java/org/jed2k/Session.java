@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.protocol.search.SearchRequest;
+import org.jed2k.protocol.server.search.SearchRequest;
 
 public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName()); 

@@ -1,10 +1,13 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
 
 import static org.jed2k.Utils.sizeof;
 import java.nio.ByteBuffer;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Dispatchable;
+import org.jed2k.protocol.Dispatcher;
+import org.jed2k.protocol.Serializable;
 
-public class ServerStatus implements Serializable, Dispatchable {
+public class Status implements Serializable, Dispatchable {
     public int usersCount = 0;
     public int filesCount = 0;
         

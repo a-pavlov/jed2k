@@ -1,14 +1,21 @@
 package org.jed2k.protocol;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.server.FoundFileSources;
+import org.jed2k.protocol.server.IdChange;
+import org.jed2k.protocol.server.Message;
+import org.jed2k.protocol.server.SearchResult;
+import org.jed2k.protocol.server.ServerInfo;
+import org.jed2k.protocol.server.ServerList;
+import org.jed2k.protocol.server.Status;
 
 public interface Dispatcher {
     // client - server messages
-    public void onServerIdChange(ServerIdChange value) throws JED2KException;
+    public void onServerIdChange(IdChange value) throws JED2KException;
     public void onServerInfo(ServerInfo value) throws JED2KException;
     public void onServerList(ServerList value) throws JED2KException;
-    public void onServerMessage(ServerMessage value) throws JED2KException;
-    public void onServerStatus(ServerStatus value) throws JED2KException;
+    public void onServerMessage(Message value) throws JED2KException;
+    public void onServerStatus(Status value) throws JED2KException;
     public void onSearchResult(SearchResult value) throws JED2KException;
     public void onFoundFileSources(FoundFileSources value) throws JED2KException;
     

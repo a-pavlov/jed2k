@@ -5,8 +5,10 @@ import static junit.framework.Assert.assertTrue;
 
 
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.search.*;
-import org.jed2k.protocol.search.BooleanEntry.Operator;
+import org.jed2k.protocol.server.search.BooleanEntry;
+import org.jed2k.protocol.server.search.BooleanEntry.Operator;
+import org.jed2k.protocol.server.search.SearchRequest;
+import org.jed2k.protocol.server.search.StringEntry;
 import org.junit.Test;
 
 public class SearchTest {

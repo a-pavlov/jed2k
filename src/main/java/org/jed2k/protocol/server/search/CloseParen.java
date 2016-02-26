@@ -1,10 +1,10 @@
-package org.jed2k.protocol.search;
+package org.jed2k.protocol.server.search;
 
 import java.nio.ByteBuffer;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 
-public class OpenParen implements Serializable {
+public class CloseParen implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
@@ -26,7 +26,7 @@ public class OpenParen implements Serializable {
     
     @Override
     public String toString() {
-        return "(";
+        return ")";
     }
     
 }

@@ -1,4 +1,4 @@
-package org.jed2k.protocol.search;
+package org.jed2k.protocol.server.search;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;

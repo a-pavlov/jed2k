@@ -1,9 +1,11 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
+
+import org.jed2k.protocol.Serializable;
 
 import java.nio.ByteBuffer;
 import org.jed2k.exception.JED2KException;
 
-public class SearchMore implements Serializable {
+public class GetList implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
@@ -16,7 +18,7 @@ public class SearchMore implements Serializable {
     }
 
     @Override
-    public int bytesCount() {
+    public int bytesCount() {        
         return 0;
     }
     

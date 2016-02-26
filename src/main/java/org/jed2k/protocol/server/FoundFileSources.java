@@ -1,9 +1,16 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
 
+import org.jed2k.protocol.Serializable;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import static org.jed2k.protocol.Unsigned.uint8;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.ContainerHolder;
+import org.jed2k.protocol.Dispatchable;
+import org.jed2k.protocol.Dispatcher;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.UInt8;
 
 
 public class FoundFileSources implements Serializable, Dispatchable {

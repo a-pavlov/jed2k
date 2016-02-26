@@ -1,8 +1,10 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.server;
 
 import java.nio.ByteBuffer;
 import static org.jed2k.Utils.sizeof;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.Serializable;
 
 public class GetFileSources implements Serializable {
     public Hash hash = new Hash();
