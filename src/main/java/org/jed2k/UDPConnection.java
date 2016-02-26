@@ -20,7 +20,6 @@ import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.PacketKey;
 import org.jed2k.protocol.Serializable;
-import org.jed2k.protocol.ServerPacketCombiner;
 
 /**
  * 
@@ -38,7 +37,7 @@ public class UDPConnection {
     private Statistics stat = new Statistics();
     final Session session;
     DatagramChannel channel;
-    private final PacketCombiner packetCombainer = new ServerPacketCombiner();  // temp code
+    private final PacketCombiner packetCombainer = new org.jed2k.protocol.server.PacketCombiner();  // temp code
     
     public UDPConnection(final Session session) {
         this.session = session;        

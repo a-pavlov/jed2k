@@ -1,7 +1,8 @@
 package org.jed2k.test;
 
 import org.jed2k.Pair;
-import org.jed2k.protocol.ClientHello;
+import org.jed2k.protocol.client.Hello;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertFalse;
@@ -10,8 +11,8 @@ import org.junit.Test;
 
 public class PairTest {   
     private Pair<Long, Long> longPair = Pair.make(10l, 11l);
-    private Pair<ClientHello, Long> partialPair = Pair.make(new ClientHello(), 22l);
-    private Pair<ClientHello, ClientHello> uncomparablePair = Pair.make(new ClientHello(), new ClientHello());
+    private Pair<Hello, Long> partialPair = Pair.make(new Hello(), 22l);
+    private Pair<Hello, Hello> uncomparablePair = Pair.make(new Hello(), new Hello());
     
     @Test
     public void testPairEquals() {
@@ -31,9 +32,9 @@ public class PairTest {
         assertEquals(-1, longPair.compareTo(Pair.make(12l, 12l)));
         assertEquals(-1, longPair.compareTo(Pair.make(10l, 12l)));
         // partial compare
-        assertEquals(0, partialPair.compareTo(Pair.make(new ClientHello(), 22l)));
-        assertEquals(-1, partialPair.compareTo(Pair.make(new ClientHello(), 23l)));
-        assertEquals(1, partialPair.compareTo(Pair.make(new ClientHello(), 21l)));
+        assertEquals(0, partialPair.compareTo(Pair.make(new Hello(), 22l)));
+        assertEquals(-1, partialPair.compareTo(Pair.make(new Hello(), 23l)));
+        assertEquals(1, partialPair.compareTo(Pair.make(new Hello(), 21l)));
     }
     
     @Test(expected = java.lang.AssertionError.class)

@@ -39,5 +39,6 @@ public class WriterTest {
         
         assertEquals(wres.get().except, null);
         executorService.shutdown();
+        aFile.close();
     }
 }

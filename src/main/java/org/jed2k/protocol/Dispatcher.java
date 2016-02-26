@@ -1,32 +1,40 @@
 package org.jed2k.protocol;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.server.FoundFileSources;
+import org.jed2k.protocol.server.IdChange;
+import org.jed2k.protocol.server.Message;
+import org.jed2k.protocol.server.search.SearchResult;
+import org.jed2k.protocol.server.ServerInfo;
+import org.jed2k.protocol.server.ServerList;
+import org.jed2k.protocol.server.Status;
+import org.jed2k.protocol.client.*;
 
 public interface Dispatcher {
     // client - server messages
-    public void onServerIdChange(ServerIdChange value) throws JED2KException;
+    public void onServerIdChange(IdChange value) throws JED2KException;
     public void onServerInfo(ServerInfo value) throws JED2KException;
     public void onServerList(ServerList value) throws JED2KException;
-    public void onServerMessage(ServerMessage value) throws JED2KException;
-    public void onServerStatus(ServerStatus value) throws JED2KException;
+    public void onServerMessage(Message value) throws JED2KException;
+    public void onServerStatus(Status value) throws JED2KException;
     public void onSearchResult(SearchResult value) throws JED2KException;
     public void onFoundFileSources(FoundFileSources value) throws JED2KException;
     
     // client to client packets
-    public void onClientHello(ClientHello value) throws JED2KException;
-    public void onClientHelloAnswer(ClientHelloAnswer value)  throws JED2KException;
-    public void onClientExtHello(ClientExtHello value)  throws JED2KException;
-    public void onClientExtHelloAnswer(ClientExtHelloAnswer value) throws JED2KException;
+    public void onClientHello(Hello value) throws JED2KException;
+    public void onClientHelloAnswer(HelloAnswer value)  throws JED2KException;
+    public void onClientExtHello(ExtHello value)  throws JED2KException;
+    public void onClientExtHelloAnswer(ExtHelloAnswer value) throws JED2KException;
     
     // client to client file information
-    public void onClientFileRequest(ClientFileRequest value) throws JED2KException;
-    public void onClientFileAnswer(ClientFileAnswer value) throws JED2KException;
-    public void onClientFileStatusRequest(ClientFileStatusRequest value) throws JED2KException;
-    public void onClientFileStatusAnswer(ClientFileStatusAnswer value) throws JED2KException;
-    public void onClientHashSetRequest(ClientHashSetRequest value) throws JED2KException;
-    public void onClientHashSetAnswer(ClientHashSetAnswer value) throws JED2KException;
-    public void onClientNoFileStatus(ClientNoFileStatus value) throws JED2KException;
-    public void onClientOutOfParts(ClientOutOfParts value) throws JED2KException;
-    public void onClientSendingPart32(ClientSendingPart32 value) throws JED2KException;
-    public void onClientSendingPart64(ClientSendingPart64 value) throws JED2KException;
+    public void onClientFileRequest(FileRequest value) throws JED2KException;
+    public void onClientFileAnswer(FileAnswer value) throws JED2KException;
+    public void onClientFileStatusRequest(FileStatusRequest value) throws JED2KException;
+    public void onClientFileStatusAnswer(FileStatusAnswer value) throws JED2KException;
+    public void onClientHashSetRequest(HashSetRequest value) throws JED2KException;
+    public void onClientHashSetAnswer(HashSetAnswer value) throws JED2KException;
+    public void onClientNoFileStatus(NoFileStatus value) throws JED2KException;
+    public void onClientOutOfParts(OutOfParts value) throws JED2KException;
+    public void onClientSendingPart32(SendingPart32 value) throws JED2KException;
+    public void onClientSendingPart64(SendingPart64 value) throws JED2KException;
 }

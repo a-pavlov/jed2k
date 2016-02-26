@@ -10,7 +10,7 @@ import java.nio.ByteOrder;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
-import org.jed2k.protocol.ServerIdChange;
+import org.jed2k.protocol.server.IdChange;
 import org.jed2k.protocol.SoftSerializable;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.UInt32;
@@ -23,13 +23,13 @@ public class SoftSerializableTest {
     public void testSoftSerialization() throws JED2KException {
         ByteBuffer bb = ByteBuffer.wrap(source);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        Serializable sig = new ServerIdChange();
+        Serializable sig = new IdChange();
         assertTrue(sig instanceof SoftSerializable);
         SoftSerializable soft = (SoftSerializable)sig;
         soft.get(bb, 4);
-        assertEquals(0x01, ((ServerIdChange)sig).clientId);
-        assertEquals(0x00, ((ServerIdChange)sig).tcpFlags);
-        assertEquals(0x00, ((ServerIdChange)sig).auxPort);
+        assertEquals(0x01, ((IdChange)sig).clientId);
+        assertEquals(0x00, ((IdChange)sig).tcpFlags);
+        assertEquals(0x00, ((IdChange)sig).auxPort);
         UInt32 u32 = uint32();
         u32.get(bb);
         assertEquals(0x02, u32.intValue());
@@ -45,13 +45,13 @@ public class SoftSerializableTest {
     public void testSoftSerializationMiddle() throws JED2KException {
         ByteBuffer bb = ByteBuffer.wrap(source);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        Serializable sig = new ServerIdChange();
+        Serializable sig = new IdChange();
         assertTrue(sig instanceof SoftSerializable);
         SoftSerializable soft = (SoftSerializable)sig;
         soft.get(bb, 8);
-        assertEquals(0x01, ((ServerIdChange)sig).clientId);
-        assertEquals(0x02, ((ServerIdChange)sig).tcpFlags);
-        assertEquals(0x00, ((ServerIdChange)sig).auxPort);
+        assertEquals(0x01, ((IdChange)sig).clientId);
+        assertEquals(0x02, ((IdChange)sig).tcpFlags);
+        assertEquals(0x00, ((IdChange)sig).auxPort);
         UInt32 u32 = uint32();
         u32.get(bb);        
         assertEquals(0x03, u32.intValue());
@@ -65,13 +65,13 @@ public class SoftSerializableTest {
     public void testSoftSerializationFull() throws JED2KException {
         ByteBuffer bb = ByteBuffer.wrap(source);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        Serializable sig = new ServerIdChange();
+        Serializable sig = new IdChange();
         assertTrue(sig instanceof SoftSerializable);
         SoftSerializable soft = (SoftSerializable)sig;
         soft.get(bb, 12);
-        assertEquals(0x01, ((ServerIdChange)sig).clientId);
-        assertEquals(0x02, ((ServerIdChange)sig).tcpFlags);
-        assertEquals(0x03, ((ServerIdChange)sig).auxPort);        
+        assertEquals(0x01, ((IdChange)sig).clientId);
+        assertEquals(0x02, ((IdChange)sig).tcpFlags);
+        assertEquals(0x03, ((IdChange)sig).auxPort);        
         UInt16 u16 = uint16();
         u16.get(bb);
         assertEquals(0x01, u16.intValue());

@@ -30,7 +30,7 @@ public class BitField implements Iterable<Boolean>, Serializable {
     }
     
     public BitField(byte[] b, int bits) {
-        assign(b, bits); 
+        assign(b, bits);
     }
     
     public BitField(BitField rhs) {

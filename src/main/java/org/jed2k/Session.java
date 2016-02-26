@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.protocol.search.SearchRequest;
+import org.jed2k.protocol.server.search.SearchRequest;
 
 public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName()); 
@@ -46,10 +46,9 @@ public class Session extends Thread {
     	ssc = ServerSocketChannel.open();
     	ssc.socket().bind(new InetSocketAddress(settings.listenPort));
     	ssc.configureBlocking(false);
-    	ssc.register(selector, SelectionKey.OP_ACCEPT);    	
+    	ssc.register(selector, SelectionKey.OP_ACCEPT);
     }
     
-        
     @Override
     public void run() {
         try {
@@ -93,7 +92,7 @@ public class Session extends Thread {
                           } else if (key.isWritable()) {
                               // a channel is ready for writing
                               log.info("Key is writeable");
-                              ((Connection)key.attachment()).onWriteable();                              
+                              ((Connection)key.attachment()).onWriteable();
                           }
                       }
                       

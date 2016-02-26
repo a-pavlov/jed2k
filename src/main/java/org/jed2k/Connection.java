@@ -81,7 +81,7 @@ public abstract class Connection implements Dispatcher, Tickable {
         
         close();
     }
-    
+
     protected void processHeader() throws IOException, JED2KException {
         assert(!header.isDefined());
         assert(headerBuffer.remaining() != 0);
@@ -95,11 +95,11 @@ public abstract class Connection implements Dispatcher, Tickable {
             header.get(headerBuffer);
             headerBuffer.clear();
             log.info("processHeader:" + header.toString());
-            bufferIncoming.limit(PacketCombiner.serviceSize(header));
+            bufferIncoming.limit(packetCombainer.serviceSize(header));
             stat.receiveBytes(PacketHeader.SIZE, 0);
         }
     }
-    
+
     protected void processBody() throws IOException, JED2KException {
         if(bufferIncoming.remaining() != 0) {
             int bytes = socket.read(bufferIncoming);
