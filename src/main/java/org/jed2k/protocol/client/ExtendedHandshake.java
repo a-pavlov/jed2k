@@ -1,12 +1,17 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.client;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.ContainerHolder;
+import org.jed2k.protocol.Serializable;
+import org.jed2k.protocol.UInt32;
+import org.jed2k.protocol.UInt8;
+import org.jed2k.protocol.Unsigned;
 import org.jed2k.protocol.tag.Tag;
 
-public class ClientExtendedHandshake implements Serializable {
+public class ExtendedHandshake implements Serializable {
     public static byte EMULE_PROTOCOL = 0x01;
     
     public final UInt8 version = Unsigned.uint8();

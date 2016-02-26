@@ -3,6 +3,7 @@ package org.jed2k.protocol.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.PacketKey;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.server.search.SearchMore;
@@ -66,10 +67,10 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
             value = (byte)v;
         }
     }
-	
+
     protected static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsServer;
     protected static final Map<Class<? extends Serializable>, PacketKey> struct2KeyServer;
-    
+
     private static void addHandler(byte protocol, byte type, Class<? extends Serializable> clazz) {
         PacketKey pk = new PacketKey(protocol, type);
         assert(!supportedPacketsServer.containsKey(pk));
@@ -77,7 +78,7 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         supportedPacketsServer.put(pk, clazz);
         struct2KeyServer.put(clazz, pk);
     }
-    
+
     static {
         supportedPacketsServer = new HashMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyServer = new HashMap<Class<? extends Serializable>, PacketKey>();
@@ -99,7 +100,7 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACKREQUESTED.value, CallbackRequestIncoming.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACK_FAIL.value, CallbackRequestFailed.class);
     }
-	
+  
     @Override
     protected Class<? extends Serializable> keyToPacket(PacketKey key) {
         return supportedPacketsServer.get(key);
@@ -109,4 +110,9 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
     protected PacketKey classToKey(Class<? extends Serializable> clazz) {
         return struct2KeyServer.get(clazz);
     }
+
+	@Override
+	public int serviceSize(PacketHeader ph) {
+		return ph.sizePacket();
+	}
 }

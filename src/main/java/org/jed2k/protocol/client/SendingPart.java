@@ -1,10 +1,13 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.client;
 
 import java.nio.ByteBuffer;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.Serializable;
+import org.jed2k.protocol.UNumber;
 
-public abstract class ClientSendingPart<SizeType extends UNumber> implements Serializable {
+public abstract class SendingPart<SizeType extends UNumber> implements Serializable {
     public final Hash hash = new Hash();
     public SizeType beginOffset = null;
     public SizeType endOffset = null;

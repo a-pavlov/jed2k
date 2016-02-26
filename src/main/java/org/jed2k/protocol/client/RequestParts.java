@@ -1,11 +1,13 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.client;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.Serializable;
 
-public abstract class ClientRequestParts<SizeType extends Serializable> implements Serializable {
+public abstract class RequestParts<SizeType extends Serializable> implements Serializable {
     
     public static int PARTS_COUNT = 3;
     public final Hash hash  = new Hash();

@@ -1,13 +1,15 @@
-package org.jed2k.protocol;
+package org.jed2k.protocol.client;
 
 import java.nio.ByteBuffer;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.hash.MD4;
+import org.jed2k.protocol.Dispatchable;
+import org.jed2k.protocol.Dispatcher;
 
 import static org.jed2k.Utils.sizeof;
 
-public class ClientHello extends ClientHelloAnswer implements Dispatchable {
+public class Hello extends HelloAnswer implements Dispatchable {
     public byte hashLength = (byte)MD4.HASH_SIZE;
     
     @Override

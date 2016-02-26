@@ -9,23 +9,7 @@ import java.util.logging.Logger;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.BitField;
-import org.jed2k.protocol.ClientExtHello;
-import org.jed2k.protocol.ClientExtHelloAnswer;
-import org.jed2k.protocol.ClientFileAnswer;
-import org.jed2k.protocol.ClientFileRequest;
-import org.jed2k.protocol.ClientFileStatusAnswer;
-import org.jed2k.protocol.ClientFileStatusRequest;
-import org.jed2k.protocol.ClientHashSetAnswer;
-import org.jed2k.protocol.ClientHashSetRequest;
-import org.jed2k.protocol.ClientHello;
-import org.jed2k.protocol.ClientHelloAnswer;
-import org.jed2k.protocol.ClientNoFileStatus;
-import org.jed2k.protocol.ClientOutOfParts;
-import org.jed2k.protocol.ClientPacketCombiner;
-import org.jed2k.protocol.ClientRequestParts;
-import org.jed2k.protocol.ClientRequestParts32;
-import org.jed2k.protocol.ClientSendingPart32;
-import org.jed2k.protocol.ClientSendingPart64;
+import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
@@ -71,7 +55,7 @@ public class PeerConnection extends Connection {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return  new PeerConnection(ibuff, obuff, new ClientPacketCombiner(), session, socket);
+            return  new PeerConnection(ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), session, socket);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
@@ -85,7 +69,7 @@ public class PeerConnection extends Connection {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return new PeerConnection(point, ibuff, obuff, new ClientPacketCombiner(), ses, transfer);
+            return new PeerConnection(point, ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), ses, transfer);
         } catch(ClosedChannelException e) {
             
         } catch(IOException e) {
@@ -204,7 +188,7 @@ public class PeerConnection extends Connection {
         return false;
     }
     
-    private ClientHelloAnswer prepareHello(final ClientHelloAnswer hello) throws JED2KException {
+    private HelloAnswer prepareHello(final HelloAnswer hello) throws JED2KException {
         hello.hash.assign(session.settings.userAgent);
         //Utils.fingerprint(hello.hash, (byte)'M', (byte)'L');
         hello.point.ip = session.clientId;
@@ -238,7 +222,7 @@ public class PeerConnection extends Connection {
         return hello;
     }    
     
-    private void assignRemotePeerInformation(ClientHelloAnswer value) throws JED2KException {
+    private void assignRemotePeerInformation(HelloAnswer value) throws JED2KException {
         //remotePeerInfo.point
         Iterator<Tag> itr = value.properties.iterator();
         while(itr.hasNext()) {
@@ -331,25 +315,25 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public void onClientHello(ClientHello value) throws JED2KException {
+    public void onClientHello(Hello value) throws JED2KException {
         // extract client information
         assignRemotePeerInformation(value);
-        write(prepareHello(new ClientHelloAnswer()));
+        write(prepareHello(new HelloAnswer()));
     }
 
     @Override
-    public void onClientHelloAnswer(ClientHelloAnswer value)
+    public void onClientHelloAnswer(HelloAnswer value)
             throws JED2KException {
         assignRemotePeerInformation(value);
         if (transfer != null) {
-            write(new ClientFileRequest(transfer.fileHash()));
+            write(new FileRequest(transfer.fileHash()));
         }
     }
 
     @Override
-    public void onClientExtHello(ClientExtHello value) throws JED2KException {
+    public void onClientExtHello(ExtHello value) throws JED2KException {
         // TODO Auto-generated method stub
-        ClientExtHelloAnswer answer = new ClientExtHelloAnswer();
+        ExtHelloAnswer answer = new ExtHelloAnswer();
         answer.version.assign(0x10); // temp value
         answer.properties.add(tag(Tag.ET_COMPRESSION, null, 0));
         answer.properties.add(tag(Tag.ET_UDPPORT, null, 0));
@@ -364,7 +348,7 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public void onClientExtHelloAnswer(ClientExtHelloAnswer value)
+    public void onClientExtHelloAnswer(ExtHelloAnswer value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
@@ -372,7 +356,7 @@ public class PeerConnection extends Connection {
 
     @Override
     protected void onConnect() throws JED2KException {
-        write(prepareHello(new ClientHello()));
+        write(prepareHello(new Hello()));
     }
     
     @Override
@@ -381,51 +365,51 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public void onClientFileRequest(ClientFileRequest value)
+    public void onClientFileRequest(FileRequest value)
             throws JED2KException {
         close();        
     }
 
     @Override
-    public void onClientFileAnswer(ClientFileAnswer value)
+    public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
         if (transfer != null && value.hash.equals(transfer.fileHash())) {
-            write(new ClientFileStatusRequest(transfer.fileHash()));
+            write(new FileStatusRequest(transfer.fileHash()));
         } else {
             close();
         }
     }
 
     @Override
-    public void onClientFileStatusRequest(ClientFileStatusRequest value)
+    public void onClientFileStatusRequest(FileStatusRequest value)
             throws JED2KException {
-        write(new ClientNoFileStatus());
+        write(new NoFileStatus());
     }
 
     @Override
-    public void onClientFileStatusAnswer(ClientFileStatusAnswer value)
+    public void onClientFileStatusAnswer(FileStatusAnswer value)
             throws JED2KException {
         bits = value.bitfield;
         if (transfer != null) {
-            write(new ClientHashSetRequest(transfer.fileHash()));
+            write(new HashSetRequest(transfer.fileHash()));
         } else {
             close();
         }
     }
 
     @Override
-    public void onClientHashSetRequest(ClientHashSetRequest value)
+    public void onClientHashSetRequest(HashSetRequest value)
             throws JED2KException {
         close();
     }
 
     @Override
-    public void onClientHashSetAnswer(ClientHashSetAnswer value)
+    public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
         if (transfer != null && transfer.validateHashset(value.parts.collection)) {
-            ClientRequestParts32 request = new ClientRequestParts32();
+            RequestParts32 request = new RequestParts32();
             int currentInterest = 0;
-            for(int i = 0; i < ClientRequestParts.PARTS_COUNT; ++i) {
+            for(int i = 0; i < RequestParts.PARTS_COUNT; ++i) {
                 PieceBlock interestedBlock = transfer.requestBlock();
                 interestedBlocks[currentInterest++] = interestedBlock;
                 
@@ -449,13 +433,13 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public void onClientNoFileStatus(ClientNoFileStatus value)
+    public void onClientNoFileStatus(NoFileStatus value)
             throws JED2KException {
         close();
     }
 
     @Override
-    public void onClientOutOfParts(ClientOutOfParts value)
+    public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
         close();        
     }
@@ -468,13 +452,13 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public void onClientSendingPart32(ClientSendingPart32 value)
+    public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
         // prepare to read data
     }
 
     @Override
-    public void onClientSendingPart64(ClientSendingPart64 value)
+    public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
         // prepare to read data
     }

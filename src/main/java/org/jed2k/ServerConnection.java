@@ -3,23 +3,9 @@ package org.jed2k;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.security.acl.LastOwnerException;
 import java.util.logging.Logger;
 
-import org.jed2k.protocol.ClientExtHello;
-import org.jed2k.protocol.ClientExtHelloAnswer;
-import org.jed2k.protocol.ClientFileAnswer;
-import org.jed2k.protocol.ClientFileRequest;
-import org.jed2k.protocol.ClientFileStatusAnswer;
-import org.jed2k.protocol.ClientFileStatusRequest;
-import org.jed2k.protocol.ClientHashSetAnswer;
-import org.jed2k.protocol.ClientHashSetRequest;
-import org.jed2k.protocol.ClientHello;
-import org.jed2k.protocol.ClientHelloAnswer;
-import org.jed2k.protocol.ClientNoFileStatus;
-import org.jed2k.protocol.ClientOutOfParts;
-import org.jed2k.protocol.ClientSendingPart32;
-import org.jed2k.protocol.ClientSendingPart64;
+import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.server.LoginRequest;
@@ -113,23 +99,23 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    public void onClientHello(ClientHello value) throws JED2KException {
+    public void onClientHello(Hello value) throws JED2KException {
         throw new JED2KException("Unsupported packet");        
     }
 
     @Override
-    public void onClientHelloAnswer(ClientHelloAnswer value)
+    public void onClientHelloAnswer(HelloAnswer value)
             throws JED2KException {
         throw new JED2KException("Unsupported packet");
     }
 
     @Override
-    public void onClientExtHello(ClientExtHello value) throws JED2KException {
+    public void onClientExtHello(ExtHello value) throws JED2KException {
         throw new JED2KException("Unsupported packet");
     }
 
     @Override
-    public void onClientExtHelloAnswer(ClientExtHelloAnswer value)
+    public void onClientExtHelloAnswer(ExtHelloAnswer value)
             throws JED2KException {
         throw new JED2KException("Unsupported packet");
     }
@@ -147,56 +133,56 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    public void onClientFileRequest(ClientFileRequest value)
+    public void onClientFileRequest(FileRequest value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientFileAnswer(ClientFileAnswer value)
+    public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientFileStatusRequest(ClientFileStatusRequest value)
+    public void onClientFileStatusRequest(FileStatusRequest value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientFileStatusAnswer(ClientFileStatusAnswer value)
+    public void onClientFileStatusAnswer(FileStatusAnswer value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientHashSetRequest(ClientHashSetRequest value)
+    public void onClientHashSetRequest(HashSetRequest value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientHashSetAnswer(ClientHashSetAnswer value)
+    public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientNoFileStatus(ClientNoFileStatus value)
+    public void onClientNoFileStatus(NoFileStatus value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientOutOfParts(ClientOutOfParts value)
+    public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
@@ -212,14 +198,14 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    public void onClientSendingPart32(ClientSendingPart32 value)
+    public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onClientSendingPart64(ClientSendingPart64 value)
+    public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
         // TODO Auto-generated method stub
         
