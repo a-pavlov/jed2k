@@ -68,37 +68,29 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         }
     }
 
-    protected static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsServer;
-    protected static final Map<Class<? extends Serializable>, PacketKey> struct2KeyServer;
-
-    private static void addHandler(byte protocol, byte type, Class<? extends Serializable> clazz) {
-        PacketKey pk = new PacketKey(protocol, type);
-        assert(!supportedPacketsServer.containsKey(pk));
-        assert(clazz != null);
-        supportedPacketsServer.put(pk, clazz);
-        struct2KeyServer.put(clazz, pk);
-    }
+    private static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsServer;
+    private static final Map<Class<? extends Serializable>, PacketKey> struct2KeyServer;
 
     static {
         supportedPacketsServer = new HashMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyServer = new HashMap<Class<? extends Serializable>, PacketKey>();
         
         // client <-> server tcp messages section
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_LOGINREQUEST.value, LoginRequest.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERLIST.value, ServerList.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_GETSERVERLIST.value, GetList.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERMESSAGE.value, Message.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERSTATUS.value, Status.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_IDCHANGE.value, IdChange.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERIDENT.value, ServerInfo.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SEARCHRESULT.value, SearchResult.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SEARCHREQUEST.value, SearchRequest.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_QUERY_MORE_RESULT.value, SearchMore.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_GETSOURCES.value, GetFileSources.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_FOUNDSOURCES.value, FoundFileSources.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACKREQUEST.value, CallbackRequestOutgoing.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACKREQUESTED.value, CallbackRequestIncoming.class);
-        addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACK_FAIL.value, CallbackRequestFailed.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_LOGINREQUEST.value, LoginRequest.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERLIST.value, ServerList.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_GETSERVERLIST.value, GetList.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERMESSAGE.value, Message.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERSTATUS.value, Status.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_IDCHANGE.value, IdChange.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERIDENT.value, ServerInfo.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SEARCHRESULT.value, SearchResult.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SEARCHREQUEST.value, SearchRequest.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_QUERY_MORE_RESULT.value, SearchMore.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_GETSOURCES.value, GetFileSources.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_FOUNDSOURCES.value, FoundFileSources.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACKREQUEST.value, CallbackRequestOutgoing.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACKREQUESTED.value, CallbackRequestIncoming.class);
+        addHandler(supportedPacketsServer, struct2KeyServer, ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACK_FAIL.value, CallbackRequestFailed.class);
     }
   
     @Override

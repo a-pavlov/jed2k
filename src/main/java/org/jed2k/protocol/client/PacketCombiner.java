@@ -97,17 +97,9 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         }
     }
     
-    protected static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsClient;
-    protected static final Map<Class<? extends Serializable>, PacketKey> struct2KeyClient;
-       
-    private static void addHandlerClient(byte protocol, byte type, Class<? extends Serializable> clazz) {
-        PacketKey pk = new PacketKey(protocol, type);
-        assert(!supportedPacketsClient.containsKey(pk));
-        assert(clazz != null);
-        supportedPacketsClient.put(pk, clazz);
-        struct2KeyClient.put(clazz, pk);
-    }
-    
+    private static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsClient;
+    private static final Map<Class<? extends Serializable>, PacketKey> struct2KeyClient;
+           
     /**
      * Most packets in ed2k don't have payload data except packets with files parts
      * serviceSize extracts always service size of packet - summary metadata fields size
@@ -126,7 +118,7 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         else if (ph.key().compareTo(pkClientSendingCompPart64) == 0)
             size = MD4.HASH_SIZE + UInt32.SIZE + UInt64.SIZE; // TODO - correct this temp code
         return size;
-    }   
+    }
     
     private static PacketKey pkClientSendingPart = PacketKey.pk(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SENDINGPART.value);
     private static PacketKey pkClientSendingPart64 = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_SENDINGPART_I64.value);
@@ -138,31 +130,31 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         struct2KeyClient = new HashMap<Class<? extends Serializable>, PacketKey>();
                 
         // client <-> client tcp messages section
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HELLO.value, Hello.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HELLOANSWER.value, HelloAnswer.class);
-        addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFO.value, ExtHello.class);
-        addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFOANSWER.value, ExtHelloAnswer.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HELLO.value, Hello.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HELLOANSWER.value, HelloAnswer.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFO.value, ExtHello.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFOANSWER.value, ExtHelloAnswer.class);
         
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_CANCELTRANSFER.value, CancelTransfer.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_CANCELTRANSFER.value, CancelTransfer.class);
         
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SETREQFILEID.value, FileStatusRequest.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILEREQANSNOFIL.value, NoFileStatus.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILESTATUS.value, FileStatusAnswer.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SETREQFILEID.value, FileStatusRequest.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILEREQANSNOFIL.value, NoFileStatus.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILESTATUS.value, FileStatusAnswer.class);
         
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETREQUEST.value, HashSetRequest.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETANSWER.value, HashSetAnswer.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETREQUEST.value, HashSetRequest.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETANSWER.value, HashSetAnswer.class);
         
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_STARTUPLOADREQ.value, StartUpload.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_ACCEPTUPLOADREQ.value, AcceptUpload.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_QUEUERANK.value, QueueRanking.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_OUTOFPARTREQS.value, OutOfParts.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_STARTUPLOADREQ.value, StartUpload.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_ACCEPTUPLOADREQ.value, AcceptUpload.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_QUEUERANK.value, QueueRanking.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_OUTOFPARTREQS.value, OutOfParts.class);
         
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_REQUESTPARTS.value, RequestParts32.class);
-        addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_REQUESTPARTS_I64.value, RequestParts64.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SENDINGPART.value, SendingPart32.class);
-        addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_SENDINGPART_I64.value, SendingPart64.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_REQUESTPARTS.value, RequestParts32.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_REQUESTPARTS_I64.value, RequestParts64.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SENDINGPART.value, SendingPart32.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_SENDINGPART_I64.value, SendingPart64.class);
         
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_END_OF_DOWNLOAD.value, EndDownload.class);
+        addHandler(supportedPacketsClient, struct2KeyClient, ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_END_OF_DOWNLOAD.value, EndDownload.class);
     }
     
     @Override
