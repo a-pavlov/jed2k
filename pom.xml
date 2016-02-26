@@ -5,7 +5,7 @@
 
     <groupId>org.dkf</groupId>
     <artifactId>jed2k</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>jed2k</name>
@@ -27,6 +27,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.2</version>
                 <configuration>
                     <archive>
                         <manifest>
