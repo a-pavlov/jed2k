@@ -10,5 +10,5 @@ public class ClientPacketCombiner extends PacketCombiner {
     @Override
     protected PacketKey classToKey(Class<? extends Serializable> clazz) {
         return struct2KeyClient.get(clazz);
-    }   
+    }
 }

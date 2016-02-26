@@ -6,7 +6,7 @@ public class PacketKey implements Comparable<PacketKey> {
     public final byte protocol;
     public final byte packet;
 
-    PacketKey(byte protocol, byte packet) {        
+    public PacketKey(byte protocol, byte packet) {        
         this.protocol   = protocol;
         this.packet     = packet;
     }
