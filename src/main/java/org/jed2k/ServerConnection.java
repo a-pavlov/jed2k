@@ -35,8 +35,8 @@ public class ServerConnection extends Connection {
     
     public static ServerConnection makeConnection(Session ses) {
         try {
-            ByteBuffer ibuff = ByteBuffer.allocate(4096);
-            ByteBuffer obuff = ByteBuffer.allocate(4096);
+            ByteBuffer ibuff = ByteBuffer.allocate(8192);
+            ByteBuffer obuff = ByteBuffer.allocate(8192);
             return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
             
