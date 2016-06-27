@@ -1,10 +1,17 @@
 package org.jed2k.data;
 
+import java.util.AbstractList;
 import java.util.LinkedList;
 
-public class Region {
-	private LinkedList<Range>	segments = new LinkedList<Range>(); 
-	
+/**
+ * Simply list of ranges abstraction with useful methods like substraction
+ * regions
+ */
+public class Region extends AbstractList<Range> {
+	private LinkedList<Range>	segments = new LinkedList<Range>();
+
+	public Region() {}
+
 	public Region(Range seg) {
 		segments.add(seg);
 	}
@@ -34,8 +41,13 @@ public class Region {
     //    assert(segments.size() == 1);
     //    segments.get(0).right = segments.get(0).left + size;
     //}
-	
-    @Override
+
+	@Override
+	public Range get(int index) {
+		return segments.get(index);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj instanceof Region) {
 			Region x = (Region)obj;
@@ -78,4 +90,9 @@ public class Region {
 
         return res;
     }
+
+	@Override
+	public int size() {
+		return segments.size();
+	}
 }

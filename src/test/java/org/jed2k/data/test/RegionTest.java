@@ -34,4 +34,14 @@ public class RegionTest {
 		rg.sub(Range.make(0L, 110L)).sub(Range.make(190L, 220L));
 		assertThat(rg, is(new Region(Range.make(110L, 190L))));
 	}
+
+	@Test
+	public void testFullIntersect() {
+		Region rg = new Region(Range.make(0L, 40L));
+		rg.sub(Range.make(0L, 10L));
+		assertEquals(rg, new Region(Range.make(10L, 40L)));
+		rg.sub(Range.make(10L, 40L));
+		assertEquals(rg, new Region());
+		assertEquals(0, rg.size());
+	}
 }

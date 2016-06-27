@@ -7,7 +7,7 @@ public class Range extends Pair<Long, Long> {
 		super(left, right);
 		assert(right > left);
 	}
-	
+
 	public static Range make(Long left, Long right) {
 		return new Range(left, right);
 	}

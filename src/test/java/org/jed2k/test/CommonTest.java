@@ -66,7 +66,7 @@ public class CommonTest {
     public void testSessionCounter() throws InterruptedException {
         long sessionLastTick = currentTime();
         // some work here
-        Thread.sleep(500, 0);
+        Thread.sleep(510, 0);
         long currentTime = currentTime();
         long tick_interval_ms = currentTime - sessionLastTick;
         sessionLastTick = currentTime;
