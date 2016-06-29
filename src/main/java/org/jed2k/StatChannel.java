@@ -39,7 +39,19 @@ public class StatChannel implements Tickable {
 		average30Sec = 0;
 		samples  = new LinkedList<Long>(Arrays.asList(0L,0L,0L,0L,0L));
 	}
-	
+
+
+	public StatChannel add(StatChannel s) {
+		assert(secondCounter >= 0);
+		assert(totalCounter >= 0);
+		assert(s.secondCounter >= 0);
+		secondCounter += s.secondCounter;
+		totalCounter += s.totalCounter;
+		assert(secondCounter >= 0);
+		assert(totalCounter >= 0);
+		return this;
+	}
+
 	@Override
 	public void secondTick(long tick_interval_ms) {
 		long sample = secondCounter * 1000 / tick_interval_ms;

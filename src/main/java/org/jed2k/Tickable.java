@@ -9,7 +9,7 @@ package org.jed2k;
 public interface Tickable {
 	/**
 	 * 
-	 * @param tick_interval_ms - inteval since last tick was called in milliseconds
+	 * @param tickIntervalMs - inteval since last tick was called in milliseconds
 	 */
-	public void secondTick(long tick_interval_ms);
+	public void secondTick(long tickIntervalMs);
 }

@@ -206,7 +206,11 @@ public abstract class Connection implements Dispatcher, Tickable {
     }
     
     @Override
-    public void secondTick(long tick_interval_ms) {
-        // do nothing
+    public void secondTick(long tickIntervalMs) {
+        stat.secondTick(tickIntervalMs);
+    }
+
+    public Statistics statistics() {
+        return stat;
     }
 }

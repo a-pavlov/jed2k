@@ -14,6 +14,7 @@ public class Transfer implements Tickable {
     private Set<NetworkIdentifier> sources = new TreeSet<NetworkIdentifier>();
     private long size;
     private ArrayList<Hash> hashset;
+    private Statistics stat = new Statistics();
     
     public Transfer(Hash hash, long size) {
         this.fileHash = hash;
@@ -57,8 +58,13 @@ public class Transfer implements Tickable {
     }
 
 	@Override
-	public void secondTick(long tick_interval_ms) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void secondTick(long tickIntervalMs) {
+        // TODO Auto-generated method stub
+        stat.secondTick(tickIntervalMs);
+        // TODO - add statistics from all peed connections
+    }
+
+    public Statistics statistics() {
+        return stat;
+    }
 }

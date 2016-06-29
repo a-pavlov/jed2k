@@ -25,6 +25,12 @@ import org.jed2k.data.PieceBlock;
 import static org.jed2k.protocol.tag.Tag.tag;
 
 public class PeerConnection extends Connection {
+    enum PeerSpeed {
+        SLOW,
+        MEDIUM,
+        FAST
+    }
+
     private static Logger log = Logger.getLogger(PeerConnection.class.getName());
     private boolean active = false;   // true when we connect to peer, false when incoming connection
     private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
@@ -32,6 +38,7 @@ public class PeerConnection extends Connection {
     private final NetworkIdentifier point = new NetworkIdentifier();
     private BitField bits = null;
     private PieceBlock[] interestedBlocks = { null, null, null };
+    private PeerSpeed speed;
     
     PeerConnection(NetworkIdentifier point,
             ByteBuffer incomingBuffer,
@@ -41,6 +48,7 @@ public class PeerConnection extends Connection {
             Transfer transfer) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session);
         this.transfer = transfer;
+        speed = PeerSpeed.SLOW;
     }
     
     PeerConnection(ByteBuffer incomingBuffer,
@@ -461,6 +469,24 @@ public class PeerConnection extends Connection {
     public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
         // prepare to read data
+    }
+
+    public PeerSpeed speed() {
+        if (transfer != null) {
+            long downloadRate = statistics().downloadPayloadRate();
+            long transferDownloadRate = transfer.statistics().downloadPayloadRate();
+
+            if (downloadRate > 512 && downloadRate > transferDownloadRate / 16)
+                speed = PeerSpeed.FAST;
+            else if (downloadRate > 4096 && downloadRate > transferDownloadRate / 64)
+                speed = PeerSpeed.MEDIUM;
+            else if (downloadRate < transferDownloadRate / 15 && speed == PeerSpeed.FAST)
+                speed = PeerSpeed.MEDIUM;
+            else
+                speed = PeerSpeed.SLOW;
+        }
+
+        return this.speed;
     }
 }
 

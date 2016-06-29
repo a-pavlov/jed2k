@@ -22,6 +22,14 @@ public class Statistics implements Tickable {
 		for(int i = 0; i < channels.length; ++i) channels[i] = new StatChannel();
 	}
 
+
+	public Statistics add(Statistics stat) {
+		for (int i = 0; i < ChannelsNames.CHANNELS_COUNT.value; ++i) {
+			channels[i].add(stat.channels[i]);
+		}
+		return this;
+	}
+
 	@Override
 	public void secondTick(long tick_interval_ms) {
 		for(int i = 0; i < channels.length; ++i) channels[i].secondTick(tick_interval_ms);		
@@ -61,10 +69,18 @@ public class Statistics implements Tickable {
 		return channels[ChannelsNames.DOWNLOAD_PAYLOAD.value].rate() + 
 				channels[ChannelsNames.DOWNLOAD_PROTOCOL.value].rate();
 	}
+
+	public long downloadPayloadRate() {
+		return channels[ChannelsNames.DOWNLOAD_PAYLOAD.value].rate();
+	}
 	
 	public long uploadRate() {
 		return channels[ChannelsNames.UPLOAD_PAYLOAD.value].rate() +
 				channels[ChannelsNames.UPLOAD_PROTOCOL.value].rate();
+	}
+
+	public long uploadPayloadRate() {
+		return channels[ChannelsNames.UPLOAD_PAYLOAD.value].rate();
 	}
 	
 	public long lowPassUploadRate() {
