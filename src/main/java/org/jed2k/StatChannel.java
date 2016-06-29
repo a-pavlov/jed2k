@@ -40,7 +40,6 @@ public class StatChannel implements Tickable {
 		samples  = new LinkedList<Long>(Arrays.asList(0L,0L,0L,0L,0L));
 	}
 
-
 	public StatChannel add(StatChannel s) {
 		assert(secondCounter >= 0);
 		assert(totalCounter >= 0);
@@ -53,8 +52,8 @@ public class StatChannel implements Tickable {
 	}
 
 	@Override
-	public void secondTick(long tick_interval_ms) {
-		long sample = secondCounter * 1000 / tick_interval_ms;
+	public void secondTick(long tickIntervalMs) {
+		long sample = secondCounter * 1000 / tickIntervalMs;
 	    assert(sample >= 0);
 	    samples.push(sample);
 	    samples.removeLast();

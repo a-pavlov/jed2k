@@ -6,12 +6,39 @@ import org.jed2k.data.PieceBlock;
 import org.jed2k.data.PieceInfo;
 
 public class PiecePicker {
+
+    private class PiecePos {
+        public int peersCount = 0;
+        public int full = 0;
+        public int priority = 0;
+        public int indx = 0;
+    }
+
     ArrayList<PieceInfo>	pieces;
+    private ArrayList<PiecePos> piece_map;
+    private int blocksInLastPiece = 0;
     
     /**
      *	all pieces before this index are finished 
      */
     private int finishedPiecesBorder;
+
+    public void init(int blocksInLastPiece, int totalPieces) {
+        for(int i = 0; i != totalPieces; ++i) {
+            piece_map.add(new PiecePos());
+        }
+
+        this.blocksInLastPiece = blocksInLastPiece;
+    }
+
+    public int blocksInPiece(int pieceIndex) {
+        assert(pieceIndex < piece_map.size());
+        if (pieceIndex == piece_map.size()) {
+            return blocksInLastPiece;
+        }
+
+        return Constants.BLOCKS_PER_PIECE;
+    }
     
     public PiecePicker(int pieceCount, int blocksInLastPiece) {
     	assert(pieceCount > 0);
