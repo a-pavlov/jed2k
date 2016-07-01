@@ -20,7 +20,7 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
         container = value;
     }
 
-    UInt8(int value) {
+    public UInt8(int value) {
         container = (byte) value;
     }
 

@@ -117,4 +117,15 @@ public class UInt64 extends UNumber implements Comparable<UInt64>{
     public String toString() {
         return "uint64{" + longValue() + "}";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj instanceof UInt64) {
+            return value == ((UInt64) obj).value;
+        }
+
+        return false;
+    }
 }
