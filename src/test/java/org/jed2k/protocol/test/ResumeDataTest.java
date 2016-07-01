@@ -32,7 +32,7 @@ public class ResumeDataTest {
         trd.pieces.add(PieceResumeData.makeCompleted());
         trd.pieces.add(PieceResumeData.makeFinished());
 
-        PieceResumeData prd = new PieceResumeData(0, ContainerHolder.make8(new LinkedList<UInt8>(), UInt8.class));
+        PieceResumeData prd = new PieceResumeData(0, Container.make(new UInt8(0), UInt8.class));
         for(int i = 0; i < 22; ++i) {
             prd.blocks.add(new UInt8(i));
         }

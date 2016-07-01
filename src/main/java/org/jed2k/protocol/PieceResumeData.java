@@ -26,12 +26,12 @@ public class PieceResumeData implements Serializable {
     }
 
     public PieceStatus status = PieceStatus.COMPLETED;
-    public ContainerHolder<UInt8, UInt8>   blocks;
+    public Container<UInt8, UInt8>   blocks;
 
     public PieceResumeData() {
     }
 
-    public PieceResumeData(int s, ContainerHolder<UInt8, UInt8> b) {
+    public PieceResumeData(int s, Container<UInt8, UInt8> b) {
         this.status.value = s;
         this.blocks = b;
         assert(b != null || this.status != PieceStatus.PARTIAL);
@@ -49,7 +49,7 @@ public class PieceResumeData implements Serializable {
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         status.value = src.getInt();
         if (status == PieceStatus.PARTIAL) {
-            blocks = ContainerHolder.make8(new LinkedList<UInt8>(), UInt8.class);
+            blocks = Container.makeByte(UInt8.class);
             blocks.get(src);
         }
 

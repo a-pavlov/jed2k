@@ -3,7 +3,6 @@ package org.jed2k.protocol;
 import org.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
 
 /**
  * Created by inkpot on 01.07.2016.
@@ -12,8 +11,8 @@ import java.util.LinkedList;
 public class TransferResumeData implements Serializable {
     public Hash hash = new Hash();
     public UInt64 size = new UInt64();
-    public ContainerHolder<UInt16, Hash>    hashes  = ContainerHolder.make16(new LinkedList<Hash>(), Hash.class);
-    public ContainerHolder<UInt16, PieceResumeData> pieces = ContainerHolder.make16(new LinkedList<PieceResumeData>(), PieceResumeData.class);
+    public Container<UInt16, Hash>    hashes  = Container.makeShort(Hash.class);
+    public Container<UInt16, PieceResumeData> pieces = Container.makeShort(PieceResumeData.class);
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.jed2k.exception.JED2KException;
 
@@ -34,6 +35,16 @@ public class ContainerHolder<CS extends UNumber, Elem extends Serializable>
             Collection<T> template, Class<T> clazz) {
         return new ContainerHolder<UInt32, T>(uint32(template.size()),
                 template, clazz);
+    }
+
+    public static <T extends Serializable> ContainerHolder<UInt8, T> list8(Class<T> clazz) {
+        return new ContainerHolder<UInt8, T>(uint8(0), new LinkedList<T>(), clazz);
+    }
+
+    public ContainerHolder(CS s, Class<Elem> clazz) {
+        this.size = s;
+        this.clazz = clazz;
+        this.collection = null;
     }
     
     public ContainerHolder(CS size_factor, Collection<Elem> collection,
