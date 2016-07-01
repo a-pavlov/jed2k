@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.ContainerHolder;
+import org.jed2k.protocol.Container;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.Dispatcher;
 import org.jed2k.protocol.Hash;
@@ -16,7 +16,7 @@ import org.jed2k.protocol.tag.Tag;
 public class HelloAnswer implements Serializable, Dispatchable {
     public final Hash hash = new Hash();
     public final NetworkIdentifier point = new NetworkIdentifier();
-    public final ContainerHolder<UInt32, Tag> properties = ContainerHolder.make32(new ArrayList<Tag>(), Tag.class);
+    public final Container<UInt32, Tag> properties = Container.makeInt(Tag.class);
     public final NetworkIdentifier serverPoint = new NetworkIdentifier();
        
     @Override

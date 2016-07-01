@@ -193,7 +193,7 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         Transfer transfer = session.transfers.get(value.hash);
         if (transfer != null) {
-            transfer.setupSources(value.sources.collection);
+            //transfer.setupSources(value.sources.collection);
         }
     }
 

@@ -1,21 +1,13 @@
 package org.jed2k.protocol.server;
 
-import org.jed2k.protocol.Serializable;
-import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import static org.jed2k.protocol.Unsigned.uint8;
-import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.ContainerHolder;
-import org.jed2k.protocol.Dispatchable;
-import org.jed2k.protocol.Dispatcher;
-import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.protocol.UInt8;
+import org.jed2k.protocol.*;
 
+import java.nio.ByteBuffer;
+import org.jed2k.exception.JED2KException;
 
 public class FoundFileSources implements Serializable, Dispatchable {
     public Hash hash = new Hash();
-    public ContainerHolder<UInt8, NetworkIdentifier> sources = new ContainerHolder<UInt8, NetworkIdentifier>(uint8(), new LinkedList<NetworkIdentifier>(), NetworkIdentifier.class);
+    public Container<UInt8, NetworkIdentifier> sources = Container.makeByte(NetworkIdentifier.class);
     
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

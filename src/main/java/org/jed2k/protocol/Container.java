@@ -26,7 +26,7 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
         return collection;
     }
 
-    Container(N n, Class<E> clazz) {
+    public Container(N n, Class<E> clazz) {
         this.n = n;
         this.clazz = clazz;
     }
@@ -109,6 +109,11 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
 
     @Override
     public int bytesCount() {
-        return 0;
+        int sz = 0;
+        Iterator<E> itr = collection.iterator();
+        while (itr.hasNext()) {
+            sz += itr.next().bytesCount();
+        }
+        return sz + n.bytesCount();
     }
 }

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.ContainerHolder;
+import org.jed2k.protocol.Container;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt32;
 import org.jed2k.protocol.UInt8;
@@ -16,7 +16,7 @@ public class ExtendedHandshake implements Serializable {
     
     public final UInt8 version = Unsigned.uint8();
     public final UInt8 protocolVersion = Unsigned.uint8(EMULE_PROTOCOL);
-    public final ContainerHolder<UInt32, Tag> properties = ContainerHolder.make32(new LinkedList<Tag>(), Tag.class);
+    public final Container<UInt32, Tag> properties = Container.makeInt(Tag.class);
     
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

@@ -3,6 +3,7 @@ package org.jed2k.protocol.test;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertEquals;
 import static org.jed2k.protocol.tag.Tag.tag;
+import static org.junit.Assert.assertFalse;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -52,10 +53,17 @@ public class PacketCombinerTest {
         assertTrue(pkt != null);
         LoginRequest login2 = (LoginRequest)pkt;
         assertEquals(0, login2.hash.compareTo(Hash.EMULE));
-        assertEquals(version, login2.get(0).intValue());
-        assertEquals(capability, login2.get(1).intValue());
-        assertEquals("jed2k", login2.get(2).stringValue());
-        assertEquals(versionClient, login2.get(3).intValue());
+
+        Iterator<Tag> itr = login2.properties.iterator();
+        assertTrue(itr.hasNext());
+        assertEquals(version, itr.next().intValue());
+        assertTrue(itr.hasNext());
+        assertEquals(capability, itr.next().intValue());
+        assertTrue(itr.hasNext());
+        assertEquals("jed2k", itr.next().stringValue());
+        assertTrue(itr.hasNext());
+        assertEquals(versionClient, itr.next().intValue());
+        assertFalse(itr.hasNext());
     }
     
     @Test

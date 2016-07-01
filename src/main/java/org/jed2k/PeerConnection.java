@@ -414,7 +414,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
-        if (transfer != null && transfer.validateHashset(value.parts.collection)) {
+        if (transfer != null /*transfer.validateHashset(value.parts.collection)*/) {
             RequestParts32 request = new RequestParts32();
             int currentInterest = 0;
             for(int i = 0; i < RequestParts.PARTS_COUNT; ++i) {

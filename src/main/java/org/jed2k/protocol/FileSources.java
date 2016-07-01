@@ -5,7 +5,7 @@ import org.jed2k.exception.JED2KException;
 
 public class FileSources implements Serializable {
     private Hash hash;
-    private ContainerHolder<UInt8, NetworkIdentifier> sources;
+    private Container<UInt8, NetworkIdentifier> sources;
     
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

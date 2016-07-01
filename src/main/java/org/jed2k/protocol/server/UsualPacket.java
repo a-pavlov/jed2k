@@ -4,7 +4,7 @@ import org.jed2k.protocol.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.ContainerHolder;
+import org.jed2k.protocol.Container;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.UInt32;
@@ -15,7 +15,7 @@ import static org.jed2k.protocol.Unsigned.uint32;
 public class UsualPacket implements Serializable {
     public Hash    hash = new Hash();
     public NetworkIdentifier   point = new NetworkIdentifier();
-    public ContainerHolder<UInt32, Tag> properties = new ContainerHolder<UInt32, Tag>(uint32(), new ArrayList<Tag>(), Tag.class);
+    public Container<UInt32, Tag> properties = Container.makeInt(Tag.class);
     
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
@@ -30,11 +30,6 @@ public class UsualPacket implements Serializable {
     @Override
     public int bytesCount() {
         return hash.bytesCount() + point.bytesCount() + properties.bytesCount();
-    }
-    
-    public Tag get(int index) {
-        assert(index < properties.bytesCount());
-        return ((ArrayList<Tag>)properties.collection).get(index);
     }
     
     @Override

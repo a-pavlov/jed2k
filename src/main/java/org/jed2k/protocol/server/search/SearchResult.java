@@ -3,7 +3,7 @@ package org.jed2k.protocol.server.search;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.ContainerHolder;
+import org.jed2k.protocol.Container;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.Dispatcher;
 import org.jed2k.protocol.SoftSerializable;
@@ -14,7 +14,7 @@ import static org.jed2k.protocol.Unsigned.uint32;
 import static org.jed2k.Utils.sizeof;
 
 public class SearchResult extends SoftSerializable implements Dispatchable {
-    public final ContainerHolder<UInt32, SharedFileEntry> files = ContainerHolder.make32(new LinkedList<SharedFileEntry>(), SharedFileEntry.class);
+    public final Container<UInt32, SharedFileEntry> files = Container.makeInt(SharedFileEntry.class);
     public byte moreResults = 0;
     
     @Override
