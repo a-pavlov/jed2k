@@ -1,5 +1,9 @@
 # Java library for ED2K(eDonkey) networks
 
+## Why Java?
+
+Main goal - native application for Android platform. Lighter, faster, more user friendly and convenient than current [Mule for Android](https://play.google.com/store/apps/details?id=org.dkfsoft.AndroidMuleFree&hl=en).
+
 ## Main features
 
 * Async I/O using Java NIO
