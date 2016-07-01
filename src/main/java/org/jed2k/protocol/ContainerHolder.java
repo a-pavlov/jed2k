@@ -12,6 +12,13 @@ import static org.jed2k.protocol.Unsigned.uint32;
 import static org.jed2k.protocol.Unsigned.uint16;
 import static org.jed2k.protocol.Unsigned.uint8;
 
+/**
+ *
+ * @param <CS>
+ * @param <Elem>
+ *
+ * TODO - remove this class
+ */
 public class ContainerHolder<CS extends UNumber, Elem extends Serializable>
         extends AbstractCollection<Elem> implements Serializable {
 
