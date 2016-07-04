@@ -3,6 +3,7 @@ package org.jed2k.protocol;
 import static org.jed2k.Utils.sizeof;
 import static org.jed2k.Utils.int2Address;
 
+import org.jed2k.Utils;
 import org.jed2k.exception.JED2KException;
 
 import java.net.InetSocketAddress;
@@ -13,6 +14,11 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     public short port = 0;
 
     public NetworkIdentifier() {
+    }
+
+    public NetworkIdentifier(InetSocketAddress ep) {
+        ip  = Utils.networkByteOrderToIp(ep.getAddress().getAddress());
+        port = (short)ep.getPort();
     }
     
     public NetworkIdentifier(int ip, short port) {

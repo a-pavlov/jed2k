@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.Serializable;
 
 public final class Utils {
@@ -63,6 +64,25 @@ public final class Utils {
         }
         
         return null;
+    }
+
+    public static int networkByteOrderToIp(byte[] order) {
+        assert(order.length == 4);
+        int p = (int)order[0] << 24;
+        int p1 = (int)order[1] << 16;
+        int res =  ((int)order[0] << 24)
+                | (((int)order[1] << 16) & 0x00FF0000)
+                | (((int)order[2] << 8) & 0x0000FF00)
+                | (((int)order[3]) & 0xFF);
+        return res;
+    }
+
+    public static boolean isLocalAddress(NetworkIdentifier ep) {
+        return ((ep.ip & 0xff000000) == 0x0a000000 // 10.x.x.x
+                || (ep.ip & 0xfff00000) == 0xac100000 // 172.16.x.x
+                || (ep.ip & 0xffff0000) == 0xc0a80000 // 192.168.x.x
+                || (ep.ip & 0xffff0000) == 0xa9fe0000 // 169.254.x.x
+                || (ep.ip & 0xff000000) == 0x7f000000); // 127.x.x.x
     }
     
     public static int lowPart(long value) {

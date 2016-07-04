@@ -1,6 +1,8 @@
 package org.jed2k.test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertFalse;
 import static org.jed2k.Utils.int2Address;
 
 import org.jed2k.Constants;
@@ -8,9 +10,11 @@ import org.jed2k.Pair;
 import org.jed2k.Utils;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 
+import org.jed2k.protocol.NetworkIdentifier;
 import org.junit.Test;
 
 
@@ -42,7 +46,14 @@ public class UtilsTest {
             assertEquals(value.right.right.intValue(), blocksInLastPiece);
         }
     }
-    
+
+    @Test
+    public void testIsLocal() throws UnknownHostException {
+        assertTrue(Utils.isLocalAddress(new NetworkIdentifier(new InetSocketAddress("192.168.0.1", 7080))));
+        assertTrue(Utils.isLocalAddress(new NetworkIdentifier(new InetSocketAddress("10.168.0.1", 7080))));
+        assertFalse(Utils.isLocalAddress(new NetworkIdentifier(new InetSocketAddress("184.168.0.0", 7081))));
+    }
+
     /*
     @Test
     public void testBlocksRange() {
