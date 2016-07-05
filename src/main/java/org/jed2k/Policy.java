@@ -2,26 +2,81 @@ package org.jed2k;
 
 import org.jed2k.data.PieceBlock;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 
 /**
  * peers management class - choose peer for connection
+ * extends AbstractCollection for unit testing purposes
  */
-public class Policy {
+public class Policy extends AbstractCollection<Peer> {
     private int roundRobin = 0;
     private ArrayList<Peer> peers = new ArrayList<Peer>();
 
-    boolean isConnectCandidate(Peer pe) {
+    public boolean isConnectCandidate(Peer pe) {
         assert(pe != null);
         // TODO - use fail count parameter here
         if (pe.connection != null || pe.failCount > 10) return false;
         return true;
     }
 
-    boolean isEraseCandidate(Peer pe) {
+    public boolean isEraseCandidate(Peer pe) {
         if (pe.connection != null || isConnectCandidate(pe)) return false;
         return pe.failCount > 0;
+    }
+
+    public boolean insertPeer(Peer p) {
+        assert(p != null);
+
+        int maxPeerlistSize = 100;
+
+        if (maxPeerlistSize != 0 && peers.size() >= maxPeerlistSize) {
+            erasePeers();
+            if (peers.size() >= maxPeerlistSize) return false;
+        }
+
+        int insertPos = Collections.binarySearch(peers, p);
+        if (insertPos >= 0) return false;
+        peers.add(((insertPos + 1)*-1), p);
+        return true;
+    }
+
+    /**
+     * try to remove some peers from list
+     */
+    private void erasePeers() {
+        int maxPeerListSize = 100;
+
+        if (maxPeerListSize == 0 || peers.isEmpty()) return;
+
+        int eraseCandidate = -1;
+
+        Random rnd = new Random();
+        int roundRobin = rnd.nextInt() % peers.size();
+
+        int lowWatermark = maxPeerListSize * 95 / 100;
+        if (lowWatermark == maxPeerListSize) --lowWatermark;
+
+        for (int iterations = Math.min(peers.size(), 300); iterations > 0; --iterations)
+        {
+            if (peers.size() < lowWatermark) break;
+            if (roundRobin == peers.size()) roundRobin = 0;
+
+            Peer pe = peers.get(roundRobin);
+            int current = roundRobin;
+
+            if (isEraseCandidate(pe) && (eraseCandidate == -1 || !comparePeers(peers.get(eraseCandidate), pe)))
+            {
+                eraseCandidate = current;
+            }
+
+            ++roundRobin;
+        }
+
+        if (eraseCandidate > -1)
+        {
+            assert(eraseCandidate >= 0 && eraseCandidate < peers.size());
+            peers.remove(eraseCandidate);
+        }
     }
 
     boolean comparePeers(Peer lhs, Peer rhs) {
@@ -93,5 +148,15 @@ public class Policy {
         }
 
         return false;
+    }
+
+    @Override
+    public Iterator<Peer> iterator() {
+        return peers.iterator();
+    }
+
+    @Override
+    public int size() {
+        return peers.size();
     }
 }
