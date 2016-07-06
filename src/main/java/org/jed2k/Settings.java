@@ -12,6 +12,9 @@ public class Settings {
     public int modMajor = 0;
     public int modMinor = 0;
     public int modBuild = 0;
+    public int maxFailCount = 20;
+    public int maxPeerListSize = 100;
+    public int minPeerReconnectTime = 10;
     
     /**
      * send ping message to server every serverPingTimeout 
