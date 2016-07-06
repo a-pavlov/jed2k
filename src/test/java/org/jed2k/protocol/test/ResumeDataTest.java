@@ -19,7 +19,7 @@ public class ResumeDataTest {
 
     @Test
     public void testResumeDataSerialization() throws JED2KException {
-        ByteBuffer bb = ByteBuffer.allocate(200);
+        ByteBuffer bb = ByteBuffer.allocate(220);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         TransferResumeData trd = new TransferResumeData();
         trd.hash = Hash.LIBED2K;
@@ -52,6 +52,7 @@ public class ResumeDataTest {
         }
 
         assertEquals(trd2.pieces.size(), trd.pieces.size());
+        assertEquals(0, trd2.peers.size());
     }
 
 }

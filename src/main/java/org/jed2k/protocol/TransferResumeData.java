@@ -13,19 +13,20 @@ public class TransferResumeData implements Serializable {
     public UInt64 size = new UInt64();
     public Container<UInt16, Hash>    hashes  = Container.makeShort(Hash.class);
     public Container<UInt16, PieceResumeData> pieces = Container.makeShort(PieceResumeData.class);
+    public Container<UInt16, NetworkIdentifier> peers = Container.makeShort(NetworkIdentifier.class);
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        return pieces.get(hashes.get(size.get(hash.get(src))));
+        return peers.get(pieces.get(hashes.get(size.get(hash.get(src)))));
     }
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        return pieces.put(hashes.put(size.put(hash.put(dst))));
+        return peers.put(pieces.put(hashes.put(size.put(hash.put(dst)))));
     }
 
     @Override
     public int bytesCount() {
-        return  hash.bytesCount() + size.bytesCount() + pieces.bytesCount();
+        return  hash.bytesCount() + size.bytesCount() + pieces.bytesCount() + peers.size();
     }
 }

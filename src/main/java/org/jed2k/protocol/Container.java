@@ -97,12 +97,15 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        n.assign(collection.size());
+        n.assign(size());
         n.put(dst);
-        Iterator<E> itr = collection.iterator();
-        while (itr.hasNext()) {
-            E e = itr.next();
-            e.put(dst);
+        if (!isEmpty()) {
+            // access to internal collection only if size > 0 collection is null otherwise
+            Iterator<E> itr = collection.iterator();
+            while (itr.hasNext()) {
+                E e = itr.next();
+                e.put(dst);
+            }
         }
         return dst;
     }
