@@ -7,14 +7,35 @@ import org.jed2k.protocol.NetworkIdentifier;
  * information about peer
  */
 public class Peer implements Comparable<Peer> {
+
+    public enum SourceFlag {
+        SF_SERVER(0x1),
+        SF_INCOMING(0x2),
+        SF_DHT(0x4),
+        SF_RESUME_DATA(0x8);
+
+        public int value;
+
+        SourceFlag(int s) {
+            this.value = s;
+        }
+    }
+
     long    lastConnected   = 0;
     long    nextConnection  = 0;
     long    failCount       = 0;
+    boolean connectable     = false;
+    int source      = 0;
     NetworkIdentifier   endpoint;
     PeerConnection  connection = null;
 
     public Peer(NetworkIdentifier ep) {
         endpoint = ep;
+    }
+
+    public Peer(NetworkIdentifier ep, boolean conn) {
+        endpoint = ep;
+        connectable = conn;
     }
 
     @Override
@@ -30,5 +51,9 @@ public class Peer implements Comparable<Peer> {
         }
 
         return false;
+    }
+
+    public boolean isConnectable() {
+        return connectable;
     }
 }

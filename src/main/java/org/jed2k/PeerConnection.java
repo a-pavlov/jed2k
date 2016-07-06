@@ -39,6 +39,8 @@ public class PeerConnection extends Connection {
     private BitField bits = null;
     private PieceBlock[] interestedBlocks = { null, null, null };
     private PeerSpeed speed;
+    private Peer peer;
+    private boolean failed = false;
     
     PeerConnection(NetworkIdentifier point,
             ByteBuffer incomingBuffer,
@@ -487,6 +489,14 @@ public class PeerConnection extends Connection {
         }
 
         return this.speed;
+    }
+
+    public Peer getPeer() {
+        return peer;
+    }
+
+    public boolean isFailed() {
+        return failed;
     }
 }
 

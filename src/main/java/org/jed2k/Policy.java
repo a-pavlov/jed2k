@@ -15,7 +15,7 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean isConnectCandidate(Peer pe) {
         assert(pe != null);
         // TODO - use fail count parameter here
-        if (pe.connection != null || pe.failCount > 10) return false;
+        if (pe.connection != null || !pe.isConnectable() || pe.failCount > 10) return false;
         return true;
     }
 
@@ -64,9 +64,12 @@ public class Policy extends AbstractCollection<Peer> {
             Peer pe = peers.get(roundRobin);
             int current = roundRobin;
 
-            if (isEraseCandidate(pe) && (eraseCandidate == -1 || !comparePeers(peers.get(eraseCandidate), pe)))
-            {
-                eraseCandidate = current;
+            // check pe is erase candidate or we already have erase candidate and it not better than pe for erase
+            if (isEraseCandidate(pe) && (eraseCandidate == -1 || !comparePeerErase(peers.get(eraseCandidate), pe))) {
+                if (shouldEraseImmediately(pe)) {
+                    if (eraseCandidate > current) eraseCandidate--;
+                    peers.remove(current);
+                } else eraseCandidate = current;
             }
 
             ++roundRobin;
@@ -79,6 +82,12 @@ public class Policy extends AbstractCollection<Peer> {
         }
     }
 
+    /**
+     *
+     * @param lhs
+     * @param rhs
+     * @return true if lhs better connect candidate than rhs
+     */
     boolean comparePeers(Peer lhs, Peer rhs) {
         // prefer peers with lower failcount
         if (lhs.failCount != rhs.failCount)
@@ -99,9 +108,37 @@ public class Policy extends AbstractCollection<Peer> {
         if (lhs.nextConnection != rhs.nextConnection)
             return lhs.nextConnection < rhs.nextConnection;
 
-        //int lhs_rank = source_rank(lhs.source);
-        //int rhs_rank = source_rank(rhs.source);
-        //if (lhs_rank != rhs_rank) return lhs_rank > rhs_rank;
+        return false;
+    }
+
+    /**
+     *
+     * @param lhs - Peer
+     * @param rhs - Peer
+     * @return true if lhs better erase candidate than rhs
+     */
+    boolean comparePeerErase(Peer lhs, Peer rhs) {
+        assert(lhs.connection == null);
+        assert(rhs.connection == null);
+
+        // primarily, prefer getting rid of peers we've already tried and failed
+        if (lhs.failCount != rhs.failCount)
+            return lhs.failCount > rhs.failCount;
+
+        boolean lhs_resume_data_source = lhs.source == Peer.SourceFlag.SF_RESUME_DATA.value;
+        boolean rhs_resume_data_source = rhs.source == Peer.SourceFlag.SF_RESUME_DATA.value;
+
+        // prefer to drop peers whose only source is resume data
+        if (lhs_resume_data_source != rhs_resume_data_source) {
+            if (lhs_resume_data_source) return true;
+            return false;
+        }
+
+        if (lhs.connectable != rhs.connectable) {
+            if (!lhs.connectable) return true;
+            return false;
+        }
+
         return false;
     }
 
@@ -122,20 +159,31 @@ public class Policy extends AbstractCollection<Peer> {
 
             // TODO - use parameter here as max peer list size
             if (peers.size() > 100) {
-                if (isEraseCandidate(pe)) {
-                    eraseCandidate = current;
+                if (isEraseCandidate(pe) && (eraseCandidate == -1 || !comparePeerErase(peers.get(eraseCandidate), pe))) {
+                    if (shouldEraseImmediately(pe)) {
+                        if (eraseCandidate > current) --eraseCandidate;
+                        if (candidate > current) --candidate;
+                        peers.remove(current);
+                        continue;
+                    }
+                    else eraseCandidate = current;
                 }
             }
 
             ++roundRobin;
-            if (!isConnectCandidate(pe) && comparePeers(peers.get(candidate), pe)) continue;
+            if (!isConnectCandidate(pe)) continue;
+            if (candidate != -1 && comparePeers(peers.get(candidate), pe)) continue;
             if (pe.nextConnection != 0 && pe.nextConnection < sessionTime) continue;
             // TODO - use min reconnect time parameter here
             if (pe.lastConnected != 0 && sessionTime - pe.lastConnected < (pe.failCount + 1)*10) continue;
             candidate = current;
         }
 
-        if (eraseCandidate != -1) peers.remove(eraseCandidate);
+        if (eraseCandidate != -1) {
+            if (candidate > eraseCandidate) --candidate;
+            peers.remove(eraseCandidate);
+        }
+
         if (candidate == -1) return null;
         return peers.get(candidate);
     }
@@ -144,10 +192,24 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean connectOnePeer(long sessionTime) {
         Peer pe = findConnectCandidate(sessionTime);
         if (pe != null) {
+            assert(pe.isConnectable());
             // connect in transfer here
         }
 
         return false;
+    }
+
+    public void conectionClose(PeerConnection c, long sessionTime) {
+        Peer p = c.getPeer();
+        if (p == null) return;
+        p.connection = null;
+        p.lastConnected = sessionTime;
+        if (c.isFailed()) p.failCount++;
+        if (!p.isConnectable()) peers.remove(p);
+    }
+
+    private boolean shouldEraseImmediately(Peer p) {
+        return p.source == Peer.SourceFlag.SF_RESUME_DATA.value;
     }
 
     @Override
