@@ -1,6 +1,7 @@
 package org.jed2k;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.jed2k.data.PieceBlock;
 import org.jed2k.data.PieceInfo;
@@ -17,6 +18,7 @@ public class PiecePicker {
     ArrayList<PieceInfo>	pieces;
     private ArrayList<PiecePos> piece_map;
     private int blocksInLastPiece = 0;
+    private int roundRobin;
     
     /**
      *	all pieces before this index are finished 
@@ -48,6 +50,7 @@ public class PiecePicker {
     		int blocksCount = (i == (pieceCount - 1))?blocksInLastPiece:Constants.BLOCKS_PER_PIECE;
     		pieces.add(new PieceInfo(blocksCount));
     	}
+        roundRobin = pieceCount - 1;
     }
     
     /**
@@ -78,7 +81,19 @@ public class PiecePicker {
     /**
      * mark block as finished and update border
      */
-    public void finishBlock(PieceBlock block) {
-    	
+    public boolean markAsFinished(PieceBlock b) {
+        assert(b.piece_block < blocksInPiece(b.piece_index));
+    	return false;
     }
+
+
+    public boolean markAsDownloading(PieceBlock b) {
+        assert(b.piece_block < blocksInPiece(b.piece_index));
+        return false;
+    }
+
+    public int pickPieces(Collection<PieceBlock> rq, int orderLength) {
+        return 0;
+    }
+
 }
