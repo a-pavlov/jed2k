@@ -1,7 +1,6 @@
 package org.jed2k;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 import org.jed2k.data.PieceBlock;
 import org.jed2k.data.PieceInfo;
@@ -19,6 +18,8 @@ public class PiecePicker {
     private ArrayList<PiecePos> piece_map;
     private int blocksInLastPiece = 0;
     private int roundRobin;
+    private byte pieceStatus[];
+    private LinkedList<DownloadingPiece> downloadingPieces;
     
     /**
      *	all pieces before this index are finished 
@@ -51,6 +52,8 @@ public class PiecePicker {
     		pieces.add(new PieceInfo(blocksCount));
     	}
         roundRobin = pieceCount - 1;
+        pieceStatus = new byte[pieceCount];
+        Arrays.fill(pieceStatus, (byte)0);
     }
     
     /**
@@ -92,8 +95,44 @@ public class PiecePicker {
         return false;
     }
 
-    public int pickPieces(Collection<PieceBlock> rq, int orderLength) {
-        return 0;
+    /**
+     * choose next piece and add it to download queue
+     * @return true if new piece in download queue
+     */
+    public boolean chooseNextPiece() {
+        // start from last piece
+        int roundRobin = pieces.size() - 1;
+        for(int i = 0; i < pieces.size(); ++i) {
+            if (roundRobin == pieces.size()) roundRobin = 0;
+            int current = roundRobin;
+
+            if (pieceStatus[current] == 0) {
+                downloadingPieces.add(new DownloadingPiece(current, blocksInPiece(current)));
+                pieceStatus[current] = (byte)1;
+                return true;
+            }
+
+            ++roundRobin;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param rq - request queue
+     * @param orderLength - prefer blocks count for request
+     */
+    public void pickPieces(Collection<PieceBlock> rq, int orderLength) {
+        Iterator<DownloadingPiece> itr = downloadingPieces.iterator();
+        while(itr.hasNext()) {
+            DownloadingPiece dp = itr.next();
+            // add block to order
+        }
+
+        if (rq.size() < orderLength && chooseNextPiece()) {
+            pickPieces(rq, orderLength);
+        }
     }
 
 }

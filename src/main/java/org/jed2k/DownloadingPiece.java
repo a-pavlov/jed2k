@@ -5,7 +5,7 @@ import org.jed2k.protocol.Hash;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Piece {
+public class DownloadingPiece {
     private enum BlockState {
         STATE_NONE((byte)0),
         STATE_REQUESTED((byte)1),
@@ -20,14 +20,16 @@ public class Piece {
 
     private class Block {
         public BlockState   state;
-
     }
 
+    private int pieceIndex;
     private int blocksCount;
     private byte[] blockState;
     
-    public Piece(int c) {
+    public DownloadingPiece(int pieceIndex, int c) {
+        assert(pieceIndex >= 0);
         assert(c > 0);
+        this.pieceIndex = pieceIndex;
         blocksCount = c;
         blockState = new byte[blocksCount];
         Arrays.fill(blockState, BlockState.STATE_NONE.value);
