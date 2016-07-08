@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DownloadingPiece {
-    private enum BlockState {
+    public enum BlockState {
         STATE_NONE((byte)0),
         STATE_REQUESTED((byte)1),
         STATE_DOWNLOADING((byte)2),
@@ -22,9 +22,9 @@ public class DownloadingPiece {
         public BlockState   state;
     }
 
-    private int pieceIndex;
+    public int pieceIndex;
     private int blocksCount;
-    private byte[] blockState;
+    public byte[] blockState;
     
     public DownloadingPiece(int pieceIndex, int c) {
         assert(pieceIndex >= 0);

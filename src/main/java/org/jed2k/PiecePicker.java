@@ -14,29 +14,18 @@ public class PiecePicker {
         public int indx = 0;
     }
 
-    ArrayList<PieceInfo>	pieces;
-    private ArrayList<PiecePos> piece_map;
     private int blocksInLastPiece = 0;
-    private int roundRobin;
     private byte pieceStatus[];
-    private LinkedList<DownloadingPiece> downloadingPieces;
+    private LinkedList<DownloadingPiece> downloadingPieces = new LinkedList<DownloadingPiece>();
     
     /**
      *	all pieces before this index are finished 
      */
     private int finishedPiecesBorder;
 
-    public void init(int blocksInLastPiece, int totalPieces) {
-        for(int i = 0; i != totalPieces; ++i) {
-            piece_map.add(new PiecePos());
-        }
-
-        this.blocksInLastPiece = blocksInLastPiece;
-    }
-
     public int blocksInPiece(int pieceIndex) {
-        assert(pieceIndex < piece_map.size());
-        if (pieceIndex == piece_map.size()) {
+        assert(pieceIndex < pieceStatus.length);
+        if (pieceIndex == pieceStatus.length - 1) {
             return blocksInLastPiece;
         }
 
@@ -45,40 +34,26 @@ public class PiecePicker {
     
     public PiecePicker(int pieceCount, int blocksInLastPiece) {
     	assert(pieceCount > 0);
+        this.blocksInLastPiece = blocksInLastPiece;
     	finishedPiecesBorder = 0;
-    	pieces = new ArrayList<PieceInfo>(pieceCount);
-    	for(int i = 0; i < pieceCount; ++i) {
-    		int blocksCount = (i == (pieceCount - 1))?blocksInLastPiece:Constants.BLOCKS_PER_PIECE;
-    		pieces.add(new PieceInfo(blocksCount));
-    	}
-        roundRobin = pieceCount - 1;
         pieceStatus = new byte[pieceCount];
         Arrays.fill(pieceStatus, (byte)0);
     }
-    
-    /**
-     * request block here
-     * returns next interested block or null if no new blocks are available for requesting
-     * 
-     */    
-    public PieceBlock requestBlock() {
-    	for(int i = finishedPiecesBorder; i != pieces.size(); ++i) {
-    	    int block = pieces.get(i).requestBlock();
-    	    if (block != -1) {
-    	        return new PieceBlock(i, block);
-    	    }
-    	}
-    	
-    	return null;
-    }
-    
+
     /**
      * return piece to picker
      * it might happen when calculated piece hash doesn't match provided
      * @param index - index of piece 
      */
-    public void returnPiece(int index) {
-    	
+    public DownloadingPiece getDownloadingPiece(int index) {
+    	assert(index >=0);
+        Iterator<DownloadingPiece> itr = downloadingPieces.iterator();
+        while(itr.hasNext()) {
+            DownloadingPiece dp = itr.next();
+            if (dp.pieceIndex == index) return dp;
+        }
+
+        return null;
     }
     
     /**
@@ -86,6 +61,14 @@ public class PiecePicker {
      */
     public boolean markAsFinished(PieceBlock b) {
         assert(b.piece_block < blocksInPiece(b.piece_index));
+        DownloadingPiece dp = getDownloadingPiece(b.piece_index);
+        if (dp != null) {
+            // found actual piece in downloading state
+            downloadingPieces.remove(dp);
+            return true;
+        }
+
+        // piece already finished
     	return false;
     }
 
@@ -101,9 +84,9 @@ public class PiecePicker {
      */
     public boolean chooseNextPiece() {
         // start from last piece
-        int roundRobin = pieces.size() - 1;
-        for(int i = 0; i < pieces.size(); ++i) {
-            if (roundRobin == pieces.size()) roundRobin = 0;
+        int roundRobin = pieceStatus.length - 1;
+        for(int i = 0; i < pieceStatus.length; ++i) {
+            if (roundRobin == pieceStatus.length) roundRobin = 0;
             int current = roundRobin;
 
             if (pieceStatus[current] == 0) {
@@ -127,7 +110,13 @@ public class PiecePicker {
         Iterator<DownloadingPiece> itr = downloadingPieces.iterator();
         while(itr.hasNext()) {
             DownloadingPiece dp = itr.next();
-            // add block to order
+            for(int i = 0; i < dp.blockState.length; ++i) {
+                if (dp.blockState[i] == DownloadingPiece.BlockState.STATE_NONE.value) {
+                    rq.add(new PieceBlock(dp.pieceIndex, i));
+                    dp.blockState[i] = DownloadingPiece.BlockState.STATE_REQUESTED.value;
+                    if (rq.size() == orderLength) return;
+                }
+            }
         }
 
         if (rq.size() < orderLength && chooseNextPiece()) {
