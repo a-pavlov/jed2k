@@ -5,8 +5,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.logging.Logger;
 
+import org.jed2k.data.Range;
+import org.jed2k.data.Region;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.BitField;
 import org.jed2k.protocol.client.*;
@@ -31,6 +34,23 @@ public class PeerConnection extends Connection {
         FAST
     }
 
+    private class PendingBlock {
+        public PieceBlock block;
+        long size;
+        long createTime;
+        Region dataLeft;
+
+        public PendingBlock(PieceBlock b, long size) {
+            assert(size > 0);
+            block = b;
+            this.size = size;
+        }
+
+        public boolean isCompleted() {
+            return dataLeft.empty();
+        }
+    }
+
     private static Logger log = Logger.getLogger(PeerConnection.class.getName());
     private boolean active = false;   // true when we connect to peer, false when incoming connection
     private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
@@ -41,6 +61,8 @@ public class PeerConnection extends Connection {
     private PeerSpeed speed;
     private Peer peer;
     private boolean failed = false;
+    private LinkedList<PendingBlock> requestQueue;
+    private LinkedList<PendingBlock> downloadQueue;
     
     PeerConnection(NetworkIdentifier point,
             ByteBuffer incomingBuffer,
@@ -497,6 +519,53 @@ public class PeerConnection extends Connection {
 
     public boolean isFailed() {
         return failed;
+    }
+
+    public boolean isRequesting(PieceBlock b) {
+        for(PendingBlock pb: downloadQueue) {
+            if (pb.block.compareTo(b) == 0) return true;
+        }
+
+        for(PendingBlock pb: requestQueue) {
+            if (pb.block.compareTo(b) == 0) return true;
+        }
+
+        return false;
+    }
+
+    public void requestBlock() {
+        if (transfer == null) return;
+        int numRequests = Constants.REQUEST_QUEUE_SIZE - downloadQueue.size() - requestQueue.size();
+        if (numRequests <= 0) return;
+        LinkedList<PieceBlock> interestingBlocks = new LinkedList<PieceBlock>();
+        PiecePicker picker = transfer.getPicker();
+        assert(picker != null);
+        picker.pickPieces(interestingBlocks, numRequests);
+        for(PieceBlock b: interestingBlocks) {
+
+
+
+        }
+    }
+
+    public boolean addRequest(PieceBlock b) {
+        if (transfer == null) return false;
+        if (!transfer.getPicker().markAsDownloading(b)) return false;
+        requestQueue.add(new PendingBlock(b, transfer.fileSize()));
+        return true;
+    }
+
+
+    public void sendRequest() {
+
+        RequestParts64 rp = new RequestParts64();
+        while(!requestQueue.isEmpty() && downloadQueue.size() < Constants.REQUEST_QUEUE_SIZE) {
+            PendingBlock pb = requestQueue.poll();
+
+            // if finished or downloading - continue;
+            downloadQueue.add(pb);
+
+        }
     }
 }
 

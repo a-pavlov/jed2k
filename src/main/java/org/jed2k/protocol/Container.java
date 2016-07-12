@@ -60,6 +60,10 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
                 public E next() {
                     return null;
                 }
+
+                @Override
+                public void remove() {
+                }
             };
 
         return collection.iterator();

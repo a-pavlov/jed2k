@@ -15,6 +15,7 @@ public class Transfer implements Tickable {
     private long size;
     private ArrayList<Hash> hashset;
     private Statistics stat = new Statistics();
+    private PiecePicker picker;
     
     public Transfer(Hash hash, long size) {
         this.fileHash = hash;
@@ -66,5 +67,9 @@ public class Transfer implements Tickable {
 
     public Statistics statistics() {
         return stat;
+    }
+
+    public PiecePicker getPicker() {
+        return picker;
     }
 }
