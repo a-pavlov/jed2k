@@ -564,7 +564,6 @@ public class PeerConnection extends Connection {
 
             // if finished or downloading - continue;
             downloadQueue.add(pb);
-
         }
     }
 }
