@@ -36,11 +36,13 @@ public class BlockManager {
             LinkedList<ByteBuffer> res = new LinkedList<ByteBuffer>();
             for(int i = blockIndex; i != buffers.length; ++i) {
                 if (buffers[i] != null) lastHashedBlock++; else break;
+                assert(lastHashedBlock == i);
                 // TODO - fix this useless copy!
-                byte[] b = new byte[buffer.remaining()];
-                buffer.get(b);
+                byte[] b = new byte[buffers[i].remaining()];
+                buffers[i].get(b);
                 hasher.update(b);
-                res.addLast(buffer);
+                assert(buffers[i] != null);
+                res.addLast(buffers[i]);
                 buffers[i] = null;
             }
 
