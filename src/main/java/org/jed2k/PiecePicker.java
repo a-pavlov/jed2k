@@ -5,7 +5,7 @@ import java.util.*;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.data.PieceInfo;
 
-public class PiecePicker {
+public class PiecePicker extends BlocksEnumerator {
 
     private class PiecePos {
         public int peersCount = 0;
@@ -14,7 +14,6 @@ public class PiecePicker {
         public int indx = 0;
     }
 
-    private int blocksInLastPiece = 0;
     private byte pieceStatus[];
     private LinkedList<DownloadingPiece> downloadingPieces = new LinkedList<DownloadingPiece>();
     
@@ -23,18 +22,9 @@ public class PiecePicker {
      */
     private int finishedPiecesBorder;
 
-    public int blocksInPiece(int pieceIndex) {
-        assert(pieceIndex < pieceStatus.length);
-        if (pieceIndex == pieceStatus.length - 1) {
-            return blocksInLastPiece;
-        }
-
-        return Constants.BLOCKS_PER_PIECE;
-    }
-    
     public PiecePicker(int pieceCount, int blocksInLastPiece) {
+        super(pieceCount, blocksInLastPiece);
     	assert(pieceCount > 0);
-        this.blocksInLastPiece = blocksInLastPiece;
     	finishedPiecesBorder = 0;
         pieceStatus = new byte[pieceCount];
         Arrays.fill(pieceStatus, (byte)0);

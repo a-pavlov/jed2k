@@ -13,13 +13,14 @@ import java.util.LinkedList;
  * Created by inkpot on 15.07.2016.
  * executes write data into file on disk
  */
-public class PieceManager {
+public class PieceManager extends BlocksEnumerator {
     private String filepath;
     private RandomAccessFile file;
     private FileChannel channel;
     private LinkedList<BlockManager> blockMgrs = new LinkedList<BlockManager>();
 
-    public PieceManager(String filepath) {
+    public PieceManager(String filepath, int pieceCount, int blocksInLastPiece) {
+        super(pieceCount, blocksInLastPiece);
         this.filepath = filepath;
     }
 
@@ -46,7 +47,7 @@ public class PieceManager {
             if (mgr.getPieceIndex() == piece) return mgr;
         }
 
-        blockMgrs.addLast(new BlockManager(piece, Constants.BLOCKS_PER_PIECE));
+        blockMgrs.addLast(new BlockManager(piece, blocksInPiece(piece)));
         return blockMgrs.getLast();
     }
 
