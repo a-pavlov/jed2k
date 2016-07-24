@@ -32,5 +32,5 @@ public abstract class Alert {
     }
     
     public abstract Severity severity();
-    public abstract int category();    
+    public abstract int category();
 }

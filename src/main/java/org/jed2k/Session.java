@@ -11,9 +11,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
+import org.jed2k.alert.Alert;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -36,6 +39,8 @@ public class Session extends Thread {
     int clientId    = 0;
     int tcpFlags    = 0;
     int auxPort     = 0;
+
+    private BlockingQueue<Alert> alerts = new LinkedBlockingQueue<Alert>();
     
     /**
      * start listening server socket
@@ -228,5 +233,19 @@ public class Session extends Thread {
 				}
 			}
     	});
+    }
+
+    public void pushAlert(Alert e) {
+        assert(e != null);
+        try {
+            alerts.put(e);
+        }
+        catch (InterruptedException ex) {
+            // handle exception
+        }
+    }
+
+    public Alert  popAlert() {
+        return alerts.poll();
     }
 }

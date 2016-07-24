@@ -5,6 +5,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.util.logging.Logger;
 
+import org.jed2k.alert.SearchResultAlert;
+import org.jed2k.alert.ServerMessageAlert;
+import org.jed2k.alert.ServerStatusAlert;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.Hash;
@@ -86,16 +89,19 @@ public class ServerConnection extends Connection {
     @Override
     public void onServerMessage(Message value) throws JED2KException {
         log.info("server message: " + value);
+        session.pushAlert(new ServerMessageAlert(value.toString()));
     }
 
     @Override
     public void onServerStatus(Status value) throws JED2KException {
         log.info("server status: " + value);
+        session.pushAlert(new ServerStatusAlert(value.filesCount, value.usersCount));
     }
 
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
         log.info("search result: " + value);
+        session.pushAlert(new SearchResultAlert(value));
     }
 
     @Override

@@ -51,4 +51,8 @@ public class SearchResult extends SoftSerializable implements Dispatchable {
     public void dispatch(Dispatcher dispatcher) throws JED2KException {
         dispatcher.onSearchResult(this);
     }
+
+    public boolean hasMoreResults() {
+        return moreResults != 0;
+    }
 }
