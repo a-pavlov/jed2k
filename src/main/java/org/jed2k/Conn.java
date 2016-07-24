@@ -13,7 +13,7 @@ import org.jed2k.protocol.server.search.SearchRequest;
 public class Conn {
     private static Logger log = Logger.getLogger(Conn.class.getName());
     
-    public static void main(String[] args) throws IOException {        
+    public static void main(String[] args) throws IOException {
         System.out.println("Conn started");
         Session s = new Session();
         s.start();

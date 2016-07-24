@@ -56,7 +56,7 @@ public class PieceManager extends BlocksEnumerator {
      * @param b block
      * @param buffer data source
      */
-    public void writeBlock(PieceBlock b, ByteBuffer buffer) {
+    public LinkedList<ByteBuffer> writeBlock(PieceBlock b, ByteBuffer buffer) {
         open();
         assert(file != null);
         assert(channel != null);
@@ -64,14 +64,17 @@ public class PieceManager extends BlocksEnumerator {
         try {
             BlockManager mgr = getBlockManager(b.piece_index);
             assert(mgr != null);
-            mgr.registerBlock(b.piece_block, buffer);
+            LinkedList<ByteBuffer> res = mgr.registerBlock(b.piece_block, buffer);
             buffer.rewind();
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);
             // generate result here
+            return res;
         }
         catch(IOException e) {
 
         }
+
+        return null;
     }
 }
