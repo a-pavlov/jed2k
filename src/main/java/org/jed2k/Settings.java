@@ -15,9 +15,9 @@ public class Settings {
     public int maxFailCount = 20;
     public int maxPeerListSize = 100;
     public int minPeerReconnectTime = 10;
-    
+
     /**
-     * send ping message to server every serverPingTimeout 
+     * send ping message to server every serverPingTimeout
      * milliseconds
      */
     public long serverPingTimeout = 0;

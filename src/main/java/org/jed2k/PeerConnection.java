@@ -359,7 +359,6 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onClientExtHello(ExtHello value) throws JED2KException {
-        // TODO Auto-generated method stub
         ExtHelloAnswer answer = new ExtHelloAnswer();
         answer.version.assign(0x10); // temp value
         answer.properties.add(tag(Tag.ET_COMPRESSION, null, 0));

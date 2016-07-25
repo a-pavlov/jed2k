@@ -27,30 +27,31 @@ import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
-public class ServerConnection extends Connection {
+public class ServerConnection extends Connection implements Tickable {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
-    
+    private long lastPingTime = 0;
+
     private ServerConnection(ByteBuffer incomingBuffer,
-            ByteBuffer outgoingBuffer, 
+            ByteBuffer outgoingBuffer,
             PacketCombiner packetCombiner,
             Session session) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session);
-    }    
-    
+    }
+
     public static ServerConnection makeConnection(Session ses) {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(8192);
             ByteBuffer obuff = ByteBuffer.allocate(8192);
             return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
-            
+
         } catch(IOException e) {
-            
+
         }
-        
+
         return null;
     }
-    
+
     private Serializable hello() throws JED2KException {
         LoginRequest login = new LoginRequest();
         int version = 0x3c;
@@ -60,7 +61,7 @@ public class ServerConnection extends Connection {
         login.hash = Hash.EMULE;
         login.point.ip = 0;
         login.point.port = (short)4661;
-        
+
         login.properties.add(tag(Tag.CT_VERSION, null, version));
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
         login.properties.add(tag(Tag.CT_NAME, null, "jed2k"));
@@ -126,7 +127,7 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
-    
+
     @Override
     protected void onConnect() throws JED2KException {
         write(hello());
@@ -137,6 +138,12 @@ public class ServerConnection extends Connection {
         session.clientId = 0;
         session.tcpFlags = 0;
         session.auxPort = 0;
+    }
+
+    @Override
+    public void write(Serializable packet) {
+        super.write(packet);
+        lastPingTime = session.getCurrentTime();
     }
 
     @Override
@@ -207,12 +214,12 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
-    
+
     @Override
-    public void secondTick(long time_interval_ms) {        
+    public void secondTick(long tickIntervalMs) {
         // ping server when feature enabled and timeout occured
-        if (session.settings.serverPingTimeout > 0 && 
-                Time.currentTime() - lastTick > session.settings.serverPingTimeout) {
+        if (session.settings.serverPingTimeout > 0 &&
+                tickIntervalMs - lastPingTime > session.settings.serverPingTimeout) {
             log.info("Send ping message to server");
             write(new GetList());
         }
