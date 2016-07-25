@@ -1,7 +1,6 @@
 package org.jed2k;
 
 import java.io.IOException;
-import java.io.WriteAbortedException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -11,13 +10,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ProtocolCode;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.Dispatcher;
-import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.Serializable;
