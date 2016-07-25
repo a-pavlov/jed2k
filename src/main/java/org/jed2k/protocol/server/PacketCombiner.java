@@ -2,6 +2,7 @@ package org.jed2k.protocol.server;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.PacketKey;
@@ -80,9 +81,10 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
     }
 
     static {
-        supportedPacketsServer = new HashMap<PacketKey, Class<? extends Serializable>>();
+        // temporary use TreeMap for compatibility with search common packed packets
+        supportedPacketsServer = new TreeMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyServer = new HashMap<Class<? extends Serializable>, PacketKey>();
-        
+
         // client <-> server tcp messages section
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_LOGINREQUEST.value, LoginRequest.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_SERVERLIST.value, ServerList.class);
@@ -100,7 +102,7 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACKREQUESTED.value, CallbackRequestIncoming.class);
         addHandler(ProtocolType.OP_EDONKEYHEADER.value, ClientServerTcp.OP_CALLBACK_FAIL.value, CallbackRequestFailed.class);
     }
-  
+
     @Override
     protected Class<? extends Serializable> keyToPacket(PacketKey key) {
         return supportedPacketsServer.get(key);

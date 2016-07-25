@@ -10,40 +10,39 @@ import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.junit.Test;
-import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.PacketHeader;
-import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.*;
 import org.jed2k.protocol.PacketCombiner;
-import org.jed2k.protocol.Serializable;
+import org.junit.Assert;
+import org.junit.Test;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.tag.Tag;
 
 import org.jed2k.protocol.server.*;
 
 public class PacketCombinerTest {
-    
+
     // packet 1
     private static LoginRequest login = new LoginRequest();
     private static int version = 10;
     private static int capability = 20;
     private static int versionClient = 109;
-    
+
     static {
-        login.hash = Hash.EMULE;                
+        login.hash = Hash.EMULE;
         login.properties.add(tag(Tag.CT_VERSION, null, version));
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
         try {
             login.properties.add(tag(Tag.CT_NAME, null, "jed2k"));
         } catch(JED2KException e) {
-            
+
         }
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
     }
-    
+
     @Test
     public void testPackUnpack() throws JED2KException {
         ByteBuffer nb = ByteBuffer.allocate(1024);
-        nb.order(ByteOrder.LITTLE_ENDIAN);        
+        nb.order(ByteOrder.LITTLE_ENDIAN);
         PacketCombiner combiner = new org.jed2k.protocol.server.PacketCombiner();
         combiner.pack(login, nb);
         nb.flip();
@@ -65,7 +64,7 @@ public class PacketCombinerTest {
         assertEquals(versionClient, itr.next().intValue());
         assertFalse(itr.hasNext());
     }
-    
+
     @Test
     public void testBufferOverflow() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(128);
@@ -79,14 +78,14 @@ public class PacketCombinerTest {
         order.add(login);
         order.add(new IdChange());
         order.add(new Status());
-        PacketCombiner combiner = new org.jed2k.protocol.server.PacketCombiner();        
+        PacketCombiner combiner = new org.jed2k.protocol.server.PacketCombiner();
         PacketHeader ph = new PacketHeader();
         int flushCount = 0;
         while(!order.isEmpty()) {
             int byteCount = 0;
             Iterator<Serializable> itr = order.iterator();
             while(itr.hasNext()) {
-                Serializable pkt = itr.next();                
+                Serializable pkt = itr.next();
                 if (combiner.pack(pkt, bb)) {
                     byteCount += pkt.bytesCount() + ph.bytesCount();
                     itr.remove();
@@ -94,12 +93,37 @@ public class PacketCombinerTest {
                     break;
                 }
             }
-            
+
             assertTrue(byteCount < 128);
             bb.clear();
             ++flushCount;
         }
-        
+
         assertTrue(flushCount > 1);
+    }
+
+    @Test
+    public void packetKeyTest() {
+        assertTrue(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x11)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x11)) == 0);
+        assertTrue(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x11)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EMULEPROT.value, (byte)0x11)) == 1);
+        assertTrue(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EMULEPROT.value, (byte)0x11)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x11)) == -1);
+        assertTrue(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EMULEPROT.value, (byte)0x11)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EMULEPROT.value, (byte)0x12)) == -1);
+
+        // test packed packet
+        assertTrue(new PacketKey(PacketCombiner.ProtocolType.OP_PACKEDPROT.value, (byte)0x11)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x11)) == 0);
+        assertTrue(new PacketKey(PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x11)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_PACKEDPROT.value, (byte)0x11)) == 0);
+        assertTrue(new PacketKey(PacketCombiner.ProtocolType.OP_PACKEDPROT.value, (byte)0x11)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_PACKEDPROT.value, (byte)0x11)) == 0);
+
+        assertTrue(new PacketKey(PacketCombiner.ProtocolType.OP_PACKEDPROT.value, (byte)0x01)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x10)) == -1);
+        assertTrue(new PacketKey(PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value, (byte)0x22)
+                .compareTo(new PacketKey(org.jed2k.protocol.PacketCombiner.ProtocolType.OP_PACKEDPROT.value, (byte)0x11)) == 1);
     }
 }

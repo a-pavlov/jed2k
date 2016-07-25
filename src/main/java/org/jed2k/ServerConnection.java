@@ -40,7 +40,7 @@ public class ServerConnection extends Connection implements Tickable {
 
     public static ServerConnection makeConnection(Session ses) {
         try {
-            ByteBuffer ibuff = ByteBuffer.allocate(8192);
+            ByteBuffer ibuff = ByteBuffer.allocate(18192);
             ByteBuffer obuff = ByteBuffer.allocate(8192);
             return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
@@ -55,7 +55,12 @@ public class ServerConnection extends Connection implements Tickable {
     private Serializable hello() throws JED2KException {
         LoginRequest login = new LoginRequest();
         int version = 0x3c;
-        int capability = LoginRequest.CAPABLE_AUXPORT | LoginRequest.CAPABLE_NEWTAGS | LoginRequest.CAPABLE_UNICODE | LoginRequest.CAPABLE_LARGEFILES;
+        int capability = LoginRequest.CAPABLE_AUXPORT
+                | LoginRequest.CAPABLE_NEWTAGS
+                | LoginRequest.CAPABLE_UNICODE
+                | LoginRequest.CAPABLE_LARGEFILES
+                | LoginRequest.CAPABLE_ZLIB;
+
         int versionClient = (LoginRequest.JED2K_VERSION_MAJOR << 24) | (LoginRequest.JED2K_VERSION_MINOR << 17) | (LoginRequest.JED2K_VERSION_TINY << 10) | (1 << 7);
 
         login.hash = Hash.EMULE;

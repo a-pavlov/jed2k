@@ -2,7 +2,11 @@ package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+
 import org.jed2k.exception.JED2KException;
+import org.jed2k.exception.ProtocolCode;
 
 public abstract class PacketCombiner {
 
@@ -106,6 +110,30 @@ public abstract class PacketCombiner {
     public Serializable unpack(PacketHeader header, ByteBuffer src) throws JED2KException {
         assert(header.isDefined());
         assert(src.remaining() == serviceSize(header));
+
+        // special case for packed protocol
+        if (header.key().protocol == ProtocolType.OP_PACKEDPROT.value) {
+            byte[] compressedData = new byte[src.remaining()];
+            byte[] plainData = new byte[src.remaining()*10];
+            src.get(compressedData);
+            Inflater decompresser = new Inflater();
+            decompresser.setInput(compressedData, 0, compressedData.length);
+            int resultLength = 0;
+            try {
+                resultLength = decompresser.inflate(plainData);
+                log.info("Unpack data size: " + compressedData.length + " to result length: " + resultLength);
+            } catch(DataFormatException e) {
+                throw new JED2KException(ProtocolCode.INFLATE_ERROR);
+            }
+
+            decompresser.end();
+            src.clear();
+
+            // TODO check buffer has enough space for uncompressed data
+            src.put(plainData, 0, resultLength);
+            src.flip();
+            header.reset(header.key(), resultLength);   // TODO - use correct protocol value here to be compatible with HashMap
+        }
 
         PacketKey key = header.key();
         Class<? extends Serializable> clazz = keyToPacket(key);

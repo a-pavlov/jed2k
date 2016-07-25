@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.net.InetSocketAddress;
 
@@ -25,10 +26,11 @@ public class Conn {
 
     public static void main(String[] args) throws IOException {
         Logger logger = Logger.getLogger("");
+        logger.setLevel(Level.ALL);
         logger.setUseParentHandlers(false);
         Handler[] handlers = logger.getHandlers();
         for(Handler handler : handlers) {
-            logger.removeHandler(handler);
+            //logger.removeHandler(handler);
         }
 
         System.out.println("Conn started");

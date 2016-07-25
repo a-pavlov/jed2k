@@ -9,7 +9,8 @@ public enum ProtocolCode implements ErrorCode {
     NO_TRANSFER(5),
     FILE_NOT_FOUND(6),
     OUT_OF_PARTS(7),
-    FAIL(7);
+    INFLATE_ERROR(8),
+    FAIL(9);
 
     private final int value;
 

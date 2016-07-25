@@ -46,13 +46,17 @@ public class Session extends Thread implements Tickable {
     /**
      * start listening server socket
      */
-    private void listen() throws IOException {
-    	if (ssc != null) ssc.close();
-    	log.info("Start listening on " + settings.listenPort);
-    	ssc = ServerSocketChannel.open();
-    	ssc.socket().bind(new InetSocketAddress(settings.listenPort));
-    	ssc.configureBlocking(false);
-    	ssc.register(selector, SelectionKey.OP_ACCEPT);
+    private void listen() throws JED2KException {
+        try {
+            if (ssc != null) ssc.close();
+            log.info("Start listening on " + settings.listenPort);
+            ssc = ServerSocketChannel.open();
+            ssc.socket().bind(new InetSocketAddress(settings.listenPort));
+            ssc.configureBlocking(false);
+            ssc.register(selector, SelectionKey.OP_ACCEPT);
+        } catch(IOException e) {
+            throw new JED2KException(e);
+        }
     }
 
     @Override
@@ -60,7 +64,11 @@ public class Session extends Thread implements Tickable {
         try {
             log.finest("Session started");
             selector = Selector.open();
-            listen();
+            try {
+                listen();
+            } catch(JED2KException e) {
+                log.warning("Unable to listen");
+            }
 
             PeerConnection p = null;
 
@@ -215,7 +223,7 @@ public class Session extends Thread implements Tickable {
 				settings = s;
 				if (relisten) try {
 					listen();
-				} catch (IOException e) {
+				} catch (JED2KException e) {
 					// TODO - handle this correctly
 					log.warning("Unable to listen on " + settings.listenPort);
 				}
