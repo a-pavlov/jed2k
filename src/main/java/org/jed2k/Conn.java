@@ -22,7 +22,7 @@ import org.jed2k.protocol.server.search.SearchResult;
 
 public class Conn {
     private static Logger log = Logger.getLogger(Conn.class.getName());
-    
+
     public static void main(String[] args) throws IOException {
         Logger logger = Logger.getLogger("");
         logger.setUseParentHandlers(false);
@@ -71,12 +71,12 @@ public class Conn {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
-        
+
         while ((command = in.readLine()) != null) {
             String[] parts = command.split("\\s+");
-            
+
             if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
-                s.interrupt();                
+                s.interrupt();
                 try {
                     s.join();
                 } catch (InterruptedException e) {
@@ -84,7 +84,7 @@ public class Conn {
                 }
                 break;
             }
-            
+
             if (parts[0].compareTo("listen") == 0 && parts.length == 2) {
             	Settings settings = new Settings();
             	settings.listenPort = (short)Integer.parseInt(parts[1]);
@@ -105,7 +105,7 @@ public class Conn {
             } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short)Integer.parseInt(parts[2])));
             }
-            
+
         }
 
         scheduledExecutorService.shutdown();
