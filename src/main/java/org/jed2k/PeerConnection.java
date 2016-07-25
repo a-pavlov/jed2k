@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.jed2k.data.Range;
 import org.jed2k.data.Region;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.exception.ProtocolCode;
 import org.jed2k.protocol.BitField;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.FoundFileSources;
@@ -312,38 +313,32 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onServerIdChange(IdChange value) throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerInfo(ServerInfo value) throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerList(ServerList value) throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerMessage(Message value) throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerStatus(Status value) throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
@@ -399,7 +394,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileRequest(FileRequest value)
             throws JED2KException {
-        close();        
+        close();
     }
 
     @Override

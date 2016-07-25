@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.jed2k.alert.SearchResultAlert;
 import org.jed2k.alert.ServerMessageAlert;
 import org.jed2k.alert.ServerStatusAlert;
+import org.jed2k.exception.ProtocolCode;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.FoundFileSources;
 import org.jed2k.protocol.Hash;
@@ -106,24 +107,24 @@ public class ServerConnection extends Connection {
 
     @Override
     public void onClientHello(Hello value) throws JED2KException {
-        throw new JED2KException("Unsupported packet");        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientHelloAnswer(HelloAnswer value)
             throws JED2KException {
-        throw new JED2KException("Unsupported packet");
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientExtHello(ExtHello value) throws JED2KException {
-        throw new JED2KException("Unsupported packet");
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientExtHelloAnswer(ExtHelloAnswer value)
             throws JED2KException {
-        throw new JED2KException("Unsupported packet");
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
     
     @Override
@@ -141,57 +142,49 @@ public class ServerConnection extends Connection {
     @Override
     public void onClientFileRequest(FileRequest value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientFileStatusRequest(FileStatusRequest value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientFileStatusAnswer(FileStatusAnswer value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientHashSetRequest(HashSetRequest value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientNoFileStatus(NoFileStatus value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
@@ -206,15 +199,13 @@ public class ServerConnection extends Connection {
     @Override
     public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
-        // TODO Auto-generated method stub
-        
+        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
     
     @Override
