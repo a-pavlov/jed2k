@@ -26,10 +26,10 @@ public class Conn {
     public static void main(String[] args) throws IOException {
         Logger logger = Logger.getLogger("");
         logger.setUseParentHandlers(false);
-        //Handler[] handlers = logger.getHandlers();
-        //for(Handler handler : handlers) {
-        //    logger.removeHandler(handler);
-        //}
+        Handler[] handlers = logger.getHandlers();
+        for(Handler handler : handlers) {
+            logger.removeHandler(handler);
+        }
 
         System.out.println("Conn started");
         final Session s = new Session();
@@ -95,7 +95,7 @@ public class Conn {
             }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 String searchExpression = command.substring("search".length());
-                log.info("search expressionr:" + searchExpression);
+                log.info("search expression:" + searchExpression);
                 try {
                     log.info("search request: " + s);
                     s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, searchExpression));

@@ -97,7 +97,7 @@ public abstract class Connection implements Dispatcher, Tickable {
             assert(headerBuffer.remaining() == PacketHeader.SIZE);
             header.get(headerBuffer);
             headerBuffer.clear();
-            log.info("processHeader:" + header.toString());
+            log.finest("processHeader:" + header.toString());
             bufferIncoming.limit(packetCombainer.serviceSize(header));
             stat.receiveBytes(PacketHeader.SIZE, 0);
         }
@@ -186,7 +186,7 @@ public abstract class Connection implements Dispatcher, Tickable {
     }
 
     public void close(ErrorCode ec) {
-        log.info("close socket");
+        log.finest("close socket " + ec);
         try {
             socket.close();
         } catch(IOException e) {
@@ -198,7 +198,7 @@ public abstract class Connection implements Dispatcher, Tickable {
     }
 
     public void write(Serializable packet) {
-        log.info("write packet " + packet);
+        log.finest("write packet " + packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);

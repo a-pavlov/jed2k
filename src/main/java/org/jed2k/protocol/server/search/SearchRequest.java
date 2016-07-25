@@ -18,15 +18,15 @@ import org.jed2k.protocol.tag.Tag;
 import static org.jed2k.protocol.Unsigned.uint16;
 
 public class SearchRequest implements Serializable {
-    
+
     private static Logger log = Logger.getLogger(SearchRequest.class.getName());
-    
+
     static byte SEARCH_TYPE_BOOL       = 0x00;
     static byte SEARCH_TYPE_STR        = 0x01;
     static byte SEARCH_TYPE_STR_TAG    = 0x02;
     static byte SEARCH_TYPE_UINT32     = 0x03;
     static byte SEARCH_TYPE_UINT64     = 0x08;
-    
+
     // Media values for FT_FILETYPE
     private static final String ED2KFTSTR_AUDIO = "Audio";
     private static final String ED2KFTSTR_VIDEO = "Video";
@@ -46,7 +46,7 @@ public class SearchRequest implements Serializable {
     private static final String FT_ED2K_MEDIA_LENGTH = "length";    // <string> !!!
     private static final String FT_ED2K_MEDIA_BITRATE = "bitrate";   // <uint32>
     private static final String FT_ED2K_MEDIA_CODEC = "codec";    // <string>
-    
+
     public enum FileType {
         ED2KFT_ANY               (0),
         ED2KFT_AUDIO             (1),    // ED2K protocol value (eserver 17.6+)
@@ -57,14 +57,14 @@ public class SearchRequest implements Serializable {
         ED2KFT_ARCHIVE           (6),    // ED2K protocol value (eserver 17.6+)
         ED2KFT_CDIMAGE           (7),    // ED2K protocol value (eserver 17.6+)
         ED2KFT_EMULECOLLECTION   (8);
-        
+
         public final byte value;
-        
+
         private FileType(int value) {
             this.value = (byte)value;
         }
     }
-    
+
     public enum Operator {
         ED2K_SEARCH_OP_EQUAL(0),
         ED2K_SEARCH_OP_GREATER(1),
@@ -72,42 +72,42 @@ public class SearchRequest implements Serializable {
         ED2K_SEARCH_OP_GREATER_EQUAL(3),
         ED2K_SEARCH_OP_LESS_EQUAL(4),
         ED2K_SEARCH_OP_NOTEQUAL(5);
-        
+
         public final byte value;
-        
+
         private Operator(int value) {
             this.value = (byte)value;
         }
     }
-    
+
     private final ArrayDeque<Serializable> value;
-    
+
     SearchRequest(ArrayDeque<Serializable> value) {
         this.value = value;
-        log.info(dbgString(value));
+        log.finest(dbgString(value));
     }
-    
+
     public static Serializable makeEntry(BooleanEntry.Operator value) {
         return new BooleanEntry(value);
     }
-    
+
     private static BooleanEntry.Operator string2Operator(String value) {
         if (value.compareTo("AND") == 0) return BooleanEntry.Operator.OPER_AND;
         if (value.compareTo("OR") == 0)  return BooleanEntry.Operator.OPER_OR;
         if (value.compareTo("NOT") == 0) return BooleanEntry.Operator.OPER_NOT;
         return null;
     }
-       
+
     private static boolean isOperator(Serializable value) {
-        if (value instanceof BooleanEntry || 
+        if (value instanceof BooleanEntry ||
                 value instanceof  OpenParen ||
                 value instanceof CloseParen) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     private static void appendItem(ArrayList<Serializable> dst, final Serializable sre) throws JED2KException {
         if (!(sre instanceof BooleanEntry))
         {
@@ -130,7 +130,7 @@ public class SearchRequest implements Serializable {
 
         dst.add(sre);
     }
-    
+
     private static ArrayList<Serializable> string2Entries(
             long minSize,
             long maxSize,
@@ -141,11 +141,11 @@ public class SearchRequest implements Serializable {
             String codec,
             int mediaLength,
             int mediaBitrate,
-            String value) throws JED2KException {        
-        boolean verbatim = false;        
+            String value) throws JED2KException {
+        boolean verbatim = false;
         StringBuilder item = new StringBuilder();
         ArrayList<Serializable> res = new ArrayList<Serializable>();
-        
+
         if (fileType.compareTo(ED2KFTSTR_FOLDER) == 0) // for folders we search emule collections exclude ed2k links - user brackets to correct expr
         {
             appendItem(res, new OpenParen());
@@ -196,7 +196,7 @@ public class SearchRequest implements Serializable {
                     appendItem(res, makeEntry(null, Tag.FT_MEDIA_BITRATE, Operator.ED2K_SEARCH_OP_GREATER_EQUAL.value, mediaBitrate)); // I don't check this value!
             }
         }
-        
+
         for (int i = 0; i < value.length(); ++i)
         {
             char c = value.charAt(i);
@@ -212,7 +212,7 @@ public class SearchRequest implements Serializable {
                         item.append(c);
                     }
                     else if (item.length() != 0)
-                    {                        
+                    {
                         BooleanEntry.Operator so = string2Operator(item.toString());
 
                         if (so != null)
@@ -221,7 +221,7 @@ public class SearchRequest implements Serializable {
                             if (res.isEmpty() || (res.get(res.size()-1) instanceof BooleanEntry) || (c == ')'))
                             {
                                 // operator in begin, operator before previous operator and operator before close bracket is error
-                                throw new JED2KException(SearchCode.OPERATOR_AT_BEGIN_OF_EXPRESSION);                                
+                                throw new JED2KException(SearchCode.OPERATOR_AT_BEGIN_OF_EXPRESSION);
                             }
                             else
                             {
@@ -229,7 +229,7 @@ public class SearchRequest implements Serializable {
                             }
                         }
                         else
-                        {                            
+                        {
                             appendItem(res, makeEntry(item.toString().replace("\"", "")));
                         }
 
@@ -270,22 +270,22 @@ public class SearchRequest implements Serializable {
                 throw new JED2KException(SearchCode.OPERATOR_AT_END_OF_EXPRESSION);
             }
             else
-            {                
+            {
                 appendItem(res, makeEntry(item.toString().replace("\"", "")));
             }
         }
-        
+
         return res;
-    }        
-    
+    }
+
     private static ArrayDeque<Serializable> packRequest(ArrayList<Serializable> source) throws JED2KException {
         ArrayDeque<Serializable> res = new ArrayDeque<Serializable>();
         Stack<Serializable> operators_stack = new Stack<Serializable>();
-        
+
         for(int i = source.size() - 1; i >= 0; --i) {
             Serializable entry = source.get(i);
             if (isOperator(entry)) {
-                
+
                 if (entry instanceof OpenParen) {
                     if (operators_stack.empty()) {
                         throw new JED2KException(SearchCode.INCORRECT_PARENS_COUNT);
@@ -294,7 +294,7 @@ public class SearchRequest implements Serializable {
                     // roll up
                     while(!(operators_stack.peek() instanceof CloseParen)) {
                         res.addFirst(operators_stack.pop());
-                        
+
                         if (operators_stack.empty()) {
                             throw new JED2KException(SearchCode.INCORRECT_PARENS_COUNT);
                         }
@@ -311,7 +311,7 @@ public class SearchRequest implements Serializable {
                         !operators_stack.empty() &&
                         (operators_stack.peek() instanceof BooleanEntry))
                 {
-                    res.addFirst(operators_stack.pop());                    
+                    res.addFirst(operators_stack.pop());
                 }
 
                 operators_stack.push(entry);
@@ -331,10 +331,10 @@ public class SearchRequest implements Serializable {
 
             res.addFirst(operators_stack.pop());
         }
-        
+
         return res;
     }
-    
+
     private static ByteContainer<UInt16> generateTag(String name, byte id) throws JED2KException {
         ByteContainer<UInt16> tag;
         if (name != null) {
@@ -343,18 +343,18 @@ public class SearchRequest implements Serializable {
             byte[] nm = {id};
             tag = new ByteContainer<UInt16>(uint16(1), nm);
         }
-        
+
         return tag;
     }
-    
+
     public static Serializable makeEntry(String value) throws JED2KException {
             return new StringEntry(ByteContainer.fromString16(value), null);
     }
-    
+
     public static Serializable makeEntry(String name, byte id, String value) throws JED2KException {
-            return new StringEntry(ByteContainer.fromString16(value), generateTag(name, id));        
+            return new StringEntry(ByteContainer.fromString16(value), generateTag(name, id));
     }
-    
+
     public static Serializable makeEntry(String name, byte id, byte operator, long value) throws JED2KException {
         return new NumericEntry(value, operator, generateTag(name, id));
     }
@@ -368,47 +368,47 @@ public class SearchRequest implements Serializable {
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         assert(value != null);
-        Iterator<Serializable> itr = value.iterator();        
+        Iterator<Serializable> itr = value.iterator();
         while(itr.hasNext()) {
             Serializable s = itr.next();
             s.put(dst);
-        }        
-        
+        }
+
         return dst;
     }
 
     @Override
     public int bytesCount() {
         int res = 0;
-        
-        Iterator<Serializable> itr = value.iterator();        
+
+        Iterator<Serializable> itr = value.iterator();
         while(itr.hasNext()) {
-            res += itr.next().bytesCount();            
+            res += itr.next().bytesCount();
         }
-        
+
         return res;
     }
-    
+
     public int count() {
         assert(value != null);
         return value.size();
     }
-    
+
     public Serializable entry(int index) {
         assert(value != null);
         assert(value.size() > index);
         //assert(value.get(index) != null);
         Iterator<Serializable> itr = value.iterator();
-        int current = 0;        
+        int current = 0;
         while(itr.hasNext()) {
             Serializable s = itr.next();
             if (current == index) return s;
-            ++current;            
+            ++current;
         }
-        
+
         return null;
     }
-    
+
     public static SearchRequest makeRequest(
             long minSize,
             long maxSize,
@@ -421,37 +421,37 @@ public class SearchRequest implements Serializable {
             int mediaBitrate,
             String value) throws JED2KException {
         ArrayList<Serializable> a = new ArrayList<Serializable>();
-        a = string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount, 
+        a = string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount,
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value);
-        log.info(dbgString(a));
-        return new SearchRequest(packRequest(string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount, 
+        log.finest(dbgString(a));
+        return new SearchRequest(packRequest(string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount,
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value)));
     }
-    
+
     public static SearchRequest makeRelatedSearchRequest(Hash value) throws JED2KException {
         ArrayDeque<Serializable> ival = new ArrayDeque<Serializable>();
         ival.add(makeEntry("related::" + value.toString()));
         return new SearchRequest(ival);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        Iterator<Serializable> itr = value.iterator();        
+        Iterator<Serializable> itr = value.iterator();
         while(itr.hasNext()) {
             sb.append(" ").append(itr.next());
         }
-        
+
         return sb.toString();
     }
-    
+
     public static String dbgString(Iterable<Serializable> a) {
         StringBuilder sb = new StringBuilder();
         Iterator<Serializable> itr = a.iterator();
         while(itr.hasNext()) {
             Serializable s = itr.next();
             sb.append(" ").append(s.toString());
-        }        
+        }
         return sb.toString();
     }
 }

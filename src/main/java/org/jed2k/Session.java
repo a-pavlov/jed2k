@@ -58,7 +58,7 @@ public class Session extends Thread implements Tickable {
     @Override
     public void run() {
         try {
-            log.info("Session started");
+            log.finest("Session started");
             selector = Selector.open();
             listen();
 
@@ -81,20 +81,20 @@ public class Session extends Thread implements Tickable {
 
                             if(key.isAcceptable()) {
                                 // a connection was accepted by a ServerSocketChannel.
-                                log.info("Key is acceptable");
+                                log.finest("Key is acceptable");
                                 SocketChannel socket = ssc.accept();
                                 p = PeerConnection.make(socket, this);
                             } else if (key.isConnectable()) {
                                 // a connection was established with a remote server/peer.
-                                log.info("Key is connectable");
+                                log.finest("Key is connectable");
                                 ((Connection)key.attachment()).onConnectable();
                             } else if (key.isReadable()) {
                                 // a channel is ready for reading
-                                log.info("Key is readable");
+                                log.finest("Key is readable");
                                 ((Connection)key.attachment()).onReadable();
                             } else if (key.isWritable()) {
                                 // a channel is ready for writing
-                                log.info("Key is writeable");
+                                log.finest("Key is writeable");
                                 ((Connection)key.attachment()).onWriteable();
                             }
                         }
