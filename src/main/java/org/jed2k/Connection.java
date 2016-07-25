@@ -11,7 +11,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.exception.ProtocolCode;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.Dispatcher;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -70,22 +73,27 @@ public abstract class Connection implements Dispatcher, Tickable {
         try {
             socket.finishConnect();
             onConnect();
-            return;
         } catch(IOException e) {
             log.warning(e.getMessage());
+            close(ProtocolCode.IO_EXCEPTION);
         } catch(JED2KException e) {
             log.warning(e.getMessage());
+            close(e.getErrorCode());
         }
-
-        close();
     }
 
-    protected void processHeader() throws IOException, JED2KException {
+    protected void processHeader() throws JED2KException {
         assert(!header.isDefined());
         assert(headerBuffer.remaining() != 0);
 
-        int bytes = socket.read(headerBuffer);
-        if (bytes == -1) throw new JED2KException("processHeader: End of stream");
+        int bytes;
+        try {
+            bytes = socket.read(headerBuffer);
+        } catch(IOException e) {
+            throw new JED2KException(ProtocolCode.IO_EXCEPTION);
+        }
+
+        if (bytes == -1) throw new JED2KException(ProtocolCode.END_OF_STREAM);
 
         if (headerBuffer.remaining() == 0) {
             headerBuffer.flip();
@@ -98,10 +106,17 @@ public abstract class Connection implements Dispatcher, Tickable {
         }
     }
 
-    protected void processBody() throws IOException, JED2KException {
+    protected void processBody() throws JED2KException {
         if(bufferIncoming.remaining() != 0) {
-            int bytes = socket.read(bufferIncoming);
-            if (bytes == -1) throw new JED2KException("processBody: End of stream");
+            int bytes;
+
+            try {
+                bytes = socket.read(bufferIncoming);
+            } catch(IOException e) {
+                throw new JED2KException(ProtocolCode.IO_EXCEPTION);
+            }
+
+            if (bytes == -1) throw new JED2KException(ProtocolCode.END_OF_STREAM);
         }
 
         if (bufferIncoming.remaining() == 0) {
@@ -123,14 +138,10 @@ public abstract class Connection implements Dispatcher, Tickable {
             } else {
                 processBody();
             }
-            return;
-        } catch(IOException e) {
-            log.warning(e.getMessage());
         } catch(JED2KException e) {
             log.warning(e.getMessage());
+            close(e.getErrorCode());
         }
-
-        close();
     }
 
     public void onWriteable() {
@@ -155,17 +166,14 @@ public abstract class Connection implements Dispatcher, Tickable {
             } else {
                 key.interestOps(SelectionKey.OP_READ);
             }
-
-            return;
         }
         catch(JED2KException e) {
             log.warning(e.getMessage());
-            assert(false);
+            close(e.getErrorCode());
         } catch (IOException e) {
             log.warning(e.getMessage());
+            close(ProtocolCode.IO_EXCEPTION);
         }
-
-        close();
     }
 
     protected abstract void onConnect() throws JED2KException;
@@ -176,11 +184,11 @@ public abstract class Connection implements Dispatcher, Tickable {
             socket.connect(address);
         } catch(IOException e) {
            log.warning(e.getMessage());
-           close();
+           close(ProtocolCode.IO_EXCEPTION);
         }
     }
 
-    public void close() {
+    public void close(ErrorCode ec) {
         log.info("close socket");
         try {
             socket.close();

@@ -393,7 +393,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileRequest(FileRequest value)
             throws JED2KException {
-        close();
+        close(ProtocolCode.NO_ERROR);
     }
 
     @Override
@@ -402,7 +402,7 @@ public class PeerConnection extends Connection {
         if (transfer != null && value.hash.equals(transfer.fileHash())) {
             write(new FileStatusRequest(transfer.fileHash()));
         } else {
-            close();
+            close(ProtocolCode.NO_TRANSFER);
         }
     }
 
@@ -419,14 +419,14 @@ public class PeerConnection extends Connection {
         if (transfer != null) {
             write(new HashSetRequest(transfer.fileHash()));
         } else {
-            close();
+            close(ProtocolCode.NO_TRANSFER);
         }
     }
 
     @Override
     public void onClientHashSetRequest(HashSetRequest value)
             throws JED2KException {
-        close();
+        close(ProtocolCode.NO_ERROR);
     }
 
     @Override
@@ -450,24 +450,25 @@ public class PeerConnection extends Connection {
 
             assert(request.beginOffset.size() == request.endOffset.size());
 
-            if (!request.beginOffset.isEmpty()) {
-                write(request);
-            } else {
-                close();
-            }
+            // TODO - use correct request architecture
+            //if (!request.beginOffset.isEmpty()) {
+            //    write(request);
+            //} else {
+            //    close();
+            //}
         }
     }
 
     @Override
     public void onClientNoFileStatus(NoFileStatus value)
             throws JED2KException {
-        close();
+        close(ProtocolCode.FILE_NOT_FOUND);
     }
 
     @Override
     public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
-        close();
+        close(ProtocolCode.OUT_OF_PARTS);
     }
 
     @Override

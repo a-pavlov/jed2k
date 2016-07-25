@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import org.jed2k.alert.Alert;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.exception.ProtocolCode;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.server.search.SearchRequest;
@@ -131,7 +132,7 @@ public class Session extends Thread implements Tickable {
             @Override
             public void run() {
                 if (sc != null) {
-                    sc.close();
+                    sc.close(ProtocolCode.NO_ERROR);
                 }
 
                 sc = ServerConnection.makeConnection(Session.this);
@@ -148,7 +149,7 @@ public class Session extends Thread implements Tickable {
             @Override
             public void run() {
                 if (sc != null) {
-                    sc.close();
+                    sc.close(ProtocolCode.NO_ERROR);
                     sc = null;
                 }
             }
