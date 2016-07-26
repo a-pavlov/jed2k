@@ -64,6 +64,7 @@ public class PeerConnection extends Connection {
     private boolean failed = false;
     private LinkedList<PendingBlock> requestQueue;
     private LinkedList<PendingBlock> downloadQueue;
+    private NetworkIdentifier endpoint;
 
     PeerConnection(NetworkIdentifier point,
             ByteBuffer incomingBuffer,
@@ -74,6 +75,7 @@ public class PeerConnection extends Connection {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session);
         this.transfer = transfer;
         speed = PeerSpeed.SLOW;
+        endpoint = point;
     }
 
     PeerConnection(ByteBuffer incomingBuffer,
@@ -110,6 +112,19 @@ public class PeerConnection extends Connection {
         }
 
         return null;
+    }
+
+    public final NetworkIdentifier getEndpoint() {
+        return endpoint;
+    }
+
+    public final boolean hasEndpoint() {
+        return endpoint != null;
+    }
+
+    public final void connect() throws JED2KException {
+        assert(endpoint != null);
+        super.connect(endpoint.toInetSocketAddress());
     }
 
     private class MiscOptions {
@@ -208,16 +223,19 @@ public class PeerConnection extends Connection {
         public MiscOptions2 misc2 = new MiscOptions2();
     }
 
+    /**
+     * temporary count all peer connections without endpoints(incoming) are different
+     * @param o - peer connection
+     * @return true if both peer connections have equals endpoint and false elsewhere
+     */
     @Override
     public boolean equals(Object o) {
-        /*if (o instanceof PeerConnection) {
-            if (((PeerConnection)o).hasPort() && hasPort()) {
-                return point.equals(((PeerConnection) o).point);
-            } else {
-                return point.ip == ((PeerConnection)o).point.ip;
+        if (o instanceof PeerConnection) {
+            if (((PeerConnection)o).hasEndpoint() && hasEndpoint()) {
+                return endpoint.equals(((PeerConnection) o).endpoint);
             }
         }
-        */
+
         return false;
     }
 
@@ -387,7 +405,7 @@ public class PeerConnection extends Connection {
 
     @Override
     protected void onDisconnect() {
-        session.erasePeer(point);
+        session.closeConnection(this);
     }
 
     @Override

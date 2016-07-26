@@ -19,7 +19,7 @@ import static org.jed2k.protocol.tag.Tag.tag;
 import static org.jed2k.protocol.Unsigned.uint16;
 
 public class TagTest {
-    
+
     @Test
     public void initialTest() throws JED2KException {
         Tag floatTag = Tag.tag(Tag.FT_DL_PREVIEW, null, 0.1f);
@@ -27,9 +27,9 @@ public class TagTest {
         assertEquals(Tag.FT_DL_PREVIEW, floatTag.id());
         assertEquals(Tag.TAGTYPE_FLOAT32, floatTag.type());
     }
-    
+
     @Test
-    public void testTagReading() throws JED2KException {                
+    public void testTagReading() throws JED2KException {
         byte[] source =
             {   /* 2 bytes list size*/      (byte)0x09, (byte)0x00,
                 /*1 byte*/          (byte)(Tag.TAGTYPE_UINT8 | 0x80),   (byte)0x10, (byte)0xED,
@@ -40,10 +40,10 @@ public class TagTest {
                 /*blob*/            (byte)(Tag.TAGTYPE_BLOB | 0x80),    (byte)0x0A, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x0D, (byte)0x0A, (byte)0x0B,
                 /*float*/           (byte)(Tag.TAGTYPE_FLOAT32 | 0x80), (byte)0x15, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04,
                 /*bool*/            (byte)(Tag.TAGTYPE_BOOL | 0x80),    (byte)0x15, (byte)0x01,
-                /*hash*/            (byte)(Tag.TAGTYPE_HASH16 | 0x80),  (byte)0x20, (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, (byte)0x09, (byte)0x0A, (byte)0x0B, (byte)0x0C, (byte)0x0D, (byte)0x0E, (byte)0x0F };        
+                /*hash*/            (byte)(Tag.TAGTYPE_HASH16 | 0x80),  (byte)0x20, (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, (byte)0x09, (byte)0x0A, (byte)0x0B, (byte)0x0C, (byte)0x0D, (byte)0x0E, (byte)0x0F };
         ArrayList<Tag> atags = new ArrayList<Tag>();
         Container<UInt16, Tag> tags = new Container<UInt16, Tag>(uint16(), Tag.class);
-        ByteBuffer nb = ByteBuffer.wrap(source);  
+        ByteBuffer nb = ByteBuffer.wrap(source);
         nb.order(ByteOrder.LITTLE_ENDIAN);
         tags.get(nb);
         assertEquals(9, tags.size());
@@ -76,7 +76,7 @@ public class TagTest {
         assertEquals("IVAN", t.name());
         assertEquals("APPLE", t.stringValue());
     }
-    
+
     @Test
     public void testTagWriting() throws JED2KException {
         ByteBuffer nb = ByteBuffer.allocate(100);
@@ -86,7 +86,7 @@ public class TagTest {
         Tag itag = new Tag();
         itag.get(nb);
         assertEquals(Tag.FT_FILEHASH, itag.id());
-        assertEquals(100, itag.intValue());    
+        assertEquals(100, itag.intValue());
         assertEquals(6, itag.bytesCount());
         Tag stag = new Tag();
         stag.get(nb);

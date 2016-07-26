@@ -6,11 +6,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,9 +26,8 @@ public class Session extends Thread implements Tickable {
     private ServerConnection sc = null;
     private ServerSocketChannel ssc = null;
 
-    Map<Hash, Transfer> transfers = new TreeMap<Hash, Transfer>();
+    Map<Hash, Transfer> transfers = new HashMap<Hash, Transfer>();
     private ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
-    private TreeMap<NetworkIdentifier, PeerConnection> downloaders = new TreeMap<NetworkIdentifier, PeerConnection>();
     Settings settings = new Settings();
     long lastTick = Time.currentTime();
 
@@ -90,8 +85,7 @@ public class Session extends Thread implements Tickable {
                             if(key.isAcceptable()) {
                                 // a connection was accepted by a ServerSocketChannel.
                                 log.finest("Key is acceptable");
-                                SocketChannel socket = ssc.accept();
-                                p = PeerConnection.make(socket, this);
+                                incomingConnection(ssc.accept());
                             } else if (key.isConnectable()) {
                                 // a connection was established with a remote server/peer.
                                 log.finest("Key is connectable");
@@ -132,6 +126,27 @@ public class Session extends Thread implements Tickable {
             catch(IOException e) {
 
             }
+        }
+    }
+
+    /**
+     * create new peer connection for incoming
+     * @param sc
+     */
+    void incomingConnection(SocketChannel sc) {
+        PeerConnection p = PeerConnection.make(sc, this);
+        connections.add(p);
+    }
+
+    void closeConnection(PeerConnection p) {
+        connections.remove(p);
+    }
+
+    void openConnection(NetworkIdentifier point) throws JED2KException {
+        if (findPeerConnection(point) == null) {
+            PeerConnection p = PeerConnection.make(Session.this, point, null);
+            if (p != null) connections.add(p);
+            p.connect();
         }
     }
 
@@ -194,21 +209,12 @@ public class Session extends Thread implements Tickable {
         });
     }
 
-    PeerConnection createPeer(final NetworkIdentifier point, Transfer transfer) {
-        if (!downloaders.containsKey(point)) {
-            PeerConnection pc = PeerConnection.make(this, point, transfer);
-            if (pc != null) {
-                downloaders.put(point, pc);
-            }
-            return pc;
+    private PeerConnection findPeerConnection(NetworkIdentifier endpoint) {
+        for(PeerConnection p: connections) {
+            if (p.hasEndpoint() && endpoint.compareTo(p.getEndpoint()) == 0) return p;
         }
 
         return null;
-    }
-
-    void erasePeer(final NetworkIdentifier point) {
-        if (downloaders.containsKey(point))
-            downloaders.remove(point);
     }
 
     /**
@@ -261,5 +267,18 @@ public class Session extends Thread implements Tickable {
 
     public long getCurrentTime() {
         return lastTick;
+    }
+
+
+    void addTransfer() {
+
+    }
+
+    void removeTransfer(Hash h) {
+        Transfer t = transfers.get(h);
+        transfers.remove(h);
+        if (t != null) {
+            t.abort();
+        }
     }
 }

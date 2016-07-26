@@ -23,7 +23,7 @@ import static org.jed2k.Utils.sizeof;
 public final class Tag implements Serializable {
 
     private static Logger log = Logger.getLogger(Tag.class.getName());
-    
+
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
     public static final byte TAGTYPE_HASH16       = (byte)0x01;
     public static final byte TAGTYPE_STRING       = (byte)0x02;
@@ -70,8 +70,8 @@ public final class Tag implements Serializable {
             // only because of a flaw, those tags are handled correctly,
             // but should not be handled at all
     public static final byte TAGTYPE_STR22        = (byte)0x26;
-    
-    
+
+
     public static final byte FT_UNDEFINED          = (byte)0x00;    // undefined tag
     public static final byte FT_FILENAME           = (byte)0x01;    // <string>
     public static final byte FT_FILESIZE           = (byte)0x02;    // <uint32>
@@ -101,7 +101,7 @@ public final class Tag implements Serializable {
     public static final byte FT_FILEHASH           = (byte)0x28;
     public static final byte FT_COMPLETE_SOURCES   = (byte)0x30;    // nr. of sources which share a
     public static final byte FT_FAST_RESUME_DATA   = (byte)0x31;   // fast resume data array
-    
+
     public static final byte FT_PUBLISHINFO        = (byte)0x33;    // <uint32>
     public static final byte FT_ATTRANSFERRED      = (byte)0x50;    // <uint32>
     public static final byte FT_ATREQUESTED        = (byte)0x51;    // <uint32>
@@ -115,7 +115,7 @@ public final class Tag implements Serializable {
     public static final byte FT_MEDIA_BITRATE      = (byte)0xD4;    // <uint32>
     public static final byte FT_MEDIA_CODEC        = (byte)0xD5;    // <string>
     public static final byte FT_FILERATING         = (byte)0xF7;    // <uint8>
-    
+
     public static final byte CT_NAME                         = (byte)0x01;
     public static final byte CT_SERVER_UDPSEARCH_FLAGS       = (byte)0x0E;
     public static final byte CT_PORT                         = (byte)0x0F;
@@ -139,8 +139,8 @@ public final class Tag implements Serializable {
     public static final byte CT_EMULE_MISCOPTIONS2           = (byte)0xFE;
     public static final byte CT_EMULE_RESERVED13             = (byte)0xFF;
     public static final byte CT_MOD_VERSION                  = (byte)0x55;
-    
-    
+
+
     public static final byte ET_COMPRESSION          = (byte)0x20;
     public static final byte ET_UDPPORT              = (byte)0x21;
     public static final byte ET_UDPVER               = (byte)0x22;
@@ -150,7 +150,7 @@ public final class Tag implements Serializable {
     public static final byte ET_COMPATIBLECLIENT     = (byte)0x26;
     public static final byte ET_FEATURES             = (byte)0x27;
     public static final byte ET_MOD_VERSION          = CT_MOD_VERSION;
-    
+
     public static String type2String(byte id) {
         switch(id) {
             case TAGTYPE_UNDEFINED: return "TAGTYPE_UNDEFINED";
@@ -165,7 +165,7 @@ public final class Tag implements Serializable {
             case TAGTYPE_UINT8: return "TAGTYPE_UINT8";
             case TAGTYPE_BSOB: return "TAGTYPE_BSOB";
             case TAGTYPE_UINT64: return "TAGTYPE_UINT64";
-    
+
             case TAGTYPE_STR1: return "TAGTYPE_STR1";
             case TAGTYPE_STR2: return "TAGTYPE_STR2";
             case TAGTYPE_STR3: return "TAGTYPE_STR3";
@@ -182,16 +182,16 @@ public final class Tag implements Serializable {
             case TAGTYPE_STR14: return "TAGTYPE_STR14";
             case TAGTYPE_STR15: return "TAGTYPE_STR15";
             case TAGTYPE_STR16: return "TAGTYPE_STR16";
-            case TAGTYPE_STR17: return "TAGTYPE_STR17"; 
-            case TAGTYPE_STR18: return "TAGTYPE_STR18";               
+            case TAGTYPE_STR17: return "TAGTYPE_STR17";
+            case TAGTYPE_STR18: return "TAGTYPE_STR18";
             case TAGTYPE_STR19: return "TAGTYPE_STR19";
             case TAGTYPE_STR20: return "TAGTYPE_STR20";
             case TAGTYPE_STR21: return "TAGTYPE_STR21";
-            case TAGTYPE_STR22: return "TAGTYPE_STR22";        
+            case TAGTYPE_STR22: return "TAGTYPE_STR22";
             default: return "UNKNOWN";
         }
     }
-    
+
     public static String id2String(byte id) {
         switch(id) {
             case FT_UNDEFINED: return "FT_UNDEFINED";
@@ -247,14 +247,14 @@ public final class Tag implements Serializable {
             default: return "UNKNOWN";
         }
     }
-    
+
     private static class FloatSerial implements Serializable {
-        public float value;        
-        
+        public float value;
+
         FloatSerial(float value) {
             this.value = value;
         }
-        
+
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
             value = src.getFloat();
@@ -262,31 +262,31 @@ public final class Tag implements Serializable {
         }
 
         @Override
-        public ByteBuffer put(ByteBuffer dst) throws JED2KException {  
-            return dst.putFloat(value); 
+        public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+            return dst.putFloat(value);
         }
 
         @Override
         public int bytesCount() {
-            return sizeof(value);            
+            return sizeof(value);
         }
-        
+
         @Override
         public String toString() {
             return Float.toString(value);
         }
     }
-    
+
     private static class BooleanSerial implements Serializable {
         public boolean value;
-        
+
         BooleanSerial(boolean value) {
             this.value = value;
         }
-        
+
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
-            value = (src.get() == 0x00);    
+            value = (src.get() == 0x00);
             return src;
         }
 
@@ -300,22 +300,22 @@ public final class Tag implements Serializable {
         public int bytesCount() {
             return sizeof(value);
         }
-        
+
         @Override
         public String toString() {
             return value?"true":"false";
         }
     }
-    
+
     private static class StringSerial implements Serializable {
         public byte type;
         byte[] value = null;
-        
+
         StringSerial(byte type, byte[] value) {
             this.type = type;
             this.value = value;
         }
-                
+
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
             short size = 0;
@@ -324,16 +324,16 @@ public final class Tag implements Serializable {
             } else {
                 size = src.getShort();
             }
-            
+
             value = new byte[size];
-            return src.get(value);            
+            return src.get(value);
         }
-        
+
         @Override
         public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-            if (type == Tag.TAGTYPE_STRING) dst.putShort((short)value.length);            
+            if (type == Tag.TAGTYPE_STRING) dst.putShort((short)value.length);
             return dst.put(value);
-        }        
+        }
 
         @Override
         public int bytesCount() {
@@ -341,16 +341,16 @@ public final class Tag implements Serializable {
             // for modern tag we do not write 2 bytes for length - so first is 0, but for ordinary string +2 bytes for size
             return value.length + ((type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16)?0:2);
         }
-        
+
         public String stringValue() throws JED2KException {
             assert(value != null);
-            try {                
+            try {
                 return new String(value, "UTF-8");
             } catch(UnsupportedEncodingException e) {
                 throw new JED2KException(e);
             }
         }
-        
+
         @Override
         public String toString() {
             try {
@@ -358,15 +358,15 @@ public final class Tag implements Serializable {
             } catch (JED2KException e){
                 log.warning(e.getMessage());
             }
-            
+
             return new String();
         }
     }
-    
-    public final class BoolArraySerial implements Serializable {    
+
+    public final class BoolArraySerial implements Serializable {
         private final UInt16 length = uint16();
-        private byte value[] = null;               
-        
+        private byte value[] = null;
+
         @Override
         public ByteBuffer put(ByteBuffer dst) throws JED2KException {
             assert(false);
@@ -385,42 +385,42 @@ public final class Tag implements Serializable {
             return length.bytesCount() + length.bytesCount()/8;
         }
     }
-    
+
     private byte type;
     private byte id;
     String name = null;
     Serializable value = null;
-    
+
     private Tag(byte type, byte id, String name, Serializable value) {
         this.type = type;
         this.id = id;
         this.name = name;
         this.value = value;
     }
-    
+
     // uninitialized instance of Tag
     public Tag() {
         this.type = TAGTYPE_UNDEFINED;
         this.id = FT_UNDEFINED;
     }
-    
-    @Override 
+
+    @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         this.type = src.get();
-        
+
         if ((type & 0x80) != 0){
             type = (byte)(type & 0x7f);
             id = src.get();
         } else {
             ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());
             bc.get(src);
-            if (bc.size.intValue() == 1) {                
+            if (bc.size.intValue() == 1) {
                 id = bc.value[0];
             } else {
                 name = bc.toString();
-            }            
+            }
         }
-        
+
         switch(type){
         case TAGTYPE_UINT8:
             value = uint8();
@@ -472,12 +472,12 @@ public final class Tag implements Serializable {
             log.warning("Unknown tag type: " + Utils.byte2String(type));
             throw new JED2KException("Unknown tag type " + Utils.byte2String(type));
         };
-        
+
         assert(value != null);
         value.get(src);
         return src;
     }
-    
+
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         assert(initialized());
@@ -489,117 +489,117 @@ public final class Tag implements Serializable {
             byte[] data = name.getBytes(Charset.forName("UTF-8"));
             dst.put(type).putShort((short)data.length).put(data);
         }
-       
-        
+
+
         return value.put(dst);
     }
-    
+
     public final boolean initialized() {
         return type != TAGTYPE_UNDEFINED && (id != FT_UNDEFINED || name != null);
     }
-    
+
     public final byte type() {
         return type;
     }
-    
+
     public final byte id() {
         return id;
     }
-    
+
     public final String name() {
         return name;
     }
-    
+
     public final boolean isStringTag() {
         assert(value != null);
         return value instanceof StringSerial;
     }
-    
+
     public final String stringValue() throws JED2KException {
         assert(initialized());
         StringSerial ss = (StringSerial)value;
-        if (ss == null) throw new JED2KException("Ivalid cast tag to string");
+        if (ss == null) throw new JED2KException("Invalid cast tag to string");
         return ss.stringValue();
     }
-    
+
     public final boolean isNumberTag() {
         assert(value != null);
         return value instanceof UNumber;
     }
-    
+
     public final int intValue() throws JED2KException {
         assert(initialized());
         UNumber n = (UNumber)value;
-        if (value == null)  throw new JED2KException("Invalid cast tag to int");        
+        if (value == null)  throw new JED2KException("Invalid cast tag to int");
         return n.intValue();
     }
-    
+
     public final long longValue() throws JED2KException {
         assert(initialized());
         UNumber n = (UNumber)value;
         if (n == null) throw new JED2KException("Invalid cast tag to long");
         return n.longValue();
     }
-    
+
     public final boolean isFloatTag() {
         assert(value != null);
         return value instanceof FloatSerial;
     }
-    
+
     public final float floatValue() throws JED2KException {
         assert(initialized());
         FloatSerial fs = (FloatSerial)value;
         if (fs == null) throw new JED2KException("Invalid cast tag to float");
         return fs.value;
     }
-    
+
     public final boolean isHashTag() {
         assert(value != null);
         return value instanceof Hash;
     }
-    
+
     public final Hash hashValue() throws JED2KException {
         assert(initialized());
         Hash h = (Hash)value;
         if (h == null) throw new JED2KException("Invalid cast tag to hash");
         return h;
     }
-    
-    public static Tag tag(byte id, String name, int value) {        
+
+    public static Tag tag(byte id, String name, int value) {
         return new Tag(TAGTYPE_UINT32, id, name, uint32(value));
     }
-    
+
     public static Tag tag(byte id, String name, short value) {
         return new Tag(TAGTYPE_UINT16, id, name, uint16(value));
     }
-    
+
     public static Tag tag(byte id, String name, byte value) {
         return new Tag(TAGTYPE_UINT8, id, name, uint8(value));
     }
-    
+
     public static Tag tag(byte id, String name, boolean value) {
         return new Tag(TAGTYPE_BOOL, id, name, new BooleanSerial(value));
     }
-    
+
     public static Tag tag(byte id, String name, float value) {
         return new Tag(TAGTYPE_FLOAT32, id, name, new FloatSerial(value));
     }
-    
+
     public static Tag tag(byte id, String name, String value) throws JED2KException {
         byte type = Tag.TAGTYPE_STRING;
         byte[] bytes = null;
-        
+
         try {
-            bytes = value.getBytes("UTF-8"); 
+            bytes = value.getBytes("UTF-8");
             if (bytes.length <= 16) type = (byte)(Tag.TAGTYPE_STR1 + bytes.length - 1);
         } catch(UnsupportedEncodingException ex) {
             throw new JED2KException(ex);
         }
-        
+
         assert(bytes != null);
         return new Tag(type, id, name, new StringSerial(type, bytes));
     }
-    
+
     public static Tag tag(byte id, String name, Hash value) throws JED2KException {
         return new Tag(TAGTYPE_HASH16, id, name, value);
     }
@@ -607,13 +607,13 @@ public final class Tag implements Serializable {
     @Override
     public int bytesCount() {
         // TODO - fix twice conversion
-        if (name == null){
+        if (name == null) {
             return value.bytesCount() + 2;    // type + id
         } else {                  // type + len + name
             return value.bytesCount() + 1 + 2 + name.getBytes(Charset.forName("UTF-8")).length;
-        }        
+        }
     }
-    
+
     @Override
     public String toString() {
         return type2String(type) + " " + ((name!=null)?name:id2String(id)) + " " + value.toString();
