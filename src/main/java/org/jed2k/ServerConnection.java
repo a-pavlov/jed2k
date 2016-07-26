@@ -10,17 +10,10 @@ import org.jed2k.alert.ServerMessageAlert;
 import org.jed2k.alert.ServerStatusAlert;
 import org.jed2k.exception.ProtocolCode;
 import org.jed2k.protocol.client.*;
-import org.jed2k.protocol.server.FoundFileSources;
+import org.jed2k.protocol.server.*;
 import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.server.LoginRequest;
-import org.jed2k.protocol.server.search.SearchResult;
-import org.jed2k.protocol.server.IdChange;
-import org.jed2k.protocol.server.ServerInfo;
-import org.jed2k.protocol.server.ServerList;
-import org.jed2k.protocol.server.Message;
 import org.jed2k.protocol.server.PacketCombiner;
-import org.jed2k.protocol.server.Status;
-import org.jed2k.protocol.server.GetList;
+import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.tag.Tag;
@@ -228,5 +221,11 @@ public class ServerConnection extends Connection implements Tickable {
             log.info("Send ping message to server");
             write(new GetList());
         }
+    }
+
+    void sendFileSourcesRequest(final Hash h, final long size) {
+        long hi = (size >>> 32) & 0xFFFFFFFF;
+        long lo = size & 0xFFFFFFFF;
+        write(new GetFileSources(h, (int)hi, (int)lo));
     }
 }

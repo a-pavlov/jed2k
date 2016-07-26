@@ -281,4 +281,10 @@ public class Session extends Thread implements Tickable {
             t.abort();
         }
     }
+
+
+    void sendSourcesRequest(final Hash h, final long size) {
+        if (sc != null) sc.sendFileSourcesRequest(h, size);
+    }
+
 }
