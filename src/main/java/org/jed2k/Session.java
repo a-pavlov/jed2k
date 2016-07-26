@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import org.jed2k.alert.Alert;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ProtocolCode;
 import org.jed2k.protocol.Hash;
@@ -54,8 +55,59 @@ public class Session extends Thread implements Tickable {
         }
     }
 
+    /**
+     * syncronized session internal processing method
+     * @param ec
+     * @throws IOException
+     */
+    private synchronized void on_tick(ErrorCode ec, int channelCount, long tickIntervalMsec, long currentTime) throws IOException {
+
+        if (channelCount != 0) {
+            // process channels
+            Set<SelectionKey> selectedKeys = selector.selectedKeys();
+            Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+
+            while(keyIterator.hasNext()) {
+                SelectionKey key = keyIterator.next();
+
+                if (key.isValid()) {
+
+                    if(key.isAcceptable()) {
+                        // a connection was accepted by a ServerSocketChannel.
+                        log.finest("Key is acceptable");
+                        incomingConnection(ssc.accept());
+                    } else if (key.isConnectable()) {
+                        // a connection was established with a remote server/peer.
+                        log.finest("Key is connectable");
+                        ((Connection)key.attachment()).onConnectable();
+                    } else if (key.isReadable()) {
+                        // a channel is ready for reading
+                        log.finest("Key is readable");
+                        ((Connection)key.attachment()).onReadable();
+                    } else if (key.isWritable()) {
+                        // a channel is ready for writing
+                        log.finest("Key is writeable");
+                        ((Connection)key.attachment()).onWriteable();
+                    }
+                }
+
+                keyIterator.remove();
+            }
+        }
+
+        /**
+         * handle user's command and process internal tasks in
+         * transfers, peers and other structures every 1 second
+         */
+        if (tickIntervalMsec >= 1000) {
+            lastTick = currentTime; // move last tick to current time
+            secondTick(currentTime);
+        }
+    }
+
     @Override
     public void run() {
+        // TODO - remove all possible exceptions from this cycle!
         try {
             log.finest("Session started");
             selector = Selector.open();
@@ -71,48 +123,8 @@ public class Session extends Thread implements Tickable {
                 int channelCount = selector.select(1000);
                 long currentTime = Time.currentTime();
                 long tickIntervalMsec = currentTime - lastTick;
-
-                if (channelCount != 0) {
-                    // process channels
-                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                    Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
-
-                    while(keyIterator.hasNext()) {
-                        SelectionKey key = keyIterator.next();
-
-                        if (key.isValid()) {
-
-                            if(key.isAcceptable()) {
-                                // a connection was accepted by a ServerSocketChannel.
-                                log.finest("Key is acceptable");
-                                incomingConnection(ssc.accept());
-                            } else if (key.isConnectable()) {
-                                // a connection was established with a remote server/peer.
-                                log.finest("Key is connectable");
-                                ((Connection)key.attachment()).onConnectable();
-                            } else if (key.isReadable()) {
-                                // a channel is ready for reading
-                                log.finest("Key is readable");
-                                ((Connection)key.attachment()).onReadable();
-                            } else if (key.isWritable()) {
-                                // a channel is ready for writing
-                                log.finest("Key is writeable");
-                                ((Connection)key.attachment()).onWriteable();
-                            }
-                        }
-
-                        keyIterator.remove();
-                    }
-                }
-
-                /**
-                 * handle user's command and process internal tasks in
-                 * transfers, peers and other structures every 1 second
-                 */
-                if (tickIntervalMsec >= 1000) {
-                    lastTick = currentTime; // move last tick to current time
-                    secondTick(currentTime);
-                }
+                if (tickIntervalMsec >= 1000 || channelCount > 0)
+                    on_tick(ProtocolCode.NO_ERROR, channelCount, tickIntervalMsec, currentTime);
             }
         }
         catch(IOException e) {
@@ -253,6 +265,12 @@ public class Session extends Thread implements Tickable {
 
     @Override
     public void secondTick(long tickIntervalMs) {
+
+        for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
+            Hash key = entry.getKey();
+            entry.getValue().secondTick(tickIntervalMs);
+        }
+
         // second tick on server connection
         if (sc != null) sc.secondTick(tickIntervalMs);
 
@@ -269,9 +287,22 @@ public class Session extends Thread implements Tickable {
         return lastTick;
     }
 
+    /**
+     * create new transfer in session or return previous
+     * method synchronized with session second tick method
+     * @param h hash of file(transfer)
+     * @param size of file
+     * @return TransferHandle with valid transfer of without
+     */
+    public synchronized TransferHandle addTransfer(Hash h, long size) {
+        Transfer t = transfers.get(h);
 
-    void addTransfer() {
+        if (t == null) {
+            t = new Transfer(h, size);
+            transfers.put(h, t);
+        }
 
+        return new TransferHandle(t);
     }
 
     void removeTransfer(Hash h) {
