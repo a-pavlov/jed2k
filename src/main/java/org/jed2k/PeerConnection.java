@@ -371,7 +371,7 @@ public class PeerConnection extends Connection {
             throws JED2KException {
         assignRemotePeerInformation(value);
         if (transfer != null) {
-            write(new FileRequest(transfer.fileHash()));
+            write(new FileRequest(transfer.hash()));
         }
     }
 
@@ -417,8 +417,8 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
-        if (transfer != null && value.hash.equals(transfer.fileHash())) {
-            write(new FileStatusRequest(transfer.fileHash()));
+        if (transfer != null && value.hash.equals(transfer.hash())) {
+            write(new FileStatusRequest(transfer.hash()));
         } else {
             close(ProtocolCode.NO_TRANSFER);
         }
@@ -435,7 +435,7 @@ public class PeerConnection extends Connection {
             throws JED2KException {
         bits = value.bitfield;
         if (transfer != null) {
-            write(new HashSetRequest(transfer.fileHash()));
+            write(new HashSetRequest(transfer.hash()));
         } else {
             close(ProtocolCode.NO_TRANSFER);
         }

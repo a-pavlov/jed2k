@@ -10,12 +10,15 @@ import java.lang.ref.WeakReference;
  */
 public class TransferHandle {
     private WeakReference<Transfer> transfer;
+    private Session ses;
 
-    public TransferHandle() {
+    public TransferHandle(final Session s) {
+        ses = s;
         transfer = new WeakReference<Transfer>(null);
     }
 
-    public TransferHandle(Transfer t) {
+    public TransferHandle(final Session s, Transfer t) {
+        ses = s;
         transfer = new WeakReference<Transfer>(t);
     }
 
@@ -26,7 +29,9 @@ public class TransferHandle {
     public final Hash getHash() {
         Transfer t = transfer.get();
         if (t != null) {
-            return t.fileHash();
+            synchronized (ses) {
+                return t.hash();
+            }
         }
 
         return null;

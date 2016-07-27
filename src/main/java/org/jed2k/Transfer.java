@@ -16,14 +16,17 @@ public class Transfer implements Tickable {
     private ArrayList<Hash> hashset;
     private Statistics stat = new Statistics();
     private PiecePicker picker;
+    private Session session;
 
-    public Transfer(Hash hash, long size) {
+    public Transfer(Session s, Hash hash, long size) {
         this.fileHash = hash;
         this.size = size;
         this.hashset = null;
+        assert(s != null);
+        session = s;
     }
 
-    public Hash fileHash() {
+    Hash hash() {
         return fileHash;
     }
 

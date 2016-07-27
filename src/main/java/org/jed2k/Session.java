@@ -298,11 +298,11 @@ public class Session extends Thread implements Tickable {
         Transfer t = transfers.get(h);
 
         if (t == null) {
-            t = new Transfer(h, size);
+            t = new Transfer(this, h, size);
             transfers.put(h, t);
         }
 
-        return new TransferHandle(t);
+        return new TransferHandle(this, t);
     }
 
     void removeTransfer(Hash h) {
