@@ -81,5 +81,4 @@ public class CommonTest {
         assertTrue(tick_interval_ms < 400);
         assertTrue(tick_interval_ms >= 200);
     }
-
 }

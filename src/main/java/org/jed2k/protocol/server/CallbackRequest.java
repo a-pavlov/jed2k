@@ -5,8 +5,12 @@ import static org.jed2k.Utils.sizeof;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 
-public class CallbackRequestOutgoing implements Serializable {
+public class CallbackRequest implements Serializable {
     public int clientId = 0;
+
+    public CallbackRequest(int c) {
+        clientId = c;
+    }
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
@@ -23,5 +27,5 @@ public class CallbackRequestOutgoing implements Serializable {
     public int bytesCount() {
         return sizeof(clientId);
     }
-    
+
 }

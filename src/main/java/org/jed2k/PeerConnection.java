@@ -14,15 +14,10 @@ import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.BitField;
 import org.jed2k.protocol.client.*;
-import org.jed2k.protocol.server.FoundFileSources;
+import org.jed2k.protocol.server.*;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.server.search.SearchResult;
-import org.jed2k.protocol.server.IdChange;
-import org.jed2k.protocol.server.ServerInfo;
-import org.jed2k.protocol.server.ServerList;
-import org.jed2k.protocol.server.Message;
-import org.jed2k.protocol.server.Status;
 import org.jed2k.protocol.tag.Tag;
 import org.jed2k.data.PieceBlock;
 
@@ -402,6 +397,16 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
+    public void onCallbackRequestFailed(CallbackRequestFailed value) throws JED2KException {
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
+    public void onCallbackRequestIncoming(CallbackRequestIncoming value) throws JED2KException {
         throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 

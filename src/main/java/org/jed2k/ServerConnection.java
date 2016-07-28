@@ -205,6 +205,16 @@ public class ServerConnection extends Connection {
     }
 
     @Override
+    public void onCallbackRequestFailed(CallbackRequestFailed value) throws JED2KException {
+        log.warning("callback request failed " + value.toString());
+    }
+
+    @Override
+    public void onCallbackRequestIncoming(CallbackRequestIncoming value) throws JED2KException {
+        log.info("incoming callback request " + value.point.toString());
+    }
+
+    @Override
     public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
         throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
@@ -230,5 +240,9 @@ public class ServerConnection extends Connection {
         long hi = (size >>> 32) & 0xFFFFFFFF;
         long lo = size & 0xFFFFFFFF;
         write(new GetFileSources(h, (int)hi, (int)lo));
+    }
+
+    void sendCallbackRequest(final int clientId) {
+        write(new CallbackRequest(clientId));
     }
 }

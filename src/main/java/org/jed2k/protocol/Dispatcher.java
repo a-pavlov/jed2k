@@ -1,13 +1,8 @@
 package org.jed2k.protocol;
 
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.server.FoundFileSources;
-import org.jed2k.protocol.server.IdChange;
-import org.jed2k.protocol.server.Message;
+import org.jed2k.protocol.server.*;
 import org.jed2k.protocol.server.search.SearchResult;
-import org.jed2k.protocol.server.ServerInfo;
-import org.jed2k.protocol.server.ServerList;
-import org.jed2k.protocol.server.Status;
 import org.jed2k.protocol.client.*;
 
 public interface Dispatcher {
@@ -19,6 +14,8 @@ public interface Dispatcher {
     public void onServerStatus(Status value) throws JED2KException;
     public void onSearchResult(SearchResult value) throws JED2KException;
     public void onFoundFileSources(FoundFileSources value) throws JED2KException;
+    public void onCallbackRequestFailed(CallbackRequestFailed value) throws JED2KException;
+    public void onCallbackRequestIncoming(CallbackRequestIncoming value) throws JED2KException;
 
     // client to client packets
     public void onClientHello(Hello value) throws JED2KException;
