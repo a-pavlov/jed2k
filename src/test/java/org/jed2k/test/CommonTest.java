@@ -10,6 +10,7 @@ import static junit.framework.Assert.assertTrue;
 import org.jed2k.Constants;
 import org.junit.Test;
 import static org.jed2k.Time.currentTime;
+import static org.jed2k.Time.currentTimeHiRes;
 
 public class CommonTest {
     private static Logger log = Logger.getLogger(CommonTest.class.getName());
@@ -68,15 +69,15 @@ public class CommonTest {
         long sessionLastTick = currentTime();
         // some work here
         Thread.sleep(510, 0);
-        long currentTime = currentTime();
+        long currentTime = currentTimeHiRes();
         long tick_interval_ms = currentTime - sessionLastTick;
-        sessionLastTick = currentTime;
+        sessionLastTick = currentTimeHiRes();
         assertTrue(tick_interval_ms < 1000);
         assertTrue(tick_interval_ms >= 500);
         // some work here
         Thread.sleep(200, 0);
-        currentTime = currentTime();
-        tick_interval_ms = currentTime - sessionLastTick;
+        currentTime = currentTimeHiRes();
+        tick_interval_ms = currentTimeHiRes() - sessionLastTick;
         assertTrue(tick_interval_ms < 400);
         assertTrue(tick_interval_ms >= 200);
     }
