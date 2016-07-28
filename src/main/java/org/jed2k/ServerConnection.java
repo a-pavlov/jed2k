@@ -8,7 +8,8 @@ import java.util.logging.Logger;
 import org.jed2k.alert.SearchResultAlert;
 import org.jed2k.alert.ServerMessageAlert;
 import org.jed2k.alert.ServerStatusAlert;
-import org.jed2k.exception.ProtocolCode;
+import org.jed2k.exception.BaseErrorCode;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.*;
 import org.jed2k.protocol.Hash;
@@ -20,7 +21,7 @@ import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
-public class ServerConnection extends Connection implements Tickable {
+public class ServerConnection extends Connection {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
     private long lastPingTime = 0;
 
@@ -34,7 +35,7 @@ public class ServerConnection extends Connection implements Tickable {
     public static ServerConnection makeConnection(Session ses) {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(18192);
-            ByteBuffer obuff = ByteBuffer.allocate(8192);
+            ByteBuffer obuff = ByteBuffer.allocate(2048);
             return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
 
@@ -56,13 +57,13 @@ public class ServerConnection extends Connection implements Tickable {
 
         int versionClient = (LoginRequest.JED2K_VERSION_MAJOR << 24) | (LoginRequest.JED2K_VERSION_MINOR << 17) | (LoginRequest.JED2K_VERSION_TINY << 10) | (1 << 7);
 
-        login.hash = Hash.EMULE;
+        login.hash = session.settings.userAgent;
         login.point.ip = 0;
-        login.point.port = (short)4661;
+        login.point.port = (short)session.settings.listenPort;
 
         login.properties.add(tag(Tag.CT_VERSION, null, version));
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
-        login.properties.add(tag(Tag.CT_NAME, null, "jed2k"));
+        login.properties.add(tag(Tag.CT_NAME, null, session.settings.clientName));
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
         log.info(login.toString());
         return login;
@@ -106,24 +107,24 @@ public class ServerConnection extends Connection implements Tickable {
 
     @Override
     public void onClientHello(Hello value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientHelloAnswer(HelloAnswer value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientExtHello(ExtHello value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientExtHelloAnswer(ExtHelloAnswer value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
@@ -132,10 +133,12 @@ public class ServerConnection extends Connection implements Tickable {
     }
 
     @Override
-    protected void onDisconnect() {
+    protected void onDisconnect(BaseErrorCode ec) {
+        // remove server connection from session
         session.clientId = 0;
         session.tcpFlags = 0;
         session.auxPort = 0;
+        session.serverConection = null;
     }
 
     @Override
@@ -147,49 +150,49 @@ public class ServerConnection extends Connection implements Tickable {
     @Override
     public void onClientFileRequest(FileRequest value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientFileStatusRequest(FileStatusRequest value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientFileStatusAnswer(FileStatusAnswer value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientHashSetRequest(HashSetRequest value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientNoFileStatus(NoFileStatus value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
@@ -204,20 +207,20 @@ public class ServerConnection extends Connection implements Tickable {
     @Override
     public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
-        throw new JED2KException(ProtocolCode.SERVER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
-    public void secondTick(long tickIntervalMs) {
+    void secondTick(long currentSessionTime) {
         // ping server when feature enabled and timeout occured
         if (session.settings.serverPingTimeout > 0 &&
-                tickIntervalMs - lastPingTime > session.settings.serverPingTimeout) {
+                currentSessionTime - lastPingTime > session.settings.serverPingTimeout) {
             log.info("Send ping message to server");
             write(new GetList());
         }

@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import org.jed2k.Utils;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
 import org.jed2k.exception.JED2KException;
@@ -347,7 +348,7 @@ public final class Tag implements Serializable {
             try {
                 return new String(value, "UTF-8");
             } catch(UnsupportedEncodingException e) {
-                throw new JED2KException(e);
+                throw new JED2KException(ErrorCode.TAG_FROM_STRING_INVALID_CP);
             }
         }
 
@@ -470,7 +471,7 @@ public final class Tag implements Serializable {
             break;
         default:
             log.warning("Unknown tag type: " + Utils.byte2String(type));
-            throw new JED2KException("Unknown tag type " + Utils.byte2String(type));
+            throw new JED2KException(ErrorCode.TAG_TYPE_UNKNOWN);
         };
 
         assert(value != null);
@@ -489,7 +490,6 @@ public final class Tag implements Serializable {
             byte[] data = name.getBytes(Charset.forName("UTF-8"));
             dst.put(type).putShort((short)data.length).put(data);
         }
-
 
         return value.put(dst);
     }
@@ -518,7 +518,7 @@ public final class Tag implements Serializable {
     public final String stringValue() throws JED2KException {
         assert(initialized());
         StringSerial ss = (StringSerial)value;
-        if (ss == null) throw new JED2KException("Invalid cast tag to string");
+        if (ss == null) throw new JED2KException(ErrorCode.TAG_TO_STRING_INVALID);
         return ss.stringValue();
     }
 
@@ -530,14 +530,14 @@ public final class Tag implements Serializable {
     public final int intValue() throws JED2KException {
         assert(initialized());
         UNumber n = (UNumber)value;
-        if (value == null)  throw new JED2KException("Invalid cast tag to int");
+        if (value == null)  throw new JED2KException(ErrorCode.TAG_TO_INT_INVALID);
         return n.intValue();
     }
 
     public final long longValue() throws JED2KException {
         assert(initialized());
         UNumber n = (UNumber)value;
-        if (n == null) throw new JED2KException("Invalid cast tag to long");
+        if (n == null) throw new JED2KException(ErrorCode.TAG_TO_LONG_INVALID);
         return n.longValue();
     }
 
@@ -549,7 +549,7 @@ public final class Tag implements Serializable {
     public final float floatValue() throws JED2KException {
         assert(initialized());
         FloatSerial fs = (FloatSerial)value;
-        if (fs == null) throw new JED2KException("Invalid cast tag to float");
+        if (fs == null) throw new JED2KException(ErrorCode.TAG_TO_FLOAT_INVALID);
         return fs.value;
     }
 
@@ -561,7 +561,7 @@ public final class Tag implements Serializable {
     public final Hash hashValue() throws JED2KException {
         assert(initialized());
         Hash h = (Hash)value;
-        if (h == null) throw new JED2KException("Invalid cast tag to hash");
+        if (h == null) throw new JED2KException(ErrorCode.TAG_TO_HASH_INVALID);
         return h;
     }
 
@@ -593,7 +593,7 @@ public final class Tag implements Serializable {
             bytes = value.getBytes("UTF-8");
             if (bytes.length <= 16) type = (byte)(Tag.TAGTYPE_STR1 + bytes.length - 1);
         } catch(UnsupportedEncodingException ex) {
-            throw new JED2KException(ex);
+            throw new JED2KException(ErrorCode.TAG_FROM_STRING_INVALID_CP);
         }
 
         assert(bytes != null);

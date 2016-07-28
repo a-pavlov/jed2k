@@ -10,16 +10,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.JED2KException;
-import org.jed2k.exception.ProtocolCode;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.Dispatcher;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.Serializable;
 
-public abstract class Connection implements Dispatcher, Tickable {
+public abstract class Connection implements Dispatcher {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
     private SocketChannel socket;
     private ByteBuffer bufferIncoming;
@@ -32,6 +32,7 @@ public abstract class Connection implements Dispatcher, Tickable {
     private PacketHeader header = new PacketHeader();
     private ByteBuffer headerBuffer = ByteBuffer.allocate(PacketHeader.SIZE);
     private Statistics stat = new Statistics();
+    long lastReceive = Time.currentTime();
 
     protected Connection(ByteBuffer bufferIncoming,
             ByteBuffer bufferOutgoing,
@@ -70,9 +71,10 @@ public abstract class Connection implements Dispatcher, Tickable {
         try {
             socket.finishConnect();
             onConnect();
+            lastReceive = Time.currentTime();
         } catch(IOException e) {
             log.warning(e.getMessage());
-            close(ProtocolCode.IO_EXCEPTION);
+            close(ErrorCode.IO_EXCEPTION);
         } catch(JED2KException e) {
             log.warning(e.getMessage());
             close(e.getErrorCode());
@@ -87,10 +89,10 @@ public abstract class Connection implements Dispatcher, Tickable {
         try {
             bytes = socket.read(headerBuffer);
         } catch(IOException e) {
-            throw new JED2KException(ProtocolCode.IO_EXCEPTION);
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
 
-        if (bytes == -1) throw new JED2KException(ProtocolCode.END_OF_STREAM);
+        if (bytes == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
 
         if (headerBuffer.remaining() == 0) {
             headerBuffer.flip();
@@ -110,10 +112,10 @@ public abstract class Connection implements Dispatcher, Tickable {
             try {
                 bytes = socket.read(bufferIncoming);
             } catch(IOException e) {
-                throw new JED2KException(ProtocolCode.IO_EXCEPTION);
+                throw new JED2KException(ErrorCode.IO_EXCEPTION);
             }
 
-            if (bytes == -1) throw new JED2KException(ProtocolCode.END_OF_STREAM);
+            if (bytes == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
         }
 
         if (bufferIncoming.remaining() == 0) {
@@ -135,6 +137,8 @@ public abstract class Connection implements Dispatcher, Tickable {
             } else {
                 processBody();
             }
+
+            lastReceive = Time.currentTime();
         } catch(JED2KException e) {
             log.warning(e.getMessage());
             close(e.getErrorCode());
@@ -169,30 +173,30 @@ public abstract class Connection implements Dispatcher, Tickable {
             close(e.getErrorCode());
         } catch (IOException e) {
             log.warning(e.getMessage());
-            close(ProtocolCode.IO_EXCEPTION);
+            close(ErrorCode.IO_EXCEPTION);
         }
     }
 
     protected abstract void onConnect() throws JED2KException;
-    protected abstract void onDisconnect();
+    protected abstract void onDisconnect(BaseErrorCode ec);
 
     public void connect(final InetSocketAddress address) throws JED2KException {
         try {
             socket.connect(address);
         } catch(IOException e) {
            log.warning(e.getMessage());
-           close(ProtocolCode.IO_EXCEPTION);
+           close(ErrorCode.IO_EXCEPTION);
         }
     }
 
-    public void close(ErrorCode ec) {
+    public void close(BaseErrorCode ec) {
         log.finest("close socket " + ec);
         try {
             socket.close();
         } catch(IOException e) {
             log.warning(e.getMessage());
         } finally {
-            onDisconnect();
+            onDisconnect(ec);
             key.cancel();
         }
     }
@@ -206,9 +210,8 @@ public abstract class Connection implements Dispatcher, Tickable {
         }
     }
 
-    @Override
-    public void secondTick(long tickIntervalMs) {
-        stat.secondTick(tickIntervalMs);
+    void secondTick(long currentSessionTime) {
+        stat.secondTick(currentSessionTime);
     }
 
     public Statistics statistics() {

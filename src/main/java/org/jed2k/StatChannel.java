@@ -3,35 +3,35 @@ package org.jed2k;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class StatChannel implements Tickable {
+public class StatChannel {
 	private	long secondCounter = 0;
 	private long totalCounter = 0;
 	private long average5Sec = 0;
 	private long average30Sec = 0;
 	LinkedList<Long> samples = new LinkedList<Long>(Arrays.asList(0L,0L,0L,0L,0L));
-	
+
 	public void add(long count) {
 		assert(count >= 0);
 		secondCounter += count;
 		totalCounter += count;
 	}
-	
+
 	public long counter() {
 		return secondCounter;
 	}
-	
+
 	public long total() {
 		return totalCounter;
 	}
-	
+
 	public long rate() {
 		return average5Sec;
 	}
-	
+
 	public long lowPassRate() {
 		return average30Sec;
 	}
-	
+
 	public void clear() {
 		secondCounter = 0;
 		totalCounter = 0;
@@ -51,9 +51,8 @@ public class StatChannel implements Tickable {
 		return this;
 	}
 
-	@Override
-	public void secondTick(long tickIntervalMs) {
-		long sample = secondCounter * 1000 / tickIntervalMs;
+	void secondTick(long currentSessionTime) {
+		long sample = secondCounter * 1000 / currentSessionTime;
 	    assert(sample >= 0);
 	    samples.push(sample);
 	    samples.removeLast();

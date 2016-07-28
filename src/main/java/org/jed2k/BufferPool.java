@@ -6,7 +6,7 @@ import java.util.LinkedList;
 /**
  * Created by inkpot on 08.07.2016.
  */
-public class BufferPool implements Tickable {
+public class BufferPool {
     private int maxBuffersCount = 0;
     private int allocatedBuffersCount = 0;
     LinkedList<ByteBuffer>  freeBuffers = new LinkedList<ByteBuffer>();
@@ -52,8 +52,7 @@ public class BufferPool implements Tickable {
         return allocatedBuffersCount;
     }
 
-    @Override
-    public void secondTick(long tickIntervalMs) {
+    public void secondTick(long currentSessionTime) {
         // free obsolete buffers
     }
 }

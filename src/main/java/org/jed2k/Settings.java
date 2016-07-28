@@ -3,7 +3,7 @@ package org.jed2k;
 import org.jed2k.protocol.Hash;
 
 public class Settings {
-    public Hash userAgent = new Hash(Hash.EMULE);
+    public final Hash userAgent = new Hash(Hash.EMULE);
     public String modName = new String("jed2k");
     public String clientName = new String("jed2k");
     public short listenPort = 4661;
@@ -15,6 +15,7 @@ public class Settings {
     public int maxFailCount = 20;
     public int maxPeerListSize = 100;
     public int minPeerReconnectTime = 10;
+    public int peerConnectionTimeout = 10;
 
     /**
      * send ping message to server every serverPingTimeout

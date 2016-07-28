@@ -9,8 +9,8 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.data.PieceBlock;
 
-public class Transfer implements Tickable {
-    private Hash fileHash;
+public class Transfer {
+    private Hash hash;
     private Set<NetworkIdentifier> sources = new TreeSet<NetworkIdentifier>();
     private long size;
     private ArrayList<Hash> hashset;
@@ -19,26 +19,28 @@ public class Transfer implements Tickable {
     private Session session;
 
     public Transfer(Session s, Hash hash, long size) {
-        this.fileHash = hash;
+        assert(s != null);
+        assert(hash != null);
+        assert(size != 0);
+        this.hash = hash;
         this.size = size;
         this.hashset = null;
-        assert(s != null);
         session = s;
     }
 
     Hash hash() {
-        return fileHash;
+        return hash;
     }
 
-    public long fileSize() {
-        return size;
+    public long size() {
+        return this.size;
     }
 
     public boolean validateHashset(Collection<Hash> hashset) {
         if (this.hashset != null) {
             // compare
         } else {
-            return fileHash.equals(Hash.fromHashSet(hashset));
+            return hash.equals(Hash.fromHashSet(hashset));
         }
 
         return true;
@@ -61,10 +63,9 @@ public class Transfer implements Tickable {
         }
     }
 
-	@Override
-	public void secondTick(long tickIntervalMs) {
+	void secondTick(long currentSessionTime) {
         // TODO Auto-generated method stub
-        stat.secondTick(tickIntervalMs);
+        stat.secondTick(currentSessionTime);
         // TODO - add statistics from all peed connections
     }
 

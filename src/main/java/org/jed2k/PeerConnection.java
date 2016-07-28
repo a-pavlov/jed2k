@@ -8,10 +8,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-import org.jed2k.data.Range;
 import org.jed2k.data.Region;
+import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.JED2KException;
-import org.jed2k.exception.ProtocolCode;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.BitField;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.FoundFileSources;
@@ -28,6 +28,52 @@ import org.jed2k.data.PieceBlock;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
+/*
+Usual packets order in case of we establish connection to remote peer
+                                         remote peer
++                                          +
+|       Hello                              |
++------------------------------------------>
+|       HelloAnswer                        |
+<------------------------------------------+
+|       ExtHello(opt)                      |
++------------------------------------------>
+|       ExtHelloAnswer(opt)                |
+<------------------------------------------+
+|       FileRequest                        |
++------------------------------------------>
+|       FileAnswer                         |
+<------------------------------------------+
+|       FileStatusRequest                  |
++------------------------------------------>
+|       FileStatusAnswer/NoFileStatus      |
+<------------------------------------------+
+|       HashSetRequest                     |
++------------------------------------------>
+|       HashSetAnswer                      |
+<------------------------------------------+
+|       RequestParts32/64                  |
++------------------------------------------>
+|       SendingParts32/64 or OutOfParts    |
+<------------------------------------------+
+|                                          |
++                                          +
+
+For incoming connection we have different order in first two packets
+                                         remote peer
++                                          +
+|       Hello                              |
+<------------------------------------------+
+|       HelloAnswer                        |
++------------------------------------------>
+|       ExtHello(opt)                      |
+<------------------------------------------+
+|       ExtHelloAnswer(opt)                |
++------------------------------------------>
+|       FileRequest for LowID source       |
++------------------------------------------>
+
+*/
 public class PeerConnection extends Connection {
     enum PeerSpeed {
         SLOW,
@@ -331,32 +377,32 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onServerIdChange(IdChange value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerInfo(ServerInfo value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerList(ServerList value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerMessage(Message value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onServerStatus(Status value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
-        throw new JED2KException(ProtocolCode.PEER_CONN_UNSUPPORTED_PACKET);
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
     }
 
     @Override
@@ -404,14 +450,22 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    protected void onDisconnect() {
+    protected void onDisconnect(BaseErrorCode ec) {
         session.closeConnection(this);
+    }
+
+    @Override
+    void secondTick(long currentSessionTime) {
+        // check timeout on connection
+        if (currentSessionTime - lastReceive > session.settings.peerConnectionTimeout*1000) {
+            close(ErrorCode.CONNECTION_TIMEOUT);
+        }
     }
 
     @Override
     public void onClientFileRequest(FileRequest value)
             throws JED2KException {
-        close(ProtocolCode.NO_ERROR);
+        close(ErrorCode.NO_ERROR);
     }
 
     @Override
@@ -420,7 +474,7 @@ public class PeerConnection extends Connection {
         if (transfer != null && value.hash.equals(transfer.hash())) {
             write(new FileStatusRequest(transfer.hash()));
         } else {
-            close(ProtocolCode.NO_TRANSFER);
+            close(ErrorCode.NO_TRANSFER);
         }
     }
 
@@ -437,14 +491,14 @@ public class PeerConnection extends Connection {
         if (transfer != null) {
             write(new HashSetRequest(transfer.hash()));
         } else {
-            close(ProtocolCode.NO_TRANSFER);
+            close(ErrorCode.NO_TRANSFER);
         }
     }
 
     @Override
     public void onClientHashSetRequest(HashSetRequest value)
             throws JED2KException {
-        close(ProtocolCode.NO_ERROR);
+        close(ErrorCode.NO_ERROR);
     }
 
     @Override
@@ -480,13 +534,13 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientNoFileStatus(NoFileStatus value)
             throws JED2KException {
-        close(ProtocolCode.FILE_NOT_FOUND);
+        close(ErrorCode.FILE_NOT_FOUND);
     }
 
     @Override
     public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
-        close(ProtocolCode.OUT_OF_PARTS);
+        close(ErrorCode.OUT_OF_PARTS);
     }
 
     @Override
@@ -564,7 +618,7 @@ public class PeerConnection extends Connection {
     public boolean addRequest(PieceBlock b) {
         if (transfer == null) return false;
         if (!transfer.getPicker().markAsDownloading(b)) return false;
-        requestQueue.add(new PendingBlock(b, transfer.fileSize()));
+        requestQueue.add(new PendingBlock(b, transfer.size()));
         return true;
     }
 

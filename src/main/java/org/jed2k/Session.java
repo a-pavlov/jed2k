@@ -13,18 +13,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import org.jed2k.alert.Alert;
-import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.JED2KException;
-import org.jed2k.exception.ProtocolCode;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.server.search.SearchRequest;
 
-public class Session extends Thread implements Tickable {
+public class Session extends Thread {
     private static Logger log = Logger.getLogger(Session.class.getName());
     Selector selector = null;
     private ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<Runnable>();
-    private ServerConnection sc = null;
+    ServerConnection serverConection = null;
     private ServerSocketChannel ssc = null;
 
     Map<Hash, Transfer> transfers = new HashMap<Hash, Transfer>();
@@ -42,25 +42,40 @@ public class Session extends Thread implements Tickable {
     /**
      * start listening server socket
      */
-    private void listen() throws JED2KException {
+    private void listen() {
         try {
             if (ssc != null) ssc.close();
+        }
+        catch(IOException e) {
+            log.warning("Unable to close server socket channel");
+        }
+
+        try {
             log.info("Start listening on " + settings.listenPort);
             ssc = ServerSocketChannel.open();
             ssc.socket().bind(new InetSocketAddress(settings.listenPort));
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
-        } catch(IOException e) {
-            throw new JED2KException(e);
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                ssc.close();
+                ssc = null;
+            } catch(IOException e) {
+
+            }
         }
     }
 
     /**
-     * syncronized session internal processing method
+     * synchronized session internal processing method
      * @param ec
      * @throws IOException
      */
-    private synchronized void on_tick(ErrorCode ec, int channelCount, long tickIntervalMsec, long currentTime) throws IOException {
+    private synchronized void on_tick(BaseErrorCode ec, int channelCount) {
 
         if (channelCount != 0) {
             // process channels
@@ -75,7 +90,7 @@ public class Session extends Thread implements Tickable {
                     if(key.isAcceptable()) {
                         // a connection was accepted by a ServerSocketChannel.
                         log.finest("Key is acceptable");
-                        incomingConnection(ssc.accept());
+                        incomingConnection();
                     } else if (key.isConnectable()) {
                         // a connection was established with a remote server/peer.
                         log.finest("Key is connectable");
@@ -99,9 +114,29 @@ public class Session extends Thread implements Tickable {
          * handle user's command and process internal tasks in
          * transfers, peers and other structures every 1 second
          */
-        if (tickIntervalMsec >= 1000) {
-            lastTick = currentTime; // move last tick to current time
-            secondTick(currentTime);
+        long tickIntervalMs = Time.currentTime() - lastTick;
+        if (tickIntervalMs >= 1000) {
+            lastTick = Time.currentTime();
+            secondTick(Time.currentTime());
+        }
+    }
+
+    public void secondTick(long currentSessionTime) {
+
+        for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
+            Hash key = entry.getKey();
+            entry.getValue().secondTick(currentSessionTime);
+        }
+
+        // second tick on server connection
+        if (serverConection != null) serverConection.secondTick(currentSessionTime);
+
+        // TODO - run second tick on peer connections
+        // execute user's commands
+        Runnable r = commands.poll();
+        while(r != null) {
+            r.run();
+            r = commands.poll();
         }
     }
 
@@ -111,20 +146,12 @@ public class Session extends Thread implements Tickable {
         try {
             log.finest("Session started");
             selector = Selector.open();
-            try {
-                listen();
-            } catch(JED2KException e) {
-                log.warning("Unable to listen");
-            }
-
-            PeerConnection p = null;
+            listen();
 
             while(!isInterrupted()) {
                 int channelCount = selector.select(1000);
-                long currentTime = Time.currentTime();
-                long tickIntervalMsec = currentTime - lastTick;
-                if (tickIntervalMsec >= 1000 || channelCount > 0)
-                    on_tick(ProtocolCode.NO_ERROR, channelCount, tickIntervalMsec, currentTime);
+                Time.currentCachedTime = Time.currentTimeHiRes();
+                on_tick(ErrorCode.NO_ERROR, channelCount);
             }
         }
         catch(IOException e) {
@@ -142,12 +169,17 @@ public class Session extends Thread implements Tickable {
     }
 
     /**
-     * create new peer connection for incoming
-     * @param sc
+     * create new peer connection for incoming connection
      */
-    void incomingConnection(SocketChannel sc) {
-        PeerConnection p = PeerConnection.make(sc, this);
-        connections.add(p);
+    void incomingConnection() {
+        try {
+            SocketChannel sc = ssc.accept();
+            PeerConnection p = PeerConnection.make(sc, this);
+            connections.add(p);
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     void closeConnection(PeerConnection p) {
@@ -166,13 +198,13 @@ public class Session extends Thread implements Tickable {
         commands.add(new Runnable() {
             @Override
             public void run() {
-                if (sc != null) {
-                    sc.close(ProtocolCode.NO_ERROR);
+                if (serverConection != null) {
+                    serverConection.close(ErrorCode.NO_ERROR);
                 }
 
-                sc = ServerConnection.makeConnection(Session.this);
+                serverConection = ServerConnection.makeConnection(Session.this);
                 try {
-                    if (sc != null) sc.connect(point);
+                    if (serverConection != null) serverConection.connect(point);
                 } catch(JED2KException e) {
                 }
             }
@@ -183,9 +215,8 @@ public class Session extends Thread implements Tickable {
         commands.add(new Runnable() {
             @Override
             public void run() {
-                if (sc != null) {
-                    sc.close(ProtocolCode.NO_ERROR);
-                    sc = null;
+                if (serverConection != null) {
+                    serverConection.close(ErrorCode.NO_ERROR);
                 }
             }
         });
@@ -195,8 +226,8 @@ public class Session extends Thread implements Tickable {
         commands.add(new Runnable() {
             @Override
             public void run() {
-                if (sc != null) {
-                    sc.write(value);
+                if (serverConection != null) {
+                    serverConection.write(value);
                 }
             }
         });
@@ -239,12 +270,7 @@ public class Session extends Thread implements Tickable {
 			public void run() {
 				boolean relisten = (settings.listenPort != s.listenPort);
 				settings = s;
-				if (relisten) try {
-					listen();
-				} catch (JED2KException e) {
-					// TODO - handle this correctly
-					log.warning("Unable to listen on " + settings.listenPort);
-				}
+				listen();
 			}
     	});
     }
@@ -263,26 +289,6 @@ public class Session extends Thread implements Tickable {
         return alerts.poll();
     }
 
-    @Override
-    public void secondTick(long tickIntervalMs) {
-
-        for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
-            Hash key = entry.getKey();
-            entry.getValue().secondTick(tickIntervalMs);
-        }
-
-        // second tick on server connection
-        if (sc != null) sc.secondTick(tickIntervalMs);
-
-        // TODO - run second tick on peer connections
-        // execute user's commands
-        Runnable r = commands.poll();
-        while(r != null) {
-            r.run();
-            r = commands.poll();
-        }
-    }
-
     public long getCurrentTime() {
         return lastTick;
     }
@@ -294,7 +300,7 @@ public class Session extends Thread implements Tickable {
      * @param size of file
      * @return TransferHandle with valid transfer of without
      */
-    public synchronized TransferHandle addTransfer(Hash h, long size) {
+    public final synchronized TransferHandle addTransfer(Hash h, long size) {
         Transfer t = transfers.get(h);
 
         if (t == null) {
@@ -315,7 +321,6 @@ public class Session extends Thread implements Tickable {
 
 
     void sendSourcesRequest(final Hash h, final long size) {
-        if (sc != null) sc.sendFileSourcesRequest(h, size);
+        if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
     }
-
 }

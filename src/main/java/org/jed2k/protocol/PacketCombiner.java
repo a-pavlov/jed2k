@@ -6,7 +6,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import org.jed2k.exception.JED2KException;
-import org.jed2k.exception.ProtocolCode;
+import org.jed2k.exception.ErrorCode;
 
 public abstract class PacketCombiner {
 
@@ -123,7 +123,7 @@ public abstract class PacketCombiner {
                 resultLength = decompresser.inflate(plainData);
                 log.info("Unpack data size: " + compressedData.length + " to result length: " + resultLength);
             } catch(DataFormatException e) {
-                throw new JED2KException(ProtocolCode.INFLATE_ERROR);
+                throw new JED2KException(ErrorCode.INFLATE_ERROR);
             }
 
             decompresser.end();

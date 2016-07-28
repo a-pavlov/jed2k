@@ -38,6 +38,13 @@ public class TransferHandle {
     }
 
     public final long getSize() {
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                return t.size();
+            }
+        }
+
         return 0;
     }
 
@@ -50,10 +57,42 @@ public class TransferHandle {
     }
 
     public final void pause() {
-
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                // execute pause on transfer
+            }
+        }
     }
 
     public final void resume() {
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                // execute resume on transfer
+            }
+        }
+    }
 
+    public final boolean isPaused() {
+        boolean res = false;
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                res = false;
+            }
+        }
+        return res;
+    }
+
+    public final boolean isResumed() {
+        boolean res = false;
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                // extract actual transfer state
+            }
+        }
+        return res;
     }
 }
