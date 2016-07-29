@@ -25,12 +25,12 @@ public class DownloadingPiece {
     public int pieceIndex;
     private int blocksCount;
     public byte[] blockState;
-    
-    public DownloadingPiece(int pieceIndex, int c) {
+
+    public DownloadingPiece(int pieceIndex, int blocksCount) {
         assert(pieceIndex >= 0);
-        assert(c > 0);
+        assert(blocksCount > 0);
         this.pieceIndex = pieceIndex;
-        blocksCount = c;
+        this.blocksCount = blocksCount;
         blockState = new byte[blocksCount];
         Arrays.fill(blockState, BlockState.STATE_NONE.value);
     }
@@ -49,5 +49,14 @@ public class DownloadingPiece {
             if (blockState[i] == BlockState.STATE_REQUESTED.value) res++;
         }
         return res;
+    }
+
+    public int getBlocksCount() {
+        return blocksCount;
+    }
+
+    public void finishBlock(int blockIndex) {
+        assert(blockIndex < blocksCount);
+        blockState[blockIndex] = BlockState.STATE_FINISHED.value;
     }
 }
