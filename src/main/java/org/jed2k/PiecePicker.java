@@ -3,7 +3,6 @@ package org.jed2k;
 import java.util.*;
 
 import org.jed2k.data.PieceBlock;
-import org.jed2k.data.PieceInfo;
 
 public class PiecePicker extends BlocksEnumerator {
 
@@ -60,14 +59,14 @@ public class PiecePicker extends BlocksEnumerator {
      * mark block as finished and update border
      */
     public boolean markAsFinished(PieceBlock b) {
-        assert(b.piece_block < blocksInPiece(b.piece_index));
-        DownloadingPiece dp = getDownloadingPiece(b.piece_index);
+        assert(b.pieceBlock < blocksInPiece(b.pieceIndex));
+        DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
         if (dp != null) {
-            dp.finishBlock(b.piece_block);
+            dp.finishBlock(b.pieceBlock);
             // found actual piece in downloading state
             if (dp.finishedCount() == dp.getBlocksCount()) {
                 downloadingPieces.remove(dp);
-                pieceStatus[b.piece_index] = PieceState.HAVE.value;
+                pieceStatus[b.pieceIndex] = PieceState.HAVE.value;
             }
 
             return true;
@@ -79,7 +78,7 @@ public class PiecePicker extends BlocksEnumerator {
 
 
     public boolean markAsDownloading(PieceBlock b) {
-        assert(b.piece_block < blocksInPiece(b.piece_index));
+        assert(b.pieceBlock < blocksInPiece(b.pieceIndex));
         return false;
     }
 

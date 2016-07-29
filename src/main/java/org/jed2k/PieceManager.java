@@ -62,9 +62,9 @@ public class PieceManager extends BlocksEnumerator {
         assert(channel != null);
         long bytesOffset = b.blocksOffset()*Constants.BLOCK_SIZE;
         try {
-            BlockManager mgr = getBlockManager(b.piece_index);
+            BlockManager mgr = getBlockManager(b.pieceIndex);
             assert(mgr != null);
-            LinkedList<ByteBuffer> res = mgr.registerBlock(b.piece_block, buffer);
+            LinkedList<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
             buffer.rewind();
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);

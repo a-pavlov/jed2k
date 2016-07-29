@@ -8,12 +8,12 @@ import org.jed2k.Pair;
  * each piece contains few few blocks, from 1 to BLOCKS_PER_PIECE constant
  */
 public class PieceBlock implements Comparable<PieceBlock> {
-    public int piece_index;
-    public int piece_block;
-    
+    public int pieceIndex;
+    public int pieceBlock;
+
     public PieceBlock(int pi, int pb) {
-        piece_index = pi;
-        piece_block = pb;
+        pieceIndex = pi;
+        pieceBlock = pb;
     }
 
     /**
@@ -21,9 +21,9 @@ public class PieceBlock implements Comparable<PieceBlock> {
      * @return offset of current block in blocks
      */
     public Long blocksOffset() {
-        return new Long((long)piece_index*Constants.BLOCKS_PER_PIECE + (long)piece_block);
+        return new Long((long) pieceIndex *Constants.BLOCKS_PER_PIECE + (long) pieceBlock);
     }
-    
+
     public static PieceBlock mk_block(final PeerRequest r) {
         return new PieceBlock((int)r.piece, (int)(r.start / Constants.BLOCK_SIZE));
     }
@@ -45,8 +45,8 @@ public class PieceBlock implements Comparable<PieceBlock> {
      * @return range which block covers
      */
     public Range range(long size) {
-        long begin = piece_index * Constants.PIECE_SIZE + piece_block * Constants.BLOCK_SIZE;
-        long normal_end = piece_index * Constants.PIECE_SIZE + (piece_block + 1) * Constants.BLOCK_SIZE;
+        long begin = pieceIndex * Constants.PIECE_SIZE + pieceBlock * Constants.BLOCK_SIZE;
+        long normal_end = pieceIndex * Constants.PIECE_SIZE + (pieceBlock + 1) * Constants.BLOCK_SIZE;
         long end = Math.min(begin + Constants.BLOCK_SIZE, Math.min(normal_end, size));
         assert(begin < end);
         return Range.make(begin, end);
@@ -57,28 +57,28 @@ public class PieceBlock implements Comparable<PieceBlock> {
      * @param size of file
      * @return block size in bytes
      */
-    public long Size(long size) {        
+    public long Size(long size) {
         Pair<Long, Long> r = range(size);
         return (r.right - r.left);
     }
-    
+
     @Override
     public int compareTo(PieceBlock o) {
         return blocksOffset().compareTo(o.blocksOffset());
     }
-    
+
     @Override
     public String toString() {
-        return "[piece/block]: {" + Integer.toString(piece_index) + "/" + Integer.toString(piece_block) + "}";
+        return "[piece/block]: {" + Integer.toString(pieceIndex) + "/" + Integer.toString(pieceBlock) + "}";
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof PieceBlock) {
             PieceBlock x = (PieceBlock)obj;
             return this.compareTo(x) == 0;
         }
-        
+
         return false;
     }
 }
