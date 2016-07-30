@@ -6,6 +6,8 @@ import java.lang.ref.WeakReference;
 
 /**
  * transfer handle for manipulation of transfer outside of session
+ * all manipulations of session data in transfers are synchronized via main session object
+ * handle can be invalid if session has no transfer linked with it
  * Created by inkpot on 26.07.2016.
  */
 public class TransferHandle {
