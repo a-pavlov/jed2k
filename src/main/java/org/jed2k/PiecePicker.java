@@ -26,15 +26,9 @@ public class PiecePicker extends BlocksEnumerator {
     private byte pieceStatus[];
     private LinkedList<DownloadingPiece> downloadingPieces = new LinkedList<DownloadingPiece>();
 
-    /**
-     *	all pieces before this index are finished
-     */
-    private int finishedPiecesBorder;
-
     public PiecePicker(int pieceCount, int blocksInLastPiece) {
         super(pieceCount, blocksInLastPiece);
     	assert(pieceCount > 0);
-    	finishedPiecesBorder = 0;
         pieceStatus = new byte[pieceCount];
         Arrays.fill(pieceStatus, (byte)PieceState.NONE.value);
     }
@@ -56,7 +50,7 @@ public class PiecePicker extends BlocksEnumerator {
     }
 
     /**
-     * mark block as finished and update border
+     * mark block as finished
      */
     public boolean markAsFinished(PieceBlock b) {
         assert(b.pieceBlock < blocksInPiece(b.pieceIndex));
@@ -160,4 +154,36 @@ public class PiecePicker extends BlocksEnumerator {
         return pieceStatus.length;
     }
 
+    /**
+     * currently pieces in downloading state
+     * @return
+     */
+    public final int numDowloadingPieces() { return downloadingPieces.size(); }
+
+
+    /**
+     * mark piece as finished
+     * @param piece index of piece
+     */
+    public void weHave(int piece) {
+        assert(piece < pieceStatus.length);
+        pieceStatus[piece] = PieceState.HAVE.value;
+    }
+
+    /**
+     *  add piece to downloading list(if not exists) and mark block as finished
+      * @param b
+     */
+    public void weHave(PieceBlock b) {
+        DownloadingPiece p = getDownloadingPiece(b.pieceIndex);
+
+        if (p == null) {
+            p = new DownloadingPiece(b.pieceIndex, blocksInPiece(b.pieceIndex));
+            downloadingPieces.addLast(p);
+            pieceStatus[b.pieceIndex] = PieceState.DOWNLOADING.value;
+        }
+
+        assert(p != null);
+        p.finishBlock(b.pieceBlock);
+    }
 }

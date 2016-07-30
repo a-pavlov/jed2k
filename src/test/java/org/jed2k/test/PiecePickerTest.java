@@ -54,4 +54,17 @@ public class PiecePickerTest {
         assertEquals(4, pp.numPieces());
         assertEquals(4, pp.numHave());
     }
+
+    @Test
+    public void testResumeDataLoad() {
+        PiecePicker pp = new PiecePicker(3, 22);
+        pp.weHave(0);
+        assertEquals(1, pp.numHave());
+        assertEquals(0, pp.numDowloadingPieces());
+        pp.weHave(new PieceBlock(1, 0));
+        pp.weHave(new PieceBlock(1, 1));
+        pp.weHave(new PieceBlock(1, 44));
+        assertEquals(1, pp.numHave());
+        assertEquals(1, pp.numDowloadingPieces());
+    }
 }
