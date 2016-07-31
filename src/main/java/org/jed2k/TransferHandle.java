@@ -62,7 +62,7 @@ public class TransferHandle {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                // execute pause on transfer
+                t.pause();
             }
         }
     }
@@ -71,7 +71,7 @@ public class TransferHandle {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                // execute resume on transfer
+                t.resume();
             }
         }
     }
@@ -81,7 +81,7 @@ public class TransferHandle {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                res = false;
+                res = t.isPaused();
             }
         }
         return res;
@@ -92,7 +92,7 @@ public class TransferHandle {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                // extract actual transfer state
+                res = !t.isPaused();
             }
         }
         return res;

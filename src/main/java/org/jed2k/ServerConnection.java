@@ -10,6 +10,7 @@ import org.jed2k.alert.ServerMessageAlert;
 import org.jed2k.alert.ServerStatusAlert;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
+import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.*;
 import org.jed2k.protocol.Hash;
@@ -200,7 +201,14 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         Transfer transfer = session.transfers.get(value.hash);
         if (transfer != null) {
-            //transfer.setupSources(value.sources.collection);
+            for(final NetworkIdentifier endpoint: value.sources) {
+                if (Utils.isLowId(endpoint.ip) && !Utils.isLowId(session.clientId) && !session.callbacks.contains(endpoint.ip)) {
+                    sendCallbackRequest(endpoint.ip);
+                    session.callbacks.add(endpoint.ip);
+                } else {
+                    transfer.addPeer(endpoint);
+                }
+            }
         }
     }
 

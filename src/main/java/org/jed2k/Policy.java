@@ -221,4 +221,18 @@ public class Policy extends AbstractCollection<Peer> {
     public int size() {
         return peers.size();
     }
+
+    /**
+     * slow version of connect candidates counter O(n)
+     * @return
+     */
+    int numConnectCandidates() {
+        int res = 0;
+        for(final Peer p: peers) {
+            if (isConnectCandidate(p) && !isEraseCandidate(p)) ++res;
+        }
+
+        return res;
+    }
 }
+

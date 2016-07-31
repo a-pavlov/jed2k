@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 public class AddTransferParams implements Serializable {
     public Hash hash;
     public UInt64 size = new UInt64();
-    public String filepath;
+    public String filepath; // TODO - temporary doesn't save this field since it is not serializable yet
     public Optional<TransferResumeData> resumeData = new Optional(TransferResumeData.class);
 
     public AddTransferParams(final Hash h, final long size, final String filepath) {
