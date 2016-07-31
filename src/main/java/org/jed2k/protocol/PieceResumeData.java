@@ -14,13 +14,12 @@ import java.util.LinkedList;
 public class PieceResumeData implements Serializable {
 
     public enum PieceStatus {
-        PARTIAL(0),
-        COMPLETED(1),
-        FINISHED(2);
+        PARTIAL((byte)0),
+        COMPLETED((byte)1);
 
-        public int value;
+        public byte value;
 
-        PieceStatus(int val) {
+        PieceStatus(byte val) {
             this.value = val;
         }
     }
@@ -31,23 +30,19 @@ public class PieceResumeData implements Serializable {
     public PieceResumeData() {
     }
 
-    public PieceResumeData(int s, Container<UInt8, UInt8> b) {
-        this.status.value = s;
+    public PieceResumeData(byte status, Container<UInt8, UInt8> b) {
+        this.status.value = status;
         this.blocks = b;
         assert(b != null || this.status != PieceStatus.PARTIAL);
     }
 
     public static PieceResumeData makeCompleted() {
-        return new PieceResumeData(1, null);
-    }
-
-    public static PieceResumeData makeFinished() {
-        return new PieceResumeData(2, null);
+        return new PieceResumeData((byte)1, null);
     }
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        status.value = src.getInt();
+        status.value = src.get();
         if (status == PieceStatus.PARTIAL) {
             blocks = Container.makeByte(UInt8.class);
             blocks.get(src);
@@ -58,7 +53,7 @@ public class PieceResumeData implements Serializable {
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        dst.putInt(status.value);
+        dst.put(status.value);
         if (status == PieceStatus.PARTIAL) {
             assert(blocks != null);
             blocks.put(dst);

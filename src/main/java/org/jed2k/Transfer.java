@@ -18,12 +18,12 @@ public class Transfer {
     private PiecePicker picker;
     private Session session;
 
-    public Transfer(Session s, Hash hash, long size) {
+    public Transfer(Session s, final AddTransferParams atp) {
         assert(s != null);
         assert(hash != null);
         assert(size != 0);
-        this.hash = hash;
-        this.size = size;
+        this.hash = atp.hash;
+        this.size = atp.size.longValue();
         this.hashset = null;
         session = s;
     }

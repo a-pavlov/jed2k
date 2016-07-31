@@ -304,7 +304,7 @@ public class Session extends Thread {
         Transfer t = transfers.get(h);
 
         if (t == null) {
-            t = new Transfer(this, h, size);
+            t = new Transfer(this, new AddTransferParams(h, size, "some_filepath"));
             transfers.put(h, t);
         }
 

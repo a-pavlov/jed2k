@@ -1,5 +1,6 @@
 package org.jed2k.protocol;
 
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
@@ -91,9 +92,9 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
                 holder().add(e);
             }
         } catch (InstantiationException e) {
-            assert (false);
+            throw new JED2KException(ErrorCode.GENERIC_INSTANTIATION_ERROR);
         } catch (IllegalAccessException e1) {
-            assert (false);
+            throw new JED2KException(ErrorCode.GENERIC_ILLEGAL_ACCESS);
         }
 
         return src;

@@ -21,16 +21,16 @@ public class ResumeDataTest {
     public void testResumeDataSerialization() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(220);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        TransferResumeData trd = new TransferResumeData(Hash.LIBED2K, 100500L, "xxx");
+        TransferResumeData trd = new TransferResumeData();
         trd.hashes.add(Hash.INVALID);
         trd.hashes.add(Hash.EMULE);
         trd.hashes.add(Hash.EMULE);
         trd.hashes.add(Hash.TERMINAL);
 
         trd.pieces.add(PieceResumeData.makeCompleted());
-        trd.pieces.add(PieceResumeData.makeFinished());
+        trd.pieces.add(PieceResumeData.makeCompleted());
 
-        PieceResumeData prd = new PieceResumeData(0, Container.make(new UInt8(0), UInt8.class));
+        PieceResumeData prd = new PieceResumeData(PieceResumeData.PieceStatus.PARTIAL.value, Container.make(new UInt8(0), UInt8.class));
         for(int i = 0; i < 22; ++i) {
             prd.blocks.add(new UInt8(i));
         }
@@ -40,8 +40,8 @@ public class ResumeDataTest {
         bb.flip();
         TransferResumeData trd2 = new TransferResumeData();
         trd2.get(bb);
-        assertEquals(trd2.hash, trd.hash);
-        assertEquals(trd2.size, trd.size);
+        //assertEquals(trd2.hash, trd.hash);
+        //assertEquals(trd2.size, trd.size);
         assertEquals(trd2.hashes.size(), trd.hashes.size());
         Iterator<Hash> itr = trd.hashes.iterator();
         Iterator<Hash> itr2 = trd2.hashes.iterator();
@@ -51,8 +51,8 @@ public class ResumeDataTest {
 
         assertEquals(trd2.pieces.size(), trd.pieces.size());
         assertEquals(0, trd2.peers.size());
-        assertTrue(trd2.filepath.isStringTag());
-        assertEquals("xxx", trd2.filepath.stringValue());
+        //assertTrue(trd2.filepath.isStringTag());
+        //assertEquals("xxx", trd2.filepath.stringValue());
     }
 
 }

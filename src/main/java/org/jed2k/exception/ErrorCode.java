@@ -19,7 +19,9 @@ public enum ErrorCode implements BaseErrorCode {
     TAG_TO_FLOAT_INVALID(14),
     TAG_TO_HASH_INVALID(15),
     TAG_FROM_STRING_INVALID_CP(16),
-    FAIL(17);
+    GENERIC_INSTANTIATION_ERROR(17),
+    GENERIC_ILLEGAL_ACCESS(18),
+    FAIL(19);
 
     private final int value;
 
