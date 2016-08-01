@@ -189,7 +189,7 @@ public class Session extends Thread {
 
     void openConnection(NetworkIdentifier point) throws JED2KException {
         if (findPeerConnection(point) == null) {
-            PeerConnection p = PeerConnection.make(Session.this, point, null);
+            PeerConnection p = PeerConnection.make(Session.this, point, null, null);
             if (p != null) connections.add(p);
             p.connect();
         }
@@ -238,7 +238,7 @@ public class Session extends Thread {
         commands.add(new Runnable() {
             @Override
             public void run() {
-                PeerConnection pc = PeerConnection.make(Session.this, point, null);
+                PeerConnection pc = PeerConnection.make(Session.this, point, null, null);
                 if (pc != null) {
                     connections.add(pc);
                     try {

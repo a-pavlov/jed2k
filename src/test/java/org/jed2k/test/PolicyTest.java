@@ -1,8 +1,11 @@
 package org.jed2k.test;
 
+import org.jed2k.PeerConnection;
 import org.jed2k.Transfer;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.Peer;
+import org.junit.Before;
 import org.junit.Test;
 import org.jed2k.Policy;
 import org.mockito.Mockito;
@@ -23,6 +26,16 @@ public class PolicyTest {
     Peer p2 = new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0.2", 7082)), true);
     Peer p3 = new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0.3", 7083)), true);
     Peer p4 = new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0.4", 7084)), true);
+
+    private Transfer transfer = null;
+    private PeerConnection connection = null;
+
+    @Before
+    public void beforeEachTest() throws JED2KException {
+        transfer = Mockito.mock(Transfer.class);
+        connection = Mockito.mock(PeerConnection.class);
+        when(transfer.connectoToPeer(any(Peer.class))).thenReturn(connection);
+    }
 
     @Test
     public void testCandidates() {

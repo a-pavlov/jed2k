@@ -205,7 +205,7 @@ public class Policy extends AbstractCollection<Peer> {
         return false;
     }
 
-    public void conectionClose(PeerConnection c, long sessionTime) {
+    public void conectionClosed(PeerConnection c, long sessionTime) {
         Peer p = c.getPeer();
         if (p == null) return;
         p.connection = null;

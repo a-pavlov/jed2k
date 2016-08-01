@@ -72,13 +72,15 @@ public class Transfer {
     }
 
     final void removePeerConnection(PeerConnection c) {
+        policy.conectionClosed(c, Time.currentTime());
+        c.setPeer(null);
         connections.remove(c);
     }
 
-    final PeerConnection connectoToPeer(Peer peerInfo) throws JED2KException {
+    public PeerConnection connectoToPeer(Peer peerInfo) throws JED2KException {
         peerInfo.lastConnected = Time.currentTime();
         peerInfo.nextConnection = 0;
-        PeerConnection c = PeerConnection.make(session, peerInfo.endpoint, this);
+        PeerConnection c = PeerConnection.make(session, peerInfo.endpoint, this, peerInfo);
         session.connections.add(c);
         connections.add(c);
         peerInfo.connection = c;

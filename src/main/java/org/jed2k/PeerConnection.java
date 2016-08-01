@@ -70,6 +70,10 @@ For incoming connection we have different order in first two packets
 
 */
 public class PeerConnection extends Connection {
+
+    /**
+     * peer connection speed over transfer's average speed
+     */
     enum PeerSpeed {
         SLOW,
         MEDIUM,
@@ -94,17 +98,41 @@ public class PeerConnection extends Connection {
     }
 
     private static Logger log = Logger.getLogger(PeerConnection.class.getName());
+
+    //TODO - check it, possibly remove and use getPeer value instead
     private boolean active = false;   // true when we connect to peer, false when incoming connection
     private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
+
+    /**
+     * peer connection's transfer
+     * null for incoming connections before attach to transfer
+     */
     private Transfer transfer = null;
-    private final NetworkIdentifier point = new NetworkIdentifier();
-    private BitField bits = null;
-    private PieceBlock[] interestedBlocks = { null, null, null };
-    private PeerSpeed speed;
-    private Peer peer;
+
+    /**
+     * pieces available in remote endpoint
+     * null before we get packet with file status answer
+     */
+    private BitField remotePieces = null;
+
+    /**
+     * calculated peer speed
+     */
+    private PeerSpeed speed = PeerSpeed.SLOW;
+
+    /**
+     * record in policy for this peer connection
+     */
+    private Peer peerInfo;
+
     private boolean failed = false;
+
     private LinkedList<PendingBlock> requestQueue;
     private LinkedList<PendingBlock> downloadQueue;
+
+    /**
+     * network endpoint for outgoing connections
+     */
     private NetworkIdentifier endpoint;
 
     PeerConnection(NetworkIdentifier point,
@@ -112,11 +140,11 @@ public class PeerConnection extends Connection {
             ByteBuffer outgoingBuffer,
             PacketCombiner packetCombiner,
             Session session,
-            Transfer transfer) throws IOException {
+            Transfer transfer, Peer peerInfo) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session);
         this.transfer = transfer;
-        speed = PeerSpeed.SLOW;
         endpoint = point;
+        this.peerInfo = peerInfo;
     }
 
     PeerConnection(ByteBuffer incomingBuffer,
@@ -125,6 +153,7 @@ public class PeerConnection extends Connection {
             Session session,
             SocketChannel socket) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session, socket);
+        peerInfo = null;
     }
 
     public static PeerConnection make(SocketChannel socket, Session session) {
@@ -141,11 +170,11 @@ public class PeerConnection extends Connection {
         return null;
     }
 
-    public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer) {
+    public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer, Peer peerInfo) {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(4096);
             ByteBuffer obuff = ByteBuffer.allocate(4096);
-            return new PeerConnection(point, ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), ses, transfer);
+            return new PeerConnection(point, ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), ses, transfer, peerInfo);
         } catch(ClosedChannelException e) {
 
         } catch(IOException e) {
@@ -504,7 +533,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileStatusAnswer(FileStatusAnswer value)
             throws JED2KException {
-        bits = value.bitfield;
+        remotePieces = value.bitfield;
         if (transfer != null) {
             write(new HashSetRequest(transfer.hash()));
         } else {
@@ -595,7 +624,11 @@ public class PeerConnection extends Connection {
     }
 
     public Peer getPeer() {
-        return peer;
+        return peerInfo;
+    }
+
+    void setPeer(Peer peer) {
+        peerInfo = peer;
     }
 
     public boolean isFailed() {
@@ -665,6 +698,10 @@ public class PeerConnection extends Connection {
             requestQueue.clear();
             downloadQueue.clear();
         }
+    }
+
+    BitField getRemotePieces() {
+        return remotePieces;
     }
 }
 
