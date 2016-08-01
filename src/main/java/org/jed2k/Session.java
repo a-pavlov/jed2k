@@ -28,7 +28,7 @@ public class Session extends Thread {
     private ServerSocketChannel ssc = null;
 
     Map<Hash, Transfer> transfers = new HashMap<Hash, Transfer>();
-    private ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
+    ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
     Settings settings = new Settings();
     long lastTick = Time.currentTime();
     HashSet<Integer> callbacks = new HashSet<Integer>();

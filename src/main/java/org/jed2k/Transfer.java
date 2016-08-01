@@ -1,26 +1,21 @@
 package org.jed2k;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-import java.util.TreeSet;
-
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.data.PieceBlock;
+
+import java.util.HashSet;
 
 public class Transfer {
     private Hash hash;
-    private Set<NetworkIdentifier> sources = new TreeSet<NetworkIdentifier>();
     private long size;
-    private ArrayList<Hash> hashset;
     private Statistics stat = new Statistics();
     private PiecePicker picker;
     private Policy policy;
     private Session session;
     private boolean pause = false;
     private boolean abort = false;
+    private HashSet<PeerConnection> connections = new HashSet<PeerConnection>();
 
     public Transfer(Session s, final AddTransferParams atp) {
         assert(s != null);
@@ -28,7 +23,6 @@ public class Transfer {
         assert(size != 0);
         this.hash = atp.hash;
         this.size = atp.size.longValue();
-        this.hashset = null;
         session = s;
 
         // prepare piece picker here
@@ -38,7 +32,7 @@ public class Transfer {
                     Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue());
         }
 
-        policy = new Policy();
+        policy = new Policy(this);
     }
 
     Hash hash() {
@@ -61,6 +55,10 @@ public class Transfer {
         return !isPaused() && !isSeed() && policy.numConnectCandidates() > 0;
     }
 
+    void addStats(Statistics s) {
+        stat.add(s);
+    }
+
     /**
      * request sources from server, kad, etc
      */
@@ -73,31 +71,19 @@ public class Transfer {
         policy.add(new Peer(endpoint, true));
     }
 
-    public boolean validateHashset(Collection<Hash> hashset) {
-        if (this.hashset != null) {
-            // compare
-        } else {
-            return hash.equals(Hash.fromHashSet(hashset));
-        }
-
-        return true;
+    final void removePeerConnection(PeerConnection c) {
+        connections.remove(c);
     }
 
-    public PieceBlock requestBlock() {
-        return new PieceBlock(0,0);
-    }
-
-    public void append(PeerConnection connection) {
-
-    }
-
-    void setupSources(Collection<NetworkIdentifier> sources) {
-        for(NetworkIdentifier entry: sources) {
-            if (!this.sources.contains(entry)) {
-                this.sources.add(entry);
-                // process new source
-            }
-        }
+    final PeerConnection connectoToPeer(Peer peerInfo) throws JED2KException {
+        peerInfo.lastConnected = Time.currentTime();
+        peerInfo.nextConnection = 0;
+        PeerConnection c = PeerConnection.make(session, peerInfo.endpoint, this);
+        session.connections.add(c);
+        connections.add(c);
+        peerInfo.connection = c;
+        c.connect();
+        return peerInfo.connection;
     }
 
 	void secondTick(long currentSessionTime) {
@@ -112,6 +98,10 @@ public class Transfer {
 
     public PiecePicker getPicker() {
         return picker;
+    }
+
+    public final boolean hasPicker() {
+        return picker != null;
     }
 
     void abort() {

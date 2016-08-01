@@ -76,6 +76,10 @@ public class PiecePicker extends BlocksEnumerator {
         return false;
     }
 
+    public void abortDownload(PieceBlock b) {
+        // TODO - add correct implementation to abort block downloading
+    }
+
     /**
      * choose next piece and add it to download queue
      * @return true if new piece in download queue

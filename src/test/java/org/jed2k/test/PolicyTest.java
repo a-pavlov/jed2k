@@ -23,7 +23,7 @@ public class PolicyTest {
 
     @Test
     public void testCandidates() {
-        Policy p = new Policy();
+        Policy p = new Policy(null);
         assertTrue(p.isConnectCandidate(p1));
         assertTrue(p.isConnectCandidate(p2));
         assertTrue(p.isConnectCandidate(p3));
@@ -37,7 +37,7 @@ public class PolicyTest {
     @Test
     public void testInsertPeer() {
         Peer ps[] = {p1, p2, p3, p4};
-        Policy p = new Policy();
+        Policy p = new Policy(null);
         assertTrue(p.insertPeer(p1));
         assertFalse(p.insertPeer(p1));
         assertTrue(p.insertPeer(p4));

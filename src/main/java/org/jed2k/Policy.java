@@ -1,6 +1,6 @@
 package org.jed2k;
 
-import org.jed2k.data.PieceBlock;
+import org.jed2k.exception.JED2KException;
 
 import java.util.*;
 
@@ -11,6 +11,11 @@ import java.util.*;
 public class Policy extends AbstractCollection<Peer> {
     private int roundRobin = 0;
     private ArrayList<Peer> peers = new ArrayList<Peer>();
+    private Transfer transfer = null;
+
+    public Policy(Transfer t) {
+        transfer = t;
+    }
 
     public boolean isConnectCandidate(Peer pe) {
         assert(pe != null);
@@ -189,11 +194,12 @@ public class Policy extends AbstractCollection<Peer> {
     }
 
 
-    public boolean connectOnePeer(long sessionTime) {
-        Peer pe = findConnectCandidate(sessionTime);
-        if (pe != null) {
-            assert(pe.isConnectable());
-            // connect in transfer here
+    public boolean connectOnePeer(long sessionTime) throws JED2KException {
+        Peer peerInfo = findConnectCandidate(sessionTime);
+        if (peerInfo != null) {
+            assert(peerInfo.isConnectable());
+            transfer.connectoToPeer(peerInfo);
+            return peerInfo.connection != null;
         }
 
         return false;

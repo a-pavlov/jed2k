@@ -411,6 +411,12 @@ public class PeerConnection extends Connection {
     }
 
     @Override
+    public void onFoundFileSources(FoundFileSources value)
+            throws JED2KException {
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
     public void onClientHello(Hello value) throws JED2KException {
         // extract client information
         assignRemotePeerInformation(value);
@@ -456,6 +462,12 @@ public class PeerConnection extends Connection {
 
     @Override
     protected void onDisconnect(BaseErrorCode ec) {
+        if (transfer != null) {
+            transfer.addStats(statistics());
+            abortAllRequests();
+            transfer.removePeerConnection(this);
+            transfer = null;
+        }
         session.closeConnection(this);
     }
 
@@ -510,7 +522,7 @@ public class PeerConnection extends Connection {
     public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
         if (transfer != null /*transfer.validateHashset(value.parts.collection)*/) {
-            RequestParts32 request = new RequestParts32();
+            /*RequestParts32 request = new RequestParts32();
             int currentInterest = 0;
             for(int i = 0; i < RequestParts.PARTS_COUNT; ++i) {
                 PieceBlock interestedBlock = transfer.requestBlock();
@@ -526,6 +538,7 @@ public class PeerConnection extends Connection {
             }
 
             assert(request.beginOffset.size() == request.endOffset.size());
+            */
 
             // TODO - use correct request architecture
             //if (!request.beginOffset.isEmpty()) {
@@ -534,6 +547,9 @@ public class PeerConnection extends Connection {
             //    close();
             //}
         }
+
+        // temporary close connection immediately after data request is ready for testing purposes
+        close(ErrorCode.NO_ERROR);
     }
 
     @Override
@@ -546,13 +562,6 @@ public class PeerConnection extends Connection {
     public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
         close(ErrorCode.OUT_OF_PARTS);
-    }
-
-    @Override
-    public void onFoundFileSources(FoundFileSources value)
-            throws JED2KException {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -636,6 +645,25 @@ public class PeerConnection extends Connection {
 
             // if finished or downloading - continue;
             downloadQueue.add(pb);
+        }
+    }
+
+    void abortAllRequests() {
+        if (transfer != null && transfer.hasPicker()) {
+            PiecePicker picker = transfer.getPicker();
+            while(!downloadQueue.isEmpty()) {
+                PendingBlock pb = downloadQueue.poll();
+                picker.abortDownload(pb.block);
+            }
+
+            while(!requestQueue.isEmpty()) {
+                PendingBlock pb = requestQueue.poll();
+                picker.abortDownload(pb.block);
+            }
+        }
+        else {
+            requestQueue.clear();
+            downloadQueue.clear();
         }
     }
 }
