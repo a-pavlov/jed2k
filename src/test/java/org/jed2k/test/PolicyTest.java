@@ -1,9 +1,12 @@
 package org.jed2k.test;
 
+import org.jed2k.Transfer;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.Peer;
 import org.junit.Test;
 import org.jed2k.Policy;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
@@ -23,7 +26,8 @@ public class PolicyTest {
 
     @Test
     public void testCandidates() {
-        Policy p = new Policy(null);
+        Transfer t = Mockito.mock(Transfer.class);
+        Policy p = new Policy(t);
         assertTrue(p.isConnectCandidate(p1));
         assertTrue(p.isConnectCandidate(p2));
         assertTrue(p.isConnectCandidate(p3));
@@ -36,8 +40,9 @@ public class PolicyTest {
 
     @Test
     public void testInsertPeer() {
+        Transfer t = Mockito.mock(Transfer.class);
         Peer ps[] = {p1, p2, p3, p4};
-        Policy p = new Policy(null);
+        Policy p = new Policy(t);
         assertTrue(p.insertPeer(p1));
         assertFalse(p.insertPeer(p1));
         assertTrue(p.insertPeer(p4));
