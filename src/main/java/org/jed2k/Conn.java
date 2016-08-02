@@ -20,9 +20,11 @@ import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.server.SharedFileEntry;
 import org.jed2k.protocol.server.search.SearchRequest;
 import org.jed2k.protocol.server.search.SearchResult;
+import org.jed2k.protocol.tag.Tag;
 
 public class Conn {
     private static Logger log = Logger.getLogger(Conn.class.getName());
+    private static SearchResult globalSearchRes = null;
 
     public static void main(String[] args) throws IOException {
         Logger logger = Logger.getLogger("");
@@ -47,8 +49,10 @@ public class Conn {
                     while(a != null) {
                         if (a instanceof SearchResultAlert) {
                             SearchResult sr = ((SearchResultAlert)a).results;
+                            globalSearchRes = sr;
+                            int index = 0;
                             for(SharedFileEntry entry: sr.files) {
-                                System.out.println(entry.toString());
+                                System.out.println(String.format("%03d ", index++) + entry.toString());
                             }
 
                             System.out.println("More results: " + (sr.hasMoreResults()?"yes":"no"));
@@ -106,6 +110,27 @@ public class Conn {
                 }
             } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short)Integer.parseInt(parts[2])));
+            } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
+                int index = Integer.parseInt(parts[1]);
+                if (index >= globalSearchRes.files.size() || index < 0) {
+                    System.out.println("Specified index out of last search result bounds");
+                } else {
+                    SharedFileEntry sfe = globalSearchRes.files.get(index);
+                    for(final Tag t: sfe.properties) {
+                        if (t.id() == Tag.FT_FILESIZE) {
+                            try {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("Transfer parameters: ");
+                                sb.append(sfe.hash.toString()).append(" size ");
+                                sb.append(t.longValue());
+                                System.out.println(sb);
+                            }catch(JED2KException e) {
+                                System.out.println("Unable to extract filesize");
+                            }
+                        }
+                    }
+                    //s.addTransfer(globalSearchRes.files.get(index).hash, globalSearchRes.files.get(index).)
+                }
             }
 
         }

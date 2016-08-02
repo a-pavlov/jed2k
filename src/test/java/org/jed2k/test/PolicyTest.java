@@ -8,6 +8,7 @@ import org.jed2k.Peer;
 import org.junit.Before;
 import org.junit.Test;
 import org.jed2k.Policy;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
@@ -35,6 +36,7 @@ public class PolicyTest {
         transfer = Mockito.mock(Transfer.class);
         connection = Mockito.mock(PeerConnection.class);
         when(transfer.connectoToPeer(any(Peer.class))).thenReturn(connection);
+        Mockito.doCallRealMethod().when(transfer).callPolicy(any(Peer.class), any(PeerConnection.class));
     }
 
     @Test
@@ -67,5 +69,13 @@ public class PolicyTest {
         while(itr.hasNext()) {
             assertEquals(ps[i++], itr.next());
         }
+    }
+
+    @Test
+    public void testConnectDisconnect() throws JED2KException {
+        Policy p = Mockito.spy(new Policy(transfer));
+        assertTrue(p.insertPeer(p1));
+        assertEquals(1, p.numConnectCandidates());
+        assertTrue(p.findConnectCandidate(10L) != null);
     }
 }

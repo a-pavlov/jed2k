@@ -89,6 +89,10 @@ public class Transfer {
         return peerInfo.connection;
     }
 
+    public void callPolicy(Peer peerInfo, PeerConnection c) {
+        policy.setConnection(peerInfo, c);
+    }
+
     void disconnectAll() {
         for(PeerConnection c: connections) {
             c.close(ErrorCode.TRANSFER_ABORTED);

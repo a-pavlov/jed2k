@@ -214,7 +214,7 @@ public class Policy extends AbstractCollection<Peer> {
         if (!p.isConnectable()) peers.remove(p);
     }
 
-    void setConnection(Peer p, PeerConnection c) {
+    public void setConnection(Peer p, PeerConnection c) {
         assert(c != null);
         assert(p != null);
         p.connection = c;
@@ -238,7 +238,7 @@ public class Policy extends AbstractCollection<Peer> {
      * slow version of connect candidates counter O(n)
      * @return
      */
-    int numConnectCandidates() {
+    public int numConnectCandidates() {
         int res = 0;
         for(final Peer p: peers) {
             if (isConnectCandidate(p) && !isEraseCandidate(p)) ++res;

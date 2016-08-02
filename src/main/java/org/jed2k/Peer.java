@@ -27,7 +27,7 @@ public class Peer implements Comparable<Peer> {
     boolean connectable     = false;
     int source      = 0;
     NetworkIdentifier   endpoint;
-    PeerConnection  connection = null;
+    public PeerConnection  connection = null;
 
     public Peer(NetworkIdentifier ep) {
         endpoint = ep;

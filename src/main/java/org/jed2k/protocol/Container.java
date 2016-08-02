@@ -81,6 +81,11 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
         return true;
     }
 
+    public final E get(int i) {
+        assert(i < holder().size());
+        return holder().get(i);
+    }
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         n.get(src);
