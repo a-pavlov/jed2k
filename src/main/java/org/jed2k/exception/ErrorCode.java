@@ -21,7 +21,8 @@ public enum ErrorCode implements BaseErrorCode {
     TAG_FROM_STRING_INVALID_CP(16),
     GENERIC_INSTANTIATION_ERROR(17),
     GENERIC_ILLEGAL_ACCESS(18),
-    FAIL(19);
+    TRANSFER_ABORTED(19),
+    FAIL(20);
 
     private final int value;
 

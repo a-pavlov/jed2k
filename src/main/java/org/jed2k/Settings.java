@@ -16,6 +16,7 @@ public class Settings {
     public int maxPeerListSize = 100;
     public int minPeerReconnectTime = 10;
     public int peerConnectionTimeout = 10;
+    public int sessionConnectionsLimit = 20;
 
     /**
      * send ping message to server every serverPingTimeout

@@ -139,6 +139,8 @@ public class Session extends Thread {
             r.run();
             r = commands.poll();
         }
+
+        connectNewPeers();
     }
 
     @Override
@@ -323,5 +325,52 @@ public class Session extends Thread {
 
     void sendSourcesRequest(final Hash h, final long size) {
         if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
+    }
+
+    void connectNewPeers() {
+
+        int stepsSinceLastConnect = 0;
+        int maxConnectionsPerSecond = 10;
+        int numTransfers = transfers.size();
+        boolean enumerateCandidates = true;
+
+        if (numTransfers > 0 && connections.size() < settings.sessionConnectionsLimit) {
+            while (enumerateCandidates) {
+                for (Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
+                    Hash key = entry.getKey();
+                    Transfer t = entry.getValue();
+
+                    if (t.wantMorePeers()) {
+                        try {
+                            if (t.tryConnectPeer(Time.currentTime())) {
+                                --maxConnectionsPerSecond;
+                                stepsSinceLastConnect = 0;
+                            }
+                        } catch (JED2KException e) {
+
+                        }
+                    }
+
+                    ++stepsSinceLastConnect;
+
+                    // if we have gone two whole loops without
+                    // handing out a single connection, break
+                    if (stepsSinceLastConnect > numTransfers*2) {
+                        enumerateCandidates = false;
+                        break;
+                    }
+
+                    // if we should not make any more connections
+                    // attempts this tick, abort
+                    if (maxConnectionsPerSecond == 0) {
+                        enumerateCandidates = false;
+                        break;
+                    }
+                }
+
+                // must not happen :) but still
+                if (transfers.isEmpty()) break;
+            }
+        }
     }
 }

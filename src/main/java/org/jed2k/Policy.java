@@ -214,6 +214,12 @@ public class Policy extends AbstractCollection<Peer> {
         if (!p.isConnectable()) peers.remove(p);
     }
 
+    void setConnection(Peer p, PeerConnection c) {
+        assert(c != null);
+        assert(p != null);
+        p.connection = c;
+    }
+
     private boolean shouldEraseImmediately(Peer p) {
         return p.source == Peer.SourceFlag.SF_RESUME_DATA.value;
     }

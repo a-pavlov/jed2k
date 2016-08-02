@@ -1,5 +1,6 @@
 package org.jed2k;
 
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -83,9 +84,22 @@ public class Transfer {
         PeerConnection c = PeerConnection.make(session, peerInfo.endpoint, this, peerInfo);
         session.connections.add(c);
         connections.add(c);
-        peerInfo.connection = c;
+        policy.setConnection(peerInfo, c);
         c.connect();
         return peerInfo.connection;
+    }
+
+    void disconnectAll() {
+        for(PeerConnection c: connections) {
+            c.close(ErrorCode.TRANSFER_ABORTED);
+        }
+
+        connections.clear();
+    }
+
+    boolean tryConnectPeer(long sessionTime) throws JED2KException {
+        assert(wantMorePeers());
+        return policy.connectOnePeer(sessionTime);
     }
 
 	void secondTick(long currentSessionTime) {
@@ -107,7 +121,9 @@ public class Transfer {
     }
 
     void abort() {
+        if (abort) return;
         abort = true;
+        disconnectAll();
     }
 
     void pause() {
