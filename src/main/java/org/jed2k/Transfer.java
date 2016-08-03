@@ -6,8 +6,10 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 public class Transfer {
+    private Logger log = Logger.getLogger(Transfer.class.getName());
     private Hash hash;
     private long size;
     private Statistics stat = new Statistics();
@@ -17,6 +19,7 @@ public class Transfer {
     private boolean pause = false;
     private boolean abort = false;
     private HashSet<PeerConnection> connections = new HashSet<PeerConnection>();
+    private long nextTimeForSourcesRequest = 0;
 
     public Transfer(Session s, final AddTransferParams atp) {
         assert(s != null);
@@ -107,7 +110,12 @@ public class Transfer {
     }
 
 	void secondTick(long currentSessionTime) {
-        // TODO Auto-generated method stub
+        if (nextTimeForSourcesRequest < currentSessionTime && !isPaused() && !isAborted() && connections.isEmpty()) {
+            log.finest("Request peers {" + hash + "}");
+            session.sendSourcesRequest(hash, size);
+            nextTimeForSourcesRequest = currentSessionTime + 1000*60;   // one request per second
+        }
+
         stat.secondTick(currentSessionTime);
         // TODO - add statistics from all peed connections
     }

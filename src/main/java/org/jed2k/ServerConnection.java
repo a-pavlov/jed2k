@@ -206,6 +206,7 @@ public class ServerConnection extends Connection {
                     sendCallbackRequest(endpoint.ip);
                     session.callbacks.add(endpoint.ip);
                 } else {
+                    log.finest(value.hash + " add endpoint " + endpoint);
                     transfer.addPeer(endpoint);
                 }
             }

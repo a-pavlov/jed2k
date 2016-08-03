@@ -8,7 +8,6 @@ import org.jed2k.Peer;
 import org.junit.Before;
 import org.junit.Test;
 import org.jed2k.Policy;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
@@ -58,11 +57,11 @@ public class PolicyTest {
         Transfer t = Mockito.mock(Transfer.class);
         Peer ps[] = {p1, p2, p3, p4};
         Policy p = new Policy(t);
-        assertTrue(p.insertPeer(p1));
-        assertFalse(p.insertPeer(p1));
-        assertTrue(p.insertPeer(p4));
-        assertTrue(p.insertPeer(p2));
-        assertTrue(p.insertPeer(p3));
+        assertTrue(p.add(p1));
+        assertFalse(p.add(p1));
+        assertTrue(p.add(p4));
+        assertTrue(p.add(p2));
+        assertTrue(p.add(p3));
         assertEquals(4, p.size());
         Iterator<Peer> itr = p.iterator();
         int i = 0;
@@ -74,7 +73,7 @@ public class PolicyTest {
     @Test
     public void testConnectDisconnect() throws JED2KException {
         Policy p = Mockito.spy(new Policy(transfer));
-        assertTrue(p.insertPeer(p1));
+        assertTrue(p.add(p1));
         assertEquals(1, p.numConnectCandidates());
         assertTrue(p.findConnectCandidate(10L) != null);
     }

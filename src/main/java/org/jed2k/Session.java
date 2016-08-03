@@ -57,6 +57,7 @@ public class Session extends Thread {
             ssc.socket().bind(new InetSocketAddress(settings.listenPort));
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
+            log.info("listen completed");
         }
         catch(IOException e) {
             e.printStackTrace();
@@ -123,7 +124,6 @@ public class Session extends Thread {
     }
 
     public void secondTick(long currentSessionTime) {
-
         for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
             Hash key = entry.getKey();
             entry.getValue().secondTick(currentSessionTime);

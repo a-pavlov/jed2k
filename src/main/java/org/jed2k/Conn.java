@@ -3,6 +3,9 @@ package org.jed2k;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
@@ -32,8 +35,17 @@ public class Conn {
         logger.setUseParentHandlers(false);
         Handler[] handlers = logger.getHandlers();
         for(Handler handler : handlers) {
+            handler.setLevel(Level.ALL);
             //logger.removeHandler(handler);
         }
+
+        if (args.length < 1) {
+            System.out.println("Specify incoming directory");
+            return;
+        }
+
+        Path incomingDir = FileSystems.getDefault().getPath(args[0]);
+        System.out.println("Incoming directory set to: " + incomingDir);
 
         System.out.println("Conn started");
         final Session s = new Session();
@@ -116,20 +128,40 @@ public class Conn {
                     System.out.println("Specified index out of last search result bounds");
                 } else {
                     SharedFileEntry sfe = globalSearchRes.files.get(index);
+                    Path filepath = null;
+                    long filesize = 0;
                     for(final Tag t: sfe.properties) {
                         if (t.id() == Tag.FT_FILESIZE) {
                             try {
-                                StringBuilder sb = new StringBuilder();
-                                sb.append("Transfer parameters: ");
-                                sb.append(sfe.hash.toString()).append(" size ");
-                                sb.append(t.longValue());
-                                System.out.println(sb);
+                                filesize = t.longValue();
                             }catch(JED2KException e) {
                                 System.out.println("Unable to extract filesize");
                             }
                         }
+
+                        if (t.id() == Tag.FT_FILENAME) {
+                            try {
+                                filepath = Paths.get(args[0], t.stringValue());
+                            } catch(JED2KException e) {
+                                System.out.println("unable to extract filename");
+                            }
+                        }
                     }
-                    //s.addTransfer(globalSearchRes.files.get(index).hash, globalSearchRes.files.get(index).)
+
+                    if (filepath != null && filesize != 0) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Transfer ").append(filepath).append(" hash: ");
+                        sb.append(sfe.hash.toString()).append(" size: ");
+                        sb.append(filesize);
+                        System.out.println(sb);
+                        TransferHandle h = s.addTransfer(sfe.hash, filesize, filepath.toAbsolutePath().toString());
+                        if (h.isValid()) {
+                            System.out.println("transfer valid " + h.getHash());
+                        }
+                    }
+                    else {
+                        System.out.println("Not enough parameters to start new transfer");
+                    }
                 }
             }
 

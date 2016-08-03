@@ -29,7 +29,8 @@ public class Policy extends AbstractCollection<Peer> {
         return pe.failCount > 0;
     }
 
-    public boolean insertPeer(Peer p) {
+    @Override
+    public boolean add(Peer p) {
         assert(p != null);
 
         int maxPeerlistSize = 100;
