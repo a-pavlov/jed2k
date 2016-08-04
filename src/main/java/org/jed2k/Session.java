@@ -181,7 +181,10 @@ public class Session extends Thread {
             connections.add(p);
         }
         catch(IOException e) {
-            e.printStackTrace();
+            log.warning("Socket accept failed " + e);
+        }
+        catch (JED2KException e) {
+            log.warning("Peer connection creation failed " + e);
         }
     }
 
@@ -205,10 +208,12 @@ public class Session extends Thread {
                     serverConection.close(ErrorCode.NO_ERROR);
                 }
 
-                serverConection = ServerConnection.makeConnection(Session.this);
                 try {
-                    if (serverConection != null) serverConection.connect(point);
+                    serverConection = ServerConnection.makeConnection(Session.this);
+                    serverConection.connect(point);
                 } catch(JED2KException e) {
+                    // emit alert - connect to server failed
+                    e.printStackTrace();
                 }
             }
         });
@@ -236,21 +241,18 @@ public class Session extends Thread {
         });
     }
 
+    // TODO - remove only
     public void connectToPeer(final NetworkIdentifier point) {
         commands.add(new Runnable() {
             @Override
             public void run() {
-                PeerConnection pc = PeerConnection.make(Session.this, point, null, null);
-                if (pc != null) {
-                    connections.add(pc);
                     try {
+                        PeerConnection pc = PeerConnection.make(Session.this, point, null, null);
+                        connections.add(pc);
                         pc.connect(point.toInetSocketAddress());
                     } catch(JED2KException e) {
                         log.warning(e.getMessage());
                     }
-                } else {
-                    log.warning("Unable to create peer connection");
-                }
             }
         });
     }

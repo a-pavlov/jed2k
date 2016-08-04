@@ -33,18 +33,16 @@ public class ServerConnection extends Connection {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session);
     }
 
-    public static ServerConnection makeConnection(Session ses) {
+    public static ServerConnection makeConnection(Session ses) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(18192);
             ByteBuffer obuff = ByteBuffer.allocate(2048);
             return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
-
+            throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
-
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
-
-        return null;
     }
 
     private Serializable hello() throws JED2KException {

@@ -106,8 +106,7 @@ public class Transfer {
 
     boolean tryConnectPeer(long sessionTime) throws JED2KException {
         assert(wantMorePeers());
-        boolean b = policy.connectOnePeer(sessionTime);
-        return b;
+        return policy.connectOnePeer(sessionTime);
     }
 
 	void secondTick(long currentSessionTime) {

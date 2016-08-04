@@ -156,32 +156,28 @@ public class PeerConnection extends Connection {
         peerInfo = null;
     }
 
-    public static PeerConnection make(SocketChannel socket, Session session) {
+    public static PeerConnection make(SocketChannel socket, Session session) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(8128);
             ByteBuffer obuff = ByteBuffer.allocate(8128);
             return  new PeerConnection(ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), session, socket);
         } catch(ClosedChannelException e) {
-
+            throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
-
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
-
-        return null;
     }
 
-    public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer, Peer peerInfo) {
+    public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer, Peer peerInfo) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(8128);
             ByteBuffer obuff = ByteBuffer.allocate(8128);
             return new PeerConnection(point, ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), ses, transfer, peerInfo);
         } catch(ClosedChannelException e) {
-
+            throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
-
+            throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         }
-
-        return null;
     }
 
     public final NetworkIdentifier getEndpoint() {
