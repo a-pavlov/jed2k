@@ -1,8 +1,9 @@
 package org.jed2k;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,6 +29,15 @@ import org.jed2k.protocol.tag.Tag;
 public class Conn {
     private static Logger log = Logger.getLogger(Conn.class.getName());
     private static SearchResult globalSearchRes = null;
+
+    private static void printGlobalSearchResult() {
+        if (globalSearchRes == null) return;
+        int index = 0;
+        for(SharedFileEntry entry: globalSearchRes.files) {
+            System.out.println(String.format("%03d ", index++) + entry.toString());
+        }
+        System.out.println("More results: " + (globalSearchRes.hasMoreResults()?"yes":"no"));
+    }
 
     public static void main(String[] args) throws IOException {
         Logger logger = Logger.getLogger("");
@@ -62,12 +72,7 @@ public class Conn {
                         if (a instanceof SearchResultAlert) {
                             SearchResult sr = ((SearchResultAlert)a).results;
                             globalSearchRes = sr;
-                            int index = 0;
-                            for(SharedFileEntry entry: sr.files) {
-                                System.out.println(String.format("%03d ", index++) + entry.toString());
-                            }
-
-                            System.out.println("More results: " + (sr.hasMoreResults()?"yes":"no"));
+                            printGlobalSearchResult();
                         }
                         else if (a instanceof ServerMessageAlert) {
                             System.out.println("Server message: " + ((ServerMessageAlert)a).msg);
@@ -163,6 +168,47 @@ public class Conn {
                         System.out.println("Not enough parameters to start new transfer");
                     }
                 }
+            }
+            else if (parts[0].compareTo("save") == 0) {
+                // saving search results to file for next usage
+                if (globalSearchRes != null && !globalSearchRes.files.isEmpty()) {
+                    ByteBuffer bb = ByteBuffer.allocate(globalSearchRes.bytesCount());
+                    bb.order(ByteOrder.LITTLE_ENDIAN);
+                    try {
+                        globalSearchRes.put(bb);
+                        bb.flip();
+                        File f = new File(Paths.get(args[0], "search_results.txt").toString());
+                        FileChannel channel = new FileOutputStream(f, false).getChannel();
+                        channel.write(bb);
+                        channel.close();
+                    } catch(IOException e) {
+                        System.out.println("I/O exception on save " + e);
+                    } catch(JED2KException e) {
+                        System.out.println("Unable to save search result: " + e);
+                    }
+                } else {
+                    System.out.println("Won't save empty search result");
+                }
+            }
+            else if (parts[0].compareTo("restore") == 0) {
+                try {
+                    File f = new File(Paths.get(args[0], "search_results.txt").toString());
+                    ByteBuffer bb = ByteBuffer.allocate((int)f.length());
+                    bb.order(ByteOrder.LITTLE_ENDIAN);
+                    FileChannel channel = new  FileInputStream(f).getChannel();
+                    channel.read(bb);
+                    channel.close();
+                    bb.flip();
+                    globalSearchRes = new SearchResult();
+                    globalSearchRes.get(bb);
+                } catch(IOException e) {
+                    System.out.println("I/O exception on load " + e);
+                } catch(JED2KException e) {
+                    System.out.println("Unable to load search results " + e);
+                }
+            }
+            else if (parts[0].compareTo("print") == 0) {
+                printGlobalSearchResult();
             }
 
         }
