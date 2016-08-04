@@ -51,11 +51,13 @@ public final class Utils {
     }
 
     public static InetAddress int2Address(int ip) {
-        byte[] raw = { (byte)(ip >> 24),
+        /*byte[] raw = { (byte)(ip >> 24),
                         (byte)((ip >> 16) & 0xff),
                         (byte)((ip >> 8) & 0xff),
                         (byte)(ip & 0xff)
-                        };
+                        };*/
+        byte raw[] = { (byte)(ip & 0xff), (byte)((ip >> 8) & 0xff), (byte)((ip >> 16) & 0xff), (byte)((ip >> 24) & 0xff)};
+
         try {
             return InetAddress.getByAddress(raw);
         } catch (UnknownHostException e) {

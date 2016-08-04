@@ -335,6 +335,7 @@ public class Session extends Thread {
         boolean enumerateCandidates = true;
 
         if (numTransfers > 0 && connections.size() < settings.sessionConnectionsLimit) {
+            //log.finest("connectNewPeers with transfers count " + numTransfers);
             while (enumerateCandidates) {
                 for (Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
                     Hash key = entry.getKey();

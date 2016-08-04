@@ -181,7 +181,8 @@ public class Policy extends AbstractCollection<Peer> {
             if (candidate != -1 && comparePeers(peers.get(candidate), pe)) continue;
             if (pe.nextConnection != 0 && pe.nextConnection < sessionTime) continue;
             // TODO - use min reconnect time parameter here
-            if (pe.lastConnected != 0 && sessionTime - pe.lastConnected < (pe.failCount + 1)*10) continue;
+            // 10 seconds timeout for each fail
+            if (pe.lastConnected != 0 && sessionTime - pe.lastConnected < (pe.failCount + 1)*10*1000) continue;
             candidate = current;
         }
 

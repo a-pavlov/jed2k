@@ -100,6 +100,8 @@ public abstract class Connection implements Dispatcher {
             header.get(headerBuffer);
             headerBuffer.clear();
             log.finest("processHeader:" + header.toString());
+            // TODO - add adequate resizing algorithm when packet size greater than buffer size
+            // but less than available limit for packet
             bufferIncoming.limit(packetCombainer.serviceSize(header));
             stat.receiveBytes(PacketHeader.SIZE, 0);
         }

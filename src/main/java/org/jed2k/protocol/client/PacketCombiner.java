@@ -40,14 +40,14 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         OP_ASKSHAREDDIRSANS(0x5F), // <count 4>(<len 2><Directory len>)[count]
         OP_ASKSHAREDFILESDIRANS(0x60), // <len 2><Directory len><count 4>(<HASH 16><ID 4><PORT 2><1 T
         OP_ASKSHAREDDENIEDANS(0x61);  // (null)
-                
+
         public final byte value;
 
         private StandardClientTcp(int v) {
             value = (byte)v;
         }
     }
-    
+
     enum ExtendedClientTcp {
         OP_EMULEINFO                (0x01), //
         OP_EMULEINFOANSWER          (0x02), //
@@ -89,17 +89,17 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         OP_MULTIPACKET_EXT          (0xA4),
         OP_CHATCAPTCHAREQ           (0xA5),
         OP_CHATCAPTCHARES           (0xA6);
-        
+
         public final byte value;
 
         private ExtendedClientTcp(int v) {
             value = (byte)v;
         }
     }
-    
+
     protected static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsClient;
     protected static final Map<Class<? extends Serializable>, PacketKey> struct2KeyClient;
-       
+
     private static void addHandlerClient(byte protocol, byte type, Class<? extends Serializable> clazz) {
         PacketKey pk = new PacketKey(protocol, type);
         assert(!supportedPacketsClient.containsKey(pk));
@@ -107,11 +107,11 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         supportedPacketsClient.put(pk, clazz);
         struct2KeyClient.put(clazz, pk);
     }
-    
+
     /**
      * Most packets in ed2k don't have payload data except packets with files parts
      * serviceSize extracts always service size of packet - summary metadata fields size
-     * 
+     *
      * @param ph - packet header structure
      * @return service size of structure
      */
@@ -126,45 +126,48 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         else if (ph.key().compareTo(pkClientSendingCompPart64) == 0)
             size = MD4.HASH_SIZE + UInt32.SIZE + UInt64.SIZE; // TODO - correct this temp code
         return size;
-    }   
-    
+    }
+
     private static PacketKey pkClientSendingPart = PacketKey.pk(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SENDINGPART.value);
     private static PacketKey pkClientSendingPart64 = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_SENDINGPART_I64.value);
     private static PacketKey pkClientSendingCompPart = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_COMPRESSEDPART.value);
     private static PacketKey pkClientSendingCompPart64 = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_COMPRESSEDPART_I64.value);
-    
-    static {        
+
+    static {
         supportedPacketsClient = new HashMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyClient = new HashMap<Class<? extends Serializable>, PacketKey>();
-                
+
         // client <-> client tcp messages section
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HELLO.value, Hello.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HELLOANSWER.value, HelloAnswer.class);
         addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFO.value, ExtHello.class);
         addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_EMULEINFOANSWER.value, ExtHelloAnswer.class);
-        
+
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_REQUESTFILENAME.value, FileRequest.class);
+        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_REQFILENAMEANSWER.value, FileAnswer.class);
+
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_CANCELTRANSFER.value, CancelTransfer.class);
-        
+
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SETREQFILEID.value, FileStatusRequest.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILEREQANSNOFIL.value, NoFileStatus.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_FILESTATUS.value, FileStatusAnswer.class);
-        
+
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETREQUEST.value, HashSetRequest.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_HASHSETANSWER.value, HashSetAnswer.class);
-        
+
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_STARTUPLOADREQ.value, StartUpload.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_ACCEPTUPLOADREQ.value, AcceptUpload.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_QUEUERANK.value, QueueRanking.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_OUTOFPARTREQS.value, OutOfParts.class);
-        
+
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_REQUESTPARTS.value, RequestParts32.class);
         addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_REQUESTPARTS_I64.value, RequestParts64.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_SENDINGPART.value, SendingPart32.class);
         addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_SENDINGPART_I64.value, SendingPart64.class);
-        
+
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_END_OF_DOWNLOAD.value, EndDownload.class);
     }
-    
+
     @Override
     protected Class<? extends Serializable> keyToPacket(PacketKey key) {
         return supportedPacketsClient.get(key);

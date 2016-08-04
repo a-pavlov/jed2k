@@ -127,8 +127,8 @@ public class PeerConnection extends Connection {
 
     private boolean failed = false;
 
-    private LinkedList<PendingBlock> requestQueue;
-    private LinkedList<PendingBlock> downloadQueue;
+    private LinkedList<PendingBlock> requestQueue = new LinkedList<PendingBlock>();
+    private LinkedList<PendingBlock> downloadQueue = new LinkedList<PendingBlock>();
 
     /**
      * network endpoint for outgoing connections
@@ -158,8 +158,8 @@ public class PeerConnection extends Connection {
 
     public static PeerConnection make(SocketChannel socket, Session session) {
         try {
-            ByteBuffer ibuff = ByteBuffer.allocate(4096);
-            ByteBuffer obuff = ByteBuffer.allocate(4096);
+            ByteBuffer ibuff = ByteBuffer.allocate(8128);
+            ByteBuffer obuff = ByteBuffer.allocate(8128);
             return  new PeerConnection(ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), session, socket);
         } catch(ClosedChannelException e) {
 
@@ -172,8 +172,8 @@ public class PeerConnection extends Connection {
 
     public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer, Peer peerInfo) {
         try {
-            ByteBuffer ibuff = ByteBuffer.allocate(4096);
-            ByteBuffer obuff = ByteBuffer.allocate(4096);
+            ByteBuffer ibuff = ByteBuffer.allocate(8128);
+            ByteBuffer obuff = ByteBuffer.allocate(8128);
             return new PeerConnection(point, ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), ses, transfer, peerInfo);
         } catch(ClosedChannelException e) {
 
@@ -491,6 +491,8 @@ public class PeerConnection extends Connection {
 
     @Override
     protected void onDisconnect(BaseErrorCode ec) {
+        if (ec != ErrorCode.NO_ERROR) failed = true;
+
         if (transfer != null) {
             transfer.addStats(statistics());
             abortAllRequests();
@@ -517,6 +519,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
+        log.finest(endpoint + " << file answer");
         if (transfer != null && value.hash.equals(transfer.hash())) {
             write(new FileStatusRequest(transfer.hash()));
         } else {
@@ -533,6 +536,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileStatusAnswer(FileStatusAnswer value)
             throws JED2KException {
+        log.finest(endpoint + " << file status answer");
         remotePieces = value.bitfield;
         if (transfer != null) {
             write(new HashSetRequest(transfer.hash()));
@@ -550,6 +554,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
+        log.finest(endpoint + " << hashset answer");
         if (transfer != null /*transfer.validateHashset(value.parts.collection)*/) {
             /*RequestParts32 request = new RequestParts32();
             int currentInterest = 0;

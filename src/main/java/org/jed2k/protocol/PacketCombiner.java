@@ -182,7 +182,7 @@ public abstract class PacketCombiner {
     public boolean pack(Serializable object, ByteBuffer dst) throws JED2KException {
         PacketKey key = classToKey(object.getClass());
 
-        assert key != null;
+        assert(key != null);
         if ((outgoingHeader.bytesCount() + object.bytesCount()) < dst.remaining()) {
             outgoingHeader.reset(key, object.bytesCount() + 1);
             assert(outgoingHeader.isDefined());

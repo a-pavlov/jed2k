@@ -113,8 +113,8 @@ public class Conn {
             	settings.listenPort = (short)Integer.parseInt(parts[1]);
             	s.configureSession(settings);
             }
-            if (parts[0].compareTo("connect") == 0 && parts.length == 3) {
-                s.connectoTo(new InetSocketAddress(parts[1], (short)Integer.parseInt(parts[2])));
+            if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
+                s.connectoTo(new InetSocketAddress(parts[1], (short)Integer.parseInt((parts.length > 2)?parts[2]:"4661")));
             }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 String searchExpression = command.substring("search".length());

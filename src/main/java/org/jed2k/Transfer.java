@@ -23,10 +23,10 @@ public class Transfer {
 
     public Transfer(Session s, final AddTransferParams atp) {
         assert(s != null);
-        assert(hash != null);
-        assert(size != 0);
         this.hash = atp.hash;
         this.size = atp.size.longValue();
+        assert(hash != null);
+        assert(size != 0);
         session = s;
 
         // prepare piece picker here
@@ -106,7 +106,8 @@ public class Transfer {
 
     boolean tryConnectPeer(long sessionTime) throws JED2KException {
         assert(wantMorePeers());
-        return policy.connectOnePeer(sessionTime);
+        boolean b = policy.connectOnePeer(sessionTime);
+        return b;
     }
 
 	void secondTick(long currentSessionTime) {
@@ -151,6 +152,8 @@ public class Transfer {
      * @return true if all pieces had been downloaded
      */
     public final boolean isSeed() {
-        return (picker == null) || (picker.numHave() == picker.numPieces());
+        return false;
+        // temporary always not seed
+        //return (picker == null) || (picker.numHave() == picker.numPieces());
     }
 }
