@@ -132,7 +132,7 @@ public abstract class Connection implements Dispatcher {
         }
     }
 
-    public void onReadable() {
+    void onReadable() {
         try {
             if (!header.isDefined()) {
                 processHeader();
@@ -147,7 +147,7 @@ public abstract class Connection implements Dispatcher {
         }
     }
 
-    public void onWriteable() {
+    void onWriteable() {
         try {
             bufferOutgoing.clear();
             writeInProgress = !outgoingOrder.isEmpty();
@@ -182,7 +182,7 @@ public abstract class Connection implements Dispatcher {
     protected abstract void onConnect() throws JED2KException;
     protected abstract void onDisconnect(BaseErrorCode ec);
 
-    public void connect(final InetSocketAddress address) throws JED2KException {
+    void connect(final InetSocketAddress address) throws JED2KException {
         try {
             socket.connect(address);
         } catch(IOException e) {
@@ -191,7 +191,7 @@ public abstract class Connection implements Dispatcher {
         }
     }
 
-    public void close(BaseErrorCode ec) {
+    void close(BaseErrorCode ec) {
         log.finest("close socket " + ec);
         try {
             socket.close();
@@ -203,7 +203,7 @@ public abstract class Connection implements Dispatcher {
         }
     }
 
-    public void write(Serializable packet) {
+    void write(Serializable packet) {
         log.finest("write packet " + packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {

@@ -178,8 +178,13 @@ public class PeerConnection extends Connection {
         } catch(ClosedChannelException e) {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
-            throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
+    }
+
+    @Override
+    void onReadable() {
+        super.onReadable();
     }
 
     public NetworkIdentifier getEndpoint() {
