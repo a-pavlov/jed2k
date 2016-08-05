@@ -215,7 +215,12 @@ public class ServerConnection extends Connection {
                     session.callbacks.put(endpoint.ip, value.hash);
                 } else {
                     log.finest(value.hash + " add endpoint " + endpoint);
-                    transfer.addPeer(endpoint);
+                    try {
+                        transfer.addPeer(endpoint);
+                    } catch(JED2KException e) {
+                        e.printStackTrace();
+                        break;
+                    }
                 }
             }
         }

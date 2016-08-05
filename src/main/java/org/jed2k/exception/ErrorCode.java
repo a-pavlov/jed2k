@@ -24,7 +24,11 @@ public enum ErrorCode implements BaseErrorCode {
     TRANSFER_ABORTED(19),
     CHANNEL_CLOSED(20),
     QUEUE_RANKING(21),
-    FAIL(22);
+
+    DUPLICATE_PEER_ID(22),
+    DUPLICATE_PEER_CONNECTION(23),
+    PEER_LIMIT_EXEEDED(24),
+    FAIL(25);
 
     private final int value;
 

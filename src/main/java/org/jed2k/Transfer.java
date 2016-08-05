@@ -71,8 +71,8 @@ public class Transfer {
         session.sendSourcesRequest(hash, size);
     }
 
-    final void addPeer(NetworkIdentifier endpoint) {
-        policy.add(new Peer(endpoint, true));
+    final void addPeer(NetworkIdentifier endpoint) throws JED2KException {
+        policy.addPeer(new Peer(endpoint, true));
     }
 
     final void removePeerConnection(PeerConnection c) {
@@ -92,8 +92,8 @@ public class Transfer {
         return peerInfo.connection;
     }
 
-    boolean attachPeer(PeerConnection c) {
-        return policy.newConnection(c);
+    void attachPeer(PeerConnection c) throws JED2KException {
+        policy.newConnection(c);
     }
 
     public void callPolicy(Peer peerInfo, PeerConnection c) {

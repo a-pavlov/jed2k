@@ -1,5 +1,6 @@
 package org.jed2k;
 
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.NetworkIdentifier;
 
@@ -38,19 +39,18 @@ public class Policy extends AbstractCollection<Peer> {
         return null;
     }
 
-    @Override
-    public boolean add(Peer p) {
+    public boolean addPeer(Peer p) throws JED2KException {
         assert(p != null);
 
         int maxPeerlistSize = 100;
 
         if (maxPeerlistSize != 0 && peers.size() >= maxPeerlistSize) {
             erasePeers();
-            if (peers.size() >= maxPeerlistSize) return false;
+            if (peers.size() >= maxPeerlistSize) throw new JED2KException(ErrorCode.PEER_LIMIT_EXEEDED);
         }
 
         int insertPos = Collections.binarySearch(peers, p);
-        if (insertPos >= 0) return false;
+        if (insertPos >= 0) throw new JED2KException(ErrorCode.DUPLICATE_PEER_ID);
         peers.add(((insertPos + 1)*-1), p);
         return true;
     }
@@ -258,23 +258,24 @@ public class Policy extends AbstractCollection<Peer> {
         return res;
     }
 
-    boolean newConnection(PeerConnection c) {
+    public void newConnection(PeerConnection c) throws JED2KException {
         Peer p = get(c.getEndpoint());
 
         if (p != null) {
             // some actions here
+            if (p.connection != null) {
+                // stupid, but simply throw exception here
+                throw new JED2KException(ErrorCode.DUPLICATE_PEER_ID);
+            }
         }
         else {
             p = new Peer(c.getEndpoint(), false);
-            if (!add(p)) {
-                return false;
-            }
+            addPeer(p);
         }
 
+        assert(p != null);
         p.connection = c;
         c.setPeer(p);
-        peers.add(p);
-        return true;
     }
 }
 

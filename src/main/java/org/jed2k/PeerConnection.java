@@ -182,7 +182,7 @@ public class PeerConnection extends Connection {
         }
     }
 
-    public final NetworkIdentifier getEndpoint() {
+    public NetworkIdentifier getEndpoint() {
         return endpoint;
     }
 
