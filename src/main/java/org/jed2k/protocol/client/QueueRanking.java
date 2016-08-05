@@ -4,9 +4,11 @@ import java.nio.ByteBuffer;
 
 import org.jed2k.Utils;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Dispatchable;
+import org.jed2k.protocol.Dispatcher;
 import org.jed2k.protocol.Serializable;
 
-public class QueueRanking implements Serializable {
+public class QueueRanking implements Serializable, Dispatchable {
     public short rank = 0;
 
     @Override
@@ -23,5 +25,10 @@ public class QueueRanking implements Serializable {
     @Override
     public int bytesCount() {
         return Utils.sizeof(rank);
+    }
+
+    @Override
+    public void dispatch(Dispatcher dispatcher) throws JED2KException {
+        dispatcher.onQueueRanking(this);
     }
 }

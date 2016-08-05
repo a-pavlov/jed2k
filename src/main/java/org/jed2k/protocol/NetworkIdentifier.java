@@ -20,28 +20,28 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
         ip  = Utils.networkByteOrderToIp(ep.getAddress().getAddress());
         port = (short)ep.getPort();
     }
-    
+
     public NetworkIdentifier(int ip, short port) {
         this.ip = ip;
         this.port = port;
     }
-    
+
     public NetworkIdentifier assign(int ip, short port) {
         this.ip = ip;
         this.port = port;
         return this;
     }
-    
+
     public NetworkIdentifier assign(NetworkIdentifier point) {
         this.ip = point.ip;
         this.port = point.port;
         return this;
     }
-    
-    public boolean defined() {
+
+    public final boolean defined() {
         return ip != 0 && port != 0;
     }
-    
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         ip = src.getInt();
@@ -53,17 +53,17 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return dst.putInt(ip).putShort(port);
     }
-    
+
     @Override
     public int bytesCount() {
         return sizeof(ip) + sizeof(port);
     }
-    
+
     @Override
     public String toString() {
-        return int2Address(ip) + ":" + port; 
+        return int2Address(ip) + ":" + port;
     }
-        
+
     public InetSocketAddress toInetSocketAddress() throws JED2KException {
         try {
             return new InetSocketAddress(int2Address(ip), port);
@@ -80,7 +80,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
         if (port < arg0.port) return -1;
         return 0;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof NetworkIdentifier) {
@@ -88,7 +88,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
                 return true;
             }
         }
-        
+
         return false;
     }
 }

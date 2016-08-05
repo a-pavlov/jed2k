@@ -195,14 +195,24 @@ public class ServerConnection extends Connection {
     }
 
     @Override
+    public void onAcceptUpload(AcceptUpload value) throws JED2KException {
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
+    public void onQueueRanking(QueueRanking value) throws JED2KException {
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
     public void onFoundFileSources(FoundFileSources value)
             throws JED2KException {
         Transfer transfer = session.transfers.get(value.hash);
         if (transfer != null) {
             for(final NetworkIdentifier endpoint: value.sources) {
-                if (Utils.isLowId(endpoint.ip) && !Utils.isLowId(session.clientId) && !session.callbacks.contains(endpoint.ip)) {
+                if (Utils.isLowId(endpoint.ip) && !Utils.isLowId(session.clientId) && !session.callbacks.containsKey(endpoint.ip)) {
                     sendCallbackRequest(endpoint.ip);
-                    session.callbacks.add(endpoint.ip);
+                    session.callbacks.put(endpoint.ip, value.hash);
                 } else {
                     log.finest(value.hash + " add endpoint " + endpoint);
                     transfer.addPeer(endpoint);

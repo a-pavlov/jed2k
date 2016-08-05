@@ -5,6 +5,8 @@ import org.jed2k.protocol.server.*;
 import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.protocol.client.*;
 
+import java.util.Queue;
+
 public interface Dispatcher {
     // client - server messages
     public void onServerIdChange(IdChange value) throws JED2KException;
@@ -32,6 +34,8 @@ public interface Dispatcher {
     public void onClientHashSetRequest(HashSetRequest value) throws JED2KException;
     public void onClientHashSetAnswer(HashSetAnswer value) throws JED2KException;
     public void onClientOutOfParts(OutOfParts value) throws JED2KException;
+    public void onAcceptUpload(AcceptUpload value) throws JED2KException;
+    public void onQueueRanking(QueueRanking value) throws JED2KException;
     public void onClientSendingPart32(SendingPart32 value) throws JED2KException;
     public void onClientSendingPart64(SendingPart64 value) throws JED2KException;
 }

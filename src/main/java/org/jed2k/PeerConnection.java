@@ -13,6 +13,7 @@ import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.BitField;
+import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.*;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -153,6 +154,7 @@ public class PeerConnection extends Connection {
             Session session,
             SocketChannel socket) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session, socket);
+        endpoint = new NetworkIdentifier();
         peerInfo = null;
     }
 
@@ -185,7 +187,7 @@ public class PeerConnection extends Connection {
     }
 
     public final boolean hasEndpoint() {
-        return endpoint != null;
+        return endpoint.defined();
     }
 
     public final void connect() throws JED2KException {
@@ -445,6 +447,19 @@ public class PeerConnection extends Connection {
     public void onClientHello(Hello value) throws JED2KException {
         // extract client information
         assignRemotePeerInformation(value);
+        endpoint.assign(value.point);
+        Hash h = session.callbacks.get(value.point);
+        Transfer t = null;
+
+        if (h != null) {
+            session.callbacks.remove(value.point);
+            t = session.transfers.get(h);
+        }
+
+        if (t != null) {
+            t.attachPeer(this);
+        }
+
         write(prepareHello(new HelloAnswer()));
     }
 
@@ -535,7 +550,11 @@ public class PeerConnection extends Connection {
         log.finest(endpoint + " << file status answer");
         remotePieces = value.bitfield;
         if (transfer != null) {
-            write(new HashSetRequest(transfer.hash()));
+            if (transfer.size() >= Constants.PIECE_SIZE) {
+                write(new HashSetRequest(transfer.hash()));
+            } else {
+                write(new StartUpload(transfer.hash()));
+            }
         } else {
             close(ErrorCode.NO_TRANSFER);
         }
@@ -551,35 +570,11 @@ public class PeerConnection extends Connection {
     public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
         log.finest(endpoint + " << hashset answer");
-        if (transfer != null /*transfer.validateHashset(value.parts.collection)*/) {
-            /*RequestParts32 request = new RequestParts32();
-            int currentInterest = 0;
-            for(int i = 0; i < RequestParts.PARTS_COUNT; ++i) {
-                PieceBlock interestedBlock = transfer.requestBlock();
-                interestedBlocks[currentInterest++] = interestedBlock;
-
-                if (interestedBlock != null) {
-                    // TODO - fix it
-                    // generate packet
-                    //Pair<Long, Long> offset = Utils.range(interestedBlock, transfer.fileSize());
-                    //request.beginOffset.add(new UInt32(offset.left.intValue()));
-                    //request.endOffset.add(new UInt32(offset.right.intValue()));
-                }
-            }
-
-            assert(request.beginOffset.size() == request.endOffset.size());
-            */
-
-            // TODO - use correct request architecture
-            //if (!request.beginOffset.isEmpty()) {
-            //    write(request);
-            //} else {
-            //    close();
-            //}
+        if (transfer != null) {
+            write(new StartUpload(transfer.hash()));
+        } else {
+            close(ErrorCode.NO_TRANSFER);
         }
-
-        // temporary close connection immediately after data request is ready for testing purposes
-        close(ErrorCode.NO_ERROR);
     }
 
     @Override
@@ -592,6 +587,18 @@ public class PeerConnection extends Connection {
     public void onClientOutOfParts(OutOfParts value)
             throws JED2KException {
         close(ErrorCode.OUT_OF_PARTS);
+    }
+
+    @Override
+    public void onAcceptUpload(AcceptUpload value) throws JED2KException {
+        log.finest(endpoint + " << accept upload");
+        close(ErrorCode.NO_ERROR);
+    }
+
+    @Override
+    public void onQueueRanking(QueueRanking value) throws JED2KException {
+        log.finest(endpoint + " << queue ranking " + value.rank);
+        //close(ErrorCode.QUEUE_RANKING);
     }
 
     @Override

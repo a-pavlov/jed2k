@@ -31,7 +31,7 @@ public class Session extends Thread {
     ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
     Settings settings = new Settings();
     long lastTick = Time.currentTime();
-    HashSet<Integer> callbacks = new HashSet<Integer>();
+    HashMap<Integer, Hash> callbacks = new HashMap<Integer, Hash>();
 
     // from last established server connection
     int clientId    = 0;

@@ -1,6 +1,7 @@
 package org.jed2k;
 
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.NetworkIdentifier;
 
 import java.util.*;
 
@@ -27,6 +28,14 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean isEraseCandidate(Peer pe) {
         if (pe.connection != null || isConnectCandidate(pe)) return false;
         return pe.failCount > 0;
+    }
+
+    Peer get(NetworkIdentifier endpoint) {
+        for(Peer p: peers) {
+            if (p.endpoint.equals(endpoint)) return p;
+        }
+
+        return null;
     }
 
     @Override
@@ -247,6 +256,25 @@ public class Policy extends AbstractCollection<Peer> {
         }
 
         return res;
+    }
+
+    boolean newConnection(PeerConnection c) {
+        Peer p = get(c.getEndpoint());
+
+        if (p != null) {
+            // some actions here
+        }
+        else {
+            p = new Peer(c.getEndpoint(), false);
+            if (!add(p)) {
+                return false;
+            }
+        }
+
+        p.connection = c;
+        c.setPeer(p);
+        peers.add(p);
+        return true;
     }
 }
 

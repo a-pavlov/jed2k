@@ -15,7 +15,7 @@ public class Settings {
     public int maxFailCount = 20;
     public int maxPeerListSize = 100;
     public int minPeerReconnectTime = 10;
-    public int peerConnectionTimeout = 10;
+    public int peerConnectionTimeout = 5;
     public int sessionConnectionsLimit = 20;
 
     /**

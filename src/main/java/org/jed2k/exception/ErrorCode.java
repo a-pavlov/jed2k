@@ -23,7 +23,8 @@ public enum ErrorCode implements BaseErrorCode {
     GENERIC_ILLEGAL_ACCESS(18),
     TRANSFER_ABORTED(19),
     CHANNEL_CLOSED(20),
-    FAIL(21);
+    QUEUE_RANKING(21),
+    FAIL(22);
 
     private final int value;
 

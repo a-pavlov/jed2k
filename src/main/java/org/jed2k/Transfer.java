@@ -92,6 +92,10 @@ public class Transfer {
         return peerInfo.connection;
     }
 
+    boolean attachPeer(PeerConnection c) {
+        return policy.newConnection(c);
+    }
+
     public void callPolicy(Peer peerInfo, PeerConnection c) {
         policy.setConnection(peerInfo, c);
     }
@@ -117,7 +121,10 @@ public class Transfer {
         }
 
         stat.secondTick(currentSessionTime);
-        // TODO - add statistics from all peed connections
+
+        for(PeerConnection c: connections) {
+            c.secondTick(currentSessionTime);
+        }
     }
 
     public Statistics statistics() {

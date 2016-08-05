@@ -157,7 +157,7 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
 
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_STARTUPLOADREQ.value, StartUpload.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_ACCEPTUPLOADREQ.value, AcceptUpload.class);
-        addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_QUEUERANK.value, QueueRanking.class);
+        addHandlerClient(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_QUEUERANKING.value, QueueRanking.class);
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_OUTOFPARTREQS.value, OutOfParts.class);
 
         addHandlerClient(ProtocolType.OP_EDONKEYPROT.value, StandardClientTcp.OP_REQUESTPARTS.value, RequestParts32.class);
