@@ -21,12 +21,12 @@ import org.jed2k.protocol.Serializable;
 
 public abstract class Connection implements Dispatcher {
     private static Logger log = Logger.getLogger(ServerConnection.class.getName());
-    private SocketChannel socket;
+    SocketChannel socket;
     private ByteBuffer bufferIncoming;
     private ByteBuffer bufferOutgoing;
     private LinkedList<Serializable> outgoingOrder = new LinkedList<Serializable>();
     private boolean writeInProgress = false;
-    private SelectionKey key = null;
+    SelectionKey key = null;
     private final PacketCombiner packetCombainer;
     final Session session;
     private PacketHeader header = new PacketHeader();
@@ -177,6 +177,10 @@ public abstract class Connection implements Dispatcher {
             log.warning(e.getMessage());
             close(ErrorCode.IO_EXCEPTION);
         }
+    }
+
+    void doRead() {
+        key.interestOps(SelectionKey.OP_READ);
     }
 
     protected abstract void onConnect() throws JED2KException;

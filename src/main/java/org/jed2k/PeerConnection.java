@@ -44,7 +44,7 @@ Usual packets order in case of we establish connection to remote peer
 +------------------------------------------>
 |       FileStatusAnswer/NoFileStatus      |
 <------------------------------------------+
-|       HashSetRequest                     |
+|       HashSetRequest(file size > 9M)     |
 +------------------------------------------>
 |       HashSetAnswer                      |
 <------------------------------------------+
@@ -133,8 +133,25 @@ public class PeerConnection extends Connection {
 
     /**
      * channel transferring data
+     * peer request header has been read and we awaiting or already reading payload data
      */
     private boolean transferringData = false;
+
+    /**
+     * current peer request from remote peer
+     * next will be payload data
+     */
+    private PeerRequest recvReq = null;
+
+    /**
+     * special flag if current peer request is compressed
+     */
+    private boolean recvReqCompressed = false;
+
+    /**
+     * offset in current peer request
+     */
+    private int recvPos = 0;
 
     private LinkedList<PendingBlock> requestQueue = new LinkedList<PendingBlock>();
     private LinkedList<PendingBlock> downloadQueue = new LinkedList<PendingBlock>();
@@ -193,7 +210,12 @@ public class PeerConnection extends Connection {
     @Override
     public void onReadable() {
         if (transferringData) {
-            onReceiveData();
+            try {
+                onReceiveData();
+            } catch(JED2KException e) {
+                log.warning(e.getMessage());
+                close(e.getErrorCode());
+            }
         } else {
             super.onReadable();
         }
@@ -615,24 +637,29 @@ public class PeerConnection extends Connection {
     @Override
     public void onQueueRanking(QueueRanking value) throws JED2KException {
         log.finest(endpoint + " << queue ranking " + value.rank);
-        //close(ErrorCode.QUEUE_RANKING);
+        close(ErrorCode.QUEUE_RANKING);
     }
 
     @Override
     public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
-        PeerRequest r = PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue());
-        receiveData(r);
+        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue()));
     }
 
     @Override
     public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
-        PeerRequest r = PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue());
-        receiveData(r);
+        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue()));
     }
 
-    void receiveData(final PeerRequest r) {
+    /**
+     * start receiving of payload data
+     * @param r received peer request will be set as current
+     * @throws JED2KException
+     */
+    void receiveData(final PeerRequest r) throws JED2KException {
+        recvReq = r;
+        recvPos = 0;
         PieceBlock b = PieceBlock.mk_block(r);
 
         // found correspond pending block
@@ -642,26 +669,102 @@ public class PeerConnection extends Connection {
             skipData();
         }
 
+        // if pending block hasn't associated buffer - allocate it
         if (pb.buffer == null) pb.buffer = allocateBuffer();
-        if (pb.buffer == null) return;  // process it correctly
+        if (pb.buffer == null) return;  // TODO process it correctly!
 
+        // prepare buffer for reading data into proper place
         pb.buffer.position((int)r.inBlockOffset());
         pb.buffer.limit((int)(r.inBlockOffset() + r.length));
-        // set current buffer here
-        // receive data here
         onReceiveData();
     }
 
     /**
      * receive data into skip data buffer
+     * and ignore it
      */
-    void skipData() {
+    void skipData() throws JED2KException {
+        ByteBuffer buffer = session.allocateSkipDataBufer();
+        buffer.limit((int)recvReq.length - recvPos);
+        try {
+            int n = socket.read(buffer);
+            if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
+            recvPos += n;
+            statistics().receiveBytes(0, n);
+            if (n != 0) lastReceive = Time.currentTime();
 
+            if (recvPos < recvReq.length) {
+                doRead();
+            } else {
+                requestBlock();
+            }
+        }
+        catch(IOException e) {
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        }
     }
 
-    void onReceiveData() {
-        // must have current buffer, read data from socket
-        // read data into buffer and wait for new portion
+    /**
+     * call this method each time when OP_READ event on socket occurred and peer connection
+     * in transferring data mode. It will continue reading data of current peer request
+     * @throws JED2KException
+     */
+    void onReceiveData() throws JED2KException {
+        // find pending block here
+        PendingBlock pb = null;
+
+        if (pb == null) {
+            skipData();
+        }
+
+        assert(pb.buffer != null);
+
+        try {
+            int n = socket.read(pb.buffer);
+            if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
+            assert(n != -1);
+
+            recvPos += n;
+            if (n != 0) lastReceive = Time.currentTime();
+            statistics().receiveBytes(0, n);
+
+            if (pb.buffer.remaining() == 0) {
+                assert(recvPos == recvReq.length);
+                // turn off data transfer mode
+                transferringData = false;
+
+                if (completeBlock(pb)) {
+                    // write block to disk here
+                    // remove pending block from downloading queue
+                    // check piece finished and run hashing
+                    // check download queue empty and request new blocks
+                    requestBlock();
+                    return;
+                }
+            }
+            // we are interested in event when socket has bytes for read again
+            doRead();
+        } catch(IOException e) {
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        }
+    }
+
+    /**
+     * update range in pending block and check block is completed
+     * @param pb pending block from downloading queue
+     * @return true if block completely downloaded
+     * @throws JED2KException
+     */
+    boolean completeBlock(final PendingBlock pb) throws JED2KException {
+        assert(recvReq != null);
+        assert(recvReq.length == recvPos);
+        pb.dataLeft.sub(recvReq.range());
+
+        if (pb.isCompleted() && recvReqCompressed) {
+            // decompression here
+        }
+
+        return pb.isCompleted();
     }
 
     ByteBuffer allocateBuffer() {
