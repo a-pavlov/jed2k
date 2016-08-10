@@ -2,6 +2,7 @@ package org.jed2k;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
@@ -32,6 +33,7 @@ public class Session extends Thread {
     Settings settings = new Settings();
     long lastTick = Time.currentTime();
     HashSet<Integer> callbacks = new HashSet<Integer>();
+    private ByteBuffer skipDataBuffer = null;
 
     // from last established server connection
     int clientId    = 0;
@@ -375,5 +377,18 @@ public class Session extends Thread {
                 if (transfers.isEmpty()) break;
             }
         }
+    }
+
+    /**
+     * sometimes we need to skip some data received from peer
+     * skip data buffer is one shared data buffer for all connections
+     * @return byte buffer
+     */
+    ByteBuffer allocateSkipDataBufer() {
+        if (skipDataBuffer == null) {
+            skipDataBuffer = ByteBuffer.allocate(Constants.BLOCK_SIZE_INT);
+        }
+
+        return skipDataBuffer.duplicate();
     }
 }

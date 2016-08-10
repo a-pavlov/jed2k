@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-import org.jed2k.data.Region;
+import org.jed2k.data.*;
+import org.jed2k.data.PeerRequest;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ErrorCode;
@@ -19,7 +20,6 @@ import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.PacketCombiner;
 import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.protocol.tag.Tag;
-import org.jed2k.data.PieceBlock;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
@@ -85,11 +85,14 @@ public class PeerConnection extends Connection {
         long size;
         long createTime;
         Region dataLeft;
+        ByteBuffer buffer;
 
         public PendingBlock(PieceBlock b, long size) {
             assert(size > 0);
             block = b;
             this.size = size;
+            buffer = null;
+            createTime = Time.currentTime();
         }
 
         public boolean isCompleted() {
@@ -126,6 +129,11 @@ public class PeerConnection extends Connection {
     private Peer peerInfo;
 
     private boolean failed = false;
+
+    /**
+     * channel transferring data
+     */
+    private boolean transferringData = false;
 
     private LinkedList<PendingBlock> requestQueue = new LinkedList<PendingBlock>();
     private LinkedList<PendingBlock> downloadQueue = new LinkedList<PendingBlock>();
@@ -177,6 +185,15 @@ public class PeerConnection extends Connection {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
+        }
+    }
+
+    @Override
+    public void onReadable() {
+        if (transferringData) {
+            onReceiveData();
+        } else {
+            super.onReadable();
         }
     }
 
@@ -597,13 +614,55 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
-        // prepare to read data
+        PeerRequest r = PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue());
+        receiveData(r);
     }
 
     @Override
     public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
-        // prepare to read data
+        PeerRequest r = PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue());
+        receiveData(r);
+    }
+
+    void receiveData(final PeerRequest r) {
+        PieceBlock b = PieceBlock.mk_block(r);
+
+        // found correspond pending block
+        PendingBlock pb = null; // temporary!
+
+        if (pb == null) {
+            skipData();
+        }
+
+        if (pb.buffer == null) pb.buffer = allocateBuffer();
+        if (pb.buffer == null) return;  // process it correctly
+
+        pb.buffer.position((int)r.inBlockOffset());
+        pb.buffer.limit((int)(r.inBlockOffset() + r.length));
+        // set current buffer here
+        // receive data here
+        onReceiveData();
+    }
+
+    /**
+     * receive data into skip data buffer
+     */
+    void skipData() {
+
+    }
+
+    void onReceiveData() {
+        // must have current buffer, read data from socket
+        // read data into buffer and wait for new portion
+    }
+
+    ByteBuffer allocateBuffer() {
+        return null;
+    }
+
+    ByteBuffer allocateZBuffer() {
+        return null;
     }
 
     public PeerSpeed speed() {
