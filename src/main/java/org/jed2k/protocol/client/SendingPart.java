@@ -7,10 +7,10 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UNumber;
 
-public abstract class SendingPart<SizeType extends UNumber> implements Serializable {
+public abstract class SendingPart<N extends UNumber> implements Serializable {
     public final Hash hash = new Hash();
-    public SizeType beginOffset = null;
-    public SizeType endOffset = null;
+    public N beginOffset = null;
+    public N endOffset = null;
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
@@ -21,11 +21,11 @@ public abstract class SendingPart<SizeType extends UNumber> implements Serializa
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return endOffset.put(beginOffset.put(hash.put(dst)));
     }
-    
+
     @Override
     public int bytesCount() {
-        return hash.bytesCount() + beginOffset.bytesCount()*2;                
+        return hash.bytesCount() + beginOffset.bytesCount()*2;
     }
-    
+
     public abstract int payloadSize();
 }

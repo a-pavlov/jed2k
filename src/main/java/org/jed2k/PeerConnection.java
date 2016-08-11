@@ -153,7 +153,6 @@ public class PeerConnection extends Connection {
      */
     private int recvPos = 0;
 
-    private LinkedList<PendingBlock> requestQueue = new LinkedList<PendingBlock>();
     private LinkedList<PendingBlock> downloadQueue = new LinkedList<PendingBlock>();
 
     /**
@@ -696,7 +695,7 @@ public class PeerConnection extends Connection {
             if (recvPos < recvReq.length) {
                 doRead();
             } else {
-                requestBlock();
+                requestBlocks();
             }
         }
         catch(IOException e) {
@@ -738,7 +737,7 @@ public class PeerConnection extends Connection {
                     // remove pending block from downloading queue
                     // check piece finished and run hashing
                     // check download queue empty and request new blocks
-                    requestBlock();
+                    requestBlocks();
                     return;
                 }
             }
@@ -810,45 +809,27 @@ public class PeerConnection extends Connection {
             if (pb.block.compareTo(b) == 0) return true;
         }
 
-        for(PendingBlock pb: requestQueue) {
-            if (pb.block.compareTo(b) == 0) return true;
-        }
-
         return false;
     }
 
-    public void requestBlock() {
-        if (transfer == null) return;
-        int numRequests = Constants.REQUEST_QUEUE_SIZE - downloadQueue.size() - requestQueue.size();
-        if (numRequests <= 0) return;
-        LinkedList<PieceBlock> interestingBlocks = new LinkedList<PieceBlock>();
+    void requestBlocks() {
+        if (transfer == null || transferringData || !downloadQueue.isEmpty()) return;
+        LinkedList<PieceBlock> blocks = new LinkedList<PieceBlock>();
         PiecePicker picker = transfer.getPicker();
-        assert(picker != null);
-        picker.pickPieces(interestingBlocks, numRequests);
-        for(PieceBlock b: interestingBlocks) {
+        picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE);
+        RequestParts64 reqp = new RequestParts64(transfer.hash());
 
-
-
+        while(!blocks.isEmpty() && downloadQueue.size() < Constants.REQUEST_QUEUE_SIZE) {
+            PieceBlock b = blocks.poll();
+            // mark block as downloading
+            transfer.getPicker().markAsDownloading(b); // ?
+            downloadQueue.add(new PendingBlock(b, transfer.size()));
+            reqp.append(b.range(transfer.size()));
+            assert(!reqp.isFool());
+            // do not flush (write) structure to remote here like in libed2k since order always contain no more than 3 blocks
         }
-    }
 
-    public boolean addRequest(PieceBlock b) {
-        if (transfer == null) return false;
-        if (!transfer.getPicker().markAsDownloading(b)) return false;
-        requestQueue.add(new PendingBlock(b, transfer.size()));
-        return true;
-    }
-
-
-    public void sendRequest() {
-
-        RequestParts64 rp = new RequestParts64();
-        while(!requestQueue.isEmpty() && downloadQueue.size() < Constants.REQUEST_QUEUE_SIZE) {
-            PendingBlock pb = requestQueue.poll();
-
-            // if finished or downloading - continue;
-            downloadQueue.add(pb);
-        }
+        if (!reqp.isEmpty()) write(reqp);
     }
 
     void abortAllRequests() {
@@ -858,14 +839,8 @@ public class PeerConnection extends Connection {
                 PendingBlock pb = downloadQueue.poll();
                 picker.abortDownload(pb.block);
             }
-
-            while(!requestQueue.isEmpty()) {
-                PendingBlock pb = requestQueue.poll();
-                picker.abortDownload(pb.block);
-            }
         }
         else {
-            requestQueue.clear();
             downloadQueue.clear();
         }
     }

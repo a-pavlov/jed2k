@@ -21,25 +21,25 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
      * have, 2<sup>32</sup>-1.
      */
     public static final long             MAX_VALUE             = 0xffffffffL;
-    
+
     public static final int SIZE = 4;
-    
-    
+
+
     private int value;
 
-    
+
     public UInt32(){
       value = 0;
     }
-    
+
     public UInt32(byte value) {
       this.value = (int)value;
     }
-    
+
     public UInt32(short value) {
       this.value = (int)(value) & 0xffff;
     }
-    
+
     public UInt32(int value) {
       this.value = value;
     }
@@ -66,7 +66,7 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
 
     @Override
     public double doubleValue() {
-        return value;        
+        return value;
     }
 
 
@@ -78,13 +78,19 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
 
     @Override
     public int intValue() {
-        return value;        
+        return value;
     }
 
     @Override
     public long longValue() {
-        return value & MAX_VALUE;        
-    }    
+        return value & MAX_VALUE;
+    }
+
+    @Override
+    public UNumber assign(long value) {
+        this.value = (int)(value);
+        return this;
+    }
 
     @Override
     public UInt32 assign(int value){
@@ -103,10 +109,10 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
       this.value = value;
       return this;
     }
-    
+
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        
+
         if (obj instanceof UInt32) {
             return value == ((UInt32) obj).value;
         }
@@ -118,7 +124,7 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
     public int bytesCount() {
         return sizeof(value);
     }
-    
+
     @Override
     public String toString() {
         return "uint32{" + intValue() + "}";

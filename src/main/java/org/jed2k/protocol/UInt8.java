@@ -95,10 +95,16 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
     }
 
     @Override
+    public UNumber assign(long value) {
+        container = (byte)value;
+        return this;
+    }
+
+    @Override
     public int bytesCount() {
         return sizeof(container);
     }
-    
+
     @Override
     public String toString() {
         return "uint8{" + intValue() + "}";
