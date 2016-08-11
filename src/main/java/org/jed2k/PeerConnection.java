@@ -99,6 +99,10 @@ public class PeerConnection extends Connection {
         public boolean isCompleted() {
             return dataLeft.empty();
         }
+
+        int compareTo(PieceBlock b) {
+            return block.compareTo(b);
+        }
     }
 
     private static Logger log = Logger.getLogger(PeerConnection.class.getName());
@@ -661,8 +665,8 @@ public class PeerConnection extends Connection {
         recvPos = 0;
         PieceBlock b = PieceBlock.mk_block(r);
 
-        // found correspond pending block
-        PendingBlock pb = null; // temporary!
+        // search for correspond pending block in downloading queue
+        PendingBlock pb = getDownloading(b);
 
         if (pb == null) {
             skipData();
@@ -709,12 +713,16 @@ public class PeerConnection extends Connection {
      * @throws JED2KException
      */
     void onReceiveData() throws JED2KException {
-        // find pending block here
-        PendingBlock pb = null;
+
+        assert(recvReq != null);
+        // search for correspong pending block
+        PendingBlock pb = getDownloading(PieceBlock.mk_block(recvReq));
 
         if (pb == null) {
             skipData();
         }
+
+        PieceBlock blockFinished = PieceBlock.mk_block(recvReq);
 
         assert(pb.buffer != null);
 
@@ -733,6 +741,7 @@ public class PeerConnection extends Connection {
                 transferringData = false;
 
                 if (completeBlock(pb)) {
+                    downloadQueue.remove(pb);
                     // write block to disk here
                     // remove pending block from downloading queue
                     // check piece finished and run hashing
@@ -810,6 +819,14 @@ public class PeerConnection extends Connection {
         }
 
         return false;
+    }
+
+    PendingBlock getDownloading(final PieceBlock b) {
+        for(final PendingBlock pb: downloadQueue) {
+            if (pb.compareTo(b) == 0) return pb;
+        }
+
+        return null;
     }
 
     void requestBlocks() {
