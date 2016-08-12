@@ -58,7 +58,8 @@ public class Conn {
         System.out.println("Incoming directory set to: " + incomingDir);
 
         System.out.println("Conn started");
-        final Session s = new Session();
+        final Settings startSettings = new Settings();
+        final Session s = new Session(startSettings);
         s.start();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);

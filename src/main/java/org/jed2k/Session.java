@@ -30,10 +30,11 @@ public class Session extends Thread {
 
     Map<Hash, Transfer> transfers = new HashMap<Hash, Transfer>();
     ArrayList<PeerConnection> connections = new ArrayList<PeerConnection>(); // incoming connections
-    Settings settings = new Settings();
+    Settings settings = null;
     long lastTick = Time.currentTime();
     HashMap<Integer, Hash> callbacks = new HashMap<Integer, Hash>();
     private ByteBuffer skipDataBuffer = null;
+    BufferPool bufferPool = null;
 
 
     // from last established server connection
@@ -42,6 +43,12 @@ public class Session extends Thread {
     int auxPort     = 0;
 
     private BlockingQueue<Alert> alerts = new LinkedBlockingQueue<Alert>();
+
+    public Session(final Settings st) {
+        // TODO - validate settings before usage
+        settings = st;
+        bufferPool = new BufferPool(st.bufferPoolSize);
+    }
 
     /**
      * start listening server socket

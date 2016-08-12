@@ -775,8 +775,12 @@ public class PeerConnection extends Connection {
         return pb.isCompleted();
     }
 
+    /**
+     *
+     * @return byte buffer with fixed size 180K from global session pool
+     */
     ByteBuffer allocateBuffer() {
-        return null;
+        return session.bufferPool.allocate();
     }
 
     ByteBuffer allocateZBuffer() {

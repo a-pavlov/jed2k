@@ -17,6 +17,7 @@ public class Settings {
     public int minPeerReconnectTime = 10;
     public int peerConnectionTimeout = 5;
     public int sessionConnectionsLimit = 20;
+    public int bufferPoolSize = 250;    // size of buffer pool in blocks of 180K
 
     /**
      * send ping message to server every serverPingTimeout
