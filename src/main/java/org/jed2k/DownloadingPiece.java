@@ -10,7 +10,8 @@ public class DownloadingPiece {
         STATE_NONE((byte)0),
         STATE_REQUESTED((byte)1),
         STATE_DOWNLOADING((byte)2),
-        STATE_FINISHED((byte)3);
+        STATE_WRITING((byte)3),
+        STATE_FINISHED((byte)4);
         byte value;
 
         BlockState(byte b) {
@@ -58,5 +59,14 @@ public class DownloadingPiece {
     public void finishBlock(int blockIndex) {
         assert(blockIndex < blocksCount);
         blockState[blockIndex] = BlockState.STATE_FINISHED.value;
+    }
+
+    public void downloadBlock(int blockIndex) {
+        assert(blockIndex < blocksCount);
+        blockState[blockIndex] = BlockState.STATE_DOWNLOADING.value;
+    }
+
+    public void abortDownloading(int blockIndex) {
+        blockState[blockIndex] = BlockState.STATE_NONE.value;
     }
 }

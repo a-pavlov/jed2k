@@ -73,11 +73,20 @@ public class PiecePicker extends BlocksEnumerator {
 
     public boolean markAsDownloading(PieceBlock b) {
         assert(b.pieceBlock < blocksInPiece(b.pieceIndex));
+        DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
+
+        if (dp != null) {
+            dp.downloadBlock(b.pieceBlock);
+        }
+
         return false;
     }
 
     public void abortDownload(PieceBlock b) {
-        // TODO - add correct implementation to abort block downloading
+        DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
+        if (dp != null) {
+            dp.abortDownloading(b.pieceBlock);
+        }
     }
 
     /**
@@ -133,7 +142,7 @@ public class PiecePicker extends BlocksEnumerator {
     public final void restorePiece(int piece) {
         assert(piece < pieceStatus.length); // correct piece index
         assert(getDownloadingPiece(piece) == null); // must not be in download queue
-        assert(pieceStatus[piece] != PieceState.NONE.value); //? TODO - it depends on pieces downloading algoruthm
+        assert(pieceStatus[piece] != PieceState.NONE.value); //? TODO - it depends on pieces downloading algorithm
         pieceStatus[piece] = PieceState.HAVE.value;
     }
 
