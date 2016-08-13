@@ -8,9 +8,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import org.jed2k.alert.Alert;
 import org.jed2k.exception.BaseErrorCode;
@@ -37,7 +35,7 @@ public class Session extends Thread {
     HashMap<Integer, Hash> callbacks = new HashMap<Integer, Hash>();
     private ByteBuffer skipDataBuffer = null;
     BufferPool bufferPool = null;
-
+    ExecutorService diskIOService = Executors.newSingleThreadExecutor();
 
     // from last established server connection
     int clientId    = 0;

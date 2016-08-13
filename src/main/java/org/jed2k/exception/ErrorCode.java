@@ -28,7 +28,9 @@ public enum ErrorCode implements BaseErrorCode {
     DUPLICATE_PEER_ID(22),
     DUPLICATE_PEER_CONNECTION(23),
     PEER_LIMIT_EXEEDED(24),
-    FAIL(25);
+    SECURITY_EXCEPTION(25),
+
+    FAIL(26);
 
     private final int value;
 

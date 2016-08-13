@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import org.jed2k.Constants;
 import org.jed2k.PieceManager;
 import org.jed2k.data.PieceBlock;
+import org.jed2k.exception.JED2KException;
 import org.jed2k.hash.MD4;
 import org.jed2k.protocol.Hash;
 import org.junit.Before;
@@ -50,7 +51,7 @@ public class PieceManagerTest {
     public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
-    public void testSequentialWritingBuffers() throws IOException {
+    public void testSequentialWritingBuffers() throws IOException, JED2KException {
         File tempFile = testFolder.newFile("file.txt");
         //File tempFolder = testFolder.newFolder("folder");
         PieceManager pm = new PieceManager(tempFile.getAbsolutePath(), 1, Constants.BLOCKS_PER_PIECE);
@@ -60,7 +61,5 @@ public class PieceManagerTest {
             localBuffer.limit((int)Constants.BLOCK_SIZE);
             pm.writeBlock(new PieceBlock(0, i), localBuffer);
         }
-
-
     }
 }

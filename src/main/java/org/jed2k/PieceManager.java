@@ -1,6 +1,8 @@
 package org.jed2k;
 
 import org.jed2k.data.PieceBlock;
+import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.JED2KException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,17 +29,17 @@ public class PieceManager extends BlocksEnumerator {
     /**
      * create or open file on disk
      */
-    private void open() {
+    private void open() throws JED2KException {
         if (file == null) {
             try {
                 file = new RandomAccessFile(filepath, "rw");
                 channel = file.getChannel();
             }
             catch(FileNotFoundException e) {
-
+                throw new JED2KException(ErrorCode.FILE_NOT_FOUND);
             }
             catch(SecurityException e) {
-
+                throw new JED2KException(ErrorCode.SECURITY_EXCEPTION);
             }
         }
     }
@@ -56,7 +58,7 @@ public class PieceManager extends BlocksEnumerator {
      * @param b block
      * @param buffer data source
      */
-    public LinkedList<ByteBuffer> writeBlock(PieceBlock b, ByteBuffer buffer) {
+    public LinkedList<ByteBuffer> writeBlock(PieceBlock b, ByteBuffer buffer) throws JED2KException {
         open();
         assert(file != null);
         assert(channel != null);
@@ -68,13 +70,10 @@ public class PieceManager extends BlocksEnumerator {
             buffer.rewind();
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);
-            // generate result here
             return res;
         }
         catch(IOException e) {
-
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
-
-        return null;
     }
 }

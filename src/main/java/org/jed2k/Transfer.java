@@ -1,11 +1,16 @@
 package org.jed2k;
 
+import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 public class Transfer {
@@ -20,6 +25,8 @@ public class Transfer {
     private boolean abort = false;
     private HashSet<PeerConnection> connections = new HashSet<PeerConnection>();
     private long nextTimeForSourcesRequest = 0;
+    PieceManager pm = null;
+    LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
 
     public Transfer(Session s, final AddTransferParams atp) {
         assert(s != null);
@@ -37,6 +44,8 @@ public class Transfer {
         }
 
         policy = new Policy(this);
+        pm = new PieceManager("", Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
+                Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue());
     }
 
     Hash hash() {
@@ -125,6 +134,22 @@ public class Transfer {
         for(PeerConnection c: connections) {
             c.secondTick(currentSessionTime);
         }
+
+        while(!aioFutures.isEmpty()) {
+            Future<AsyncOperationResult> res = aioFutures.peek();
+            if (!res.isDone()) break;
+
+            try {
+                res.get().onCompleted();
+            } catch (InterruptedException e) {
+                // TODO - handle it
+            } catch( ExecutionException e) {
+                // TODO - handle it
+            }
+            finally {
+                aioFutures.poll();
+            }
+        }
     }
 
     public Statistics statistics() {
@@ -161,5 +186,11 @@ public class Transfer {
         return false;
         // temporary always not seed
         //return (picker == null) || (picker.numHave() == picker.numPieces());
+    }
+
+    void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final Hash hash) {
+        // return buffers to pool
+        // send signal to picker we have block
+        // compare calculated hash
     }
 }

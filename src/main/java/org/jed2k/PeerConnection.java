@@ -6,6 +6,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.Future;
 
 import org.jed2k.data.*;
 import org.jed2k.data.PeerRequest;
@@ -744,6 +745,8 @@ public class PeerConnection extends Connection {
 
                 if (completeBlock(pb)) {
                     downloadQueue.remove(pb);
+                    // add write task to executor and add future to transfer
+                    transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
                     // write block to disk here
                     // remove pending block from downloading queue
                     // check piece finished and run hashing
@@ -871,5 +874,18 @@ public class PeerConnection extends Connection {
     BitField getRemotePieces() {
         return remotePieces;
     }
-}
 
+    /**
+     * submit task to executor service to async write block to disk
+     * and return future
+     * @param b completed block
+     * @param buffer data buffer
+     * @param t actual transfer
+     * @return future of result for async operation
+     */
+    Future<AsyncOperationResult> asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
+        PeerRequest pr = PeerRequest.mk_request(b, t.size());
+        AsyncWrite w = new AsyncWrite(pr, buffer, t);
+        return session.diskIOService.submit(new AsyncWrite(pr, buffer, t));
+    }
+}
