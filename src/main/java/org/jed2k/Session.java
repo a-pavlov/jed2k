@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
 
 import org.jed2k.alert.Alert;
 import org.jed2k.exception.BaseErrorCode;
@@ -21,8 +20,11 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.server.search.SearchRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Session extends Thread {
-    private static Logger log = Logger.getLogger(Session.class.getName());
+    private static Logger log = LoggerFactory.getLogger(Session.class);
     Selector selector = null;
     private ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<Runnable>();
     ServerConnection serverConection = null;
@@ -58,26 +60,25 @@ public class Session extends Thread {
             if (ssc != null) ssc.close();
         }
         catch(IOException e) {
-            log.warning("Unable to close server socket channel");
+            log.error("Unable to close server socket channel: {}", e.getMessage());
         }
 
         try {
-            log.info("Start listening on " + settings.listenPort);
+            log.info("Start listening on port {}", settings.listenPort);
             ssc = ServerSocketChannel.open();
             ssc.socket().bind(new InetSocketAddress(settings.listenPort));
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT);
-            log.info("listen completed");
         }
         catch(IOException e) {
-            e.printStackTrace();
+            log.error("listen failed {}", e.getMessage());
         }
         finally {
             try {
                 ssc.close();
                 ssc = null;
             } catch(IOException e) {
-
+                log.error("server socket close failed {}", e.getMessage());
             }
         }
     }
@@ -101,19 +102,19 @@ public class Session extends Thread {
 
                     if(key.isAcceptable()) {
                         // a connection was accepted by a ServerSocketChannel.
-                        log.finest("Key is acceptable");
+                        log.trace("Key is acceptable");
                         incomingConnection();
                     } else if (key.isConnectable()) {
                         // a connection was established with a remote server/peer.
-                        log.finest("Key is connectable");
+                        log.trace("Key is connectable");
                         ((Connection)key.attachment()).onConnectable();
                     } else if (key.isReadable()) {
                         // a channel is ready for reading
-                        log.finest("Key is readable");
+                        log.trace("Key is readable");
                         ((Connection)key.attachment()).onReadable();
                     } else if (key.isWritable()) {
                         // a channel is ready for writing
-                        log.finest("Key is writeable");
+                        log.trace("Key is writeable");
                         ((Connection)key.attachment()).onWriteable();
                     }
                 }
@@ -157,7 +158,7 @@ public class Session extends Thread {
     public void run() {
         // TODO - remove all possible exceptions from this cycle!
         try {
-            log.finest("Session started");
+            log.debug("Session started");
             selector = Selector.open();
             listen();
 
@@ -168,7 +169,7 @@ public class Session extends Thread {
             }
         }
         catch(IOException e) {
-            log.severe(e.getMessage());
+            log.error("session interrupted {}", e.getMessage());
         }
         finally {
             log.info("Session finished");
@@ -176,7 +177,7 @@ public class Session extends Thread {
                 if (selector != null) selector.close();
             }
             catch(IOException e) {
-
+                log.error("close selector failed {}", e.getMessage());
             }
         }
     }
@@ -191,10 +192,10 @@ public class Session extends Thread {
             connections.add(p);
         }
         catch(IOException e) {
-            log.warning("Socket accept failed " + e);
+            log.error("Socket accept failed {}", e);
         }
         catch (JED2KException e) {
-            log.warning("Peer connection creation failed " + e);
+            log.error("Peer connection creation failed {}", e);
         }
     }
 
@@ -221,9 +222,11 @@ public class Session extends Thread {
                 try {
                     serverConection = ServerConnection.makeConnection(Session.this);
                     serverConection.connect(point);
+                    NetworkIdentifier endpoint = new NetworkIdentifier(point);
+                    log.debug("connect to server {}", endpoint);
                 } catch(JED2KException e) {
                     // emit alert - connect to server failed
-                    e.printStackTrace();
+                    log.error("server connection failed {}", e);
                 }
             }
         });
@@ -261,7 +264,7 @@ public class Session extends Thread {
                         connections.add(pc);
                         pc.connect(point.toInetSocketAddress());
                     } catch(JED2KException e) {
-                        log.warning(e.getMessage());
+                        log.error("new peer connection failed {}", e);
                     }
             }
         });

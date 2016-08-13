@@ -17,7 +17,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     }
 
     public NetworkIdentifier(InetSocketAddress ep) {
-        ip  = Utils.networkByteOrderToIp(ep.getAddress().getAddress());
+        ip  = Utils.packToNetworkByteOrder(ep.getAddress().getAddress());
         port = (short)ep.getPort();
     }
 
@@ -66,7 +66,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
 
     public InetSocketAddress toInetSocketAddress() throws JED2KException {
         try {
-            return new InetSocketAddress(int2Address(ip), port);
+            return new InetSocketAddress(Utils.int2Address(ip), port);
         } catch(IllegalArgumentException e) {
             throw new JED2KException(e);
         }

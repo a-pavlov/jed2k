@@ -3,7 +3,6 @@ package org.jed2k;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.util.logging.Logger;
 
 import org.jed2k.alert.SearchResultAlert;
 import org.jed2k.alert.ServerMessageAlert;
@@ -20,10 +19,13 @@ import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.tag.Tag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.jed2k.protocol.tag.Tag.tag;
 
 public class ServerConnection extends Connection {
-    private static Logger log = Logger.getLogger(ServerConnection.class.getName());
+    private static Logger log = LoggerFactory.getLogger(ServerConnection.class);
     private long lastPingTime = 0;
 
     private ServerConnection(ByteBuffer incomingBuffer,
@@ -64,13 +66,13 @@ public class ServerConnection extends Connection {
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
         login.properties.add(tag(Tag.CT_NAME, null, session.settings.clientName));
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
-        log.info(login.toString());
+        log.debug("login ", login);
         return login;
     }
 
     @Override
     public void onServerIdChange(IdChange value) throws JED2KException {
-        log.info("server id changed: " + value);
+        log.info("server id changed to {}", value);
         session.clientId = value.clientId;
         session.tcpFlags = value.tcpFlags;
         session.auxPort = value.auxPort;
@@ -78,23 +80,23 @@ public class ServerConnection extends Connection {
 
     @Override
     public void onServerInfo(ServerInfo value) throws JED2KException {
-        log.info("server info: " + value);
+        log.debug("server info {}", value);
     }
 
     @Override
     public void onServerList(ServerList value) throws JED2KException {
-        log.info("server list: " + value);
+        log.debug("server list {}", value);
     }
 
     @Override
     public void onServerMessage(Message value) throws JED2KException {
-        log.info("server message: " + value);
+        log.debug("server message {}", value);
         session.pushAlert(new ServerMessageAlert(value.toString()));
     }
 
     @Override
     public void onServerStatus(Status value) throws JED2KException {
-        log.info("server status: " + value);
+        log.debug("server status {}", value);
         session.pushAlert(new ServerStatusAlert(value.filesCount, value.usersCount));
     }
 
@@ -214,7 +216,7 @@ public class ServerConnection extends Connection {
                     sendCallbackRequest(endpoint.ip);
                     session.callbacks.put(endpoint.ip, value.hash);
                 } else {
-                    log.finest(value.hash + " add endpoint " + endpoint);
+                    log.debug("to hash {} added endpoint {}", value.hash, endpoint);
                     try {
                         transfer.addPeer(endpoint);
                     } catch(JED2KException e) {
@@ -228,12 +230,12 @@ public class ServerConnection extends Connection {
 
     @Override
     public void onCallbackRequestFailed(CallbackRequestFailed value) throws JED2KException {
-        log.warning("callback request failed " + value.toString());
+        log.debug("callback request failed {}" + value);
     }
 
     @Override
     public void onCallbackRequestIncoming(CallbackRequestIncoming value) throws JED2KException {
-        log.info("incoming callback request " + value.point.toString());
+        log.debug("incoming callback request ", value.point);
     }
 
     @Override
@@ -253,7 +255,7 @@ public class ServerConnection extends Connection {
         // ping server when feature enabled and timeout occured
         if (session.settings.serverPingTimeout > 0 &&
                 currentSessionTime - lastPingTime > session.settings.serverPingTimeout) {
-            log.info("Send ping message to server");
+            log.debug("Send ping message to server");
             write(new GetList());
         }
     }

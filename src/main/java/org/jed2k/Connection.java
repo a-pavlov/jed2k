@@ -8,7 +8,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.JED2KException;
@@ -20,7 +22,7 @@ import org.jed2k.protocol.PacketHeader;
 import org.jed2k.protocol.Serializable;
 
 public abstract class Connection implements Dispatcher {
-    private static Logger log = Logger.getLogger(ServerConnection.class.getName());
+    private final Logger log = LoggerFactory.getLogger(ServerConnection.class);
     SocketChannel socket;
     private ByteBuffer bufferIncoming;
     private ByteBuffer bufferOutgoing;
@@ -59,7 +61,6 @@ public abstract class Connection implements Dispatcher {
         this.bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
         this.bufferOutgoing.order(ByteOrder.LITTLE_ENDIAN);
         this.headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        this.headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
         this.packetCombainer = packetCombiner;
         this.session = session;
         this.socket = socket;
@@ -73,10 +74,10 @@ public abstract class Connection implements Dispatcher {
             onConnect();
             lastReceive = Time.currentTime();
         } catch(IOException e) {
-            log.warning(e.getMessage());
+            log.error(e.getMessage());
             close(ErrorCode.IO_EXCEPTION);
         } catch(JED2KException e) {
-            log.warning(e.getMessage());
+            log.error(e.getMessage());
             close(e.getErrorCode());
         }
     }
@@ -99,7 +100,7 @@ public abstract class Connection implements Dispatcher {
             assert(headerBuffer.remaining() == PacketHeader.SIZE);
             header.get(headerBuffer);
             headerBuffer.clear();
-            log.finest("processHeader:" + header.toString());
+            log.debug("processHeader: {}", header.toString());
             // TODO - add adequate resizing algorithm when packet size greater than buffer size
             // but less than available limit for packet
             bufferIncoming.limit(packetCombainer.serviceSize(header));
@@ -142,7 +143,7 @@ public abstract class Connection implements Dispatcher {
 
             lastReceive = Time.currentTime();
         } catch(JED2KException e) {
-            log.warning(e.getMessage());
+            log.error(e.getMessage());
             close(e.getErrorCode());
         }
     }
@@ -171,10 +172,10 @@ public abstract class Connection implements Dispatcher {
             }
         }
         catch(JED2KException e) {
-            log.warning(e.getMessage());
+            log.error(e.getMessage());
             close(e.getErrorCode());
         } catch (IOException e) {
-            log.warning(e.getMessage());
+            log.error(e.getMessage());
             close(ErrorCode.IO_EXCEPTION);
         }
     }
@@ -190,17 +191,17 @@ public abstract class Connection implements Dispatcher {
         try {
             socket.connect(address);
         } catch(IOException e) {
-           log.warning(e.getMessage());
+           log.error(e.getMessage());
            close(ErrorCode.IO_EXCEPTION);
         }
     }
 
     void close(BaseErrorCode ec) {
-        log.finest("close socket " + ec);
+        log.debug("close socket with code {}", ec);
         try {
             socket.close();
         } catch(IOException e) {
-            log.warning(e.getMessage());
+            log.error(e.getMessage());
         } finally {
             onDisconnect(ec);
             key.cancel();
@@ -208,7 +209,7 @@ public abstract class Connection implements Dispatcher {
     }
 
     void write(Serializable packet) {
-        log.finest("write packet " + packet);
+        log.debug("{} >> ", packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);

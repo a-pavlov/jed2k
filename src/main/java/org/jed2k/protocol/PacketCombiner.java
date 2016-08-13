@@ -1,16 +1,18 @@
 package org.jed2k.protocol;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ErrorCode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class PacketCombiner {
 
-    private static Logger log = Logger.getLogger(PacketCombiner.class.getName());
+    private static Logger log = LoggerFactory.getLogger(PacketCombiner.class);
 
     public enum ProtocolType {
         OP_EDONKEYHEADER(0xE3),
@@ -121,7 +123,7 @@ public abstract class PacketCombiner {
             int resultLength = 0;
             try {
                 resultLength = decompresser.inflate(plainData);
-                log.info("Unpack data size: " + compressedData.length + " to result length: " + resultLength);
+                log.debug("Compressed data size {} uncompressed data size {}", compressedData.length, resultLength);
             } catch(DataFormatException e) {
                 throw new JED2KException(ErrorCode.INFLATE_ERROR);
             }
@@ -148,7 +150,7 @@ public abstract class PacketCombiner {
                 throw new JED2KException(e);
             }
         } else {
-            log.warning("unable to find correspond packet for " + header);
+            log.error("unable to find correspond packet for {}", header);
             ph = new BytesSkipper(serviceSize(header));
         }
 

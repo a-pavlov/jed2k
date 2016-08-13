@@ -6,7 +6,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 import org.jed2k.data.*;
 import org.jed2k.data.PeerRequest;
@@ -23,6 +22,9 @@ import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.protocol.tag.Tag.tag;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
 Usual packets order in case of we establish connection to remote peer
@@ -105,7 +107,7 @@ public class PeerConnection extends Connection {
         }
     }
 
-    private static Logger log = Logger.getLogger(PeerConnection.class.getName());
+    private static Logger log = LoggerFactory.getLogger(PeerConnection.class);
 
     //TODO - check it, possibly remove and use getPeer value instead
     private boolean active = false;   // true when we connect to peer, false when incoming connection
@@ -216,7 +218,7 @@ public class PeerConnection extends Connection {
             try {
                 onReceiveData();
             } catch(JED2KException e) {
-                log.warning(e.getMessage());
+                log.error("error on read in transfer data mode {}", e);
                 close(e.getErrorCode());
             }
         } else {
@@ -572,7 +574,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
-        log.finest(endpoint + " << file answer");
+        log.debug("{} << file answer", endpoint);
         if (transfer != null && value.hash.equals(transfer.hash())) {
             write(new FileStatusRequest(transfer.hash()));
         } else {
@@ -589,7 +591,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileStatusAnswer(FileStatusAnswer value)
             throws JED2KException {
-        log.finest(endpoint + " << file status answer");
+        log.debug("{} << file status answer", endpoint);
         remotePieces = value.bitfield;
         if (transfer != null) {
             if (transfer.size() >= Constants.PIECE_SIZE) {
@@ -611,7 +613,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientHashSetAnswer(HashSetAnswer value)
             throws JED2KException {
-        log.finest(endpoint + " << hashset answer");
+        log.debug("{} << hashset answer", endpoint);
         if (transfer != null) {
             write(new StartUpload(transfer.hash()));
         } else {
@@ -633,13 +635,13 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onAcceptUpload(AcceptUpload value) throws JED2KException {
-        log.finest(endpoint + " << accept upload");
+        log.debug("{} << accept upload", endpoint);
         close(ErrorCode.NO_ERROR);
     }
 
     @Override
     public void onQueueRanking(QueueRanking value) throws JED2KException {
-        log.finest(endpoint + " << queue ranking " + value.rank);
+        log.debug("{} << queue ranking {} ", endpoint, value.rank);
         close(ErrorCode.QUEUE_RANKING);
     }
 

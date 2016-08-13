@@ -68,7 +68,8 @@ public class UtilsTest {
     @Test
     public void testIdDetector() throws UnknownHostException {
         assertTrue(Utils.isLowId(0));
-        assertFalse(Utils.isLowId(Utils.networkByteOrderToIp(InetAddress.getByName("213.127.10.1").getAddress())));
-        assertTrue(Utils.isLowId(Utils.networkByteOrderToIp(InetAddress.getByName("0.0.10.1").getAddress())));
+        assertFalse(Utils.isLowId(Utils.packToNetworkByteOrder(InetAddress.getByName("213.127.10.1").getAddress())));
+        assertTrue(Utils.isLowId(Utils.packToNetworkByteOrder(InetAddress.getByName("1.0.0.0").getAddress())));
+        assertTrue(Utils.isLowId(Utils.packToNetworkByteOrder(InetAddress.getByName("0.0.0.0").getAddress())));
     }
 }

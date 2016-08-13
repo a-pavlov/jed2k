@@ -7,12 +7,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.*;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.net.InetSocketAddress;
 
 import org.jed2k.alert.Alert;
@@ -26,8 +21,12 @@ import org.jed2k.protocol.server.search.SearchRequest;
 import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.protocol.tag.Tag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public class Conn {
-    private static Logger log = Logger.getLogger(Conn.class.getName());
+    private static Logger log = LoggerFactory.getLogger(Conn.class);
     private static SearchResult globalSearchRes = null;
 
     private static void printGlobalSearchResult() {
@@ -40,15 +39,7 @@ public class Conn {
     }
 
     public static void main(String[] args) throws IOException {
-        Logger logger = Logger.getLogger("");
-        logger.setLevel(Level.ALL);
-        logger.setUseParentHandlers(false);
-        Handler[] handlers = logger.getHandlers();
-        for(Handler handler : handlers) {
-            handler.setLevel(Level.ALL);
-            //logger.removeHandler(handler);
-        }
-
+        
         if (args.length < 1) {
             System.out.println("Specify incoming directory");
             return;
@@ -124,7 +115,7 @@ public class Conn {
                     log.info("search request: " + s);
                     s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, searchExpression));
                 } catch(JED2KException e) {
-                    log.warning(e.getMessage());
+                    log.error(e.getMessage());
                 }
             } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short)Integer.parseInt(parts[2])));

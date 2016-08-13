@@ -50,12 +50,13 @@ public final class Utils {
         return s.bytesCount();
     }
 
+    /**
+     *
+     * @param ip integer value from libed2k network LITTLE_ENDIAN int but interprets as network order(BIG_ENDIAN)
+     *           so, most significant byte in position 0
+     * @return java network endpoint
+     */
     public static InetAddress int2Address(int ip) {
-        /*byte[] raw = { (byte)(ip >> 24),
-                        (byte)((ip >> 16) & 0xff),
-                        (byte)((ip >> 8) & 0xff),
-                        (byte)(ip & 0xff)
-                        };*/
         byte raw[] = { (byte)(ip & 0xff), (byte)((ip >> 8) & 0xff), (byte)((ip >> 16) & 0xff), (byte)((ip >> 24) & 0xff)};
 
         try {
@@ -68,6 +69,11 @@ public final class Utils {
         return null;
     }
 
+    /**
+     *
+     * @param order sequence of four bytes
+     * @return host byte order integer
+     */
     public static int networkByteOrderToIp(byte[] order) {
         assert(order.length == 4);
         int res =  ((int)order[0] << 24)
@@ -77,12 +83,42 @@ public final class Utils {
         return res;
     }
 
+    /**
+     *
+     * @param order - bytes order of IP address in network byte order - most significant byte in position 0
+     * @return integer with the same byte order since ed2k treats ip integer address as big endian integer
+     */
+    public static int packToNetworkByteOrder(byte[] order) {
+        assert(order.length == 4);
+        int res =  ((int)order[3] << 24)
+                | (((int)order[2] << 16) & 0x00FF0000)
+                | (((int)order[1] << 8) & 0x0000FF00)
+                | (((int)order[0]) & 0xFF);
+        return res;
+    }
+
+    /**
+     *
+     * @param ip arbitrary integer
+     * @return integer with reversed bytes order
+     */
+    public static int ntohl(int ip) {
+        byte raw[] = { (byte)(ip & 0xff), (byte)((ip >> 8) & 0xff), (byte)((ip >> 16) & 0xff), (byte)((ip >> 24) & 0xff)};
+        return networkByteOrderToIp(raw);
+    }
+
+    /**
+     *
+     * @param ep ip address in network byte order
+     * @return true if it is local address
+     */
     public static boolean isLocalAddress(NetworkIdentifier ep) {
-        return ((ep.ip & 0xff000000) == 0x0a000000 // 10.x.x.x
-                || (ep.ip & 0xfff00000) == 0xac100000 // 172.16.x.x
-                || (ep.ip & 0xffff0000) == 0xc0a80000 // 192.168.x.x
-                || (ep.ip & 0xffff0000) == 0xa9fe0000 // 169.254.x.x
-                || (ep.ip & 0xff000000) == 0x7f000000); // 127.x.x.x
+        int host = ntohl(ep.ip);
+        return ((host & 0xff000000) == 0x0a000000 // 10.x.x.x
+                || (host & 0xfff00000) == 0xac100000 // 172.16.x.x
+                || (host & 0xffff0000) == 0xc0a80000 // 192.168.x.x
+                || (host & 0xffff0000) == 0xa9fe0000 // 169.254.x.x
+                || (host & 0xff000000) == 0x7f000000); // 127.x.x.x
     }
 
     public static int lowPart(long value) {
@@ -139,6 +175,9 @@ public final class Utils {
 
     /**
      * compare two integers as unsigned integers
+     * assuming host IP is X.Y.Z.W the ID will
+     * be X +28  Y +216 Z +224 W (’big endian representation’). A low ID is always lower than
+     * 16777216 (0x1000000)
      * @param v ip address or client id
      * @return true if ip address/client id less than higest low id
      */
