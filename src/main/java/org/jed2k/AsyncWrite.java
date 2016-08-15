@@ -12,8 +12,8 @@ import java.util.concurrent.Callable;
  */
 public class AsyncWrite implements Callable<AsyncOperationResult> {
     private int piece = -1;
-    private int offset = -1;
-    private int length = -1;
+    private long offset = -1;
+    private long length = -1;
     final ByteBuffer buffer;
     final Transfer transfer;
 
@@ -23,9 +23,9 @@ public class AsyncWrite implements Callable<AsyncOperationResult> {
         assert(request.start != -1);
         assert(request.length != -1);
         assert(b != null);
-        piece = (int)request.piece;
-        //offset = request.offset;
-        //length = request.length;
+        piece = request.piece;
+        offset = request.start;
+        length = request.length;
         buffer = b;
         transfer = t;
     }

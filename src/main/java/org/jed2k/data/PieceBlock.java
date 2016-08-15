@@ -69,7 +69,7 @@ public class PieceBlock implements Comparable<PieceBlock> {
 
     @Override
     public String toString() {
-        return "[piece/block]: {" + Integer.toString(pieceIndex) + "/" + Integer.toString(pieceBlock) + "}";
+        return String.format("piece{%d} block{%d}", pieceIndex, pieceBlock);
     }
 
     @Override

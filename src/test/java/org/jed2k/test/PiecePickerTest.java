@@ -61,10 +61,59 @@ public class PiecePickerTest {
         pp.weHave(0);
         assertEquals(1, pp.numHave());
         assertEquals(0, pp.numDowloadingPieces());
-        pp.weHave(new PieceBlock(1, 0));
-        pp.weHave(new PieceBlock(1, 1));
-        pp.weHave(new PieceBlock(1, 44));
+        pp.weHaveBlock(new PieceBlock(1, 0));
+        pp.weHaveBlock(new PieceBlock(1, 1));
+        pp.weHaveBlock(new PieceBlock(1, 44));
         assertEquals(1, pp.numHave());
         assertEquals(1, pp.numDowloadingPieces());
+    }
+
+    @Test
+    public void testTrivialFullCycle() {
+        PiecePicker pp = new PiecePicker(5, 14);
+        LinkedList<PieceBlock> req = new LinkedList<PieceBlock>();
+        pp.pickPieces(req, Constants.REQUEST_QUEUE_SIZE);
+        assertFalse(req.isEmpty());
+        int counter = 0;
+
+        while(!req.isEmpty()) {
+            for(PieceBlock b: req) {
+                assertTrue(pp.markAsFinished(b));
+                ++counter;
+            }
+
+            req.clear();
+            pp.pickPieces(req, Constants.REQUEST_QUEUE_SIZE);
+        }
+
+        assertEquals(0, pp.numDowloadingPieces());
+
+        int approximateCounter = Constants.BLOCKS_PER_PIECE*4 + 14;
+        assertEquals(approximateCounter, counter);
+    }
+
+    @Test
+    public void testFullCycleWithAbort() {
+        PiecePicker pp = new PiecePicker(6, 14);
+        LinkedList<PieceBlock> req = new LinkedList<PieceBlock>();
+        pp.pickPieces(req, Constants.REQUEST_QUEUE_SIZE);
+        assertFalse(req.isEmpty());
+        int counter = 0;
+
+        while(!req.isEmpty()) {
+            for(PieceBlock b: req) {
+                if (counter % 5 == 0) pp.abortDownload(b);
+                else assertTrue(pp.markAsFinished(b));
+                ++counter;
+            }
+
+            req.clear();
+            pp.pickPieces(req, Constants.REQUEST_QUEUE_SIZE);
+        }
+
+        assertEquals(0, pp.numDowloadingPieces());
+
+        int approximateCounter = Constants.BLOCKS_PER_PIECE*5 + 14 + (Constants.BLOCKS_PER_PIECE*5 + 14) / 5;
+        assertTrue(counter > approximateCounter);
     }
 }

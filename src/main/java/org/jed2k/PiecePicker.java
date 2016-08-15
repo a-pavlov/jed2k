@@ -76,7 +76,19 @@ public class PiecePicker extends BlocksEnumerator {
         DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
 
         if (dp != null) {
-            dp.downloadBlock(b.pieceBlock);
+            dp.requestBlock(b.pieceBlock);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean markAsWriting(PieceBlock b) {
+        assert(b.pieceBlock < blocksInPiece(b.pieceIndex));
+        DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
+        if (dp != null) {
+            dp.writeBlock(b.pieceBlock);
+            return true;
         }
 
         return false;
@@ -143,7 +155,7 @@ public class PiecePicker extends BlocksEnumerator {
         assert(piece < pieceStatus.length); // correct piece index
         assert(getDownloadingPiece(piece) == null); // must not be in download queue
         assert(pieceStatus[piece] != PieceState.NONE.value); //? TODO - it depends on pieces downloading algorithm
-        pieceStatus[piece] = PieceState.HAVE.value;
+        pieceStatus[piece] = PieceState.NONE.value;
     }
 
     /**
@@ -175,19 +187,38 @@ public class PiecePicker extends BlocksEnumerator {
 
 
     /**
-     * mark piece as finished
-     * @param piece index of piece
+     * mark piece as "we have" - piece flushed to disk and hash value verified
+     * @param pieceIndex index of piece
      */
-    public void weHave(int piece) {
-        assert(piece < pieceStatus.length);
-        pieceStatus[piece] = PieceState.HAVE.value;
+    public void weHave(int pieceIndex) {
+        assert(pieceIndex < pieceStatus.length);
+        pieceStatus[pieceIndex] = PieceState.HAVE.value;
+    }
+
+    public boolean havePiece(int pieceIndex) {
+        assert(pieceIndex < pieceStatus.length);
+        return pieceStatus[pieceIndex] == PieceState.HAVE.value;
     }
 
     /**
-     *  add piece to downloading list(if not exists) and mark block as finished
-      * @param b
+     * check network stage for this piece is completed
+     * @param pieceIndex index of piece
+     * @return true if piece in "we have" state or downloading completed - all blocks are downloaded
      */
-    public void weHave(PieceBlock b) {
+    boolean isPieceFinished(int pieceIndex) {
+        assert(pieceIndex < pieceStatus.length);
+        if (pieceStatus[pieceIndex] == PieceState.NONE.value) return false;
+        if (pieceStatus[pieceIndex] == PieceState.HAVE.value) return true;
+        DownloadingPiece dp = getDownloadingPiece(pieceIndex);
+        assert(dp != null);
+        return dp.getBlocksCount() == (dp.finishedCount() + dp.writingCount());
+    }
+
+    /**
+     * add piece to downloading list(if not exists) and mark block as finished
+     * @param b block information
+     */
+    public void weHaveBlock(PieceBlock b) {
         DownloadingPiece p = getDownloadingPiece(b.pieceIndex);
 
         if (p == null) {

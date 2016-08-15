@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Future;
@@ -598,6 +599,9 @@ public class PeerConnection extends Connection {
             if (transfer.size() >= Constants.PIECE_SIZE) {
                 write(new HashSetRequest(transfer.hash()));
             } else {
+                // file contains only one hash, so set hash set with that one hash
+                final Hash h = value.hash;
+                transfer.setHashSet(h, new ArrayList<Hash>() {{ add(h); }});
                 write(new StartUpload(transfer.hash()));
             }
         } else {
@@ -616,6 +620,7 @@ public class PeerConnection extends Connection {
             throws JED2KException {
         log.debug("{} << hashset answer", endpoint);
         if (transfer != null) {
+            transfer.setHashSet(value.hash, value.parts);
             write(new StartUpload(transfer.hash()));
         } else {
             close(ErrorCode.NO_TRANSFER);
@@ -718,7 +723,7 @@ public class PeerConnection extends Connection {
     void onReceiveData() throws JED2KException {
 
         assert(recvReq != null);
-        // search for correspong pending block
+        // search for correspond pending block
         PendingBlock pb = getDownloading(PieceBlock.mk_block(recvReq));
 
         if (pb == null) {
@@ -886,6 +891,7 @@ public class PeerConnection extends Connection {
     Future<AsyncOperationResult> asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
         PeerRequest pr = PeerRequest.mk_request(b, t.size());
         AsyncWrite w = new AsyncWrite(pr, buffer, t);
+        transfer.getPicker().markAsWriting(b);
         return session.diskIOService.submit(new AsyncWrite(pr, buffer, t));
     }
 }

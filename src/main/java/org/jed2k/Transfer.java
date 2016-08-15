@@ -7,14 +7,18 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 
 import java.nio.ByteBuffer;
+import java.util.AbstractCollection;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Transfer {
-    private Logger log = Logger.getLogger(Transfer.class.getName());
+    private Logger log = LoggerFactory.getLogger(Transfer.class);
     private Hash hash;
     private long size;
     private Statistics stat = new Statistics();
@@ -27,6 +31,7 @@ public class Transfer {
     private long nextTimeForSourcesRequest = 0;
     PieceManager pm = null;
     LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
+    ArrayList<Hash> hashSet = new ArrayList<Hash>();
 
     public Transfer(Session s, final AddTransferParams atp) {
         assert(s != null);
@@ -124,7 +129,7 @@ public class Transfer {
 
 	void secondTick(long currentSessionTime) {
         if (nextTimeForSourcesRequest < currentSessionTime && !isPaused() && !isAborted() && connections.isEmpty()) {
-            log.finest("Request peers {" + hash + "}");
+            log.debug("Request peers {}", hash);
             session.sendSourcesRequest(hash, size);
             nextTimeForSourcesRequest = currentSessionTime + 1000*60;   // one request per second
         }
@@ -188,9 +193,34 @@ public class Transfer {
         //return (picker == null) || (picker.numHave() == picker.numPieces());
     }
 
+    void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
+        // TODO - add few checks here
+        // 1. check common hash is compatible with hash set
+        // 2. check hash set size
+        // 3. compare new hash set and previous?
+        // now copy first hash set to transfer
+        if (hashSet.isEmpty()) {
+            log.debug("hash set received {}", hs.size());
+            hashSet.addAll(hs);
+        }
+    }
+
     void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final Hash hash) {
+        log.debug("block write completed: {} free buffers: {}, calculated hash: {}", b, buffers.size(), hash!=null?hash.toString():"null");
+
         // return buffers to pool
-        // send signal to picker we have block
-        // compare calculated hash
+        for(ByteBuffer buffer: buffers) {
+            session.bufferPool.deallocate(buffer, Time.currentTime());
+        }
+
+        buffers.clear();
+
+        if (hash != null && (hashSet.get(b.pieceIndex).compareTo(hash) != 0)) {
+            log.debug("restore piece due to unmatched hash");
+            picker.restorePiece(b.pieceIndex);
+        } else {
+            log.debug("mark block as finished");
+            picker.markAsFinished(b);
+        }
     }
 }

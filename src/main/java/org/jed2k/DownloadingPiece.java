@@ -9,9 +9,8 @@ public class DownloadingPiece {
     public enum BlockState {
         STATE_NONE((byte)0),
         STATE_REQUESTED((byte)1),
-        STATE_DOWNLOADING((byte)2),
-        STATE_WRITING((byte)3),
-        STATE_FINISHED((byte)4);
+        STATE_WRITING((byte)2),
+        STATE_FINISHED((byte)3);
         byte value;
 
         BlockState(byte b) {
@@ -26,6 +25,10 @@ public class DownloadingPiece {
     public int pieceIndex;
     private int blocksCount;
     public byte[] blockState;
+    // TODO - for future usage cached values
+    short requested;
+    short writing;
+    short finished;
 
     public DownloadingPiece(int pieceIndex, int blocksCount) {
         assert(pieceIndex >= 0);
@@ -44,11 +47,18 @@ public class DownloadingPiece {
         return res;
     }
 
-    public int requestedCount() {
+    public int downloadingCount() {
         int res = 0;
         for(int i = 0; i < blocksCount; ++i) {
             if (blockState[i] == BlockState.STATE_REQUESTED.value) res++;
         }
+        return res;
+    }
+
+    public int writingCount() {
+        int res = 0;
+        for(int i = 0; i < blocksCount; ++i)
+            if (blockState[i] == BlockState.STATE_WRITING.value) res++;
         return res;
     }
 
@@ -61,9 +71,25 @@ public class DownloadingPiece {
         blockState[blockIndex] = BlockState.STATE_FINISHED.value;
     }
 
-    public void downloadBlock(int blockIndex) {
+    public void requestBlock(int blockIndex) {
         assert(blockIndex < blocksCount);
-        blockState[blockIndex] = BlockState.STATE_DOWNLOADING.value;
+        blockState[blockIndex] = BlockState.STATE_REQUESTED.value;
+    }
+
+    public void writeBlock(int blockIndex) {
+        assert(blockIndex < blocksCount);
+        blockState[blockIndex] = BlockState.STATE_WRITING.value;
+    }
+
+    boolean isDownloaded(int blockIndex) {
+        assert(blockIndex < blocksCount);
+        return blockState[blockIndex] == BlockState.STATE_FINISHED.value ||
+                blockState[blockIndex] == BlockState.STATE_WRITING.value;
+    }
+
+    boolean isFinished(int blockIndex) {
+        assert(blockIndex < blocksCount);
+        return blockState[blockIndex] == BlockState.STATE_FINISHED.value;
     }
 
     public void abortDownloading(int blockIndex) {
