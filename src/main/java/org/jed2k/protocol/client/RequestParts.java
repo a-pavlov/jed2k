@@ -80,4 +80,15 @@ public abstract class RequestParts<N extends UNumber> implements Serializable {
         assert(i < endOffset.length);
         return endOffset[i];
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(hash.toString());
+        for(int i = 0; i < Constants.PARTS_IN_REQUEST; ++i) {
+            builder.append(String.format(" [%d..%d]", beginOffset[i].longValue(), endOffset[i].longValue()));
+        }
+
+        return builder.toString();
+    }
 }

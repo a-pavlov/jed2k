@@ -14,4 +14,9 @@ public class FileRequest extends Hash implements Dispatchable {
     public void dispatch(Dispatcher dispatcher) throws JED2KException {
         dispatcher.onClientFileRequest(this);
     }
+
+    @Override
+    public String toString() {
+        return String.format("FileRequest %s", super.toString());
+    }
 }

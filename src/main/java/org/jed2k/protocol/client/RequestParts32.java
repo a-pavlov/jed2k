@@ -25,4 +25,9 @@ public class RequestParts32 extends RequestParts<UInt32> {
     public int bytesCount() {
         return hash.bytesCount() + Constants.PARTS_IN_REQUEST*2*UInt32.SIZE;
     }
+
+    @Override
+    public String toString() {
+        return "RequestParts32 " + super.toString();
+    }
 }

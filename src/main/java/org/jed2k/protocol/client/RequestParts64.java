@@ -25,4 +25,9 @@ public class RequestParts64 extends RequestParts<UInt64> {
         for(int i = 0; i < beginOffset.length; ++i) beginOffset[i] = Unsigned.uint64(0);
         for(int i = 0; i < endOffset.length; ++i) endOffset[i] = Unsigned.uint64(0);
     }
+
+    @Override
+    public String toString() {
+        return "RequestParts64 " + super.toString();
+    }
 }

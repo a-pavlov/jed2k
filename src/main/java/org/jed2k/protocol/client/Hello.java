@@ -11,18 +11,18 @@ import static org.jed2k.Utils.sizeof;
 
 public class Hello extends HelloAnswer implements Dispatchable {
     public byte hashLength = (byte)MD4.HASH_SIZE;
-    
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         hashLength = src.get();
         return super.get(src);
     }
-    
+
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return super.put(dst.put(hashLength));
     }
-    
+
     @Override
     public int bytesCount() {
         return sizeof(hashLength) + super.bytesCount();
@@ -31,5 +31,10 @@ public class Hello extends HelloAnswer implements Dispatchable {
     @Override
     public void dispatch(Dispatcher dispatcher) throws JED2KException {
         dispatcher.onClientHello(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Hello " + super.toString();
     }
 }
