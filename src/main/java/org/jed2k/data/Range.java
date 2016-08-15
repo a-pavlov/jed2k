@@ -11,4 +11,9 @@ public class Range extends Pair<Long, Long> {
 	public static Range make(Long left, Long right) {
 		return new Range(left, right);
 	}
+
+	@Override
+    public String toString() {
+        return String.format("range [%d..%d]", left, right);
+    }
 }

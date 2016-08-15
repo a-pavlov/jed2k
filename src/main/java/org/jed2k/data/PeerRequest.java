@@ -61,6 +61,6 @@ public class PeerRequest {
 
     @Override
     public String toString() {
-        return "piece/start/length: {" + piece + "/" + start + "/" + length + "}";
+        return String.format("piece %d start %d length %d", piece, start, length);
     }
 }

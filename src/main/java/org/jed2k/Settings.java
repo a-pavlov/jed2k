@@ -18,6 +18,7 @@ public class Settings {
     public int peerConnectionTimeout = 5;
     public int sessionConnectionsLimit = 20;
     public int bufferPoolSize = 250;    // size of buffer pool in blocks of 180K
+    public int maxConnectionsPerSecond = 10;    // for testing purposes
 
     /**
      * send ping message to server every serverPingTimeout

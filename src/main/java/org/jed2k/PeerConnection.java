@@ -98,6 +98,7 @@ public class PeerConnection extends Connection {
             this.size = size;
             buffer = null;
             createTime = Time.currentTime();
+            dataLeft = new Region(b.range(size));
         }
 
         public boolean isCompleted() {
@@ -106,6 +107,11 @@ public class PeerConnection extends Connection {
 
         int compareTo(PieceBlock b) {
             return block.compareTo(b);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s size %d", block, size);
         }
     }
 
@@ -642,7 +648,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onAcceptUpload(AcceptUpload value) throws JED2KException {
         log.debug("{} << accept upload", endpoint);
-        close(ErrorCode.NO_ERROR);
+        requestBlocks();
     }
 
     @Override
@@ -669,6 +675,8 @@ public class PeerConnection extends Connection {
      * @throws JED2KException
      */
     void receiveData(final PeerRequest r) throws JED2KException {
+        log.debug("receive data: {}", r);
+        transferringData = true;
         recvReq = r;
         recvPos = 0;
         PieceBlock b = PieceBlock.mk_block(r);
@@ -682,7 +690,11 @@ public class PeerConnection extends Connection {
 
         // if pending block hasn't associated buffer - allocate it
         if (pb.buffer == null) pb.buffer = allocateBuffer();
-        if (pb.buffer == null) return;  // TODO process it correctly!
+        if (pb.buffer == null) {
+            // TODO - handle it correctly
+            log.debug("can not allocate buffer for data");
+            return;
+        }
 
         // prepare buffer for reading data into proper place
         pb.buffer.position((int)r.inBlockOffset());
@@ -695,6 +707,7 @@ public class PeerConnection extends Connection {
      * and ignore it
      */
     void skipData() throws JED2KException {
+        log.debug("skipData {} bytes", (int)recvReq.length - recvPos);
         ByteBuffer buffer = session.allocateSkipDataBufer();
         buffer.limit((int)recvReq.length - recvPos);
         try {
@@ -727,6 +740,7 @@ public class PeerConnection extends Connection {
         PendingBlock pb = getDownloading(PieceBlock.mk_block(recvReq));
 
         if (pb == null) {
+            log.debug("receive data with null pending block");
             skipData();
         }
 
@@ -744,6 +758,7 @@ public class PeerConnection extends Connection {
             statistics().receiveBytes(0, n);
 
             if (pb.buffer.remaining() == 0) {
+                log.debug("buffer is full, turn off transferring data");
                 assert(recvPos == recvReq.length);
                 // turn off data transfer mode
                 transferringData = false;
@@ -777,6 +792,7 @@ public class PeerConnection extends Connection {
         assert(recvReq != null);
         assert(recvReq.length == recvPos);
         pb.dataLeft.sub(recvReq.range());
+        log.debug("complete block {}", pb.isCompleted()?"true":"false");
 
         if (pb.isCompleted() && recvReqCompressed) {
             // decompression here
@@ -844,6 +860,7 @@ public class PeerConnection extends Connection {
     }
 
     void requestBlocks() {
+        log.debug("request blocks");
         if (transfer == null || transferringData || !downloadQueue.isEmpty()) return;
         LinkedList<PieceBlock> blocks = new LinkedList<PieceBlock>();
         PiecePicker picker = transfer.getPicker();
@@ -860,6 +877,7 @@ public class PeerConnection extends Connection {
             // do not flush (write) structure to remote here like in libed2k since order always contain no more than 3 blocks
         }
 
+        log.debug("ready for request, download queue size {}", downloadQueue.size());
         if (!reqp.isEmpty()) write(reqp);
     }
 

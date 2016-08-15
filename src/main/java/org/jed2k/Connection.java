@@ -100,10 +100,10 @@ public abstract class Connection implements Dispatcher {
             assert(headerBuffer.remaining() == PacketHeader.SIZE);
             header.get(headerBuffer);
             headerBuffer.clear();
-            log.debug("processHeader: {}", header.toString());
             // TODO - add adequate resizing algorithm when packet size greater than buffer size
             // but less than available limit for packet
             bufferIncoming.limit(packetCombainer.serviceSize(header));
+            log.debug("processHeader: {} await bytes: {}", header.toString(), packetCombainer.serviceSize(header));
             stat.receiveBytes(PacketHeader.SIZE, 0);
         }
     }
@@ -129,6 +129,8 @@ public abstract class Connection implements Dispatcher {
             header.reset();
             if (packet != null && (packet instanceof Dispatchable)) {
                 ((Dispatchable)packet).dispatch(this);
+            } else {
+                log.warn("last packet null or is not Dispatchable!");
             }
         }
     }
@@ -137,6 +139,10 @@ public abstract class Connection implements Dispatcher {
         try {
             if (!header.isDefined()) {
                 processHeader();
+                // if body size for packet is zero - start process body explicitly now
+                if (bufferIncoming.remaining() == 0) {
+                    processBody();
+                }
             } else {
                 processBody();
             }

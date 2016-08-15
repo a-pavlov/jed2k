@@ -39,7 +39,7 @@ public class Conn {
     }
 
     public static void main(String[] args) throws IOException {
-        
+
         if (args.length < 1) {
             System.out.println("Specify incoming directory");
             return;
@@ -50,6 +50,8 @@ public class Conn {
 
         System.out.println("Conn started");
         final Settings startSettings = new Settings();
+        startSettings.maxConnectionsPerSecond = 1;
+        startSettings.sessionConnectionsLimit = 2;
         final Session s = new Session(startSettings);
         s.start();
 

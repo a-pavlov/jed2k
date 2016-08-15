@@ -343,7 +343,7 @@ public class Session extends Thread {
     void connectNewPeers() {
 
         int stepsSinceLastConnect = 0;
-        int maxConnectionsPerSecond = 10;
+        int maxConnectionsPerSecond = settings.maxConnectionsPerSecond;
         int numTransfers = transfers.size();
         boolean enumerateCandidates = true;
 
@@ -361,7 +361,7 @@ public class Session extends Thread {
                                 stepsSinceLastConnect = 0;
                             }
                         } catch (JED2KException e) {
-
+                            log.error("exception on connect new peer {}", e);
                         }
                     }
 

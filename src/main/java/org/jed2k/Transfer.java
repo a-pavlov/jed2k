@@ -40,13 +40,14 @@ public class Transfer {
         assert(hash != null);
         assert(size != 0);
         session = s;
+        log.debug("created transfer {} size {}", this.hash, this.size);
 
         // prepare piece picker here
         // in common case this is not correct condition(below)
-        if (atp.resumeData == null) {
+        //if (atp.resumeData == null) {
             picker = new PiecePicker(Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
                     Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue());
-        }
+        //}
 
         policy = new Policy(this);
         pm = new PieceManager("", Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
@@ -135,8 +136,11 @@ public class Transfer {
         }
 
         stat.secondTick(currentSessionTime);
+        // TODO - fix this temp solution to avoid ConcurrentModification exception
+        HashSet<PeerConnection> localc = new HashSet<PeerConnection>();
+        localc = (HashSet<PeerConnection>)connections.clone();
 
-        for(PeerConnection c: connections) {
+        for(PeerConnection c: localc) {
             c.secondTick(currentSessionTime);
         }
 
@@ -200,7 +204,7 @@ public class Transfer {
         // 3. compare new hash set and previous?
         // now copy first hash set to transfer
         if (hashSet.isEmpty()) {
-            log.debug("hash set received {}", hs.size());
+            log.debug("{} hash set received {}", hash(), hs.size());
             hashSet.addAll(hs);
         }
     }
