@@ -111,11 +111,18 @@ public class Conn {
                 s.connectoTo(new InetSocketAddress(parts[1], (short)Integer.parseInt((parts.length > 2)?parts[2]:"4661")));
             }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
-                String searchExpression = command.substring("search".length());
-                log.info("search expression:" + searchExpression);
+                String searchExpression = parts[1];
+                long maxSize = 0;
+                int sources = 0;
+                if (parts.length > 3) {
+                    if (parts[2].compareTo("size") == 0) {
+                        maxSize = Integer.parseInt(parts[3])*1024*1024;
+                    }
+                }
+                log.info("search expression: {} max size {}", searchExpression, maxSize);
                 try {
                     log.info("search request: " + s);
-                    s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, searchExpression));
+                    s.search(SearchRequest.makeRequest(0, maxSize, 0, 0, "", "", "", 0, 0, searchExpression));
                 } catch(JED2KException e) {
                     log.error(e.getMessage());
                 }

@@ -122,11 +122,15 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
 
     @Override
     public int bytesCount() {
-        int sz = 0;
-        Iterator<E> itr = collection.iterator();
-        while (itr.hasNext()) {
-            sz += itr.next().bytesCount();
+        int sz = n.bytesCount();
+
+        if (collection != null) {
+            Iterator<E> itr = collection.iterator();
+            while (itr.hasNext()) {
+                sz += itr.next().bytesCount();
+            }
         }
-        return sz + n.bytesCount();
+
+        return sz;
     }
 }

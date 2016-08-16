@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
-import java.util.logging.Logger;
 
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
@@ -15,11 +14,14 @@ import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
 import org.jed2k.protocol.tag.Tag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.jed2k.protocol.Unsigned.uint16;
 
 public class SearchRequest implements Serializable {
 
-    private static Logger log = Logger.getLogger(SearchRequest.class.getName());
+    private static Logger log = LoggerFactory.getLogger(SearchRequest.class);
 
     static byte SEARCH_TYPE_BOOL       = 0x00;
     static byte SEARCH_TYPE_STR        = 0x01;
@@ -84,7 +86,7 @@ public class SearchRequest implements Serializable {
 
     SearchRequest(ArrayDeque<Serializable> value) {
         this.value = value;
-        log.finest(dbgString(value));
+        log.debug(dbgString(value));
     }
 
     public static Serializable makeEntry(BooleanEntry.Operator value) {
@@ -423,7 +425,7 @@ public class SearchRequest implements Serializable {
         ArrayList<Serializable> a = new ArrayList<Serializable>();
         a = string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount,
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value);
-        log.finest(dbgString(a));
+        log.debug(dbgString(a));
         return new SearchRequest(packRequest(string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount,
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value)));
     }
