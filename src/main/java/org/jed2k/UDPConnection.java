@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Dispatchable;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -22,7 +23,7 @@ import org.jed2k.protocol.PacketKey;
 import org.jed2k.protocol.Serializable;
 
 /**
- * 
+ *
  * @author apavlov
  *
  */
@@ -30,7 +31,7 @@ public class UDPConnection {
     private static Logger log = Logger.getLogger(UDPConnection.class.getName());
     private ByteBuffer bufferIncoming;
     private ByteBuffer bufferOutgoing;
-    private LinkedList<Pair<Serializable, NetworkIdentifier> > outgoingOrder = 
+    private LinkedList<Pair<Serializable, NetworkIdentifier> > outgoingOrder =
             new LinkedList<Pair<Serializable, NetworkIdentifier> >();
     private boolean writeInProgress = false;
     private SelectionKey key = null;
@@ -38,9 +39,9 @@ public class UDPConnection {
     final Session session;
     DatagramChannel channel;
     private final PacketCombiner packetCombainer = new org.jed2k.protocol.server.PacketCombiner();  // temp code
-    
+
     public UDPConnection(final Session session) {
-        this.session = session;        
+        this.session = session;
         try {
             bufferIncoming = ByteBuffer.allocate(4096);
             bufferOutgoing = ByteBuffer.allocate(4096);
@@ -48,12 +49,12 @@ public class UDPConnection {
             channel.configureBlocking(false);
             key = channel.register(session.selector, SelectionKey.OP_READ, this);
         } catch(ClosedChannelException e) {
-            
+
         } catch(IOException e) {
-            
+
         }
     }
-    
+
     public void close() {
         try {
             channel.close();
@@ -62,7 +63,7 @@ public class UDPConnection {
             e.printStackTrace();
         }
     }
-    
+
     public void onReadable() throws JED2KException {
         bufferIncoming.clear();
         try {
@@ -71,7 +72,7 @@ public class UDPConnection {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         bufferIncoming.flip();
         // read packet header and body here
         stat.receiveBytes(bufferIncoming.remaining(), 0);
@@ -79,17 +80,17 @@ public class UDPConnection {
         header.get(bufferIncoming);
         Serializable packet = packetCombainer.unpack(header, bufferIncoming);
         // send packet to dispather
-        // Serializable packet = packetCombainer.unpack(header, bufferIncoming);       
+        // Serializable packet = packetCombainer.unpack(header, bufferIncoming);
     }
-    
+
     public void onWriteable() {
         try {
-            bufferOutgoing.clear();            
+            bufferOutgoing.clear();
             Pair<Serializable, NetworkIdentifier> point = outgoingOrder.poll();
             writeInProgress = point != null;
             if (point != null) {
-                writeInProgress = true;                
-                if (!packetCombainer.pack(point.left, bufferOutgoing)) throw new JED2KException("internal error");
+                writeInProgress = true;
+                if (!packetCombainer.pack(point.left, bufferOutgoing)) throw new JED2KException(ErrorCode.FAIL);
                 bufferOutgoing.flip();
                 stat.sendBytes(bufferOutgoing.remaining(), 0);
                 channel.write(bufferOutgoing);
@@ -97,7 +98,7 @@ public class UDPConnection {
             else {
                 key.interestOps(SelectionKey.OP_READ);
             }
-            
+
             return;
         }
         catch(JED2KException e) {
@@ -106,7 +107,7 @@ public class UDPConnection {
         } catch (IOException e) {
             log.warning(e.getMessage());
         }
-        
+
         close();
     }
 }

@@ -145,9 +145,9 @@ public abstract class PacketCombiner {
             try {
                 ph = clazz.newInstance();
             } catch(InstantiationException e) {
-                throw new JED2KException(e);
+                throw new JED2KException(e, ErrorCode.GENERIC_INSTANTIATION_ERROR);
             } catch (IllegalAccessException e) {
-                throw new JED2KException(e);
+                throw new JED2KException(e, ErrorCode.GENERIC_ILLEGAL_ACCESS);
             }
         } else {
             log.error("unable to find correspond packet for {}", header);
@@ -164,14 +164,10 @@ public abstract class PacketCombiner {
             }
         } catch(JED2KException e) {
             throw e;
-        } catch(Exception e) {
-            // catch any exception and convert it to our
-            throw new JED2KException(e);
         }
 
         header.reset();
         return ph;
-
     }
 
     /**

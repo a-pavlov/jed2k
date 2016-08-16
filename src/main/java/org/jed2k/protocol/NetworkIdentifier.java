@@ -4,6 +4,7 @@ import static org.jed2k.Utils.sizeof;
 import static org.jed2k.Utils.int2Address;
 
 import org.jed2k.Utils;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 
 import java.net.InetSocketAddress;
@@ -68,7 +69,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
         try {
             return new InetSocketAddress(Utils.int2Address(ip), port);
         } catch(IllegalArgumentException e) {
-            throw new JED2KException(e);
+            throw new JED2KException(e, ErrorCode.ILLEGAL_ARGUMENT);
         }
     }
 

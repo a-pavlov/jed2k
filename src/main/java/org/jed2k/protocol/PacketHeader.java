@@ -2,6 +2,8 @@ package org.jed2k.protocol;
 
 import static org.jed2k.Utils.byte2String;
 import java.nio.ByteBuffer;
+
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 
 public class PacketHeader implements Serializable {
@@ -12,7 +14,7 @@ public class PacketHeader implements Serializable {
     public static byte OP_EMULEPROT     = (byte)0xC5;
     public static int MAX_SIZE = 1000000;
     public static int SIZE = 6;
-    
+
     private byte protocol    = OP_UNDEFINED;
     private int size         = 0;
     private byte packet      = 0;
@@ -20,13 +22,13 @@ public class PacketHeader implements Serializable {
     public final boolean isDefined() {
         return protocol != OP_UNDEFINED && packet != OP_UNDEFINED;
     }
-    
+
     public void reset() {
         protocol = OP_UNDEFINED;
         size = 0;
         packet = OP_UNDEFINED;
     }
-    
+
     public void reset(PacketKey key, int size) {
         this.protocol = key.protocol;
         this.size = size;
@@ -43,15 +45,9 @@ public class PacketHeader implements Serializable {
         protocol = src.get();
         size = src.getInt();
         packet = src.get();
-        
-        if (!isDefined()) {
-            throw new JED2KException("Incorrect packet header content protocol: " + byte2String(protocol) + " opcode " + byte2String(packet));
-        }
-        
-        if (size > MAX_SIZE || size < 0) {
-            throw new JED2KException("Packet size incorrect: " + size);
-        }
-        
+
+        if (size > MAX_SIZE) throw new JED2KException(ErrorCode.PACKET_SIZE_OVERFLOW);
+        if (size < 0) throw new JED2KException(ErrorCode.PACKET_SIZE_INCORRECT);
         return src;
     }
 
@@ -59,15 +55,15 @@ public class PacketHeader implements Serializable {
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return dst.put(protocol).putInt(size).put(packet);
     }
-    
+
     public final int bytesCount() {
         return 6;
     }
-    
+
     public final int sizePacket() {
         return size - 1;
     }
-    
+
     public final PacketKey key() {
         assert(isDefined());
         return new PacketKey(protocol, packet);
