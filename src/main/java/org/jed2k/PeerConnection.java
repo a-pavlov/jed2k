@@ -770,8 +770,9 @@ public class PeerConnection extends Connection {
                     // add write task to executor and add future to transfer
                     transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
 
+                    // run async hash calculation
                     if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
-                        // async hash request here
+                        transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
                     }
 
                     // write block to disk here
@@ -915,8 +916,18 @@ public class PeerConnection extends Connection {
      */
     Future<AsyncOperationResult> asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
         PeerRequest pr = PeerRequest.mk_request(b, t.size());
-        AsyncWrite w = new AsyncWrite(pr, buffer, t);
         transfer.getPicker().markAsWriting(b);
-        return session.diskIOService.submit(new AsyncWrite(pr, buffer, t));
+        return session.diskIOService.submit(new AsyncWrite(pr, b, buffer, t));
+    }
+
+    /**
+     * submit hashing task to executor
+     * @param pieceIndex index of piece which hash should be calculated
+     * @param t - transfer ?
+     * @return future of hasshing operation result
+     */
+    Future<AsyncOperationResult> asyncHash(int pieceIndex, final Transfer t) {
+        AsyncHash ah = new AsyncHash(transfer, pieceIndex);
+        return session.diskIOService.submit(new AsyncHash(t, pieceIndex));
     }
 }

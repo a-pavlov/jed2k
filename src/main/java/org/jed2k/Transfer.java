@@ -1,6 +1,7 @@
 package org.jed2k;
 
 import org.jed2k.data.PieceBlock;
+import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
@@ -21,6 +22,7 @@ public class Transfer {
     private Logger log = LoggerFactory.getLogger(Transfer.class);
     private Hash hash;
     private long size;
+    private int numPieces;
     private Statistics stat = new Statistics();
     private PiecePicker picker;
     private Policy policy;
@@ -39,6 +41,7 @@ public class Transfer {
         this.size = atp.size.longValue();
         assert(hash != null);
         assert(size != 0);
+        numPieces = Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue();
         session = s;
         log.debug("created transfer {} size {}", this.hash, this.size);
 
@@ -60,6 +63,32 @@ public class Transfer {
 
     public long size() {
         return this.size;
+    }
+
+    public int numHave() {
+        return (picker != null)?picker.numHave():numPieces;
+    }
+
+    public int numPieces() {
+        return numPieces;
+    }
+
+    /**
+     * transfer in seed mode - it has all pieces
+     * @return true if all pieces had been downloaded
+     */
+    boolean isSeed() {
+        return (picker == null) || (picker.numHave() == picker.numPieces());
+    }
+
+    boolean isFinished() {
+        if (isSeed()) return true;
+        return numPieces() - picker.numHave() == 0;
+    }
+
+    void weHave(int pieceIndex) {
+        assert(picker != null);
+        picker.weHave(pieceIndex);
     }
 
     final boolean isPaused() {
@@ -187,16 +216,6 @@ public class Transfer {
         pause = false;
     }
 
-    /**
-     * transfer in seed mode - has all pieces
-     * @return true if all pieces had been downloaded
-     */
-    public final boolean isSeed() {
-        return false;
-        // temporary always not seed
-        //return (picker == null) || (picker.numHave() == picker.numPieces());
-    }
-
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
         // TODO - add few checks here
         // 1. check common hash is compatible with hash set
@@ -209,7 +228,24 @@ public class Transfer {
         }
     }
 
-    void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final Hash hash) {
+    void piecePassed(int pieceIndex) {
+        boolean was_finished = (numPieces == numHave());
+        log.debug("piece passed, was finsihed: {}", was_finished?"true":"false");
+        weHave(pieceIndex);
+        if (!was_finished && isFinished()) {
+            finished();
+        }
+    }
+
+    void finished() {
+        log.debug("transfer finished");
+        // disconnect all here
+        // mark policy is finished
+        // async release file
+        // alert transfer finished here
+    }
+
+    void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final BaseErrorCode ec) {
         log.debug("block write completed: {} free buffers: {}, calculated hash: {}", b, buffers.size(), hash!=null?hash.toString():"null");
 
         // return buffers to pool
@@ -219,12 +255,18 @@ public class Transfer {
 
         buffers.clear();
 
-        if (hash != null && (hashSet.get(b.pieceIndex).compareTo(hash) != 0)) {
+        picker.markAsFinished(b);
+    }
+
+    void onPieceHashCompleted(final int pieceIndex, final Hash hash) {
+        assert(hash != null);
+
+        if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
             log.debug("restore piece due to unmatched hash");
-            picker.restorePiece(b.pieceIndex);
-        } else {
-            log.debug("mark block as finished");
-            picker.markAsFinished(b);
+            picker.restorePiece(pieceIndex);
+        }
+        else {
+            piecePassed(pieceIndex);
         }
     }
 }

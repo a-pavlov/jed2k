@@ -1,6 +1,8 @@
 package org.jed2k;
 
 import org.jed2k.data.PeerRequest;
+import org.jed2k.data.PieceBlock;
+import org.jed2k.exception.ErrorCode;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Callable;
@@ -16,9 +18,10 @@ public class AsyncWrite implements Callable<AsyncOperationResult> {
     private long length = -1;
     final ByteBuffer buffer;
     final Transfer transfer;
+    final PieceBlock block;
 
-    // TODO - check parameters here, most likely no need peer request, use piece bloc here
-    public AsyncWrite(PeerRequest request, final ByteBuffer b, final Transfer t) {
+    // TODO - check parameters here, most likely no need peer request, use piece block here
+    public AsyncWrite(PeerRequest request, final PieceBlock block, final ByteBuffer b, final Transfer t) {
         assert(request.piece != -1);
         assert(request.start != -1);
         assert(request.length != -1);
@@ -27,13 +30,14 @@ public class AsyncWrite implements Callable<AsyncOperationResult> {
         offset = request.start;
         length = request.length;
         buffer = b;
+        this.block = block;
         transfer = t;
     }
 
     @Override
     public AsyncOperationResult call() throws Exception {
-        //transfer.pm.writeBlock();
+        transfer.pm.writeBlock(block, buffer);
         // actual write to disk with catch exceptions
-        return new AsyncWriteResult(transfer);
+        return new AsyncWriteResult(transfer, ErrorCode.NO_ERROR);
     }
 }

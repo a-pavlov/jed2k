@@ -1,5 +1,6 @@
 package org.jed2k;
 
+import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.protocol.Hash;
 
 import java.nio.ByteBuffer;
@@ -10,15 +11,21 @@ import java.util.LinkedList;
  */
 public class AsyncWriteResult implements AsyncOperationResult {
     LinkedList<ByteBuffer>  buffers = null;
-    Hash hash = null;
     final Transfer transfer;
+    final BaseErrorCode code;
 
-    public AsyncWriteResult(final Transfer t) {
+    public AsyncWriteResult(final Transfer t, final BaseErrorCode ec) {
         transfer = t;
+        this.code = ec;
     }
 
     @Override
     public void onCompleted() {
-        transfer.onBlockWriteCompleted(null, buffers, hash);
+        transfer.onBlockWriteCompleted(null, buffers, getCode());
+    }
+
+    @Override
+    public BaseErrorCode getCode() {
+        return code;
     }
 }

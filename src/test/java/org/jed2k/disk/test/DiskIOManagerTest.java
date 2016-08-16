@@ -14,6 +14,8 @@ import java.util.concurrent.*;
 
 import org.jed2k.Constants;
 import org.jed2k.AsyncOperationResult;
+import org.jed2k.exception.BaseErrorCode;
+import org.jed2k.exception.ErrorCode;
 import org.junit.Test;
 
 public class DiskIOManagerTest {
@@ -43,6 +45,12 @@ public class DiskIOManagerTest {
         public void onCompleted() {
             acceptor.onOperation1();
         }
+
+        @Override
+        public BaseErrorCode getCode() {
+            return ErrorCode.NO_ERROR;
+        }
+
     }
 
     private class AsyncResult2 implements AsyncOperationResult {
@@ -56,6 +64,11 @@ public class DiskIOManagerTest {
         @Override
         public void onCompleted() {
             acceptor.onOperation2();
+        }
+
+        @Override
+        public BaseErrorCode getCode() {
+            return ErrorCode.NO_ERROR;
         }
     }
 
@@ -155,7 +168,7 @@ public class DiskIOManagerTest {
         for(int i = 0; i < Constants.BLOCKS_PER_PIECE; ++i) {
             windows.add(channel.map(FileChannel.MapMode.READ_WRITE, i*Constants.BLOCK_SIZE, Constants.BLOCK_SIZE));
         }
-        
+
         int index = 0;
         for(ByteBuffer bb: windows) {
             for(int i = 0; i < Constants.BLOCK_SIZE; ++i) {
@@ -163,7 +176,7 @@ public class DiskIOManagerTest {
             }
             ++index;
         }
-        
+
         windows.clear();
         f.close();
         InputStream istream = new FileInputStream("f");
@@ -171,7 +184,7 @@ public class DiskIOManagerTest {
             int value = i/(int)Constants.BLOCK_SIZE;
             assertEquals(value, istream.read());
         }
-        
+
         istream.close();
         */
     }
