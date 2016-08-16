@@ -764,9 +764,16 @@ public class PeerConnection extends Connection {
                 transferringData = false;
 
                 if (completeBlock(pb)) {
+                    boolean wasFinished = transfer.getPicker().isPieceFinished(recvReq.piece);
+                    transfer.getPicker().markAsWriting(pb.block);
                     downloadQueue.remove(pb);
                     // add write task to executor and add future to transfer
                     transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
+
+                    if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
+                        // async hash request here
+                    }
+
                     // write block to disk here
                     // remove pending block from downloading queue
                     // check piece finished and run hashing

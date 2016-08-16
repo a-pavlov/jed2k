@@ -3,6 +3,7 @@ package org.jed2k;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -63,17 +64,31 @@ public class PieceManager extends BlocksEnumerator {
         assert(file != null);
         assert(channel != null);
         long bytesOffset = b.blocksOffset()*Constants.BLOCK_SIZE;
+        // TODO - add error handling here with correct buffer return to requester
         try {
             BlockManager mgr = getBlockManager(b.pieceIndex);
             assert(mgr != null);
-            LinkedList<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
-            buffer.rewind();
+            // stage 1 - write block to disk, possibly error occurred
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);
+            buffer.rewind();
+
+            // stage 2 - prepare hash and return obsolete blocks if possible
+            LinkedList<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
+
             return res;
         }
         catch(IOException e) {
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
+        finally {
+            buffer.flip();
+        }
+    }
+
+    public Hash hashPiece(int pieceIndex) {
+        BlockManager mgr = getBlockManager(pieceIndex);
+        assert(mgr != null);
+        return mgr.pieceHash();
     }
 }

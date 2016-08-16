@@ -50,7 +50,7 @@ public class Transfer {
         //}
 
         policy = new Policy(this);
-        pm = new PieceManager("", Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
+        pm = new PieceManager(atp.filepath, Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
                 Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue());
     }
 

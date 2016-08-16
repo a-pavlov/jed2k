@@ -47,10 +47,9 @@ public class BlockManager {
             }
 
             // calculate final hash
-            if (lastHashedBlock == buffers.length - 1) {
-                pieceHash = Hash.fromBytes(hasher.digest());
-            }
-
+            //if (lastHashedBlock == buffers.length - 1) {
+            //    pieceHash = Hash.fromBytes(hasher.digest());
+            //}
             return res;
         }
 
@@ -58,6 +57,11 @@ public class BlockManager {
     }
 
     public Hash pieceHash() {
+        if (pieceHash == null) {
+            assert(lastHashedBlock == buffers.length - 1);
+            pieceHash = Hash.fromBytes(hasher.digest());
+        }
+
         return pieceHash;
     }
 
