@@ -100,19 +100,19 @@ public class Session extends Thread {
 
                     if(key.isAcceptable()) {
                         // a connection was accepted by a ServerSocketChannel.
-                        log.trace("Key is acceptable");
+                        //log.trace("Key is acceptable");
                         incomingConnection();
                     } else if (key.isConnectable()) {
                         // a connection was established with a remote server/peer.
-                        log.trace("Key is connectable");
+                        //log.trace("Key is connectable");
                         ((Connection)key.attachment()).onConnectable();
                     } else if (key.isReadable()) {
                         // a channel is ready for reading
-                        log.trace("Key is readable");
+                        //log.trace("Key is readable");
                         ((Connection)key.attachment()).onReadable();
                     } else if (key.isWritable()) {
                         // a channel is ready for writing
-                        log.trace("Key is writeable");
+                        //log.trace("Key is writeable");
                         ((Connection)key.attachment()).onWriteable();
                     }
                 }
@@ -167,16 +167,25 @@ public class Session extends Thread {
             }
         }
         catch(IOException e) {
-            log.error("session interrupted {}", e.getMessage());
+            log.error("session interrupted with error {}", e.getMessage());
         }
         finally {
-            log.info("Session finished");
+            log.info("Session is closing");
             try {
                 if (selector != null) selector.close();
             }
             catch(IOException e) {
                 log.error("close selector failed {}", e.getMessage());
             }
+
+            // stop service
+            diskIOService.shutdown();
+
+            for(final Transfer t: transfers.values()) {
+                t.abort();
+            }
+
+            log.info("Session finsihed");
         }
     }
 

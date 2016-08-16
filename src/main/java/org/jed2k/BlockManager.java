@@ -46,10 +46,6 @@ public class BlockManager {
                 buffers[i] = null;
             }
 
-            // calculate final hash
-            //if (lastHashedBlock == buffers.length - 1) {
-            //    pieceHash = Hash.fromBytes(hasher.digest());
-            //}
             return res;
         }
 

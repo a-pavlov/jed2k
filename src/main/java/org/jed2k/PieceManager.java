@@ -12,6 +12,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by inkpot on 15.07.2016.
  * executes write data into file on disk
@@ -21,6 +24,7 @@ public class PieceManager extends BlocksEnumerator {
     private RandomAccessFile file;
     private FileChannel channel;
     private LinkedList<BlockManager> blockMgrs = new LinkedList<BlockManager>();
+    private Logger log = LoggerFactory.getLogger(PieceManager.class);
 
     public PieceManager(String filepath, int pieceCount, int blocksInLastPiece) {
         super(pieceCount, blocksInLastPiece);
@@ -59,36 +63,36 @@ public class PieceManager extends BlocksEnumerator {
      * @param b block
      * @param buffer data source
      */
-    public LinkedList<ByteBuffer> writeBlock(PieceBlock b, ByteBuffer buffer) throws JED2KException {
+    public LinkedList<ByteBuffer> writeBlock(PieceBlock b, final ByteBuffer buffer) throws JED2KException {
         open();
         assert(file != null);
         assert(channel != null);
         long bytesOffset = b.blocksOffset()*Constants.BLOCK_SIZE;
+        BlockManager mgr = getBlockManager(b.pieceIndex);
+        assert(mgr != null);
+
         // TODO - add error handling here with correct buffer return to requester
         try {
-            BlockManager mgr = getBlockManager(b.pieceIndex);
-            assert(mgr != null);
             // stage 1 - write block to disk, possibly error occurred
+            buffer.flip();
+            log.debug("write buffer remaining {} to offset {}", buffer.remaining(), bytesOffset);
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);
             buffer.rewind();
-
-            // stage 2 - prepare hash and return obsolete blocks if possible
-            LinkedList<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
-
-            return res;
         }
         catch(IOException e) {
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
-        finally {
-            buffer.flip();
-        }
+
+        // stage 2 - prepare hash and return obsolete blocks if possible
+        LinkedList<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
+        return res;
     }
 
     public Hash hashPiece(int pieceIndex) {
         BlockManager mgr = getBlockManager(pieceIndex);
         assert(mgr != null);
+        blockMgrs.remove(mgr);
         return mgr.pieceHash();
     }
 }

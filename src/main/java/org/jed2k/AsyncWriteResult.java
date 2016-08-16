@@ -1,5 +1,6 @@
 package org.jed2k;
 
+import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.protocol.Hash;
 
@@ -13,15 +14,18 @@ public class AsyncWriteResult implements AsyncOperationResult {
     LinkedList<ByteBuffer>  buffers = null;
     final Transfer transfer;
     final BaseErrorCode code;
+    final PieceBlock block;
 
-    public AsyncWriteResult(final Transfer t, final BaseErrorCode ec) {
+    public AsyncWriteResult(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final Transfer t, final BaseErrorCode ec) {
+        this.block = b;
+        this.buffers = buffers;
         transfer = t;
         this.code = ec;
     }
 
     @Override
     public void onCompleted() {
-        transfer.onBlockWriteCompleted(null, buffers, getCode());
+        transfer.onBlockWriteCompleted(block, buffers, getCode());
     }
 
     @Override

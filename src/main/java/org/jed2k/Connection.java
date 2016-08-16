@@ -35,6 +35,7 @@ public abstract class Connection implements Dispatcher {
     private ByteBuffer headerBuffer = ByteBuffer.allocate(PacketHeader.SIZE);
     private Statistics stat = new Statistics();
     long lastReceive = Time.currentTime();
+    private boolean disconnecting = false;
 
     protected Connection(ByteBuffer bufferIncoming,
             ByteBuffer bufferOutgoing,
@@ -203,14 +204,15 @@ public abstract class Connection implements Dispatcher {
     }
 
     void close(BaseErrorCode ec) {
-        log.debug("close socket with code {}", ec);
+        log.debug("close connection {}", ec);
         try {
             socket.close();
         } catch(IOException e) {
             log.error(e.getMessage());
         } finally {
-            onDisconnect(ec);
             key.cancel();
+            disconnecting = true;
+            onDisconnect(ec);
         }
     }
 
@@ -229,5 +231,9 @@ public abstract class Connection implements Dispatcher {
 
     public Statistics statistics() {
         return stat;
+    }
+
+    final boolean isDisconnecting() {
+        return disconnecting;
     }
 }

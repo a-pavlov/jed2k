@@ -8,10 +8,7 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 
 import java.nio.ByteBuffer;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -144,12 +141,15 @@ public class Transfer {
         policy.setConnection(peerInfo, c);
     }
 
-    void disconnectAll() {
-        for(PeerConnection c: connections) {
-            c.close(ErrorCode.TRANSFER_ABORTED);
+    void disconnectAll(BaseErrorCode ec) {
+        Iterator<PeerConnection> itr = connections.iterator();
+        while(itr.hasNext()) {
+            PeerConnection c = itr.next();
+            c.close(ec);
+            if (c.isDisconnecting()) itr.remove();  // TODO - do not remove by iterator, simply call clean
         }
 
-        connections.clear();
+        assert(connections.isEmpty());
     }
 
     boolean tryConnectPeer(long sessionTime) throws JED2KException {
@@ -165,12 +165,12 @@ public class Transfer {
         }
 
         stat.secondTick(currentSessionTime);
-        // TODO - fix this temp solution to avoid ConcurrentModification exception
-        HashSet<PeerConnection> localc = new HashSet<PeerConnection>();
-        localc = (HashSet<PeerConnection>)connections.clone();
 
-        for(PeerConnection c: localc) {
+        Iterator<PeerConnection> itr = connections.iterator();
+        while(itr.hasNext()) {
+            PeerConnection c = itr.next();
             c.secondTick(currentSessionTime);
+            if (c.isDisconnecting()) itr.remove();
         }
 
         while(!aioFutures.isEmpty()) {
@@ -203,9 +203,10 @@ public class Transfer {
     }
 
     void abort() {
+        log.debug("{} abort", hash);
         if (abort) return;
         abort = true;
-        disconnectAll();
+        disconnectAll(ErrorCode.TRANSFER_ABORTED);
     }
 
     void pause() {
@@ -246,23 +247,33 @@ public class Transfer {
     }
 
     void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final BaseErrorCode ec) {
-        log.debug("block write completed: {} free buffers: {}, calculated hash: {}", b, buffers.size(), hash!=null?hash.toString():"null");
+        log.debug("block {} write completed: {} free buffers: {}",
+                b, ec, (buffers!=null)?buffers.size():0);
 
         // return buffers to pool
-        for(ByteBuffer buffer: buffers) {
-            session.bufferPool.deallocate(buffer, Time.currentTime());
+        if (buffers != null) {
+            for (ByteBuffer buffer : buffers) {
+                session.bufferPool.deallocate(buffer, Time.currentTime());
+            }
+
+            buffers.clear();
         }
 
-        buffers.clear();
-
-        picker.markAsFinished(b);
+        if (ec == ErrorCode.NO_ERROR) {
+            picker.markAsFinished(b);
+        } else {
+            picker.abortDownload(b);
+            // process writing error here
+            // do pause on transfer
+        }
     }
 
     void onPieceHashCompleted(final int pieceIndex, final Hash hash) {
         assert(hash != null);
 
         if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
-            log.debug("restore piece due to unmatched hash");
+            log.debug("restore piece due to expected hash {} is not equal with calculated {}",
+                    hashSet.get(pieceIndex), hash);
             picker.restorePiece(pieceIndex);
         }
         else {

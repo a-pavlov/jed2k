@@ -3,8 +3,10 @@ package org.jed2k;
 import org.jed2k.data.PeerRequest;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 /**
@@ -36,8 +38,10 @@ public class AsyncWrite implements Callable<AsyncOperationResult> {
 
     @Override
     public AsyncOperationResult call() throws Exception {
-        transfer.pm.writeBlock(block, buffer);
-        // actual write to disk with catch exceptions
-        return new AsyncWriteResult(transfer, ErrorCode.NO_ERROR);
+        try {
+            return new AsyncWriteResult(block, transfer.pm.writeBlock(block, buffer), transfer, ErrorCode.NO_ERROR);
+        } catch(JED2KException e) {
+            return new AsyncWriteResult(block, new LinkedList<ByteBuffer>(){{addLast(buffer);}}, transfer, e.getErrorCode());
+        }
     }
 }

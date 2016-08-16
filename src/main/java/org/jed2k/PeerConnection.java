@@ -559,9 +559,9 @@ public class PeerConnection extends Connection {
         if (transfer != null) {
             transfer.addStats(statistics());
             abortAllRequests();
-            transfer.removePeerConnection(this);
             transfer = null;
         }
+
         session.closeConnection(this);
     }
 
@@ -880,13 +880,18 @@ public class PeerConnection extends Connection {
             // mark block as downloading
             transfer.getPicker().markAsDownloading(b); // ?
             downloadQueue.add(new PendingBlock(b, transfer.size()));
-            reqp.append(b.range(transfer.size()));
             assert(!reqp.isFool());
+            reqp.append(b.range(transfer.size()));
             // do not flush (write) structure to remote here like in libed2k since order always contain no more than 3 blocks
         }
 
         log.debug("ready for request, download queue size {}", downloadQueue.size());
-        if (!reqp.isEmpty()) write(reqp);
+        if (!reqp.isEmpty()) {
+            write(reqp);
+        }
+        else {
+            close(ErrorCode.NO_ERROR);
+        }
     }
 
     void abortAllRequests() {
