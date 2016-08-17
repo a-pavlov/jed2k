@@ -110,6 +110,14 @@ public class Conn {
             if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
                 s.connectoTo(new InetSocketAddress(parts[1], (short)Integer.parseInt((parts.length > 2)?parts[2]:"4661")));
             }
+            else if (parts[0].compareTo("search2") == 0) {
+                try {
+                    log.info("search request: game AND thrones");
+                    s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, "game AND thrones"));
+                } catch(JED2KException e) {
+                    log.error(e.getMessage());
+                }
+            }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 String searchExpression = parts[1];
                 long maxSize = 0;

@@ -16,7 +16,7 @@ import org.junit.Test;
 import static org.jed2k.protocol.Unsigned.uint32;
 
 public class ByteContainerTest{
-    
+
     @Test
     public void testSerialize() throws JED2KException{
         byte[] source = { (byte)0x07,
@@ -28,7 +28,7 @@ public class ByteContainerTest{
         assertEquals(7, bc.size.intValue());
         assertEquals(new String("  012  "), bc.toString());
     }
-    
+
     @Test
     public void testGet() throws JED2KException {
         byte[] source = { (byte)0x07, (byte)0x00, (byte)0x00, (byte)0x00,
@@ -40,7 +40,7 @@ public class ByteContainerTest{
         assertEquals(7, bc.size.intValue());
         assertEquals(new String("  012  "), bc.toString());
     }
-    
+
     @Test
     public void testPut() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(10);
@@ -54,7 +54,7 @@ public class ByteContainerTest{
         for(int i = 1; i <=4; ++i) {
             assertEquals(((byte)(i+0x30) & 0xff), bb.get());
         }
-        
+
         assertEquals(0, bb.remaining());
     }
 }

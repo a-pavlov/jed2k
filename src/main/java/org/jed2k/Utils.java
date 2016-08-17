@@ -42,6 +42,8 @@ public final class Utils {
         return 4;
     }
 
+    public static final int sizeof(long value) { return 8; }
+
     public static final int sizeof(boolean value) {
         return 1;
     }

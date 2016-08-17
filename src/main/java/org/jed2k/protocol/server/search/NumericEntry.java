@@ -6,6 +6,7 @@ import org.jed2k.protocol.ByteContainer;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.UInt16;
+import org.jed2k.protocol.tag.Tag;
 
 import static org.jed2k.Utils.sizeof;
 
@@ -50,6 +51,11 @@ public class NumericEntry implements Serializable {
 
     @Override
     public int bytesCount() {
-        return sizeof(SearchRequest.SEARCH_TYPE_UINT32) + ((value <= UINT_MAX)?sizeof(value)/2:sizeof(value)) + tag.bytesCount();
+        return sizeof(SearchRequest.SEARCH_TYPE_UINT32) + ((value <= UINT_MAX)?sizeof(value)/2:sizeof(value)) + sizeof(operator) + tag.bytesCount();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%d]%d_t%s", operator, value, tag.toString());
     }
 }

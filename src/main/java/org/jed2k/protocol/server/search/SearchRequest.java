@@ -110,7 +110,7 @@ public class SearchRequest implements Serializable {
         return false;
     }
 
-    private static void appendItem(ArrayList<Serializable> dst, final Serializable sre) throws JED2KException {
+    private static void appendItem(final ArrayList<Serializable> dst, final Serializable sre) throws JED2KException {
         if (!(sre instanceof BooleanEntry))
         {
             if (!dst.isEmpty())
@@ -280,7 +280,7 @@ public class SearchRequest implements Serializable {
         return res;
     }
 
-    private static ArrayDeque<Serializable> packRequest(ArrayList<Serializable> source) throws JED2KException {
+    private static ArrayDeque<Serializable> packRequest(final ArrayList<Serializable> source) throws JED2KException {
         ArrayDeque<Serializable> res = new ArrayDeque<Serializable>();
         Stack<Serializable> operators_stack = new Stack<Serializable>();
 

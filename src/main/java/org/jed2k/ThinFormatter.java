@@ -9,6 +9,6 @@ import java.util.logging.LogRecord;
 public class ThinFormatter  extends Formatter {
     @Override
     public String format(LogRecord record) {
-        return record.getLevel() + record.getMessage();
+        return record.getLevel() + " " + record.getMessage() + "\n";
     }
 }

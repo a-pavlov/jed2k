@@ -150,7 +150,7 @@ public abstract class Connection implements Dispatcher {
 
             lastReceive = Time.currentTime();
         } catch(JED2KException e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
             close(e.getErrorCode());
         }
     }

@@ -8,6 +8,7 @@ import static org.jed2k.protocol.Unsigned.uint8;
 import static org.jed2k.protocol.Unsigned.uint16;
 import static org.jed2k.protocol.Unsigned.uint32;
 
+import org.jed2k.Utils;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 
@@ -41,7 +42,9 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
             return size.put(dst);
         } else {
             size.assign(value.length);
-            return size.put(dst).put(value);
+            size.put(dst);
+            dst.put(value);
+            return dst;
         }
     }
 
@@ -83,11 +86,11 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
 
     @Override
     public String toString() {
+        //return String.format("bc{%d=%s}", size.intValue(), Utils.byte2String(value));
         try{
             if (value != null)
                 return new String(value, "UTF-8");
-        }
-        catch(UnsupportedEncodingException ex){
+        } catch(UnsupportedEncodingException ex){
             log.warning(ex.getMessage());
         }
 
