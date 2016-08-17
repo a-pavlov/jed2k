@@ -799,6 +799,8 @@ public class PeerConnection extends Connection {
     boolean completeBlock(final PendingBlock pb) throws JED2KException {
         assert(recvReq != null);
         assert(recvReq.length == recvPos);
+        assert(pb.buffer != null);
+        pb.buffer.flip();   // prepare buffer for reading
         pb.dataLeft.sub(recvReq.range());
         log.debug("complete block {}", pb.isCompleted()?"true":"false");
 

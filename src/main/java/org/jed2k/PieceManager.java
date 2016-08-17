@@ -74,7 +74,8 @@ public class PieceManager extends BlocksEnumerator {
         // TODO - add error handling here with correct buffer return to requester
         try {
             // stage 1 - write block to disk, possibly error occurred
-            buffer.flip();
+            // buffer must have remaining data
+            assert(buffer.hasRemaining());
             log.debug("write buffer remaining {} to offset {}", buffer.remaining(), bytesOffset);
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);
