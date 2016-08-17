@@ -123,7 +123,7 @@ public abstract class PacketCombiner {
             int resultLength = 0;
             try {
                 resultLength = decompresser.inflate(plainData);
-                log.debug("Compressed data size {} uncompressed data size {}", compressedData.length, resultLength);
+                log.trace("Compressed data size {} uncompressed data size {}", compressedData.length, resultLength);
             } catch(DataFormatException e) {
                 throw new JED2KException(ErrorCode.INFLATE_ERROR);
             }

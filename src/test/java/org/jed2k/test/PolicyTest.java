@@ -35,13 +35,13 @@ public class PolicyTest {
         transfer = Mockito.mock(Transfer.class);
         connection = Mockito.mock(PeerConnection.class);
         when(transfer.connectoToPeer(any(Peer.class))).thenReturn(connection);
+        when(transfer.isFinished()).thenReturn(false);
         Mockito.doCallRealMethod().when(transfer).callPolicy(any(Peer.class), any(PeerConnection.class));
     }
 
     @Test
     public void testCandidates() {
-        Transfer t = Mockito.mock(Transfer.class);
-        Policy p = new Policy(t);
+        Policy p = new Policy(transfer);
         assertTrue(p.isConnectCandidate(p1));
         assertTrue(p.isConnectCandidate(p2));
         assertTrue(p.isConnectCandidate(p3));
@@ -52,20 +52,18 @@ public class PolicyTest {
         assertFalse(p.isEraseCandidate(p4));
     }
 
-    @Test(expected=JED2KException.class)
+    @Test
     public void testDuplicateInsert() throws JED2KException {
-        Transfer t = Mockito.mock(Transfer.class);
         Peer ps[] = {p1, p2, p3, p4};
-        Policy p = new Policy(t);
-        p.addPeer(p1);
-        p.addPeer(p1);
+        Policy p = new Policy(transfer);
+        assertTrue(p.addPeer(p1));
+        assertFalse(p.addPeer(p1));
     }
 
     @Test
     public void testInsertPeer() throws JED2KException {
-        Transfer t = Mockito.mock(Transfer.class);
         Peer ps[] = {p1, p2, p3, p4};
-        Policy p = new Policy(t);
+        Policy p = new Policy(transfer);
         p.addPeer(p1);
         p.addPeer(p4);
         p.addPeer(p2);
@@ -88,10 +86,9 @@ public class PolicyTest {
 
     @Test
     public void testNewConnection() throws JED2KException {
-        Transfer t = Mockito.mock(Transfer.class);
         PeerConnection c = Mockito.mock(PeerConnection.class);
         when(c.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
-        Policy p = new Policy(t);
+        Policy p = new Policy(transfer);
         p.newConnection(c);
         assertEquals(1, p.size());
         PeerConnection c2 = Mockito.mock(PeerConnection.class);
@@ -103,13 +100,23 @@ public class PolicyTest {
 
     @Test(expected = JED2KException.class)
     public void testNewConnectionDuplicate() throws JED2KException {
-        Transfer t = Mockito.mock(Transfer.class);
         PeerConnection c = Mockito.mock(PeerConnection.class);
-        Policy p = new Policy(t);
+        Policy p = new Policy(transfer);
         when(c.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
         PeerConnection c2 = Mockito.mock(PeerConnection.class);
         when(c2.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
         p.newConnection(c);
         p.newConnection(c2);
+    }
+
+    @Test
+    public void testFinishedTransferPolicy() throws JED2KException {
+        Transfer t = Mockito.mock(Transfer.class);
+        when(t.isFinished()).thenReturn(true);
+        Policy p = new Policy(t);
+        assertTrue(p.addPeer(p1));
+        assertTrue(p.addPeer(p2));
+        assertTrue(p.addPeer(p3));
+        assertEquals(0, p.numConnectCandidates());
     }
 }

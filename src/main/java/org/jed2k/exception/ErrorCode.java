@@ -25,7 +25,7 @@ public enum ErrorCode implements BaseErrorCode {
     CHANNEL_CLOSED(20, "Channel closed"),
     QUEUE_RANKING(21, "Queue ranking"),
 
-    DUPLICATE_PEER_ID(22, "Duplicate peer id"),
+    DUPLICATE_PEER(22, "Duplicate peer"),
     DUPLICATE_PEER_CONNECTION(23, "Duplicate peer connection"),
     PEER_LIMIT_EXEEDED(24, "Peer limit exeeded"),
     SECURITY_EXCEPTION(25, "Security exception"),
@@ -33,9 +33,9 @@ public enum ErrorCode implements BaseErrorCode {
     ILLEGAL_ARGUMENT(27, "Illegal argument"),
     PACKET_SIZE_INCORRECT(28, "Packet size less than zero"),
     PACKET_SIZE_OVERFLOW(29, "Packet size too big"),
+    TRANSFER_FINISHED(30, "Transfer finished"),
 
-
-    FAIL(26, "Fail");
+    FAIL(31, "Fail");
 
     private final int code;
     private final String description;

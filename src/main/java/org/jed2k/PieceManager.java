@@ -76,7 +76,6 @@ public class PieceManager extends BlocksEnumerator {
             // stage 1 - write block to disk, possibly error occurred
             // buffer must have remaining data
             assert(buffer.hasRemaining());
-            log.debug("write buffer remaining {} to offset {}", buffer.remaining(), bytesOffset);
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);
             buffer.rewind();
@@ -93,7 +92,25 @@ public class PieceManager extends BlocksEnumerator {
     public Hash hashPiece(int pieceIndex) {
         BlockManager mgr = getBlockManager(pieceIndex);
         assert(mgr != null);
+        assert(mgr.getByteBuffersCount() == 0); // all buffers must be released
         blockMgrs.remove(mgr);
         return mgr.pieceHash();
+    }
+
+    public void close() throws JED2KException {
+        if (file != null) {
+            try {
+                try {
+                    channel.close();
+                } finally {
+                    file.close();
+                }
+            } catch(IOException e) {
+                throw new JED2KException(ErrorCode.IO_EXCEPTION);
+            } finally {
+                file = null;
+                channel = null;
+            }
+        }
     }
 }

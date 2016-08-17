@@ -50,7 +50,7 @@ public class Policy extends AbstractCollection<Peer> {
         }
 
         int insertPos = Collections.binarySearch(peers, p);
-        if (insertPos >= 0) throw new JED2KException(ErrorCode.DUPLICATE_PEER_ID);
+        if (insertPos >= 0) return false;   // endpoint was found, do not insert duplicates
         peers.add(((insertPos + 1)*-1), p);
         return true;
     }
@@ -251,10 +251,11 @@ public class Policy extends AbstractCollection<Peer> {
      */
     public int numConnectCandidates() {
         int res = 0;
-        for(final Peer p: peers) {
-            if (isConnectCandidate(p) && !isEraseCandidate(p)) ++res;
+        if (!transfer.isFinished()) {
+            for (final Peer p : peers) {
+                if (isConnectCandidate(p) && !isEraseCandidate(p)) ++res;
+            }
         }
-
         return res;
     }
 
@@ -265,12 +266,14 @@ public class Policy extends AbstractCollection<Peer> {
             // some actions here
             if (p.connection != null) {
                 // stupid, but simply throw exception here
-                throw new JED2KException(ErrorCode.DUPLICATE_PEER_ID);
+                throw new JED2KException(ErrorCode.DUPLICATE_PEER_CONNECTION);
             }
         }
         else {
             p = new Peer(c.getEndpoint(), false);
-            addPeer(p);
+            if (!addPeer(p)) {
+                throw new JED2KException(ErrorCode.DUPLICATE_PEER);
+            }
         }
 
         assert(p != null);

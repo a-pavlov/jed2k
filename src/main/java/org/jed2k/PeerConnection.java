@@ -758,7 +758,7 @@ public class PeerConnection extends Connection {
             statistics().receiveBytes(0, n);
 
             if (pb.buffer.remaining() == 0) {
-                log.debug("buffer is full, turn off transferring data");
+                log.debug("received {} bytes, buffer is full, turn off transferring data", recvPos);
                 assert(recvPos == recvReq.length);
                 // turn off data transfer mode
                 transferringData = false;
@@ -802,7 +802,7 @@ public class PeerConnection extends Connection {
         assert(pb.buffer != null);
         pb.buffer.flip();   // prepare buffer for reading
         pb.dataLeft.sub(recvReq.range());
-        log.debug("complete block {}", pb.isCompleted()?"true":"false");
+        log.debug("block {} {}", pb.block, pb.isCompleted()?"completed":"not completed yet");
 
         if (pb.isCompleted() && recvReqCompressed) {
             // decompression here
@@ -870,7 +870,6 @@ public class PeerConnection extends Connection {
     }
 
     void requestBlocks() {
-        log.debug("request blocks");
         if (transfer == null || transferringData || !downloadQueue.isEmpty()) return;
         LinkedList<PieceBlock> blocks = new LinkedList<PieceBlock>();
         PiecePicker picker = transfer.getPicker();
@@ -887,7 +886,7 @@ public class PeerConnection extends Connection {
             // do not flush (write) structure to remote here like in libed2k since order always contain no more than 3 blocks
         }
 
-        log.debug("ready for request, download queue size {}", downloadQueue.size());
+        log.debug("request blocks completed, download queue size {}", downloadQueue.size());
         if (!reqp.isEmpty()) {
             write(reqp);
         }
@@ -922,9 +921,8 @@ public class PeerConnection extends Connection {
      * @return future of result for async operation
      */
     Future<AsyncOperationResult> asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
-        PeerRequest pr = PeerRequest.mk_request(b, t.size());
         transfer.getPicker().markAsWriting(b);
-        return session.diskIOService.submit(new AsyncWrite(pr, b, buffer, t));
+        return session.diskIOService.submit(new AsyncWrite(b, buffer, t));
     }
 
     /**

@@ -15,24 +15,18 @@ import java.util.concurrent.Callable;
  * Created by inkpot on 15.07.2016.
  */
 public class AsyncWrite implements Callable<AsyncOperationResult> {
-    private int piece = -1;
-    private long offset = -1;
-    private long length = -1;
+    final PieceBlock block;
     final ByteBuffer buffer;
     final Transfer transfer;
-    final PieceBlock block;
 
     // TODO - check parameters here, most likely no need peer request, use piece block here
-    public AsyncWrite(PeerRequest request, final PieceBlock block, final ByteBuffer b, final Transfer t) {
-        assert(request.piece != -1);
-        assert(request.start != -1);
-        assert(request.length != -1);
+    public AsyncWrite(final PieceBlock block, final ByteBuffer b, final Transfer t) {
         assert(b != null);
-        piece = request.piece;
-        offset = request.start;
-        length = request.length;
-        buffer = b;
+        assert(block != null);
+        assert(t != null);
+        assert(b.hasRemaining());
         this.block = block;
+        buffer = b;
         transfer = t;
     }
 

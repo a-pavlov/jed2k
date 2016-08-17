@@ -104,7 +104,7 @@ public abstract class Connection implements Dispatcher {
             // TODO - add adequate resizing algorithm when packet size greater than buffer size
             // but less than available limit for packet
             bufferIncoming.limit(packetCombainer.serviceSize(header));
-            log.debug("processHeader: {} await bytes: {}", header.toString(), packetCombainer.serviceSize(header));
+            log.trace("processHeader: {} await bytes: {}", header.toString(), packetCombainer.serviceSize(header));
             stat.receiveBytes(PacketHeader.SIZE, 0);
         }
     }
@@ -217,7 +217,7 @@ public abstract class Connection implements Dispatcher {
     }
 
     void write(Serializable packet) {
-        log.debug("{} >> ", packet);
+        log.trace("{} >> ", packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);

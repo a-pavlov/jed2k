@@ -40,6 +40,9 @@ public class PiecePickerTest {
         assertEquals(3, rq.size());
         for(PieceBlock b: rq) {
             pp.markAsFinished(b);
+            if (pp.isPieceFinished(b.pieceIndex)) {
+                pp.weHave(b.pieceIndex);
+            }
         }
 
         assertEquals(4, pp.numPieces());
@@ -49,6 +52,9 @@ public class PiecePickerTest {
         assertEquals(Constants.BLOCKS_PER_PIECE*3, rq.size());
         for(PieceBlock b: rq) {
             pp.markAsFinished(b);
+            if (pp.isPieceFinished(b.pieceIndex)) {
+                pp.weHave(b.pieceIndex);
+            }
         }
 
         assertEquals(4, pp.numPieces());
@@ -58,7 +64,7 @@ public class PiecePickerTest {
     @Test
     public void testResumeDataLoad() {
         PiecePicker pp = new PiecePicker(3, 22);
-        pp.weHave(0);
+        pp.restoreHave(0);
         assertEquals(1, pp.numHave());
         assertEquals(0, pp.numDowloadingPieces());
         pp.weHaveBlock(new PieceBlock(1, 0));
@@ -79,6 +85,7 @@ public class PiecePickerTest {
         while(!req.isEmpty()) {
             for(PieceBlock b: req) {
                 assertTrue(pp.markAsFinished(b));
+                if (pp.isPieceFinished(b.pieceIndex)) pp.weHave(b.pieceIndex);
                 ++counter;
             }
 
@@ -87,6 +94,7 @@ public class PiecePickerTest {
         }
 
         assertEquals(0, pp.numDowloadingPieces());
+        assertEquals(pp.numPieces(), pp.numHave());
 
         int approximateCounter = Constants.BLOCKS_PER_PIECE*4 + 14;
         assertEquals(approximateCounter, counter);
@@ -109,6 +117,12 @@ public class PiecePickerTest {
 
             req.clear();
             pp.pickPieces(req, Constants.REQUEST_QUEUE_SIZE);
+
+            for(int i = 0; i < 6; ++i) {
+                if (pp.isPieceFinished(i) && !pp.havePiece(i)) {
+                    pp.weHave(i);
+                }
+            }
         }
 
         assertEquals(0, pp.numDowloadingPieces());

@@ -64,4 +64,13 @@ public class BlockManager {
     public int getPieceIndex() {
         return piece;
     }
+
+    final int getByteBuffersCount() {
+        int res = 0;
+        for(ByteBuffer b: buffers) {
+            if (b != null) ++res;
+        }
+
+        return res;
+    }
 }

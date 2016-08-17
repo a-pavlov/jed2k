@@ -1,5 +1,6 @@
 package org.jed2k;
 
+import org.jed2k.alert.TransferFinishedAlert;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
@@ -78,7 +79,7 @@ public class Transfer {
         return (picker == null) || (picker.numHave() == picker.numPieces());
     }
 
-    boolean isFinished() {
+    public boolean isFinished() {
         if (isSeed()) return true;
         return numPieces() - picker.numHave() == 0;
     }
@@ -238,12 +239,22 @@ public class Transfer {
         }
     }
 
+    /**
+     * call this method when transfer becomes "finished" to finalize downloading
+     */
     void finished() {
         log.debug("transfer finished");
-        // disconnect all here
-        // mark policy is finished
+        disconnectAll(ErrorCode.TRANSFER_FINISHED);
+        // policy will know transfer is finished automatically via call isFinished on transfer
         // async release file
-        // alert transfer finished here
+        // TODO - need correct solution instead of now close file in main thread
+        try {
+            pm.close();
+        } catch(JED2KException e) {
+            log.error(e.toString());
+        }
+
+        session.pushAlert(new TransferFinishedAlert(hash()));
     }
 
     void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final BaseErrorCode ec) {

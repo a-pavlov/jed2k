@@ -57,12 +57,6 @@ public class PiecePicker extends BlocksEnumerator {
         DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
         if (dp != null) {
             dp.finishBlock(b.pieceBlock);
-            // found actual piece in downloading state
-            if (dp.finishedCount() == dp.getBlocksCount()) {
-                downloadingPieces.remove(dp);
-                pieceStatus[b.pieceIndex] = PieceState.HAVE.value;
-            }
-
             return true;
         }
 
@@ -148,14 +142,15 @@ public class PiecePicker extends BlocksEnumerator {
     }
 
     /**
-     * return makes piece available for downloading again
-     * @param piece index of piece
+     * mark piece as new and makes it available for downloading again
+     * if piece in downloading stage it will be removed from downloading order
+     * @param pieceIndex index of piece
      */
-    public final void restorePiece(int piece) {
-        assert(piece < pieceStatus.length); // correct piece index
-        assert(getDownloadingPiece(piece) == null); // must not be in download queue
-        assert(pieceStatus[piece] != PieceState.NONE.value); //? TODO - it depends on pieces downloading algorithm
-        pieceStatus[piece] = PieceState.NONE.value;
+    public final void restorePiece(int pieceIndex) {
+        assert(pieceIndex < pieceStatus.length); // correct piece index
+        DownloadingPiece dp = getDownloadingPiece(pieceIndex);
+        if (dp != null) downloadingPieces.remove(dp);
+        pieceStatus[pieceIndex] = PieceState.NONE.value;
     }
 
     /**
@@ -192,6 +187,14 @@ public class PiecePicker extends BlocksEnumerator {
      */
     public void weHave(int pieceIndex) {
         assert(pieceIndex < pieceStatus.length);
+        DownloadingPiece dp = getDownloadingPiece(pieceIndex);
+        assert(dp != null);
+        downloadingPieces.remove(dp);
+        pieceStatus[pieceIndex] = PieceState.HAVE.value;
+    }
+
+    public void restoreHave(int pieceIndex) {
+        assert(downloadingPieces.isEmpty());
         pieceStatus[pieceIndex] = PieceState.HAVE.value;
     }
 
@@ -205,7 +208,7 @@ public class PiecePicker extends BlocksEnumerator {
      * @param pieceIndex index of piece
      * @return true if piece in "we have" state or downloading completed - all blocks are downloaded
      */
-    boolean isPieceFinished(int pieceIndex) {
+    public boolean isPieceFinished(int pieceIndex) {
         assert(pieceIndex < pieceStatus.length);
         if (pieceStatus[pieceIndex] == PieceState.NONE.value) return false;
         if (pieceStatus[pieceIndex] == PieceState.HAVE.value) return true;
