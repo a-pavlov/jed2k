@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
 
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.ByteContainer;
 import org.jed2k.protocol.Hash;
 import org.jed2k.exception.JED2KException;
@@ -29,17 +30,21 @@ public class SearchRequest implements Serializable {
     static byte SEARCH_TYPE_UINT32     = 0x03;
     static byte SEARCH_TYPE_UINT64     = 0x08;
 
+    private static final int SEARCH_REQ_ELEM_LENGTH    = 20;
+    private static final int SEARCH_REQ_QUERY_LENGTH   = 450;
+    private static final int SEARCH_REQ_ELEM_COUNT     = 30;
+
     // Media values for FT_FILETYPE
-    private static final String ED2KFTSTR_AUDIO = "Audio";
-    private static final String ED2KFTSTR_VIDEO = "Video";
-    private static final String ED2KFTSTR_IMAGE = "Image";
-    private static final String ED2KFTSTR_DOCUMENT = "Doc";
-    private static final String ED2KFTSTR_PROGRAM = "Pro";
-    private static final String ED2KFTSTR_ARCHIVE = "Arc";  // *Mule internal use only
-    private static final String ED2KFTSTR_CDIMAGE = "Iso";  // *Mule internal use only
-    private static final String ED2KFTSTR_EMULECOLLECTION = "EmuleCollection";
-    private static final String ED2KFTSTR_FOLDER  = "Folder"; // Value for eD2K tag FT_FILETYPE
-    private static final String ED2KFTSTR_USER = "User"; // eMule internal use only
+    public static final String ED2KFTSTR_AUDIO = "Audio";
+    public static final String ED2KFTSTR_VIDEO = "Video";
+    public static final String ED2KFTSTR_IMAGE = "Image";
+    public static final String ED2KFTSTR_DOCUMENT = "Doc";
+    public static final String ED2KFTSTR_PROGRAM = "Pro";
+    public static final String ED2KFTSTR_ARCHIVE = "Arc";  // *Mule internal use only
+    public static final String ED2KFTSTR_CDIMAGE = "Iso";  // *Mule internal use only
+    public static final String ED2KFTSTR_EMULECOLLECTION = "EmuleCollection";
+    public static final String ED2KFTSTR_FOLDER  = "Folder"; // Value for eD2K tag FT_FILETYPE
+    public static final String ED2KFTSTR_USER = "User"; // eMule internal use only
 
     // Additional media meta data tags from eDonkeyHybrid (note also the uppercase/lowercase)
     private static final String FT_ED2K_MEDIA_ARTIST = "Artist";    // <string>
@@ -144,6 +149,26 @@ public class SearchRequest implements Serializable {
             int mediaLength,
             int mediaBitrate,
             String value) throws JED2KException {
+
+        if (fileType.length() > SEARCH_REQ_ELEM_LENGTH) {
+            throw new JED2KException(SearchCode.FILE_TYPE_TOO_LONG);
+        }
+
+        if (fileExtension.length() > SEARCH_REQ_ELEM_LENGTH) {
+            throw new JED2KException(SearchCode.FILE_EXT_TOO_LONG);
+        }
+
+        if (codec.length() > SEARCH_REQ_ELEM_LENGTH) {
+            throw new JED2KException(SearchCode.CODEC_TOO_LONG);
+        }
+
+        if (value.length() > SEARCH_REQ_QUERY_LENGTH) {
+            throw new JED2KException(SearchCode.QUERY_TOO_LONG);
+        }
+
+        if (value.isEmpty()) throw new JED2KException(SearchCode.QUERY_EMPTY);
+
+
         boolean verbatim = false;
         StringBuilder item = new StringBuilder();
         ArrayList<Serializable> res = new ArrayList<Serializable>();
@@ -198,6 +223,8 @@ public class SearchRequest implements Serializable {
                     appendItem(res, makeEntry(null, Tag.FT_MEDIA_BITRATE, Operator.ED2K_SEARCH_OP_GREATER_EQUAL.value, mediaBitrate)); // I don't check this value!
             }
         }
+
+        int beforeCount = res.size();
 
         for (int i = 0; i < value.length(); ++i)
         {
@@ -276,6 +303,8 @@ public class SearchRequest implements Serializable {
                 appendItem(res, makeEntry(item.toString().replace("\"", "")));
             }
         }
+
+        if (res.size() - beforeCount > SEARCH_REQ_ELEM_COUNT) throw new JED2KException(SearchCode.QUERY_TOO_COMPLEX);
 
         return res;
     }

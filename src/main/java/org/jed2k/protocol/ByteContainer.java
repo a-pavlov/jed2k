@@ -2,7 +2,6 @@ package org.jed2k.protocol;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.logging.Logger;
 
 import static org.jed2k.protocol.Unsigned.uint8;
 import static org.jed2k.protocol.Unsigned.uint16;
@@ -12,8 +11,15 @@ import org.jed2k.Utils;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
+/**
+ * this is the same as Container class except it can store only bytes and array uses as container
+ * @param <CS>
+ */
 public class ByteContainer<CS extends UNumber> implements Serializable {
-    private static Logger log = Logger.getLogger(ByteBuffer.class.getName());
+    private static Logger log = LoggerFactory.getLogger(ByteBuffer.class.getName());
 
     public final CS size;
     public byte[] value;
@@ -31,8 +37,12 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         size.get(src);
-        value = new byte[size.intValue()];
-        return src.get(value);
+        if (size.intValue() > 0) {
+            value = new byte[size.intValue()];
+            src.get(value);
+        }
+
+        return src;
     }
 
     @Override
@@ -42,16 +52,14 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
             return size.put(dst);
         } else {
             size.assign(value.length);
-            size.put(dst);
-            dst.put(value);
-            return dst;
+            return size.put(dst).put(value);
         }
     }
 
     public String asString() throws JED2KException {
         try {
             if (value != null)  return new String(value, "UTF-8");
-            return null;
+            return "";
         } catch(UnsupportedEncodingException e) {
             throw new JED2KException(e, ErrorCode.UNSUPPORTED_ENCODING);
         }
@@ -86,17 +94,8 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
 
     @Override
     public String toString() {
-        //return String.format("bc{%d=%s}", size.intValue(), Utils.byte2String(value));
-        try{
-            if (value != null)
-                return new String(value, "UTF-8");
-        } catch(UnsupportedEncodingException ex){
-            log.warning(ex.getMessage());
-        }
-
-        return new String();
+        return String.format("%d[%s]", size.intValue(), Utils.byte2String(value));
     }
-
 
     @Override
     public int bytesCount() {

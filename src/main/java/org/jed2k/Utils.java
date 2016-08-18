@@ -11,6 +11,7 @@ public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     public static final String byte2String(byte[] value) {
+        if (value == null) return "";
         char[] hexChars = new char[value.length * 2];
         for ( int j = 0; j < value.length; j++ ) {
             int v = value[j] & 0xFF;

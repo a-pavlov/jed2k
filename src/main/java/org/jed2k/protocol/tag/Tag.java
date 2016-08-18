@@ -418,7 +418,7 @@ public final class Tag implements Serializable {
             if (bc.size.intValue() == 1) {
                 id = bc.value[0];
             } else {
-                name = bc.toString();
+                name = bc.asString();   // use strong format here!
             }
         }
 

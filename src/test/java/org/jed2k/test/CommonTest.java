@@ -81,4 +81,14 @@ public class CommonTest {
         assertTrue(tick_interval_ms < 400);
         assertTrue(tick_interval_ms >= 200);
     }
+
+    @Test
+    public void testJavaNumbersConversion() {
+        long original = 0xffffffffL;
+        assertTrue(original > 0);
+        int converted = (int)original;
+        assertTrue(converted < 0);
+        long converted2 = (long)(converted) & 0xffffffffL;
+        assertEquals(0xffffffffL, converted2);
+    }
 }

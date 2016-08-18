@@ -101,4 +101,14 @@ public class SearchTest {
         Serializable ne = SearchRequest.makeEntry(null, Tag.FT_FILESIZE, SearchRequest.Operator.ED2K_SEARCH_OP_LESS.value, 1000L);
         assertEquals(1+4+1+3, ne.bytesCount());
     }
+
+    @Test(expected = JED2KException.class)
+    public void testOverflowParam() throws JED2KException {
+        SearchRequest sr = SearchRequest.makeRequest(40, 70, 20,0, SearchRequest.ED2KFTSTR_AUDIO, "1234567890122345678900000", "", 0, 0, "X1");
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testTooComplex() throws JED2KException {
+        SearchRequest sr = SearchRequest.makeRequest(40, 70, 20,0, SearchRequest.ED2KFTSTR_AUDIO, "1234567890122345678900000", "", 0, 0, "40, 70, 20,0, libed2k::ED2KFTSTR_AUDIO, \"\", \"\", 0, 0, \"X1 X2 X3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 y z d NOT K\"");
+    }
 }
