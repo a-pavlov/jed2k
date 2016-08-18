@@ -1,6 +1,9 @@
 package org.jed2k;
 
+import org.jed2k.alert.TransferDiskIOError;
 import org.jed2k.alert.TransferFinishedAlert;
+import org.jed2k.alert.TransferPausedAlert;
+import org.jed2k.alert.TransferResumedAlert;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
@@ -18,22 +21,70 @@ import org.slf4j.LoggerFactory;
 
 public class Transfer {
     private Logger log = LoggerFactory.getLogger(Transfer.class);
+
+    /**
+     * transfer's file hash
+     */
     private Hash hash;
+
+    /**
+     * transfer's file size
+     */
     private long size;
+
+    /**
+     * num pieces in file
+     */
     private int numPieces;
+
+    /**
+     * transfer's statistics object
+     */
     private Statistics stat = new Statistics();
+
+    /**
+     * piece requester
+     */
     private PiecePicker picker;
+
+    /**
+     * peers selector
+     */
     private Policy policy;
+
+
     private Session session;
+
     private boolean pause = false;
     private boolean abort = false;
     private HashSet<PeerConnection> connections = new HashSet<PeerConnection>();
+
+    /**
+     * session time when new peers request will executed
+     */
     private long nextTimeForSourcesRequest = 0;
+
+    /**
+     * disk io
+     */
     PieceManager pm = null;
+
+    /**
+     * async disk io futures
+     */
     LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
+
+    /**
+     * hashes of file's pieces
+     */
     ArrayList<Hash> hashSet = new ArrayList<Hash>();
 
-    public Transfer(Session s, final AddTransferParams atp) {
+    /**
+     * true if transfer has new state which wasn't written
+     */
+    private boolean needSaveResumeData = false;
+
+    public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
         this.hash = atp.hash;
         this.size = atp.size.longValue();
@@ -51,7 +102,7 @@ public class Transfer {
         //}
 
         policy = new Policy(this);
-        pm = new PieceManager(atp.filepath, Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
+        pm = new PieceManager(atp.filepath.asString(), Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
                 Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue());
     }
 
@@ -72,16 +123,21 @@ public class Transfer {
     }
 
     /**
+     * TODO - possibly this method will be useful for upload mode, but now it is useless since isSeed is equal isFinished
      * transfer in seed mode - it has all pieces
      * @return true if all pieces had been downloaded
      */
-    boolean isSeed() {
-        return (picker == null) || (picker.numHave() == picker.numPieces());
-    }
+    //boolean isSeed() {
+    //    return (picker == null) || (picker.numHave() == picker.numPieces());
+    //}
 
+    /**
+     *
+     * @return true if transfer has all pieces
+     */
     public boolean isFinished() {
-        if (isSeed()) return true;
-        return numPieces() - picker.numHave() == 0;
+        return (picker == null) || (picker.numHave() == picker.numPieces());
+        //return numPieces() - picker.numHave() == 0;
     }
 
     void weHave(int pieceIndex) {
@@ -98,7 +154,7 @@ public class Transfer {
     }
 
     final boolean wantMorePeers() {
-        return !isPaused() && !isSeed() && policy.numConnectCandidates() > 0;
+        return !isPaused() && !isFinished() && policy.numConnectCandidates() > 0;
     }
 
     void addStats(Statistics s) {
@@ -135,7 +191,12 @@ public class Transfer {
     }
 
     void attachPeer(PeerConnection c) throws JED2KException {
+        if (isPaused()) throw new JED2KException(ErrorCode.TRANSFER_PAUSED);
+        if (isAborted()) throw new JED2KException(ErrorCode.TRANSFER_ABORTED);
+        if (isFinished()) throw new JED2KException(ErrorCode.TRANSFER_FINISHED);
         policy.newConnection(c);
+        connections.add(c);
+        session.connections.add(c);
     }
 
     public void callPolicy(Peer peerInfo, PeerConnection c) {
@@ -159,7 +220,7 @@ public class Transfer {
     }
 
 	void secondTick(long currentSessionTime) {
-        if (nextTimeForSourcesRequest < currentSessionTime && !isPaused() && !isAborted() && connections.isEmpty()) {
+        if (nextTimeForSourcesRequest < currentSessionTime && !isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
             log.debug("Request peers {}", hash);
             session.sendSourcesRequest(hash, size);
             nextTimeForSourcesRequest = currentSessionTime + 1000*60;   // one request per second
@@ -221,10 +282,15 @@ public class Transfer {
 
     void pause() {
         pause = true;
+        disconnectAll(ErrorCode.TRANSFER_PAUSED);
+        needSaveResumeData = true;
+        session.pushAlert(new TransferPausedAlert(hash));
     }
 
     void resume() {
         pause = false;
+        needSaveResumeData = true;
+        session.pushAlert(new TransferResumedAlert(hash));
     }
 
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
@@ -236,6 +302,7 @@ public class Transfer {
         if (hashSet.isEmpty()) {
             log.debug("{} hash set received {}", hash(), hs.size());
             hashSet.addAll(hs);
+            needSaveResumeData = true;
         }
     }
 
@@ -281,10 +348,11 @@ public class Transfer {
 
         if (ec == ErrorCode.NO_ERROR) {
             picker.markAsFinished(b);
+            needSaveResumeData = true;
         } else {
             picker.abortDownload(b);
-            // process writing error here
-            // do pause on transfer
+            session.pushAlert(new TransferDiskIOError(hash, ec));
+            pause();
         }
     }
 
@@ -299,5 +367,7 @@ public class Transfer {
         else {
             piecePassed(pieceIndex);
         }
+
+        needSaveResumeData = true;
     }
 }

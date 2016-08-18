@@ -262,6 +262,12 @@ public class ServerConnection extends Connection {
         }
     }
 
+    @Override
+    NetworkIdentifier getEndpoint() {
+        // actually we have server ip/port but currently I no need them for debug purposes
+        return new NetworkIdentifier();
+    }
+
     void sendFileSourcesRequest(final Hash h, final long size) {
         long hi = (size >>> 32) & 0xFFFFFFFF;
         long lo = size & 0xFFFFFFFF;

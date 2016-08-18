@@ -234,6 +234,7 @@ public class PeerConnection extends Connection {
         }
     }
 
+    @Override
     public NetworkIdentifier getEndpoint() {
         return endpoint;
     }
@@ -508,6 +509,8 @@ public class PeerConnection extends Connection {
             t = session.transfers.get(h);
         }
 
+        // attach incoming peer to transfer
+        // will throw exception and close socket if transfer not in appropriate state
         if (t != null) {
             t.attachPeer(this);
         }

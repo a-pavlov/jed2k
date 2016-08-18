@@ -65,6 +65,15 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
         }
     }
 
+    public void assignString(final String value) throws JED2KException {
+        try {
+            this.value = value.getBytes("UTF-8");
+            this.size.assign(this.value.length);
+        } catch(UnsupportedEncodingException e) {
+            throw new JED2KException(e, ErrorCode.UNSUPPORTED_ENCODING);
+        }
+    }
+
     public static<CS extends UNumber> ByteContainer<UInt8> fromString8(String value) throws JED2KException {
         try {
             byte[] content = value.getBytes("UTF-8");

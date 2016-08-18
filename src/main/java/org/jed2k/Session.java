@@ -325,11 +325,11 @@ public class Session extends Thread {
      * @param size of file
      * @return TransferHandle with valid transfer of without
      */
-    public final synchronized TransferHandle addTransfer(Hash h, long size, String filepath) {
+    public final synchronized TransferHandle addTransfer(Hash h, long size, String filepath) throws JED2KException {
         Transfer t = transfers.get(h);
 
         if (t == null) {
-            t = new Transfer(this, new AddTransferParams(h, size, filepath));
+            t = new Transfer(this, new AddTransferParams(h, size, filepath, false));
             transfers.put(h, t);
         }
 

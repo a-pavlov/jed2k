@@ -1,5 +1,6 @@
 package org.jed2k.protocol.test;
 
+import org.jed2k.AddTransferParams;
 import org.jed2k.protocol.*;
 import org.junit.Test;
 import org.jed2k.exception.JED2KException;
@@ -53,6 +54,21 @@ public class ResumeDataTest {
         assertEquals(0, trd2.peers.size());
         //assertTrue(trd2.filepath.isStringTag());
         //assertEquals("xxx", trd2.filepath.stringValue());
+    }
+
+    @Test
+    public void testAddTransferParameters() throws JED2KException {
+        AddTransferParams atp = new AddTransferParams(Hash.EMULE, 100500L, "xxxx", false);
+        ByteBuffer bb = ByteBuffer.allocate(200);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        atp.put(bb);
+        bb.flip();
+        AddTransferParams atp2 = new AddTransferParams();
+        atp2.get(bb);
+        assertEquals(atp.hash, atp2.hash);
+        assertEquals(atp.filepath.asString(), atp2.filepath.asString());
+        assertEquals(atp.paused.intValue(), atp2.paused.intValue());
+        assertEquals(atp.size.longValue(), atp2.size.longValue());
     }
 
 }

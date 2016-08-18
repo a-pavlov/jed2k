@@ -9,17 +9,13 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.jed2k.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ErrorCode;
-import org.jed2k.protocol.Dispatchable;
-import org.jed2k.protocol.Dispatcher;
-import org.jed2k.protocol.PacketCombiner;
-import org.jed2k.protocol.PacketHeader;
-import org.jed2k.protocol.Serializable;
 
 public abstract class Connection implements Dispatcher {
     private final Logger log = LoggerFactory.getLogger(ServerConnection.class);
@@ -162,7 +158,9 @@ public abstract class Connection implements Dispatcher {
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
             	// try to serialize packet into buffer
-                if (!packetCombainer.pack(itr.next(), bufferOutgoing)) break;
+                Serializable s = itr.next();
+                if (!packetCombainer.pack(s, bufferOutgoing)) break;
+                log.trace("{} >> {}", s.toString(), getEndpoint());
                 itr.remove();
             }
 
@@ -217,7 +215,6 @@ public abstract class Connection implements Dispatcher {
     }
 
     void write(Serializable packet) {
-        log.trace("{} >> ", packet);
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);
@@ -236,4 +233,6 @@ public abstract class Connection implements Dispatcher {
     final boolean isDisconnecting() {
         return disconnecting;
     }
+
+    abstract NetworkIdentifier getEndpoint();
 }

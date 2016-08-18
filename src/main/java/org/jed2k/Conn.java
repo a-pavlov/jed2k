@@ -168,9 +168,14 @@ public class Conn {
                         sb.append(sfe.hash.toString()).append(" size: ");
                         sb.append(filesize);
                         System.out.println(sb);
-                        TransferHandle h = s.addTransfer(sfe.hash, filesize, filepath.toAbsolutePath().toString());
-                        if (h.isValid()) {
-                            System.out.println("transfer valid " + h.getHash());
+
+                        try {
+                            TransferHandle h = s.addTransfer(sfe.hash, filesize, filepath.toAbsolutePath().toString());
+                            if (h.isValid()) {
+                                System.out.println("transfer valid " + h.getHash());
+                            }
+                        } catch(JED2KException e) {
+                            log.warn("Add transfer failed {}", e.toString());
                         }
                     }
                     else {
