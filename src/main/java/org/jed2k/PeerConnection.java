@@ -567,6 +567,11 @@ public class PeerConnection extends Connection {
 
     @Override
     void secondTick(long currentSessionTime) {
+        if (isDisconnecting()) return;
+
+        // calculate statistics
+        super.secondTick(currentSessionTime);
+
         // check timeout on connection
         if (currentSessionTime - lastReceive > session.settings.peerConnectionTimeout*1000) {
             close(ErrorCode.CONNECTION_TIMEOUT);
@@ -901,6 +906,10 @@ public class PeerConnection extends Connection {
             while(!downloadQueue.isEmpty()) {
                 PendingBlock pb = downloadQueue.poll();
                 picker.abortDownload(pb.block);
+                if (pb.buffer != null) {
+                    pb.buffer.clear();
+                    session.bufferPool.deallocate(pb.buffer, Time.currentTime());
+                }
             }
         }
         else {

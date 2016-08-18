@@ -252,6 +252,8 @@ public class ServerConnection extends Connection {
 
     @Override
     void secondTick(long currentSessionTime) {
+
+        super.secondTick(currentSessionTime);
         // ping server when feature enabled and timeout occured
         if (session.settings.serverPingTimeout > 0 &&
                 currentSessionTime - lastPingTime > session.settings.serverPingTimeout) {

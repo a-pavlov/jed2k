@@ -208,6 +208,15 @@ public class Transfer {
         if (abort) return;
         abort = true;
         disconnectAll(ErrorCode.TRANSFER_ABORTED);
+
+        // cancel all async operations
+        for(Future<AsyncOperationResult> f: aioFutures) {
+            f.cancel(false);
+        }
+
+        aioFutures.clear();
+
+        // add release here to order
     }
 
     void pause() {
