@@ -4,8 +4,10 @@ import org.jed2k.data.PieceBlock;
 import org.jed2k.protocol.Hash;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
-public class DownloadingPiece {
+public class DownloadingPiece implements Iterable<DownloadingPiece.BlockState> {
+
     public enum BlockState {
         STATE_NONE((byte)0),
         STATE_REQUESTED((byte)1),
@@ -24,7 +26,7 @@ public class DownloadingPiece {
 
     public int pieceIndex;
     private int blocksCount;
-    public byte[] blockState;
+    public BlockState[] blockState;
     // TODO - for future usage cached values
     short requested;
     short writing;
@@ -35,14 +37,14 @@ public class DownloadingPiece {
         assert(blocksCount > 0);
         this.pieceIndex = pieceIndex;
         this.blocksCount = blocksCount;
-        blockState = new byte[blocksCount];
-        Arrays.fill(blockState, BlockState.STATE_NONE.value);
+        blockState = new BlockState[blocksCount];
+        Arrays.fill(blockState, BlockState.STATE_NONE);
     }
 
     public int finishedCount() {
         int res = 0;
         for(int i = 0; i < blocksCount; ++i) {
-            if (blockState[i] == BlockState.STATE_FINISHED.value) res++;
+            if (blockState[i] == BlockState.STATE_FINISHED) res++;
         }
         return res;
     }
@@ -50,7 +52,7 @@ public class DownloadingPiece {
     public int downloadingCount() {
         int res = 0;
         for(int i = 0; i < blocksCount; ++i) {
-            if (blockState[i] == BlockState.STATE_REQUESTED.value) res++;
+            if (blockState[i] == BlockState.STATE_REQUESTED) res++;
         }
         return res;
     }
@@ -58,7 +60,7 @@ public class DownloadingPiece {
     public int writingCount() {
         int res = 0;
         for(int i = 0; i < blocksCount; ++i)
-            if (blockState[i] == BlockState.STATE_WRITING.value) res++;
+            if (blockState[i] == BlockState.STATE_WRITING) res++;
         return res;
     }
 
@@ -68,31 +70,56 @@ public class DownloadingPiece {
 
     public void finishBlock(int blockIndex) {
         assert(blockIndex < blocksCount);
-        blockState[blockIndex] = BlockState.STATE_FINISHED.value;
+        blockState[blockIndex] = BlockState.STATE_FINISHED;
     }
 
     public void requestBlock(int blockIndex) {
         assert(blockIndex < blocksCount);
-        blockState[blockIndex] = BlockState.STATE_REQUESTED.value;
+        blockState[blockIndex] = BlockState.STATE_REQUESTED;
     }
 
     public void writeBlock(int blockIndex) {
         assert(blockIndex < blocksCount);
-        blockState[blockIndex] = BlockState.STATE_WRITING.value;
+        blockState[blockIndex] = BlockState.STATE_WRITING;
     }
 
     boolean isDownloaded(int blockIndex) {
         assert(blockIndex < blocksCount);
-        return blockState[blockIndex] == BlockState.STATE_FINISHED.value ||
-                blockState[blockIndex] == BlockState.STATE_WRITING.value;
+        return blockState[blockIndex] == BlockState.STATE_FINISHED ||
+                blockState[blockIndex] == BlockState.STATE_WRITING;
     }
 
     boolean isFinished(int blockIndex) {
         assert(blockIndex < blocksCount);
-        return blockState[blockIndex] == BlockState.STATE_FINISHED.value;
+        return blockState[blockIndex] == BlockState.STATE_FINISHED;
     }
 
     public void abortDownloading(int blockIndex) {
-        blockState[blockIndex] = BlockState.STATE_NONE.value;
+        blockState[blockIndex] = BlockState.STATE_NONE;
+    }
+
+    @Override
+    public Iterator<BlockState> iterator() {
+        Iterator<BlockState> it = new Iterator<BlockState>() {
+            private int currentIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                assert(blockState != null);
+                return currentIndex < blockState.length;
+            }
+
+            @Override
+            public BlockState next() {
+                return blockState[currentIndex++];
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+
+        return it;
     }
 }

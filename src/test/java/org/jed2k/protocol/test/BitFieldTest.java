@@ -17,7 +17,7 @@ import org.junit.Test;
 
 public class BitFieldTest {
     private static Logger log = Logger.getLogger(BitFieldTest.class.getName());
-    
+
     @Test
     public void initializationTest() {
         BitField empty = new BitField();
@@ -37,14 +37,14 @@ public class BitFieldTest {
         assertFalse(bf2.getBit(0));
         bf2.setBit(0);
         assertTrue(bf2.getBit(0));
-        
+
         byte[] content = { (byte)0, (byte)1, (byte)0xf0 };
         BitField bfc = new BitField();
         bfc.assign(content, 20);
         assertEquals(3, bfc.bytes().length);
         assertEquals(5, bfc.count());
     }
-    
+
     @Test
     public void cleanupTailTest() {
         byte[] content = { (byte)0, (byte)0xff };
@@ -56,7 +56,7 @@ public class BitFieldTest {
         assertTrue(bf.getBit(8));
         assertFalse(bf.getBit(6));
     }
-    
+
     @Test
     public void advancedUsageTest() {
         byte[] content = { (byte)7, (byte)11, (byte)16 };
@@ -68,29 +68,29 @@ public class BitFieldTest {
         bf.resize(20, false);
         assertEquals(7, bf.count());
         assertEquals(3, bf.bytes().length);
-        
+
         bf.resize(25, false);
         assertEquals(4, bf.bytes().length);
         assertEquals(7, bf.count());
     }
-    
+
     @Test
     public void iteratorTest() {
         byte[] data = { (byte)8, (byte)7, (byte)10 };
         boolean[] template = {
                     false, false, false, false, true, false, false, false,
                     false, false, false, false, false, true, true, true,
-                    false, false, false, false, true, false, true, false };        
+                    false, false, false, false, true, false, true, false };
         BitField bf = new BitField(data, 3*8);
         Iterator<Boolean> itr = bf.iterator();
         int index = 0;
         while(itr.hasNext()) {
             assertTrue(itr.next().compareTo(template[index++]) == 0);
         }
-        
+
         assertEquals(template.length, index);
     }
-    
+
     @Test
     public void serializeGetTest() throws JED2KException {
         byte[] data = { 0x0c, 0x00, 0x0f, 0x70 };
@@ -104,9 +104,9 @@ public class BitFieldTest {
         while(itr.hasNext()) {
             assertTrue(itr.next().compareTo(template[i++]) == 0);
         }
-        
+
         assertEquals(i, empty.size());
-        
+
         byte[] wholeData = { 0x00, 0x00 };
         bb = ByteBuffer.wrap(wholeData);
         bb.order(ByteOrder.LITTLE_ENDIAN);
@@ -116,7 +116,7 @@ public class BitFieldTest {
         assertTrue(wholeBf.bytes() != null);
         assertEquals(0, wholeBf.bytes().length);
     }
-    
+
     @Test
     public void serializePutTest() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(10);
@@ -125,14 +125,31 @@ public class BitFieldTest {
         empty.put(bb);
         bb.flip();
         assertEquals(2, bb.remaining());
-        assertEquals(0, bb.getShort());        
+        assertEquals(0, bb.getShort());
         bb.clear();
-        
+
         byte[] data = { (byte)0x08, (byte)0x07, (byte)0x0a, (byte)0xff };
         BitField bfd = new BitField(data, 28);
         bfd.put(bb);
         bb.flip();
-        assertEquals(data.length, bb.getShort());
+        assertEquals(28, bb.getShort());
         assertEquals(0xf00a0708, bb.getInt());
+    }
+
+    @Test
+    public void testGetPut() throws JED2KException {
+        ByteBuffer bb = ByteBuffer.allocate(20);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        BitField bf1 = new BitField(10);
+        bf1.setBit(1);
+        bf1.setBit(2);
+        bf1.setBit(9);
+        assertEquals(10, bf1.size());
+        bf1.put(bb);
+        bb.flip();
+        BitField bf2 = new BitField();
+        bf2.get(bb);
+        //assertFalse(bb.hasRemaining());
+        assertEquals(bf1, bf2);
     }
 }

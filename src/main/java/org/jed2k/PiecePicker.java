@@ -128,9 +128,9 @@ public class PiecePicker extends BlocksEnumerator {
         while(itr.hasNext()) {
             DownloadingPiece dp = itr.next();
             for(int i = 0; i < dp.blockState.length; ++i) {
-                if (dp.blockState[i] == DownloadingPiece.BlockState.STATE_NONE.value) {
+                if (dp.blockState[i] == DownloadingPiece.BlockState.STATE_NONE) {
                     rq.add(new PieceBlock(dp.pieceIndex, i));
-                    dp.blockState[i] = DownloadingPiece.BlockState.STATE_REQUESTED.value;
+                    dp.blockState[i] = DownloadingPiece.BlockState.STATE_REQUESTED;
                     if (rq.size() == orderLength) return;
                 }
             }

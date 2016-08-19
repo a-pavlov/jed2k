@@ -1,6 +1,7 @@
 package org.jed2k.protocol.test;
 
 import org.jed2k.AddTransferParams;
+import org.jed2k.Constants;
 import org.jed2k.protocol.*;
 import org.junit.Test;
 import org.jed2k.exception.JED2KException;
@@ -20,7 +21,7 @@ public class ResumeDataTest {
 
     @Test
     public void testResumeDataSerialization() throws JED2KException {
-        ByteBuffer bb = ByteBuffer.allocate(220);
+        ByteBuffer bb = ByteBuffer.allocate(320);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         TransferResumeData trd = new TransferResumeData();
         trd.hashes.add(Hash.INVALID);
@@ -31,9 +32,9 @@ public class ResumeDataTest {
         trd.pieces.add(PieceResumeData.makeCompleted());
         trd.pieces.add(PieceResumeData.makeCompleted());
 
-        PieceResumeData prd = new PieceResumeData(PieceResumeData.PieceStatus.PARTIAL.value, Container.make(new UInt8(0), UInt8.class));
+        PieceResumeData prd = new PieceResumeData(PieceResumeData.ResumePieceStatus.PARTIAL, new BitField(Constants.BLOCKS_PER_PIECE));
         for(int i = 0; i < 22; ++i) {
-            prd.blocks.add(new UInt8(i));
+            prd.blocks.setBit(i);
         }
         trd.pieces.add(prd);
         trd.put(bb);

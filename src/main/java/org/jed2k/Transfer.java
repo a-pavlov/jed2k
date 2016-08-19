@@ -8,8 +8,7 @@ import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.*;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -369,5 +368,42 @@ public class Transfer {
         }
 
         needSaveResumeData = true;
+    }
+
+    /**
+     *
+     * @return resume data for transfer restore
+     */
+    TransferResumeData resumeData() {
+        TransferResumeData trd = new TransferResumeData();
+        trd.hashes.assignFrom(hashSet);
+
+        if (hasPicker()) {
+            for(int i = 0; i < numPieces(); ++i) {
+                if (picker.havePiece(i)) {
+                    trd.pieces.add(PieceResumeData.makeCompleted());
+                    continue;
+                }
+
+                DownloadingPiece dp = picker.getDownloadingPiece(i);
+                if (dp != null) {
+                    PieceResumeData prd = new PieceResumeData(PieceResumeData.ResumePieceStatus.PARTIAL, new BitField(dp.getBlocksCount()));
+                    Iterator<DownloadingPiece.BlockState> itr = dp.iterator();
+                    int bitIndex = 0;
+                    prd.blocks.clearAll();
+                    while(itr.hasNext()) {
+                        if (itr.next() == DownloadingPiece.BlockState.STATE_FINISHED) prd.blocks.setBit(bitIndex);
+                        ++bitIndex;
+                    }
+                }
+                else {
+                    trd.pieces.add(PieceResumeData.makeEmpty());
+                }
+            }
+        }
+
+        // temporary do not save peers
+        needSaveResumeData = false;
+        return trd;
     }
 }

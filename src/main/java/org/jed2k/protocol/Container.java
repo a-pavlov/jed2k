@@ -48,6 +48,12 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
         return new Container<UInt32, T>(new UInt32(0), clazz);
     }
 
+    public void assignFrom(final Iterable<E> origin) {
+        for(final E e: origin) {
+            holder().add(e);
+        }
+    }
+
     @Override
     public Iterator<E> iterator() {
         if (collection == null)

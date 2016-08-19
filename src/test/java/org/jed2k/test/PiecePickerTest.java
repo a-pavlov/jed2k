@@ -10,6 +10,7 @@ import org.jed2k.Constants;
 import org.jed2k.PiecePicker;
 import org.jed2k.data.PieceBlock;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class PiecePickerTest {
@@ -129,5 +130,31 @@ public class PiecePickerTest {
 
         int approximateCounter = Constants.BLOCKS_PER_PIECE*5 + 14 + (Constants.BLOCKS_PER_PIECE*5 + 14) / 5;
         assertTrue(counter > approximateCounter);
+    }
+
+    @Test
+    public void testIteration() {
+        PiecePicker pp = new PiecePicker(6, 14);
+
+        int requestedCount = 0;
+        while(requestedCount < Constants.BLOCKS_PER_PIECE*2 + 12) {
+            LinkedList<PieceBlock> r = new LinkedList<PieceBlock>();
+            pp.pickPieces(r, Constants.REQUEST_QUEUE_SIZE);
+            requestedCount += r.size();
+        }
+
+        int requestedEnumerator = 0;
+        for(int i = 0; i < 6; ++i) {
+            assertFalse(pp.havePiece(i));
+            DownloadingPiece dp = pp.getDownloadingPiece(i);
+            if (dp != null) {
+                Iterator<DownloadingPiece.BlockState> pbi = dp.iterator();
+                while(pbi.hasNext()) {
+                    if (pbi.next() == DownloadingPiece.BlockState.STATE_REQUESTED) requestedEnumerator++;
+                }
+            }
+        }
+
+        assertEquals(requestedCount, requestedEnumerator);
     }
 }

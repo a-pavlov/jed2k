@@ -13,38 +13,43 @@ import java.util.LinkedList;
  */
 public class PieceResumeData implements Serializable {
 
-    public enum PieceStatus {
+    public enum ResumePieceStatus {
         PARTIAL((byte)0),
-        COMPLETED((byte)1);
+        COMPLETED((byte)1),
+        NONE((byte)2);
 
         public byte value;
-
-        PieceStatus(byte val) {
+        ResumePieceStatus(byte val) {
             this.value = val;
         }
     }
 
-    public PieceStatus status = PieceStatus.COMPLETED;
-    public Container<UInt8, UInt8>   blocks;
+    public ResumePieceStatus status = ResumePieceStatus.COMPLETED;
+    public BitField blocks;
 
     public PieceResumeData() {
     }
 
-    public PieceResumeData(byte status, Container<UInt8, UInt8> b) {
-        this.status.value = status;
-        this.blocks = b;
-        assert(b != null || this.status != PieceStatus.PARTIAL);
+    public PieceResumeData(ResumePieceStatus status, BitField blocks) {
+        this.status = status;
+        this.blocks = blocks;
+        assert(blocks == null || this.status == ResumePieceStatus.PARTIAL);
     }
 
     public static PieceResumeData makeCompleted() {
-        return new PieceResumeData((byte)1, null);
+        return new PieceResumeData(ResumePieceStatus.COMPLETED, null);
+    }
+
+    public static PieceResumeData makeEmpty() {
+        return new PieceResumeData(ResumePieceStatus.NONE, null);
     }
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         status.value = src.get();
-        if (status == PieceStatus.PARTIAL) {
-            blocks = Container.makeByte(UInt8.class);
+        if (status.value == ResumePieceStatus.PARTIAL.value) {
+            assert(blocks == null);
+            blocks = new BitField();
             blocks.get(src);
         }
 
@@ -54,7 +59,7 @@ public class PieceResumeData implements Serializable {
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         dst.put(status.value);
-        if (status == PieceStatus.PARTIAL) {
+        if (status == ResumePieceStatus.PARTIAL) {
             assert(blocks != null);
             blocks.put(dst);
         }
@@ -64,6 +69,6 @@ public class PieceResumeData implements Serializable {
 
     @Override
     public int bytesCount() {
-        return Utils.sizeof(status.value) + blocks.bytesCount();
+        return Utils.sizeof(status.value) + (blocks!=null?blocks.bytesCount():0);
     }
 }
