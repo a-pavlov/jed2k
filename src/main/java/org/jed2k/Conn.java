@@ -15,6 +15,7 @@ import org.jed2k.alert.SearchResultAlert;
 import org.jed2k.alert.ServerMessageAlert;
 import org.jed2k.alert.ServerStatusAlert;
 import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 import org.jed2k.protocol.server.SharedFileEntry;
 import org.jed2k.protocol.server.search.SearchRequest;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class Conn {
     private static Logger log = LoggerFactory.getLogger(Conn.class);
     private static SearchResult globalSearchRes = null;
+    private static final boolean trial = "true".equals(System.getProperty("session.trial"));
 
     private static void printGlobalSearchResult() {
         if (globalSearchRes == null) return;
@@ -52,7 +54,9 @@ public class Conn {
         final Settings startSettings = new Settings();
         startSettings.maxConnectionsPerSecond = 1;
         startSettings.sessionConnectionsLimit = 2;
-        final Session s = new Session(startSettings);
+        final Session s = (trial)?(new SessionTrial(startSettings)):(new Session(startSettings));
+        // add sources here
+        log.info("Kind of session now: {}", s);
         s.start();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
@@ -135,7 +139,7 @@ public class Conn {
                     log.error(e.getMessage());
                 }
             } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
-                s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short)Integer.parseInt(parts[2])));
+                s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
                 int index = Integer.parseInt(parts[1]);
                 if (index >= globalSearchRes.files.size() || index < 0) {
@@ -181,6 +185,20 @@ public class Conn {
                     else {
                         System.out.println("Not enough parameters to start new transfer");
                     }
+                }
+            }
+            else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
+                Path filepath = Paths.get(args[0], parts[3]);
+                long size = Long.parseLong(parts[2]);
+                Hash hash = Hash.fromString(parts[1]);
+                log.info("create transfer {} size {} in file {}", hash, size, filepath);
+                try {
+                    TransferHandle h = s.addTransfer(hash, size, filepath.toAbsolutePath().toString());
+                    if (h.isValid()) {
+                        System.out.println("transfer added " + h.getHash());
+                    }
+                } catch(JED2KException e) {
+                    log.warn("Add transfer failed {}", e.toString());
                 }
             }
             else if (parts[0].compareTo("save") == 0) {

@@ -344,13 +344,11 @@ public class Session extends Thread {
         }
     }
 
-
     void sendSourcesRequest(final Hash h, final long size) {
         if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
     }
 
     void connectNewPeers() {
-
         int stepsSinceLastConnect = 0;
         int maxConnectionsPerSecond = settings.maxConnectionsPerSecond;
         int numTransfers = transfers.size();
@@ -408,5 +406,10 @@ public class Session extends Thread {
         }
 
         return skipDataBuffer.duplicate();
+    }
+
+    @Override
+    public String toString() {
+        return "Session";
     }
 }
