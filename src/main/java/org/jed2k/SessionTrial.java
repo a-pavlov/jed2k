@@ -5,6 +5,7 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +18,9 @@ public class SessionTrial extends Session {
     private final Logger log = LoggerFactory.getLogger(SessionTrial.class);
     private final HashSet<NetworkIdentifier> fileSources = new HashSet<NetworkIdentifier>();
 
-    public SessionTrial(Settings st) {
+    public SessionTrial(Settings st, final LinkedList<NetworkIdentifier> peers) {
         super(st);
+        fileSources.addAll(peers);
     }
 
     public void add(final NetworkIdentifier endpoint) {

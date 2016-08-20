@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.concurrent.*;
 import java.net.InetSocketAddress;
 
@@ -54,7 +55,26 @@ public class Conn {
         final Settings startSettings = new Settings();
         startSettings.maxConnectionsPerSecond = 1;
         startSettings.sessionConnectionsLimit = 2;
-        final Session s = (trial)?(new SessionTrial(startSettings)):(new Session(startSettings));
+
+        LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
+        String sp = System.getProperty("session.peers");
+        if (sp != null) {
+            String[] strP = sp.split(",");
+            for (final String s : strP) {
+                String[] strEndpoint = s.split(":");
+
+                if (strEndpoint.length == 2) {
+                    NetworkIdentifier ep = new NetworkIdentifier(new InetSocketAddress(strEndpoint[0], (short) Integer.parseInt(strEndpoint[1])));
+                    systemPeers.addLast(ep);
+                    log.debug("add system peer: {}", ep);
+                } else {
+                    log.warn("Incorrect endpoint {}", strEndpoint);
+                }
+            }
+        }
+
+
+        final Session s = (trial)?(new SessionTrial(startSettings, systemPeers)):(new Session(startSettings));
         // add sources here
         log.info("Kind of session now: {}", s);
         s.start();

@@ -185,7 +185,7 @@ public class Session extends Thread {
                 t.abort();
             }
 
-            log.info("Session finsihed");
+            log.info("Session finished");
         }
     }
 
