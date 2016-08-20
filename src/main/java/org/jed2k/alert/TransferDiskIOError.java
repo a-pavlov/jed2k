@@ -13,4 +13,9 @@ public class TransferDiskIOError extends TransferAlert {
         super(h);
         this.ec = ec;
     }
+
+    @Override
+    public String toString() {
+        return "transfer " + ec.toString() + " i/o error " + ec.getDescription();
+    }
 }

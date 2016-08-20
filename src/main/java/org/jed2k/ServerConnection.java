@@ -91,7 +91,7 @@ public class ServerConnection extends Connection {
     @Override
     public void onServerMessage(Message value) throws JED2KException {
         log.debug("server message {}", value);
-        session.pushAlert(new ServerMessageAlert(value.toString()));
+        session.pushAlert(new ServerMessageAlert(value.asString()));
     }
 
     @Override

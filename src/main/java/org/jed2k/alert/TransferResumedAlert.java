@@ -11,4 +11,9 @@ public class TransferResumedAlert extends TransferAlert {
     public TransferResumedAlert(final Hash h) {
         super(h);
     }
+
+    @Override
+    public String toString() {
+        return "transfer resumed " + super.toString();
+    }
 }

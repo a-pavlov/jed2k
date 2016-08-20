@@ -21,4 +21,9 @@ public class ServerStatusAlert extends Alert {
     public int category() {
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return "server status files " + filesCount + " users " + usersCount;
+    }
 }

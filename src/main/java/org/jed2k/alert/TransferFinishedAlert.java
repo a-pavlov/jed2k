@@ -10,4 +10,9 @@ public class TransferFinishedAlert extends TransferAlert {
     public TransferFinishedAlert(final Hash h) {
         super(h);
     }
+
+    @Override
+    public String toString() {
+        return "transfer finished " + super.toString();
+    }
 }

@@ -21,4 +21,9 @@ public class TransferAlert extends Alert {
     public int category() {
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return hash.toString();
+    }
 }

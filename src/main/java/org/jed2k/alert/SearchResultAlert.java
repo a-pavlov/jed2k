@@ -21,4 +21,9 @@ public class SearchResultAlert extends Alert {
     public int category() {
         return Category.ServerNotification.value;
     }
+
+    @Override
+    public String toString() {
+        return "server search reslts count " + results.files.size() + " more " + ((results.moreResults!=0)?"yes":"no");
+    }
 }

@@ -19,4 +19,9 @@ public class ServerMessageAlert extends Alert {
     public int category() {
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return "server message: " + msg;
+    }
 }

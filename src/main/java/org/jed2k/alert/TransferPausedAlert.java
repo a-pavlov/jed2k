@@ -10,4 +10,9 @@ public class TransferPausedAlert extends TransferAlert {
     public TransferPausedAlert(final Hash h) {
         super(h);
     }
+
+    @Override
+    public String toString() {
+        return "transfer paused " + super.toString();
+    }
 }
