@@ -41,6 +41,21 @@ public class Conn {
         System.out.println("More results: " + (globalSearchRes.hasMoreResults()?"yes":"no"));
     }
 
+    static TransferHandle addTransfer(final Session s, final Hash hash, final long size, final String filepath) {
+        try {
+            TransferHandle h = s.addTransfer(hash, size, filepath);
+            if (h.isValid()) {
+                System.out.println("transfer valid " + h.getHash());
+            }
+
+            return h;
+        } catch (JED2KException e) {
+            log.warn("Add transfer failed {}", e.toString());
+        }
+
+        return null;
+    }
+
     public static void main(String[] args) throws IOException {
 
         if (args.length < 1) {
@@ -68,7 +83,7 @@ public class Conn {
                     systemPeers.addLast(ep);
                     log.debug("add system peer: {}", ep);
                 } else {
-                    log.warn("Incorrect endpoint {}", strEndpoint);
+                    log.warn("Incorrect endpoint {}", s);
                 }
             }
         }
@@ -161,50 +176,55 @@ public class Conn {
             } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
-                int index = Integer.parseInt(parts[1]);
-                if (index >= globalSearchRes.files.size() || index < 0) {
-                    System.out.println("Specified index out of last search result bounds");
+
+                EMuleLink eml = null;
+                try {
+                    eml = EMuleLink.fromString(parts[1]);
+                } catch (JED2KException e ){
+                    eml = null;
+                }
+
+                if (eml == null) {
+                    int index = Integer.parseInt(parts[1]);
+                    if (index >= globalSearchRes.files.size() || index < 0) {
+                        System.out.println("Specified index out of last search result bounds");
+                    } else {
+                        SharedFileEntry sfe = globalSearchRes.files.get(index);
+                        Path filepath = null;
+                        long filesize = 0;
+                        for (final Tag t : sfe.properties) {
+                            if (t.id() == Tag.FT_FILESIZE) {
+                                try {
+                                    filesize = t.longValue();
+                                } catch (JED2KException e) {
+                                    System.out.println("Unable to extract filesize");
+                                }
+                            }
+
+                            if (t.id() == Tag.FT_FILENAME) {
+                                try {
+                                    filepath = Paths.get(args[0], t.stringValue());
+                                } catch (JED2KException e) {
+                                    System.out.println("unable to extract filename");
+                                }
+                            }
+                        }
+
+                        if (filepath != null && filesize != 0) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Transfer ").append(filepath).append(" hash: ");
+                            sb.append(sfe.hash.toString()).append(" size: ");
+                            sb.append(filesize);
+                            System.out.println(sb);
+
+                            addTransfer(s, sfe.hash, filesize, filepath.toAbsolutePath().toString());
+                        } else {
+                            System.out.println("Not enough parameters to start new transfer");
+                        }
+                    }
                 } else {
-                    SharedFileEntry sfe = globalSearchRes.files.get(index);
-                    Path filepath = null;
-                    long filesize = 0;
-                    for(final Tag t: sfe.properties) {
-                        if (t.id() == Tag.FT_FILESIZE) {
-                            try {
-                                filesize = t.longValue();
-                            }catch(JED2KException e) {
-                                System.out.println("Unable to extract filesize");
-                            }
-                        }
-
-                        if (t.id() == Tag.FT_FILENAME) {
-                            try {
-                                filepath = Paths.get(args[0], t.stringValue());
-                            } catch(JED2KException e) {
-                                System.out.println("unable to extract filename");
-                            }
-                        }
-                    }
-
-                    if (filepath != null && filesize != 0) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Transfer ").append(filepath).append(" hash: ");
-                        sb.append(sfe.hash.toString()).append(" size: ");
-                        sb.append(filesize);
-                        System.out.println(sb);
-
-                        try {
-                            TransferHandle h = s.addTransfer(sfe.hash, filesize, filepath.toAbsolutePath().toString());
-                            if (h.isValid()) {
-                                System.out.println("transfer valid " + h.getHash());
-                            }
-                        } catch(JED2KException e) {
-                            log.warn("Add transfer failed {}", e.toString());
-                        }
-                    }
-                    else {
-                        System.out.println("Not enough parameters to start new transfer");
-                    }
+                    Path filepath = Paths.get(args[0], eml.filepath);
+                    addTransfer(s, eml.hash, eml.size, filepath.toAbsolutePath().toString());
                 }
             }
             else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
@@ -212,14 +232,7 @@ public class Conn {
                 long size = Long.parseLong(parts[2]);
                 Hash hash = Hash.fromString(parts[1]);
                 log.info("create transfer {} size {} in file {}", hash, size, filepath);
-                try {
-                    TransferHandle h = s.addTransfer(hash, size, filepath.toAbsolutePath().toString());
-                    if (h.isValid()) {
-                        System.out.println("transfer added " + h.getHash());
-                    }
-                } catch(JED2KException e) {
-                    log.warn("Add transfer failed {}", e.toString());
-                }
+                addTransfer(s, hash, size, filepath.toAbsolutePath().toString());
             }
             else if (parts[0].compareTo("save") == 0) {
                 // saving search results to file for next usage

@@ -14,7 +14,6 @@ public class JED2KException extends Exception {
     }
 
     public JED2KException(BaseErrorCode code) {
-        super("Encoded message");
         this.ec = code;
     }
 

@@ -35,7 +35,8 @@ public enum ErrorCode implements BaseErrorCode {
     PACKET_SIZE_OVERFLOW(29, "Packet size too big"),
     TRANSFER_FINISHED(30, "Transfer finished"),
     TRANSFER_PAUSED(31, "Transfer paused"),
-    FAIL(32, "Fail");
+    LINK_MAILFORMED(32, "Incorrect link format"),
+    FAIL(33, "Fail");
 
     private final int code;
     private final String description;
