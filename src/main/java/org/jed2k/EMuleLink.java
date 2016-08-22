@@ -1,6 +1,5 @@
 package org.jed2k;
 
-import jdk.nashorn.internal.runtime.UnwarrantedOptimismException;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
