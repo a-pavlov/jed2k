@@ -54,11 +54,11 @@ public class PieceBlock implements Comparable<PieceBlock> {
 
     /**
      *
-     * @param size of file
+     * @param totalSize full size of file
      * @return block size in bytes
      */
-    public long Size(long size) {
-        Pair<Long, Long> r = range(size);
+    public long size(long totalSize) {
+        Pair<Long, Long> r = range(totalSize);
         return (r.right - r.left);
     }
 

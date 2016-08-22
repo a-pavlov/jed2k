@@ -94,13 +94,18 @@ public class PeerConnection extends Connection {
         Region dataLeft;
         ByteBuffer buffer;
 
-        public PendingBlock(PieceBlock b, long size) {
-            assert(size > 0);
+        /**
+         * class for handle downloading block data
+         * @param b requested piece block
+         * @param totalSize size of transfer
+         */
+        public PendingBlock(PieceBlock b, long totalSize) {
+            assert(totalSize > 0);
             block = b;
-            this.size = size;
+            this.size = b.size(totalSize);
             buffer = null;
             createTime = Time.currentTime();
-            dataLeft = new Region(b.range(size));
+            dataLeft = new Region(b.range(totalSize));
         }
 
         public boolean isCompleted() {
@@ -813,7 +818,7 @@ public class PeerConnection extends Connection {
                 transferringData = false;
 
                 if (completeBlock(pb)) {
-                    log.debug("block {} completed", pb.block);
+                    log.debug("block {} completed, size {}", pb.block, pb.size);
                     // set position to zero - start reading from begin of buffer
                     pb.buffer.clear();
                     // set buffer limit to whole block range
