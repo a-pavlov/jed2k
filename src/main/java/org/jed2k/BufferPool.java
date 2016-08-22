@@ -33,7 +33,7 @@ public class BufferPool {
 
     /**
      * reduce allocations counter and move free buffer to cache if max buffers limit greater
-     * than count of current allocated buffers and cache size
+     * than count of current allocated buffers and cache dataSize
      * @param b - byte buffer
      * @param sessionTime - current session time when byte buffer has been released
      */

@@ -172,7 +172,7 @@ public class Policy extends AbstractCollection<Peer> {
             assert(pe != null);
             int current = roundRobin;
 
-            // TODO - use parameter here as max peer list size
+            // TODO - use parameter here as max peer list dataSize
             if (peers.size() > 100) {
                 if (isEraseCandidate(pe) && (eraseCandidate == -1 || !comparePeerErase(peers.get(eraseCandidate), pe))) {
                     if (shouldEraseImmediately(pe)) {

@@ -64,25 +64,6 @@ public class CommonTest {
     }
 
     @Test
-    public void testSessionCounter() throws InterruptedException {
-        // TODO remove this test
-        long sessionLastTick = currentTime();
-        // some work here
-        Thread.sleep(510, 0);
-        long currentTime = currentTimeHiRes();
-        long tick_interval_ms = currentTime - sessionLastTick;
-        sessionLastTick = currentTimeHiRes();
-        assertTrue(tick_interval_ms < 1000);
-        assertTrue(tick_interval_ms >= 500);
-        // some work here
-        Thread.sleep(200, 0);
-        currentTime = currentTimeHiRes();
-        tick_interval_ms = currentTimeHiRes() - sessionLastTick;
-        assertTrue(tick_interval_ms < 400);
-        assertTrue(tick_interval_ms >= 200);
-    }
-
-    @Test
     public void testJavaNumbersConversion() {
         long original = 0xffffffffL;
         assertTrue(original > 0);

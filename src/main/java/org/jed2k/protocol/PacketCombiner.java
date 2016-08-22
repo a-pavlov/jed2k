@@ -166,7 +166,6 @@ public abstract class PacketCombiner {
             throw e;
         }
 
-        header.reset();
         return ph;
     }
 

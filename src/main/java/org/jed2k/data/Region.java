@@ -15,27 +15,32 @@ public class Region extends AbstractList<Range> {
 	public Region(Range seg) {
 		segments.add(seg);
 	}
-	
+
 	public Region(Range[] ranges) {
 		for(Range r: ranges) {
 			segments.add(r);
 		}
 	}
-	
+
 	public boolean empty() {
 		return segments.isEmpty();
 	}
-	
+
+	public void shrinkEnd(long size) {
+		assert(segments.size() == 1);
+		segments.get(0).right = segments.get(0).left + size;
+	}
+
 	public Region sub(final Range seq) {
 		LinkedList<Range> res = new LinkedList<Range>();
 		for (Range range : segments) {
 			res.addAll(sub(range, seq));
 		}
-		
+
         segments = res;
         return this;
 	}
-	
+
 	// TODO - check this method - uses for compression
     //public void shrink_end(long size) {
     //    assert(segments.size() == 1);
@@ -53,17 +58,17 @@ public class Region extends AbstractList<Range> {
 			Region x = (Region)obj;
 			return x.segments.equals(segments);
 		}
-		
+
 		return false;
 	}
 
-	public Long begin() 
+	public Long begin()
     {
         assert(segments.size() == 1);
         return segments.get(0).left;
     }
-    
-    private static LinkedList<Range> sub(final Range seg1, final Range seg2) {        
+
+    private static LinkedList<Range> sub(final Range seg1, final Range seg2) {
         LinkedList<Range> res = new LinkedList<Range>();
 
         // [   seg1    )

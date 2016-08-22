@@ -27,7 +27,7 @@ public abstract class Connection implements Dispatcher {
     SelectionKey key = null;
     private final PacketCombiner packetCombainer;
     final Session session;
-    private PacketHeader header = new PacketHeader();
+    protected PacketHeader header = new PacketHeader();
     private ByteBuffer headerBuffer = ByteBuffer.allocate(PacketHeader.SIZE);
     private Statistics stat = new Statistics();
     long lastReceive = Time.currentTime();
@@ -97,7 +97,7 @@ public abstract class Connection implements Dispatcher {
             assert(headerBuffer.remaining() == PacketHeader.SIZE);
             header.get(headerBuffer);
             headerBuffer.clear();
-            // TODO - add adequate resizing algorithm when packet size greater than buffer size
+            // TODO - add adequate resizing algorithm when packet dataSize greater than buffer dataSize
             // but less than available limit for packet
             bufferIncoming.limit(packetCombainer.serviceSize(header));
             log.trace("processHeader: {} await bytes: {}", header.toString(), packetCombainer.serviceSize(header));
@@ -123,12 +123,12 @@ public abstract class Connection implements Dispatcher {
             stat.receiveBytes(bufferIncoming.remaining(), 0);
             Serializable packet = packetCombainer.unpack(header, bufferIncoming);
             bufferIncoming.clear();
-            header.reset();
             if (packet != null && (packet instanceof Dispatchable)) {
                 ((Dispatchable)packet).dispatch(this);
             } else {
                 log.warn("last packet null or is not Dispatchable!");
             }
+            header.reset();
         }
     }
 
@@ -136,7 +136,7 @@ public abstract class Connection implements Dispatcher {
         try {
             if (!header.isDefined()) {
                 processHeader();
-                // if body size for packet is zero - start process body explicitly now
+                // if body dataSize for packet is zero - start process body explicitly now
                 if (bufferIncoming.remaining() == 0) {
                     processBody();
                 }

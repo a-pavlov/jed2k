@@ -70,6 +70,7 @@ public class Conn {
         final Settings startSettings = new Settings();
         startSettings.maxConnectionsPerSecond = 1;
         startSettings.sessionConnectionsLimit = 2;
+        startSettings.compressionVersion = 1;
 
         LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
         String sp = System.getProperty("session.peers");
@@ -162,11 +163,11 @@ public class Conn {
                 long maxSize = 0;
                 int sources = 0;
                 if (parts.length > 3) {
-                    if (parts[2].compareTo("size") == 0) {
+                    if (parts[2].compareTo("dataSize") == 0) {
                         maxSize = Integer.parseInt(parts[3])*1024*1024;
                     }
                 }
-                log.info("search expression: {} max size {}", searchExpression, maxSize);
+                log.info("search expression: {} max dataSize {}", searchExpression, maxSize);
                 try {
                     log.info("search request: " + s);
                     s.search(SearchRequest.makeRequest(0, maxSize, 0, 0, "", "", "", 0, 0, searchExpression));
@@ -213,7 +214,7 @@ public class Conn {
                         if (filepath != null && filesize != 0) {
                             StringBuilder sb = new StringBuilder();
                             sb.append("Transfer ").append(filepath).append(" hash: ");
-                            sb.append(sfe.hash.toString()).append(" size: ");
+                            sb.append(sfe.hash.toString()).append(" dataSize: ");
                             sb.append(filesize);
                             System.out.println(sb);
 
@@ -231,7 +232,7 @@ public class Conn {
                 Path filepath = Paths.get(args[0], parts[3]);
                 long size = Long.parseLong(parts[2]);
                 Hash hash = Hash.fromString(parts[1]);
-                log.info("create transfer {} size {} in file {}", hash, size, filepath);
+                log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
                 addTransfer(s, hash, size, filepath.toAbsolutePath().toString());
             }
             else if (parts[0].compareTo("save") == 0) {

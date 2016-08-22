@@ -58,7 +58,7 @@ public class PieceBlock implements Comparable<PieceBlock> {
      * @return block size in bytes
      */
     public long size(long totalSize) {
-        Pair<Long, Long> r = range(totalSize);
+        Range r = range(totalSize);
         return (r.right - r.left);
     }
 

@@ -33,9 +33,8 @@ public class PeerRequest {
         return reqs;
     }
 
-    public static PeerRequest mk_request(final PieceBlock b, long fsize)
-    {
-        Pair<Long, Long> r = b.range(fsize);
+    public static PeerRequest mk_request(final PieceBlock b, long fsize) {
+        Range r = b.range(fsize);
         return mk_request(r.left, r.right);
     }
 

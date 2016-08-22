@@ -50,7 +50,7 @@ Usual packets order in case of we establish connection to remote peer
 +------------------------------------------>
 |       FileStatusAnswer/NoFileStatus      |
 <------------------------------------------+
-|       HashSetRequest(file size > 9M)     |
+|       HashSetRequest(file dataSize > 9M)     |
 +------------------------------------------>
 |       HashSetAnswer                      |
 <------------------------------------------+
@@ -89,7 +89,7 @@ public class PeerConnection extends Connection {
 
     private class PendingBlock {
         public PieceBlock block;
-        long size;
+        long dataSize;
         long createTime;
         Region dataLeft;
         ByteBuffer buffer;
@@ -97,12 +97,12 @@ public class PeerConnection extends Connection {
         /**
          * class for handle downloading block data
          * @param b requested piece block
-         * @param totalSize size of transfer
+         * @param totalSize dataSize of transfer
          */
         public PendingBlock(PieceBlock b, long totalSize) {
             assert(totalSize > 0);
             block = b;
-            this.size = b.size(totalSize);
+            this.dataSize = b.size(totalSize);
             buffer = null;
             createTime = Time.currentTime();
             dataLeft = new Region(b.range(totalSize));
@@ -118,7 +118,7 @@ public class PeerConnection extends Connection {
 
         @Override
         public String toString() {
-            return String.format("%s size %d", block, size);
+            return String.format("%s dataSize %d", block, dataSize);
         }
     }
 
@@ -381,7 +381,7 @@ public class PeerConnection extends Connection {
 
         MiscOptions mo = new MiscOptions();
         mo.unicodeSupport = 1;
-        mo.dataCompVer = 0;  // support data compression
+        mo.dataCompVer = session.settings.compressionVersion;  // support data compression
         mo.noViewSharedFiles = 1; // temp value
         mo.sourceExchange1Ver = 0; //SOURCE_EXCHG_LEVEL - important value
 
@@ -686,12 +686,44 @@ public class PeerConnection extends Connection {
 
     @Override
     public void onClientCompressedPart32(CompressedPart32 value) throws JED2KException {
-        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.beginOffset.longValue() + value.compressedLength.longValue()), true);
+        receiveCompressedData(value.beginOffset.longValue(), value.compressedLength.longValue(), value.bytesCount());
     }
 
     @Override
     public void onClientCompressedPart64(CompressedPart64 value) throws JED2KException {
-        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.beginOffset.longValue() + value.compressedLength.longValue()), true);
+        receiveCompressedData(value.beginOffset.longValue(), value.compressedLength.longValue(), value.bytesCount());
+    }
+
+    /**
+     * prepare pending block according compressed block
+     * prepare peer request
+     * @param offset offset of data
+     * @param compressedLength - length of compressed data in block
+     * @param payloadSize - packet's bytes count
+     * @throws JED2KException
+     */
+    void receiveCompressedData(long offset, long compressedLength, int payloadSize) throws JED2KException {
+        assert(header.isDefined());
+        PieceBlock b = PieceBlock.make(offset);
+        PendingBlock pb = getDownloading(b);
+
+        // we received compressed block - it will whole block delimited or not delimited to few requests
+        // in first time correct pending block range to adopt it to compressed block parameters
+        // operation will execute one time per block
+        if (pb != null && pb.buffer == null) {
+            pb.dataSize = compressedLength; // actual block size
+            pb.dataLeft.shrinkEnd(compressedLength);    // reduce block size here
+            log.debug("block shrinked to {}", compressedLength);
+        }
+
+        // when pending block exists simply calculate offset as begin of remaining range
+        long beginOffset = (pb != null)? pb.dataLeft.begin() : offset;
+        long dataSize = header.sizePacket() - payloadSize;
+        long endOffset = beginOffset + dataSize;
+        log.debug("begin offset {} end offset {} data dataSize {}", beginOffset, endOffset, dataSize);
+
+        // run calculated request
+        receiveData(PeerRequest.mk_request(beginOffset, endOffset), true);
     }
 
     /**
@@ -818,14 +850,11 @@ public class PeerConnection extends Connection {
                 transferringData = false;
 
                 if (completeBlock(pb)) {
-                    log.debug("block {} completed, size {}", pb.block, pb.size);
+                    log.debug("block {} completed, dataSize {}", pb.block, pb.dataSize);
                     // set position to zero - start reading from begin of buffer
-                    pb.buffer.clear();
-                    // set buffer limit to whole block range
-                    pb.buffer.limit((int)pb.size);
 
                     assert(pb.buffer.hasRemaining());
-                    assert(pb.buffer.remaining() == pb.size);
+                    //assert(pb.buffer.remaining() == pb.dataSize);
 
                     boolean wasFinished = transfer.getPicker().isPieceFinished(recvReq.piece);
                     transfer.getPicker().markAsWriting(pb.block);
@@ -866,42 +895,53 @@ public class PeerConnection extends Connection {
         assert(recvReq.length == recvPos);
         assert(pb.buffer != null);
 
+        pb.dataLeft.sub(recvReq.range());
+
         // when we receive compressed part inflate it to temporary buffer and put it into receive buffer again
-        if (recvReqCompressed) {
-            byte[] temp = session.allocateTemporaryInflateBuffer();
-            byte[] zData = new byte[(int)recvReq.length];
-            Inflater decompresser = new Inflater();
-            decompresser.setInput(zData, 0, zData.length);
-            int resultLength = 0;
-            try {
-                resultLength = decompresser.inflate(temp);
-                log.trace("Compressed data size {} uncompressed data size {}", zData.length, resultLength);
-            } catch(DataFormatException e) {
-                throw new JED2KException(ErrorCode.INFLATE_ERROR);
-            } finally {
-                decompresser.end();
+        if (pb.isCompleted()) {
+            if (recvReqCompressed) {
+                log.debug("compressed block completed {}", pb.dataSize);
+                byte[] temp = session.allocateTemporaryInflateBuffer();
+                byte[] zData = new byte[(int) pb.dataSize];
+                pb.buffer.clear();
+                pb.buffer.limit((int) pb.dataSize);
+                pb.buffer.get(zData);
+
+                Inflater decompresser = new Inflater();
+                decompresser.setInput(zData, 0, zData.length);
+                int resultLength = 0;
+                try {
+                    resultLength = decompresser.inflate(temp);
+                    log.trace("Compressed data dataSize {} uncompressed data dataSize {}", zData.length, resultLength);
+                } catch (DataFormatException e) {
+                    throw new JED2KException(ErrorCode.INFLATE_ERROR);
+                } finally {
+                    decompresser.end();
+                }
+
+                assert(resultLength != 0);
+
+                // write inflated data into receive buffer and prepare buffer for reading
+                pb.buffer.clear();
+                pb.buffer.limit(resultLength);
+                pb.buffer.put(temp, 0, resultLength);
+                pb.buffer.flip();
+            }
+            else {
+                // prepare buffer for reading
+                pb.buffer.clear();
+                pb.buffer.limit((int)pb.dataSize);
             }
 
-            assert(resultLength != 0);
-
-            // write inflated data into receive buffer
-            pb.buffer.clear();
-            pb.buffer.limit(resultLength);
-            pb.buffer.put(temp, 0, resultLength);
-
-            // generate inflated range using original offset and length of uncompressed data
-            pb.dataLeft.sub(new Range(recvReq.range().left, recvReq.range().left + resultLength));
-        } else {
-            // simply subtract received range from pending range
-            pb.dataLeft.sub(recvReq.range());
+            return true;
         }
 
-        return pb.isCompleted();
+        return false;
     }
 
     /**
      *
-     * @return byte buffer with fixed size 180K from global session pool
+     * @return byte buffer with fixed dataSize 180K from global session pool
      */
     ByteBuffer allocateBuffer() {
         return session.bufferPool.allocate();
@@ -970,7 +1010,7 @@ public class PeerConnection extends Connection {
             // do not flush (write) structure to remote here like in libed2k since order always contain no more than 3 blocks
         }
 
-        log.debug("request blocks completed, download queue size {}", downloadQueue.size());
+        log.debug("request blocks completed, download queue dataSize {}", downloadQueue.size());
         if (!reqp.isEmpty()) {
             write(reqp);
         }

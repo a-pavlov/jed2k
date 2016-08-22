@@ -3,7 +3,7 @@ package org.jed2k;
 import org.jed2k.protocol.Hash;
 
 public class Settings {
-    public final Hash userAgent = new Hash(Hash.EMULE);
+    public final Hash userAgent = new Hash(Hash.LIBED2K);
     public String modName = new String("jed2k");
     public String clientName = new String("jed2k");
     public short listenPort = 4661;
@@ -17,8 +17,9 @@ public class Settings {
     public int minPeerReconnectTime = 10;
     public int peerConnectionTimeout = 5;
     public int sessionConnectionsLimit = 20;
-    public int bufferPoolSize = 250;    // size of buffer pool in blocks of 180K
+    public int bufferPoolSize = 250;    // dataSize of buffer pool in blocks of 180K
     public int maxConnectionsPerSecond = 10;    // for testing purposes
+    public int compressionVersion = 0;  // use 1 for activate compression
 
     /**
      * send ping message to server every serverPingTimeout

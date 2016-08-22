@@ -27,7 +27,7 @@ public class Transfer {
     private Hash hash;
 
     /**
-     * transfer's file size
+     * transfer's file dataSize
      */
     private long size;
 
@@ -91,7 +91,7 @@ public class Transfer {
         assert(size != 0);
         numPieces = Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue();
         session = s;
-        log.debug("created transfer {} size {}", this.hash, this.size);
+        log.debug("created transfer {} dataSize {}", this.hash, this.size);
 
         // prepare piece picker here
         // in common case this is not correct condition(below)
@@ -295,7 +295,7 @@ public class Transfer {
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
         // TODO - add few checks here
         // 1. check common hash is compatible with hash set
-        // 2. check hash set size
+        // 2. check hash set dataSize
         // 3. compare new hash set and previous?
         // now copy first hash set to transfer
         if (hashSet.isEmpty()) {
