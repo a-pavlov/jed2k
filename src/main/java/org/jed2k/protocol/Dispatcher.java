@@ -38,4 +38,6 @@ public interface Dispatcher {
     public void onQueueRanking(QueueRanking value) throws JED2KException;
     public void onClientSendingPart32(SendingPart32 value) throws JED2KException;
     public void onClientSendingPart64(SendingPart64 value) throws JED2KException;
+    public void onClientCompressedPart32(CompressedPart32 value) throws JED2KException;
+    public void onClientCompressedPart64(CompressedPart64 value) throws JED2KException;
 }

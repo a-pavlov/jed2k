@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Future;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 import org.jed2k.data.*;
 import org.jed2k.data.PeerRequest;
@@ -668,13 +670,23 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientSendingPart32(SendingPart32 value)
             throws JED2KException {
-        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue()));
+        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue()), false);
     }
 
     @Override
     public void onClientSendingPart64(SendingPart64 value)
             throws JED2KException {
-        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue()));
+        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.endOffset.longValue()), false);
+    }
+
+    @Override
+    public void onClientCompressedPart32(CompressedPart32 value) throws JED2KException {
+        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.beginOffset.longValue() + value.compressedLength.longValue()), true);
+    }
+
+    @Override
+    public void onClientCompressedPart64(CompressedPart64 value) throws JED2KException {
+        receiveData(PeerRequest.mk_request(value.beginOffset.longValue(), value.beginOffset.longValue() + value.compressedLength.longValue()), true);
     }
 
     /**
@@ -682,26 +694,33 @@ public class PeerConnection extends Connection {
      * @param r received peer request will be set as current
      * @throws JED2KException
      */
-    void receiveData(final PeerRequest r) throws JED2KException {
+    void receiveData(final PeerRequest r, final boolean compressed) throws JED2KException {
         log.debug("receive data: {}", r);
         transferringData = true;
         recvReq = r;
         recvPos = 0;
+        recvReqCompressed = compressed;
         PieceBlock b = PieceBlock.mk_block(r);
 
         // search for correspond pending block in downloading queue
         PendingBlock pb = getDownloading(b);
 
         if (pb == null) {
+            log.warn("have no correspond block for request {}, skip data", r);
             skipData();
+            return;
         }
 
         // if pending block hasn't associated buffer - allocate it
         if (pb.buffer == null) pb.buffer = allocateBuffer();
+
+        /**
+         * if buffer pool hasn't free blocks we will get null buffer
+         * throw exception will lead of close connection with no memory error
+         */
         if (pb.buffer == null) {
-            // TODO - handle it correctly
-            log.debug("can not allocate buffer for data");
-            return;
+            log.warn("can not allocate buffer for block {} current request {}", b, r);
+            throw new JED2KException(ErrorCode.NO_MEMORY);
         }
 
         // prepare buffer for reading data into proper place
@@ -711,13 +730,16 @@ public class PeerConnection extends Connection {
     }
 
     /**
-     * receive data into skip data buffer
-     * and ignore it
+     * receive data into skip data buffer and ignore it
+     * when we read unexpected request completely send new request to remote peer
+     * and continue reading cycle skippind unexpected data and awaiting requested data
+     * hope it is not a problem when peer receives new request in the middle of sending data
      */
     void skipData() throws JED2KException {
         log.debug("skipData {} bytes", (int)recvReq.length - recvPos);
         ByteBuffer buffer = session.allocateSkipDataBufer();
         buffer.limit((int)recvReq.length - recvPos);
+
         try {
             int n = socket.read(buffer);
             if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
@@ -726,8 +748,13 @@ public class PeerConnection extends Connection {
             if (n != 0) lastReceive = Time.currentTime();
 
             if (recvPos < recvReq.length) {
+                // request more data from socket
                 doRead();
             } else {
+                // check block completed
+                // we completed receive data of current peer request actually it is not mean block completed
+                // but turn off data transferring mode and try to request more blocks
+                transferringData = false;
                 requestBlocks();
             }
         }
@@ -747,14 +774,28 @@ public class PeerConnection extends Connection {
         // search for correspond pending block
         PendingBlock pb = getDownloading(PieceBlock.mk_block(recvReq));
 
+        /**
+         * check we have received block in our downloading queue
+         * if we have no it skip data
+         */
         if (pb == null) {
-            log.debug("receive data with null pending block");
+            log.warn("request {} has not correspond block in downloading queue, skip data", recvReq);
             skipData();
+            return;
         }
 
         PieceBlock blockFinished = PieceBlock.mk_block(recvReq);
 
         assert(pb.buffer != null);
+
+        /**
+         * if block already was downloaded(depends on piece picker politics) - skip data
+         */
+        if (transfer.getPicker().isBlockDownloaded(blockFinished)) {
+            log.warn("request {} references to downloaded block {}, skip data", recvReq, blockFinished);
+            skipData();
+            return;
+        }
 
         try {
             int n = socket.read(pb.buffer);
@@ -772,6 +813,15 @@ public class PeerConnection extends Connection {
                 transferringData = false;
 
                 if (completeBlock(pb)) {
+                    log.debug("block {} completed", pb.block);
+                    // set position to zero - start reading from begin of buffer
+                    pb.buffer.clear();
+                    // set buffer limit to whole block range
+                    pb.buffer.limit((int)pb.size);
+
+                    assert(pb.buffer.hasRemaining());
+                    assert(pb.buffer.remaining() == pb.size);
+
                     boolean wasFinished = transfer.getPicker().isPieceFinished(recvReq.piece);
                     transfer.getPicker().markAsWriting(pb.block);
                     downloadQueue.remove(pb);
@@ -799,6 +849,8 @@ public class PeerConnection extends Connection {
     }
 
     /**
+     * if request is compressed - inflate it and create real(uncompressed range)
+     * put inflated data back to the block's buffer
      * update range in pending block and check block is completed
      * @param pb pending block from downloading queue
      * @return true if block completely downloaded
@@ -808,12 +860,35 @@ public class PeerConnection extends Connection {
         assert(recvReq != null);
         assert(recvReq.length == recvPos);
         assert(pb.buffer != null);
-        pb.buffer.flip();   // prepare buffer for reading
-        pb.dataLeft.sub(recvReq.range());
-        log.debug("block {} {}", pb.block, pb.isCompleted()?"completed":"not completed yet");
 
-        if (pb.isCompleted() && recvReqCompressed) {
-            // decompression here
+        // when we receive compressed part inflate it to temporary buffer and put it into receive buffer again
+        if (recvReqCompressed) {
+            byte[] temp = session.allocateTemporaryInflateBuffer();
+            byte[] zData = new byte[(int)recvReq.length];
+            Inflater decompresser = new Inflater();
+            decompresser.setInput(zData, 0, zData.length);
+            int resultLength = 0;
+            try {
+                resultLength = decompresser.inflate(temp);
+                log.trace("Compressed data size {} uncompressed data size {}", zData.length, resultLength);
+            } catch(DataFormatException e) {
+                throw new JED2KException(ErrorCode.INFLATE_ERROR);
+            } finally {
+                decompresser.end();
+            }
+
+            assert(resultLength != 0);
+
+            // write inflated data into receive buffer
+            pb.buffer.clear();
+            pb.buffer.limit(resultLength);
+            pb.buffer.put(temp, 0, resultLength);
+
+            // generate inflated range using original offset and length of uncompressed data
+            pb.dataLeft.sub(new Range(recvReq.range().left, recvReq.range().left + resultLength));
+        } else {
+            // simply subtract received range from pending range
+            pb.dataLeft.sub(recvReq.range());
         }
 
         return pb.isCompleted();
@@ -825,10 +900,6 @@ public class PeerConnection extends Connection {
      */
     ByteBuffer allocateBuffer() {
         return session.bufferPool.allocate();
-    }
-
-    ByteBuffer allocateZBuffer() {
-        return null;
     }
 
     public PeerSpeed speed() {

@@ -34,6 +34,8 @@ public class Session extends Thread {
     long lastTick = Time.currentTime();
     HashMap<Integer, Hash> callbacks = new HashMap<Integer, Hash>();
     private ByteBuffer skipDataBuffer = null;
+    private byte[] zBuffer = null;
+    long zBufferLastAllocatedTime = 0;
     BufferPool bufferPool = null;
     ExecutorService diskIOService = Executors.newSingleThreadExecutor();
 
@@ -406,6 +408,16 @@ public class Session extends Thread {
         }
 
         return skipDataBuffer.duplicate();
+    }
+
+    /**
+     * provide one per session temporary buffer for inflate z data
+     * @return common z buffer for decompress compressed data
+     */
+    byte[] allocateTemporaryInflateBuffer() {
+        zBufferLastAllocatedTime = Time.currentTime();
+        if (zBuffer == null) zBuffer = new byte[Constants.BLOCK_SIZE_INT];
+        return zBuffer;
     }
 
     @Override

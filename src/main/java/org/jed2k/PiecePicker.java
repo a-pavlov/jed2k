@@ -95,6 +95,13 @@ public class PiecePicker extends BlocksEnumerator {
         }
     }
 
+    public boolean isBlockDownloaded(final PieceBlock b) {
+        if (isPieceFinished(b.pieceIndex)) return true;
+        DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
+        if (dp != null) return dp.isDownloaded(b.pieceBlock);
+        return false;
+    }
+
     /**
      * choose next piece and add it to download queue
      * @return true if new piece in download queue

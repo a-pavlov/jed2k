@@ -251,6 +251,16 @@ public class ServerConnection extends Connection {
     }
 
     @Override
+    public void onClientCompressedPart32(CompressedPart32 value) throws JED2KException {
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
+    public void onClientCompressedPart64(CompressedPart64 value) throws JED2KException {
+        throw new JED2KException(ErrorCode.SERVER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
     void secondTick(long currentSessionTime) {
 
         super.secondTick(currentSessionTime);
