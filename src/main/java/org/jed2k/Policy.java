@@ -22,12 +22,12 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean isConnectCandidate(Peer pe) {
         assert(pe != null);
         // TODO - use fail count parameter here
-        if (pe.connection != null || !pe.isConnectable() || pe.failCount > 10) return false;
+        if (pe.hasConnection() || !pe.isConnectable() || pe.failCount > 10) return false;
         return true;
     }
 
     public boolean isEraseCandidate(Peer pe) {
-        if (pe.connection != null || isConnectCandidate(pe)) return false;
+        if (pe.hasConnection() || isConnectCandidate(pe)) return false;
         return pe.failCount > 0;
     }
 
@@ -133,8 +133,8 @@ public class Policy extends AbstractCollection<Peer> {
      * @return true if lhs better erase candidate than rhs
      */
     boolean comparePeerErase(Peer lhs, Peer rhs) {
-        assert(lhs.connection == null);
-        assert(rhs.connection == null);
+        assert(!lhs.hasConnection());
+        assert(!rhs.hasConnection());
 
         // primarily, prefer getting rid of peers we've already tried and failed
         if (lhs.failCount != rhs.failCount)
@@ -210,7 +210,7 @@ public class Policy extends AbstractCollection<Peer> {
         if (peerInfo != null) {
             assert(peerInfo.isConnectable());
             transfer.connectoToPeer(peerInfo);
-            return peerInfo.connection != null;
+            return peerInfo.hasConnection();
         }
 
         return false;
@@ -219,7 +219,7 @@ public class Policy extends AbstractCollection<Peer> {
     public void conectionClosed(PeerConnection c, long sessionTime) {
         Peer p = c.getPeer();
         if (p == null) return;
-        p.connection = null;
+        p.setConnection(null);
         p.lastConnected = sessionTime;
         if (c.isFailed()) p.failCount++;
         if (!p.isConnectable()) peers.remove(p);
@@ -228,7 +228,7 @@ public class Policy extends AbstractCollection<Peer> {
     public void setConnection(Peer p, PeerConnection c) {
         assert(c != null);
         assert(p != null);
-        p.connection = c;
+        p.setConnection(c);
     }
 
     private boolean shouldEraseImmediately(Peer p) {
@@ -264,7 +264,7 @@ public class Policy extends AbstractCollection<Peer> {
 
         if (p != null) {
             // some actions here
-            if (p.connection != null) {
+            if (p.hasConnection()) {
                 // stupid, but simply throw exception here
                 throw new JED2KException(ErrorCode.DUPLICATE_PEER_CONNECTION);
             }
@@ -277,7 +277,7 @@ public class Policy extends AbstractCollection<Peer> {
         }
 
         assert(p != null);
-        p.connection = c;
+        p.setConnection(c);
         c.setPeer(p);
     }
 }

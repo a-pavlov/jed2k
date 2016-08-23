@@ -30,6 +30,8 @@ import java.util.zip.Inflater;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
+import org.jed2k.protocol.PacketCombiner;
+
 /*
 Usual packets order in case of we establish connection to remote peer
                                          remote peer
@@ -564,6 +566,7 @@ public class PeerConnection extends Connection {
 
         if (transfer != null) {
             transfer.addStats(statistics());
+            transfer.removePeerConnection(this);
             abortAllRequests();
             transfer = null;
         }
@@ -870,7 +873,7 @@ public class PeerConnection extends Connection {
                     // remove pending block from downloading queue
                     // check piece finished and run hashing
                     // check download queue empty and request new blocks
-                    requestBlocks();
+                    //requestBlocks();
                     return;
                 }
             }

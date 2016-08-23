@@ -9,14 +9,13 @@ import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Transfer {
     private Logger log = LoggerFactory.getLogger(Transfer.class);
@@ -175,7 +174,8 @@ public class Transfer {
     final void removePeerConnection(PeerConnection c) {
         policy.conectionClosed(c, Time.currentTime());
         c.setPeer(null);
-        connections.remove(c);
+        // TODO - can't remove peer from collection due to simultaneous collection modification exception
+        //connections.remove(c);
     }
 
     public PeerConnection connectoToPeer(Peer peerInfo) throws JED2KException {
@@ -186,7 +186,7 @@ public class Transfer {
         connections.add(c);
         policy.setConnection(peerInfo, c);
         c.connect();
-        return peerInfo.connection;
+        return peerInfo.getConnection();
     }
 
     void attachPeer(PeerConnection c) throws JED2KException {

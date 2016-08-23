@@ -27,7 +27,7 @@ public class Peer implements Comparable<Peer> {
     boolean connectable     = false;
     int source      = 0;
     NetworkIdentifier   endpoint;
-    public PeerConnection  connection = null;
+    private PeerConnection  connection = null;
 
     public Peer(NetworkIdentifier ep) {
         endpoint = ep;
@@ -55,5 +55,20 @@ public class Peer implements Comparable<Peer> {
 
     public boolean isConnectable() {
         return connectable;
+    }
+
+    PeerConnection getConnection() { return connection; }
+
+    void setConnection(final PeerConnection c) {
+        connection = c;
+    }
+
+    boolean hasConnection() {
+        return connection != null;
+    }
+
+    @Override
+    public String toString() {
+        return "peer: conn " + (connection!=null?connection.toString():"null") + (connectable?"connectable":"notconn") + " fail count {" + failCount + "}";
     }
 }
