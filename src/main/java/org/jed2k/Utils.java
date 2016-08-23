@@ -116,7 +116,7 @@ public final class Utils {
      * @return true if it is local address
      */
     public static boolean isLocalAddress(NetworkIdentifier ep) {
-        int host = ntohl(ep.ip);
+        int host = ntohl(ep.getIP());
         return ((host & 0xff000000) == 0x0a000000 // 10.x.x.x
                 || (host & 0xfff00000) == 0xac100000 // 172.16.x.x
                 || (host & 0xffff0000) == 0xc0a80000 // 192.168.x.x

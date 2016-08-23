@@ -23,8 +23,8 @@ public class NetworkIdentifierTest{
         ByteBuffer nb = ByteBuffer.wrap(source);
         nb.order(ByteOrder.LITTLE_ENDIAN);
         ni.get(nb);
-        assertEquals(1, ni.ip);
-        assertEquals(1, ni.port);
+        assertEquals(1, ni.getIP());
+        assertEquals(1, ni.getPort());
     }
 
     @Test

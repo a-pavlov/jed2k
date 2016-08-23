@@ -249,7 +249,7 @@ public class PeerConnection extends Connection {
     }
 
     public final void connect() throws JED2KException {
-        assert(endpoint != null);
+        assert endpoint != null;
         super.connect(endpoint.toInetSocketAddress());
     }
 
@@ -356,20 +356,17 @@ public class PeerConnection extends Connection {
      */
     @Override
     public boolean equals(Object o) {
-        if (o instanceof PeerConnection) {
-            if (((PeerConnection)o).hasEndpoint() && hasEndpoint()) {
-                return endpoint.equals(((PeerConnection) o).endpoint);
-            }
+        if (o instanceof PeerConnection && ((PeerConnection)o).hasEndpoint() && hasEndpoint()) {
+            return endpoint.equals(((PeerConnection) o).endpoint);
         }
-
         return false;
     }
 
     private HelloAnswer prepareHello(final HelloAnswer hello) throws JED2KException {
         hello.hash.assign(session.settings.userAgent);
         //Utils.fingerprint(hello.hash, (byte)'M', (byte)'L');
-        hello.point.ip = session.clientId;
-        hello.point.port = session.settings.listenPort;
+        hello.point.setIP(session.clientId);
+        hello.point.setPort(session.settings.listenPort);
 
         hello.properties.add(Tag.tag(Tag.CT_NAME, null, session.settings.clientName));
         hello.properties.add(Tag.tag(Tag.CT_MOD_VERSION, null, session.settings.modName));
@@ -808,7 +805,7 @@ public class PeerConnection extends Connection {
      */
     void onReceiveData() throws JED2KException {
 
-        assert(recvReq != null);
+        assert recvReq != null;
         // search for correspond pending block
         PendingBlock pb = getDownloading(PieceBlock.mkBlock(recvReq));
 
@@ -824,7 +821,7 @@ public class PeerConnection extends Connection {
 
         PieceBlock blockFinished = PieceBlock.mkBlock(recvReq);
 
-        assert(pb.buffer != null);
+        assert pb.buffer != null;
 
         /**
          * if block already was downloaded(depends on piece picker politics) - skip data
@@ -839,7 +836,7 @@ public class PeerConnection extends Connection {
         try {
             int n = socket.read(pb.buffer);
             if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
-            assert(n != -1);
+            assert n != -1;
 
             recvPos += n;
             if (n != 0) lastReceive = Time.currentTime();
@@ -847,7 +844,7 @@ public class PeerConnection extends Connection {
 
             if (pb.buffer.remaining() == 0) {
                 log.debug("received {} bytes, buffer is full, turn off transferring data", recvPos);
-                assert(recvPos == recvReq.length);
+                assert recvPos == recvReq.length;
                 // turn off data transfer mode
                 transferringData = false;
 
@@ -893,9 +890,9 @@ public class PeerConnection extends Connection {
      * @throws JED2KException
      */
     boolean completeBlock(final PendingBlock pb) throws JED2KException {
-        assert(recvReq != null);
-        assert(recvReq.length == recvPos);
-        assert(pb.buffer != null);
+        assert recvReq != null;
+        assert recvReq.length == recvPos;
+        assert pb.buffer != null;
 
         pb.dataLeft.sub(recvReq.range());
 
@@ -921,7 +918,7 @@ public class PeerConnection extends Connection {
                     decompresser.end();
                 }
 
-                assert(resultLength != 0);
+                assert resultLength != 0;
 
                 // write inflated data into receive buffer and prepare buffer for reading
                 pb.buffer.clear();
@@ -995,8 +992,11 @@ public class PeerConnection extends Connection {
         return null;
     }
 
+    /**
+     * request new blocks from associated transfer's picker
+     */
     void requestBlocks() {
-        if (transfer == null || transferringData || !downloadQueue.isEmpty()) return;
+        if (transfer == null || !transfer.hasPicker() || transferringData || !downloadQueue.isEmpty()) return;
         LinkedList<PieceBlock> blocks = new LinkedList<PieceBlock>();
         PiecePicker picker = transfer.getPicker();
         picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE);

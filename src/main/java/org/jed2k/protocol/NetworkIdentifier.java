@@ -11,9 +11,12 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 public final class NetworkIdentifier implements Serializable, Comparable<NetworkIdentifier> {
-    public int ip = 0;
-    public short port = 0;
+    private int ip = 0;
+    private short port = 0;
 
+    /**
+     * for serialization purposes
+     */
     public NetworkIdentifier() {
     }
 
@@ -84,12 +87,26 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof NetworkIdentifier) {
-            if (compareTo((NetworkIdentifier)o) == 0) {
-                return true;
-            }
+        if (o instanceof NetworkIdentifier && compareTo((NetworkIdentifier)o) == 0) {
+            return true;
         }
 
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return ip + port;
+    }
+
+    public void setIP(int i) {
+        ip = i;
+    }
+
+    public void setPort(short p) {
+        port = p;
+    }
+
+    public int getIP() { return ip; }
+    public short getPort() { return port; }
 }

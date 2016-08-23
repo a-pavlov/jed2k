@@ -59,8 +59,8 @@ public class ServerConnection extends Connection {
         int versionClient = (LoginRequest.JED2K_VERSION_MAJOR << 24) | (LoginRequest.JED2K_VERSION_MINOR << 17) | (LoginRequest.JED2K_VERSION_TINY << 10) | (1 << 7);
 
         login.hash = session.settings.userAgent;
-        login.point.ip = 0;
-        login.point.port = (short)session.settings.listenPort;
+        login.point.setIP(0);
+        login.point.setPort((short)session.settings.listenPort);
 
         login.properties.add(tag(Tag.CT_VERSION, null, version));
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
@@ -212,9 +212,9 @@ public class ServerConnection extends Connection {
         Transfer transfer = session.transfers.get(value.hash);
         if (transfer != null) {
             for(final NetworkIdentifier endpoint: value.sources) {
-                if (Utils.isLowId(endpoint.ip) && !Utils.isLowId(session.clientId) && !session.callbacks.containsKey(endpoint.ip)) {
-                    sendCallbackRequest(endpoint.ip);
-                    session.callbacks.put(endpoint.ip, value.hash);
+                if (Utils.isLowId(endpoint.getIP()) && !Utils.isLowId(session.clientId) && !session.callbacks.containsKey(endpoint.getIP())) {
+                    sendCallbackRequest(endpoint.getIP());
+                    session.callbacks.put(endpoint.getIP(), value.hash);
                 } else {
                     log.debug("to hash {} added endpoint {}", value.hash, endpoint);
                     try {
