@@ -24,7 +24,7 @@ public class PieceBlock implements Comparable<PieceBlock> {
         return new Long((long) pieceIndex *Constants.BLOCKS_PER_PIECE + (long) pieceBlock);
     }
 
-    public static PieceBlock mk_block(final PeerRequest r) {
+    public static PieceBlock mkBlock(final PeerRequest r) {
         return new PieceBlock((int)r.piece, (int)(r.start / Constants.BLOCK_SIZE));
     }
 
@@ -46,8 +46,8 @@ public class PieceBlock implements Comparable<PieceBlock> {
      */
     public Range range(long size) {
         long begin = pieceIndex * Constants.PIECE_SIZE + pieceBlock * Constants.BLOCK_SIZE;
-        long normal_end = pieceIndex * Constants.PIECE_SIZE + (pieceBlock + 1) * Constants.BLOCK_SIZE;
-        long end = Math.min(begin + Constants.BLOCK_SIZE, Math.min(normal_end, size));
+        long normalEnd = pieceIndex * Constants.PIECE_SIZE + (pieceBlock + 1) * Constants.BLOCK_SIZE;
+        long end = Math.min(begin + Constants.BLOCK_SIZE, Math.min(normalEnd, size));
         assert(begin < end);
         return Range.make(begin, end);
     }

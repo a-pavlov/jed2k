@@ -30,8 +30,6 @@ import java.util.zip.Inflater;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
-import org.jed2k.protocol.PacketCombiner;
-
 /*
 Usual packets order in case of we establish connection to remote peer
                                          remote peer
@@ -738,7 +736,7 @@ public class PeerConnection extends Connection {
         recvReq = r;
         recvPos = 0;
         recvReqCompressed = compressed;
-        PieceBlock b = PieceBlock.mk_block(r);
+        PieceBlock b = PieceBlock.mkBlock(r);
 
         // search for correspond pending block in downloading queue
         PendingBlock pb = getDownloading(b);
@@ -776,12 +774,14 @@ public class PeerConnection extends Connection {
     void skipData() throws JED2KException {
         log.debug("skipData {} bytes", (int)recvReq.length - recvPos);
         ByteBuffer buffer = session.allocateSkipDataBufer();
+        buffer.clear();
         buffer.limit((int)recvReq.length - recvPos);
 
         try {
             int n = socket.read(buffer);
             if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
             recvPos += n;
+            log.trace("recvpos {} recvlen {}", recvPos, recvReq);
             statistics().receiveBytes(0, n);
             if (n != 0) lastReceive = Time.currentTime();
 
@@ -810,7 +810,7 @@ public class PeerConnection extends Connection {
 
         assert(recvReq != null);
         // search for correspond pending block
-        PendingBlock pb = getDownloading(PieceBlock.mk_block(recvReq));
+        PendingBlock pb = getDownloading(PieceBlock.mkBlock(recvReq));
 
         /**
          * check we have received block in our downloading queue
@@ -822,7 +822,7 @@ public class PeerConnection extends Connection {
             return;
         }
 
-        PieceBlock blockFinished = PieceBlock.mk_block(recvReq);
+        PieceBlock blockFinished = PieceBlock.mkBlock(recvReq);
 
         assert(pb.buffer != null);
 
@@ -830,7 +830,8 @@ public class PeerConnection extends Connection {
          * if block already was downloaded(depends on piece picker politics) - skip data
          */
         if (transfer.getPicker().isBlockDownloaded(blockFinished)) {
-            log.warn("request {} references to downloaded block {}, skip data", recvReq, blockFinished);
+            log.warn("request {} references to downloaded block {}, remove pending block and skip data", recvReq, blockFinished);
+            downloadQueue.remove(pb);
             skipData();
             return;
         }

@@ -31,6 +31,7 @@ public class Conn {
     private static Logger log = LoggerFactory.getLogger(Conn.class);
     private static SearchResult globalSearchRes = null;
     private static final boolean trial = "true".equals(System.getProperty("session.trial"));
+    private static final boolean compression = "true".equals(System.getProperty("session.compression"));
 
     private static void printGlobalSearchResult() {
         if (globalSearchRes == null) return;
@@ -70,7 +71,7 @@ public class Conn {
         final Settings startSettings = new Settings();
         startSettings.maxConnectionsPerSecond = 1;
         startSettings.sessionConnectionsLimit = 2;
-        startSettings.compressionVersion = 1;
+        startSettings.compressionVersion = compression?1:0;
 
         LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
         String sp = System.getProperty("session.peers");
