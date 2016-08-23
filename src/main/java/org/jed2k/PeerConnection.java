@@ -1,5 +1,22 @@
 package org.jed2k;
 
+import org.jed2k.data.PeerRequest;
+import org.jed2k.data.PieceBlock;
+import org.jed2k.data.Region;
+import org.jed2k.exception.BaseErrorCode;
+import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.BitField;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.PacketCombiner;
+import org.jed2k.protocol.client.*;
+import org.jed2k.protocol.server.*;
+import org.jed2k.protocol.server.search.SearchResult;
+import org.jed2k.protocol.tag.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -11,24 +28,9 @@ import java.util.concurrent.Future;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import org.jed2k.data.*;
-import org.jed2k.data.PeerRequest;
-import org.jed2k.exception.BaseErrorCode;
-import org.jed2k.exception.JED2KException;
-import org.jed2k.exception.ErrorCode;
-import org.jed2k.protocol.BitField;
-import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.client.*;
-import org.jed2k.protocol.server.*;
-import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.protocol.PacketCombiner;
-import org.jed2k.protocol.server.search.SearchResult;
-import org.jed2k.protocol.tag.Tag;
-
 import static org.jed2k.protocol.tag.Tag.tag;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jed2k.protocol.PacketCombiner;
 
 /*
 Usual packets order in case of we establish connection to remote peer
@@ -100,7 +102,7 @@ public class PeerConnection extends Connection {
          * @param totalSize dataSize of transfer
          */
         public PendingBlock(PieceBlock b, long totalSize) {
-            assert(totalSize > 0);
+            assert totalSize > 0;
             block = b;
             this.dataSize = b.size(totalSize);
             buffer = null;
@@ -124,8 +126,6 @@ public class PeerConnection extends Connection {
 
     private static Logger log = LoggerFactory.getLogger(PeerConnection.class);
 
-    //TODO - check it, possibly remove and use getPeer value instead
-    private boolean active = false;   // true when we connect to peer, false when incoming connection
     private RemotePeerInfo remotePeerInfo = new RemotePeerInfo();
 
     /**
@@ -269,7 +269,7 @@ public class PeerConnection extends Connection {
         public int supportsPreview = 0;
 
         public int intValue() {
-            return  ((aichVersion           << ((4*7)+1)) |
+            return  (aichVersion           << ((4*7)+1)) |
                     (unicodeSupport        << 4*7) |
                     (udpVer                << 4*6) |
                     (dataCompVer           << 4*5) |
@@ -279,7 +279,7 @@ public class PeerConnection extends Connection {
                     (acceptCommentVer      << 4*1) |
                     (noViewSharedFiles     << 1*2) |
                     (multiPacket           << 1*1) |
-                    (supportsPreview       << 1*0));
+                    (supportsPreview       << 1*0);
         }
 
         public void assign(int value) {
@@ -299,10 +299,10 @@ public class PeerConnection extends Connection {
 
     private class MiscOptions2 {
         private int value = 0;
-        private final int LARGE_FILE_OFFSET = 4;
-        private final int MULTIP_OFFSET = 5;
-        private final int SRC_EXT_OFFSET = 10;
-        private final int CAPTHA_OFFSET = 11;
+        private static final int LARGE_FILE_OFFSET = 4;
+        private static final int MULTIP_OFFSET = 5;
+        private static final int SRC_EXT_OFFSET = 10;
+        private static final int CAPTHA_OFFSET = 11;
 
         public boolean supportCaptcha() {
             return ((value >> CAPTHA_OFFSET) & 0x01) == 1;
@@ -343,9 +343,9 @@ public class PeerConnection extends Connection {
 
     public class RemotePeerInfo {
         public NetworkIdentifier point = new NetworkIdentifier();
-        public String modName = new String();
+        public String modName;
         public int version = 0;
-        public String modVersion = new String();
+        public String modVersion;
         public int modNumber = 0;
         public MiscOptions misc1 = new MiscOptions();
         public MiscOptions2 misc2 = new MiscOptions2();
@@ -442,6 +442,7 @@ public class PeerConnection extends Connection {
                 //  1 Value-based-type int tags (experimental!)
                 //m_options.m_bValueBasedTypeTags   = (p->asInt() >> 1*1) & 0x01;
                 //m_options.m_bOsInfoSupport        = (p->asInt() >> 1*0) & 0x01;
+                break;
             case Tag.CT_EMULE_VERSION:
                 //  8 Compatible Client ID
                 //  7 Mjr Version (Doesn't really matter..)
@@ -703,7 +704,7 @@ public class PeerConnection extends Connection {
      * @throws JED2KException
      */
     void receiveCompressedData(long offset, long compressedLength, int payloadSize) throws JED2KException {
-        assert(header.isDefined());
+        assert header.isDefined();
         PieceBlock b = PieceBlock.make(offset);
         PendingBlock pb = getDownloading(b);
 
@@ -853,7 +854,7 @@ public class PeerConnection extends Connection {
                     log.debug("block {} completed, dataSize {}", pb.block, pb.dataSize);
                     // set position to zero - start reading from begin of buffer
 
-                    assert(pb.buffer.hasRemaining());
+                    assert pb.buffer.hasRemaining();
                     //assert(pb.buffer.remaining() == pb.dataSize);
 
                     boolean wasFinished = transfer.getPicker().isPieceFinished(recvReq.piece);
@@ -1005,7 +1006,7 @@ public class PeerConnection extends Connection {
             // mark block as downloading
             transfer.getPicker().markAsDownloading(b); // ?
             downloadQueue.add(new PendingBlock(b, transfer.size()));
-            assert(!reqp.isFool());
+            assert !reqp.isFool();
             reqp.append(b.range(transfer.size()));
             // do not flush (write) structure to remote here like in libed2k since order always contain no more than 3 blocks
         }
@@ -1060,7 +1061,6 @@ public class PeerConnection extends Connection {
      * @return future of hasshing operation result
      */
     Future<AsyncOperationResult> asyncHash(int pieceIndex, final Transfer t) {
-        AsyncHash ah = new AsyncHash(transfer, pieceIndex);
         return session.diskIOService.submit(new AsyncHash(t, pieceIndex));
     }
 }
