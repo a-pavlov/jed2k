@@ -1,17 +1,17 @@
 package org.jed2k.test;
 
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-
-import org.jed2k.DownloadingPiece;
-import org.junit.Test;
 import org.jed2k.Constants;
+import org.jed2k.DownloadingPiece;
 import org.jed2k.PiecePicker;
 import org.jed2k.data.PieceBlock;
+import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 public class PiecePickerTest {
 
@@ -156,5 +156,42 @@ public class PiecePickerTest {
         }
 
         assertEquals(requestedCount, requestedEnumerator);
+    }
+
+    @Test
+    public void testPickOrder() {
+        PiecePicker pp = new PiecePicker(3, 2);
+        LinkedList<PieceBlock> r = new LinkedList<PieceBlock>();
+        pp.pickPieces(r, Constants.REQUEST_QUEUE_SIZE);
+        assertEquals(Constants.REQUEST_QUEUE_SIZE, r.size());
+
+        LinkedList<PieceBlock> tempReq = new LinkedList<PieceBlock>();
+        for(int i = 0; i < 20; i++) {
+            tempReq.clear();
+            pp.pickPieces(tempReq, Constants.REQUEST_QUEUE_SIZE);
+            assertEquals(Constants.REQUEST_QUEUE_SIZE, tempReq.size());
+        }
+
+        for(final PieceBlock b: r) {
+            pp.abortDownload(b);
+        }
+
+        for(final PieceBlock b: tempReq) {
+            pp.abortDownload(b);
+        }
+
+        LinkedList<PieceBlock> newR = new LinkedList<PieceBlock>();
+        pp.pickPieces(newR, Constants.REQUEST_QUEUE_SIZE);
+        assertEquals(Constants.REQUEST_QUEUE_SIZE, newR.size());
+        for(int i = 0; i != Constants.REQUEST_QUEUE_SIZE; ++i) {
+            assertEquals(r.get(i), newR.get(i));
+        }
+
+        newR.clear();
+        pp.pickPieces(newR, Constants.REQUEST_QUEUE_SIZE);
+        assertEquals(Constants.REQUEST_QUEUE_SIZE, newR.size());
+        for(int i = 0; i != Constants.REQUEST_QUEUE_SIZE; ++i) {
+            assertEquals(tempReq.get(i), newR.get(i));
+        }
     }
 }

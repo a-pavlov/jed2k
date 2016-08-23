@@ -4,6 +4,8 @@ import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,9 +13,6 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by inkpot on 15.07.2016.
@@ -85,8 +84,45 @@ public class PieceManager extends BlocksEnumerator {
         }
 
         // stage 2 - prepare hash and return obsolete blocks if possible
-        LinkedList<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
-        return res;
+        return mgr.registerBlock(b.pieceBlock, buffer);
+    }
+
+    /**
+     * restore block in piece managers after application restart
+     * works like write block method but reads data from file to buffer
+     *
+     * @param b piece block of data
+     * @param buffer buffer from common session pool as memory for operation
+     * @param dataSize actual data size in piece block
+     * @return free buffers
+     * @throws JED2KException
+     */
+    public LinkedList<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, int dataSize) throws JED2KException {
+        open();
+        assert(file != null);
+        assert(channel != null);
+        assert(dataSize > 0);
+
+        long bytesOffset = b.blocksOffset()*Constants.BLOCK_SIZE;
+        BlockManager mgr = getBlockManager(b.pieceIndex);
+
+        // prepare buffer for reading from file
+        buffer.clear();
+        buffer.limit(dataSize);
+
+        try {
+            // read data from file to buffer
+            channel.position(bytesOffset);
+            while(buffer.hasRemaining()) channel.read(buffer);
+            buffer.flip();
+        }
+        catch(IOException e) {
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        }
+
+        // register buffer as usual in blocks manager and return free blocks
+        assert(buffer.remaining() == dataSize);
+        return mgr.registerBlock(b.pieceBlock, buffer);
     }
 
     public Hash hashPiece(int pieceIndex) {
