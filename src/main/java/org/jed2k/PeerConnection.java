@@ -873,7 +873,7 @@ public class PeerConnection extends Connection {
                     // remove pending block from downloading queue
                     // check piece finished and run hashing
                     // check download queue empty and request new blocks
-                    //requestBlocks();
+                    requestBlocks();
                     return;
                 }
             }

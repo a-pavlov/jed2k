@@ -275,8 +275,7 @@ public class Transfer {
         }
 
         aioFutures.clear();
-
-        // add release here to order
+        aioFutures.addLast(session.diskIOService.submit(new AsyncRelease(this)));
     }
 
     void pause() {
@@ -318,17 +317,11 @@ public class Transfer {
      * call this method when transfer becomes "finished" to finalize downloading
      */
     void finished() {
-        log.debug("transfer finished");
+        log.info("transfer {} finished", hash);
         disconnectAll(ErrorCode.TRANSFER_FINISHED);
         // policy will know transfer is finished automatically via call isFinished on transfer
         // async release file
-        // TODO - need correct solution instead of now close file in main thread
-        try {
-            pm.close();
-        } catch(JED2KException e) {
-            log.error(e.toString());
-        }
-
+        aioFutures.addLast(session.diskIOService.submit(new AsyncRelease(this)));
         session.pushAlert(new TransferFinishedAlert(hash()));
     }
 
@@ -368,6 +361,10 @@ public class Transfer {
         }
 
         needSaveResumeData = true;
+    }
+
+    void onReleaseFile(final BaseErrorCode c) {
+        log.debug("release file completed {}", c);
     }
 
     /**

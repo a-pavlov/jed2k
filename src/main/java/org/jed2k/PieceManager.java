@@ -133,7 +133,11 @@ public class PieceManager extends BlocksEnumerator {
         return mgr.pieceHash();
     }
 
-    public void close() throws JED2KException {
+    /**
+     * close file and release resources
+     * @throws JED2KException
+     */
+    public void releaseFile() throws JED2KException {
         if (file != null) {
             try {
                 try {
