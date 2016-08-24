@@ -285,7 +285,7 @@ public class Conn {
             }
             else if ((parts[0].compareTo("delete") == 0) && parts.length == 2) {
                 log.debug("delete transfer {}", parts[1]);
-                s.removeTransfer(Hash.fromString(parts[1]), false);
+                s.removeTransfer(Hash.fromString(parts[1]), true);
             }
         }
 

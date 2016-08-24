@@ -349,6 +349,7 @@ public class Session extends Thread {
                     if (t != null) {
                         // add delete file here
                         t.abort();
+                        if (removeFile) t.deleteFile();
                         transfers.remove(h);
                     }
             }

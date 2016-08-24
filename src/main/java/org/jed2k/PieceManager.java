@@ -7,6 +7,7 @@ import org.jed2k.protocol.Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -152,5 +153,15 @@ public class PieceManager extends BlocksEnumerator {
                 channel = null;
             }
         }
+    }
+
+    /**
+     * delete file on disk
+     */
+    public void deleteFile() throws JED2KException {
+        assert file == null;
+        assert channel == null;
+        File f = new File(filepath);
+        f.delete();
     }
 }

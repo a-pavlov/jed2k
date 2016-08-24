@@ -299,6 +299,10 @@ public class Transfer {
         session.pushAlert(new TransferResumedAlert(hash));
     }
 
+    void deleteFile() {
+        aioFutures.addLast(session.diskIOService.submit(new AsyncDeleteFile(this)));
+    }
+
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
         // TODO - add few checks here
         // 1. check common hash is compatible with hash set
