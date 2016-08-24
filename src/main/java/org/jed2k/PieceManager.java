@@ -94,22 +94,22 @@ public class PieceManager extends BlocksEnumerator {
      *
      * @param b piece block of data
      * @param buffer buffer from common session pool as memory for operation
-     * @param dataSize actual data size in piece block
+     * @param fileSize size of file associated with transfer
      * @return free buffers
      * @throws JED2KException
      */
-    public LinkedList<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, int dataSize) throws JED2KException {
+    public LinkedList<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, long  fileSize) throws JED2KException {
         open();
         assert(file != null);
         assert(channel != null);
-        assert(dataSize > 0);
+        assert(fileSize > 0);
 
         long bytesOffset = b.blocksOffset()*Constants.BLOCK_SIZE;
         BlockManager mgr = getBlockManager(b.pieceIndex);
 
         // prepare buffer for reading from file
         buffer.clear();
-        buffer.limit(dataSize);
+        buffer.limit(b.size(fileSize));
 
         try {
             // read data from file to buffer
@@ -122,7 +122,7 @@ public class PieceManager extends BlocksEnumerator {
         }
 
         // register buffer as usual in blocks manager and return free blocks
-        assert(buffer.remaining() == dataSize);
+        assert(buffer.remaining() == b.size(fileSize));
         return mgr.registerBlock(b.pieceBlock, buffer);
     }
 
@@ -163,5 +163,9 @@ public class PieceManager extends BlocksEnumerator {
         assert channel == null;
         File f = new File(filepath);
         f.delete();
+    }
+
+    final String getFilepath() {
+        return filepath;
     }
 }

@@ -89,19 +89,50 @@ public class Transfer {
         assert(hash != null);
         assert(size != 0);
         numPieces = Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue();
+        int blocksInLastPiece = Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue();
         session = s;
         log.debug("created transfer {} dataSize {}", this.hash, this.size);
 
-        // prepare piece picker here
-        // in common case this is not correct condition(below)
-        //if (atp.resumeData == null) {
-            picker = new PiecePicker(Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
-                    Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue());
-        //}
-
+        // create piece picker always now
+        picker = new PiecePicker(numPieces, blocksInLastPiece);
         policy = new Policy(this);
-        pm = new PieceManager(atp.filepath.asString(), Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue(),
-                Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue());
+        pm = new PieceManager(atp.filepath.asString(), numPieces, blocksInLastPiece);
+
+        if (atp.resumeData.haveData()) {
+            restore(atp.resumeData.getData());
+        }
+    }
+
+    /**
+     * restore transfer's state using saved resume data
+     * set have pieces directly into picker
+     * restore partial pieces using step by step: allocate buffer -> async restore -> precess result
+     * @param rd resume data
+     */
+    void restore(final TransferResumeData rd) {
+        setHashSet(this.hash, rd.hashes);
+
+        int pieceIndex = 0;
+        for(final PieceResumeData prd: rd.pieces) {
+            if (prd.isPieceCompleted()) picker.weHave(pieceIndex);
+            BitField blocksStatus = prd.getBlocksStatus();
+            if (blocksStatus != null) {
+                for(int blockIndex = 0; blockIndex != blocksStatus.size(); blockIndex++) {
+                    if (blocksStatus.getBit(blockIndex)) {
+                        ByteBuffer buffer = session.bufferPool.allocate();
+                        if (buffer == null) {
+                            log.warn("{} have no enough buffers to restore transfer {} ",
+                                    session.bufferPool, new PieceBlock(pieceIndex, blockIndex));
+                            return;
+                        }
+
+                        PieceBlock b = new PieceBlock(pieceIndex, blockIndex);
+                        session.diskIOService.submit(new AsyncRestore(this, b, size, buffer));
+                    }
+                }
+            }
+            ++pieceIndex;
+        }
     }
 
     Hash hash() {
@@ -399,9 +430,9 @@ public class Transfer {
                     PieceResumeData prd = new PieceResumeData(PieceResumeData.ResumePieceStatus.PARTIAL, new BitField(dp.getBlocksCount()));
                     Iterator<DownloadingPiece.BlockState> itr = dp.iterator();
                     int bitIndex = 0;
-                    prd.blocks.clearAll();
+                    prd.getBlocksStatus().clearAll();
                     while(itr.hasNext()) {
-                        if (itr.next() == DownloadingPiece.BlockState.STATE_FINISHED) prd.blocks.setBit(bitIndex);
+                        if (itr.next() == DownloadingPiece.BlockState.STATE_FINISHED) prd.getBlocksStatus().setBit(bitIndex);
                         ++bitIndex;
                     }
                 }
@@ -414,5 +445,9 @@ public class Transfer {
         // temporary do not save peers
         needSaveResumeData = false;
         return trd;
+    }
+
+    public String getFilepath() {
+        return pm.getFilepath();
     }
 }

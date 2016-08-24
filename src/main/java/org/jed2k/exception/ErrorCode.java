@@ -37,7 +37,8 @@ public enum ErrorCode implements BaseErrorCode {
     TRANSFER_PAUSED(31, "Transfer paused"),
     LINK_MAILFORMED(32, "Incorrect link format"),
     NO_MEMORY(33, "No memory available"),
-    FAIL(34, "Fail");
+    SESSION_STOPPING(34, "Session stopping"),
+    FAIL(35, "Fail");
 
     private final int code;
     private final String description;

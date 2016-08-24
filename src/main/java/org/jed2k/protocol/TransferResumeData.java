@@ -1,7 +1,6 @@
 package org.jed2k.protocol;
 
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.tag.Tag;
 
 import java.nio.ByteBuffer;
 
@@ -23,6 +22,15 @@ public class TransferResumeData implements Serializable {
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         return peers.put(pieces.put(hashes.put(dst)));
+    }
+
+    public boolean isFinished() {
+        if (pieces.isEmpty()) return false;
+        for(final PieceResumeData prd: pieces) {
+            if (!prd.isPieceCompleted()) return false;
+        }
+
+        return true;
     }
 
     @Override

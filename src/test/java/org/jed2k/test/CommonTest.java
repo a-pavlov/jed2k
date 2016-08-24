@@ -1,16 +1,14 @@
 package org.jed2k.test;
 
+import org.jed2k.Constants;
+import org.junit.Test;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-
-import org.jed2k.Constants;
-import org.junit.Test;
-import static org.jed2k.Time.currentTime;
-import static org.jed2k.Time.currentTimeHiRes;
 
 public class CommonTest {
     private static Logger log = Logger.getLogger(CommonTest.class.getName());
@@ -60,7 +58,6 @@ public class CommonTest {
         for(int i = 0; i < (int)Constants.PIECE_SIZE; ++i) {
             assertEquals((template.get(i/(int)Constants.BLOCK_SIZE) != null)?template.get(i/(int)Constants.BLOCK_SIZE):0, data[i]);
         }
-
     }
 
     @Test

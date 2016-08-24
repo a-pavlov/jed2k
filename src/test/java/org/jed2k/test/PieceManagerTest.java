@@ -68,7 +68,7 @@ public class PieceManagerTest {
         // restore piece manager using external block
         PieceManager rpm = new PieceManager(f.getAbsolutePath(), 3, 3);
         ByteBuffer b = ByteBuffer.allocate(Constants.BLOCK_SIZE_INT);
-        LinkedList<ByteBuffer> rres = rpm.restoreBlock(new PieceBlock(0, 0), b, Constants.BLOCK_SIZE_INT);
+        LinkedList<ByteBuffer> rres = rpm.restoreBlock(new PieceBlock(0, 0), b, Constants.BLOCK_SIZE_INT*Constants.BLOCKS_PER_PIECE*2+123);
         assertEquals(1, rres.size());
 
         // prepare buffers for piece 0.0
@@ -81,7 +81,7 @@ public class PieceManagerTest {
             assertEquals(res0.get(0).get(), rres.get(0).get());
         }
 
-        rres = rpm.restoreBlock(new PieceBlock(1, 0), b, Constants.BLOCK_SIZE_INT);
+        rres = rpm.restoreBlock(new PieceBlock(1, 0), b, Constants.BLOCK_SIZE_INT*Constants.BLOCKS_PER_PIECE*2+123);
         assertEquals(1, rres.size());
 
         res1.get(0).clear();

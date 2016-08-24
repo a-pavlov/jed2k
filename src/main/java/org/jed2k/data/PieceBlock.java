@@ -1,7 +1,6 @@
 package org.jed2k.data;
 
 import org.jed2k.Constants;
-import org.jed2k.Pair;
 
 /**
  * PieceBlock describes block of data in piece
@@ -57,9 +56,9 @@ public class PieceBlock implements Comparable<PieceBlock> {
      * @param totalSize full size of file
      * @return block size in bytes
      */
-    public long size(long totalSize) {
+    public int size(long totalSize) {
         Range r = range(totalSize);
-        return (r.right - r.left);
+        return (int)(r.right - r.left);
     }
 
     @Override

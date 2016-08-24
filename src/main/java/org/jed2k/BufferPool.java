@@ -89,4 +89,9 @@ public class BufferPool {
 
         maxBuffersCount = maxBuffers;
     }
+
+    @Override
+    public String toString() {
+        return "buffer pool max{" + maxBuffersCount + "} allocated {" + allocatedBuffersCount + "} free {" + freeBuffers.size() + "}";
+    }
 }

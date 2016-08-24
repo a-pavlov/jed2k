@@ -1,11 +1,11 @@
 package org.jed2k.data.test;
 
-import static junit.framework.Assert.assertEquals;
-
 import org.jed2k.Constants;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.data.Range;
 import org.junit.Test;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * Created by inkpot on 27.06.2016.
@@ -42,5 +42,12 @@ public class PieceBlockTest {
         assertEquals(new Range(Constants.BLOCK_SIZE*Constants.BLOCKS_PER_PIECE
                         + Constants.BLOCK_SIZE, Constants.BLOCK_SIZE*Constants.BLOCKS_PER_PIECE + Constants.BLOCK_SIZE + 1235L)
                 , pb.range(Constants.BLOCK_SIZE*Constants.BLOCKS_PER_PIECE + Constants.BLOCK_SIZE + 1235L));
+    }
+
+    @Test
+    public void testBlockSize() {
+        assertEquals(1245, new PieceBlock(1,1).size(Constants.BLOCKS_PER_PIECE*Constants.BLOCK_SIZE + Constants.BLOCK_SIZE + 1245));
+        assertEquals(Constants.BLOCK_SIZE_INT, new PieceBlock(1,1).size(Constants.BLOCKS_PER_PIECE*Constants.BLOCK_SIZE + Constants.BLOCK_SIZE*2));
+        assertEquals(Constants.BLOCK_SIZE_INT - 120, new PieceBlock(0,Constants.BLOCKS_PER_PIECE - 1).size(Constants.BLOCKS_PER_PIECE*Constants.BLOCK_SIZE - 120));
     }
 }

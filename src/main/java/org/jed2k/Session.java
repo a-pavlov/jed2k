@@ -51,34 +51,38 @@ public class Session extends Thread {
         bufferPool = new BufferPool(st.bufferPoolSize);
     }
 
+    void closeListenSocket() {
+        try {
+            if (ssc != null) {
+                ssc.close();
+            }
+        } catch(IOException e) {
+            log.error("unable to close listen socket {}", e);
+        } finally {
+            ssc = null;
+        }
+    }
+
     /**
      * start listening server socket
      */
     private void listen() {
-        try {
-            if (ssc != null) ssc.close();
-        }
-        catch(IOException e) {
-            log.error("Unable to close server socket channel: {}", e.getMessage());
-        }
+        closeListenSocket();
 
         try {
-            log.info("Start listening on port {}", settings.listenPort);
-            ssc = ServerSocketChannel.open();
-            ssc.socket().bind(new InetSocketAddress(settings.listenPort));
-            ssc.configureBlocking(false);
-            ssc.register(selector, SelectionKey.OP_ACCEPT);
+            if (settings.listenPort > 0) {
+                log.info("Start listening on port {}", settings.listenPort);
+                ssc = ServerSocketChannel.open();
+                ssc.socket().bind(new InetSocketAddress(settings.listenPort));
+                ssc.configureBlocking(false);
+                ssc.register(selector, SelectionKey.OP_ACCEPT);
+            } else {
+                log.info("no listen mode");
+            }
         }
         catch(IOException e) {
             log.error("listen failed {}", e.getMessage());
-        }
-        finally {
-            try {
-                ssc.close();
-                ssc = null;
-            } catch(IOException e) {
-                log.error("server socket close failed {}", e.getMessage());
-            }
+            closeListenSocket();
         }
     }
 
@@ -172,6 +176,7 @@ public class Session extends Thread {
         }
         finally {
             log.info("Session is closing");
+
             try {
                 if (selector != null) selector.close();
             }
@@ -179,12 +184,33 @@ public class Session extends Thread {
                 log.error("close selector failed {}", e.getMessage());
             }
 
-            // stop service
-            diskIOService.shutdown();
+            // close listen socket
+            if (ssc != null) {
+                try {
+                    ssc.close();
+                } catch(IOException e) {
+                    log.error("listen socket close error {}", e);
+                }
+            }
 
+            // stop server connection
+            if (serverConection != null) serverConection.close(ErrorCode.SESSION_STOPPING);
+
+            // abort all transfers
             for(final Transfer t: transfers.values()) {
                 t.abort();
             }
+
+            ArrayList<PeerConnection> localConnections = (ArrayList<PeerConnection>) connections.clone();
+            for(final PeerConnection c: localConnections) {
+                c.close(ErrorCode.SESSION_STOPPING);
+            }
+
+            localConnections.clear();
+            connections.clear();
+
+            // stop service
+            diskIOService.shutdown();
 
             log.info("Session finished");
         }
@@ -354,6 +380,15 @@ public class Session extends Thread {
                     }
             }
         });
+    }
+
+    public final synchronized List<TransferHandle> getTransfers() {
+        LinkedList<TransferHandle> handles = new LinkedList<TransferHandle>();
+        for(final Transfer t: transfers.values()) {
+            if (!t.isAborted()) handles.add(new TransferHandle(this, t));
+        }
+
+        return handles;
     }
 
     void sendSourcesRequest(final Hash h, final long size) {

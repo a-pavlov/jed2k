@@ -4,7 +4,6 @@ import org.jed2k.Utils;
 import org.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
 
 /**
  * Created by inkpot on 01.07.2016.
@@ -18,14 +17,16 @@ public class PieceResumeData implements Serializable {
         COMPLETED((byte)1),
         NONE((byte)2);
 
-        public byte value;
+        private byte value;
         ResumePieceStatus(byte val) {
             this.value = val;
         }
+
+        byte getValue() { return value; }
     }
 
-    public ResumePieceStatus status = ResumePieceStatus.COMPLETED;
-    public BitField blocks;
+    private ResumePieceStatus status;
+    private BitField blocks;
 
     public PieceResumeData() {
     }
@@ -46,8 +47,12 @@ public class PieceResumeData implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        status.value = src.get();
-        if (status.value == ResumePieceStatus.PARTIAL.value) {
+        byte state = src.get();
+        if (state == ResumePieceStatus.COMPLETED.getValue()) status = ResumePieceStatus.COMPLETED;
+        if (state == ResumePieceStatus.PARTIAL.getValue()) status = ResumePieceStatus.PARTIAL;
+        if (state == ResumePieceStatus.NONE.getValue()) status = ResumePieceStatus.NONE;
+
+        if (status == ResumePieceStatus.PARTIAL) {
             assert(blocks == null);
             blocks = new BitField();
             blocks.get(src);
@@ -65,6 +70,18 @@ public class PieceResumeData implements Serializable {
         }
 
         return dst;
+    }
+
+    public boolean isPieceCompleted() {
+        return status == ResumePieceStatus.COMPLETED;
+    }
+
+    public final ResumePieceStatus getPieceStatus() {
+        return status;
+    }
+
+    public final BitField getBlocksStatus() {
+        return blocks;
     }
 
     @Override

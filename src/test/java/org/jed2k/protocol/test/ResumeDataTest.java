@@ -2,17 +2,20 @@ package org.jed2k.protocol.test;
 
 import org.jed2k.AddTransferParams;
 import org.jed2k.Constants;
-import org.jed2k.protocol.*;
-import org.junit.Test;
 import org.jed2k.exception.JED2KException;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import org.jed2k.protocol.BitField;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.PieceResumeData;
+import org.jed2k.protocol.TransferResumeData;
+import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
-import java.util.LinkedList;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Created by inkpot on 01.07.2016.
@@ -34,7 +37,7 @@ public class ResumeDataTest {
 
         PieceResumeData prd = new PieceResumeData(PieceResumeData.ResumePieceStatus.PARTIAL, new BitField(Constants.BLOCKS_PER_PIECE));
         for(int i = 0; i < 22; ++i) {
-            prd.blocks.setBit(i);
+            prd.getBlocksStatus().setBit(i);
         }
         trd.pieces.add(prd);
         trd.put(bb);
@@ -53,6 +56,7 @@ public class ResumeDataTest {
 
         assertEquals(trd2.pieces.size(), trd.pieces.size());
         assertEquals(0, trd2.peers.size());
+        assertFalse(trd2.isFinished());
         //assertTrue(trd2.filepath.isStringTag());
         //assertEquals("xxx", trd2.filepath.stringValue());
     }

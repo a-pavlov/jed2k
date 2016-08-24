@@ -243,17 +243,23 @@ public class Conn {
                 if (globalSearchRes != null && !globalSearchRes.files.isEmpty()) {
                     ByteBuffer bb = ByteBuffer.allocate(globalSearchRes.bytesCount());
                     bb.order(ByteOrder.LITTLE_ENDIAN);
+                    File f = new File(Paths.get(args[0], "search_results.txt").toString());
+                    FileOutputStream stream = new FileOutputStream(f, false);
+                    FileChannel channel = stream.getChannel();
+
                     try {
                         globalSearchRes.put(bb);
                         bb.flip();
-                        File f = new File(Paths.get(args[0], "search_results.txt").toString());
-                        FileChannel channel = new FileOutputStream(f, false).getChannel();
                         channel.write(bb);
                         channel.close();
                     } catch(IOException e) {
                         System.out.println("I/O exception on save " + e);
                     } catch(JED2KException e) {
                         System.out.println("Unable to save search result: " + e);
+                    }
+                    finally {
+                        channel.close();
+                        stream.close();
                     }
                 } else {
                     System.out.println("Won't save empty search result");
@@ -288,6 +294,8 @@ public class Conn {
                 s.removeTransfer(Hash.fromString(parts[1]), true);
             }
         }
+
+
 
         scheduledExecutorService.shutdown();
         log.info("Conn finished");

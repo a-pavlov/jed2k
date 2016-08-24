@@ -1,6 +1,7 @@
 package org.jed2k;
 
 import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.TransferResumeData;
 
 import java.lang.ref.WeakReference;
 
@@ -50,12 +51,15 @@ public class TransferHandle {
         return 0;
     }
 
-    public final String getName() {
-        return "";
-    }
+    public final String getFilepath() {
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                return t.getFilepath();
+            }
+        }
 
-    public final String getPath() {
-        return "";
+        return null;
     }
 
     public final void pause() {
@@ -96,5 +100,21 @@ public class TransferHandle {
             }
         }
         return res;
+    }
+
+    public TransferResumeData getResumeData() {
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                return t.resumeData();
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof TransferHandle && ((TransferHandle)o).getHash().equals(getHash()));
     }
 }
