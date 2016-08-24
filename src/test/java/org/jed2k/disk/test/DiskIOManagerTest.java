@@ -1,22 +1,16 @@
 package org.jed2k.disk.test;
 
-import static org.junit.Assert.*;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.LinkedList;
-import java.util.concurrent.*;
-
-import org.jed2k.Constants;
 import org.jed2k.AsyncOperationResult;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
 import org.junit.Test;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.concurrent.*;
+
+import static org.junit.Assert.assertEquals;
 
 public class DiskIOManagerTest {
 

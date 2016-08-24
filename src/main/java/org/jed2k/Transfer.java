@@ -263,6 +263,14 @@ public class Transfer {
         return picker != null;
     }
 
+    public PieceManager getPieceManager() { return pm; }
+
+    /**
+     * completely stop transfer:
+     * abort all connections
+     * cancel all disk i/o operations
+     * release file
+     */
     void abort() {
         log.debug("{} abort", hash);
         if (abort) return;

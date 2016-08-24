@@ -1,6 +1,5 @@
 package org.jed2k;
 
-import org.jed2k.data.PeerRequest;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;

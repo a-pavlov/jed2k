@@ -1,25 +1,24 @@
 package org.jed2k;
 
+import org.jed2k.alert.Alert;
+import org.jed2k.exception.BaseErrorCode;
+import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.server.search.SearchRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.Selector;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.*;
-
-import org.jed2k.alert.Alert;
-import org.jed2k.exception.BaseErrorCode;
-import org.jed2k.exception.JED2KException;
-import org.jed2k.exception.ErrorCode;
-import org.jed2k.protocol.Hash;
-import org.jed2k.protocol.NetworkIdentifier;
-import org.jed2k.protocol.server.search.SearchRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Session extends Thread {
     private static Logger log = LoggerFactory.getLogger(Session.class);
@@ -338,18 +337,32 @@ public class Session extends Thread {
         return new TransferHandle(this, t);
     }
 
-    void removeTransfer(Hash h) {
-        Transfer t = transfers.get(h);
-        transfers.remove(h);
-        if (t != null) {
-            t.abort();
-        }
+    public final synchronized TransferHandle findTransfer(final Hash h) {
+        return new TransferHandle(this, transfers.get(h));
+    }
+
+    public void removeTransfer(final Hash h, final boolean removeFile) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                    Transfer t = transfers.get(h);
+                    if (t != null) {
+                        // add delete file here
+                        t.abort();
+                        transfers.remove(h);
+                    }
+            }
+        });
     }
 
     void sendSourcesRequest(final Hash h, final long size) {
         if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
     }
 
+    /**
+     * executes each second
+     * traverse transfers list and try to connect new peers if limits not exceeded and transfer want more peers
+     */
     void connectNewPeers() {
         int stepsSinceLastConnect = 0;
         int maxConnectionsPerSecond = settings.maxConnectionsPerSecond;

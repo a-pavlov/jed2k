@@ -2,7 +2,6 @@ package org.jed2k;
 
 import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.BaseErrorCode;
-import org.jed2k.protocol.Hash;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;

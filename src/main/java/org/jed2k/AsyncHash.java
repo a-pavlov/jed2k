@@ -1,6 +1,5 @@
 package org.jed2k;
 
-import org.jed2k.exception.ErrorCode;
 import org.jed2k.protocol.Hash;
 
 import java.util.concurrent.Callable;

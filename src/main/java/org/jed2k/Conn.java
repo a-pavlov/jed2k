@@ -1,16 +1,5 @@
 package org.jed2k;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.concurrent.*;
-import java.net.InetSocketAddress;
-
 import org.jed2k.alert.Alert;
 import org.jed2k.alert.SearchResultAlert;
 import org.jed2k.alert.ServerMessageAlert;
@@ -22,9 +11,22 @@ import org.jed2k.protocol.server.SharedFileEntry;
 import org.jed2k.protocol.server.search.SearchRequest;
 import org.jed2k.protocol.server.search.SearchResult;
 import org.jed2k.protocol.tag.Tag;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 
 public class Conn {
@@ -258,13 +260,14 @@ public class Conn {
                 }
             }
             else if (parts[0].compareTo("restore") == 0) {
+                File f = new File(Paths.get(args[0], "search_results.txt").toString());
+                FileInputStream stream = new FileInputStream(f);
+                FileChannel channel = stream.getChannel();
                 try {
-                    File f = new File(Paths.get(args[0], "search_results.txt").toString());
                     ByteBuffer bb = ByteBuffer.allocate((int)f.length());
                     bb.order(ByteOrder.LITTLE_ENDIAN);
-                    FileChannel channel = new  FileInputStream(f).getChannel();
+                    channel = stream.getChannel();
                     channel.read(bb);
-                    channel.close();
                     bb.flip();
                     globalSearchRes = new SearchResult();
                     globalSearchRes.get(bb);
@@ -272,12 +275,18 @@ public class Conn {
                     System.out.println("I/O exception on load " + e);
                 } catch(JED2KException e) {
                     System.out.println("Unable to load search results " + e);
+                } finally {
+                    channel.close();
+                    stream.close();
                 }
             }
             else if (parts[0].compareTo("print") == 0) {
                 printGlobalSearchResult();
             }
-
+            else if ((parts[0].compareTo("delete") == 0) && parts.length == 2) {
+                log.debug("delete transfer {}", parts[1]);
+                s.removeTransfer(Hash.fromString(parts[1]), false);
+            }
         }
 
         scheduledExecutorService.shutdown();
