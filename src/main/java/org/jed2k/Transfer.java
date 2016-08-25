@@ -121,8 +121,8 @@ public class Transfer {
         this.hash = atp.hash;
         this.size = atp.size.longValue();
         numPieces = Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue();
+        this.session = null;
         this.picker = picker;
-        session = null;
     }
 
     /**
@@ -139,7 +139,7 @@ public class Transfer {
         }
 
         for(final PieceBlock b: rd.downloadedBlocks) {
-            ByteBuffer buffer = session.bufferPool.allocate();
+            ByteBuffer buffer = session.allocatePoolBuffer();
             if (buffer == null) {
                 log.warn("{} have no enough buffers to restore transfer {} ",
                         session.bufferPool, b);
@@ -148,7 +148,8 @@ public class Transfer {
 
             setState(TransferStatus.TransferState.LOADING_RESUME_DATA);
             lastResumeBlock = b;
-            session.diskIOService.submit(new AsyncRestore(this, b, size, buffer));
+            asyncRestoreBlock(b, buffer);
+            //aioFutures.addLast(session.submitDiskTask(new AsyncRestore(this, b, size, buffer)));
         }
 
         if (isFinished()) setState(TransferStatus.TransferState.FINISHED);
@@ -333,7 +334,7 @@ public class Transfer {
         }
 
         aioFutures.clear();
-        aioFutures.addLast(session.diskIOService.submit(new AsyncRelease(this)));
+        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
     }
 
     void pause() {
@@ -350,7 +351,7 @@ public class Transfer {
     }
 
     void deleteFile() {
-        aioFutures.addLast(session.diskIOService.submit(new AsyncDeleteFile(this)));
+        aioFutures.addLast(session.submitDiskTask(new AsyncDeleteFile(this)));
     }
 
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
@@ -384,7 +385,7 @@ public class Transfer {
         // policy will know transfer is finished automatically via call isFinished on transfer
         // async release file
         setState(TransferStatus.TransferState.FINISHED);
-        aioFutures.addLast(session.diskIOService.submit(new AsyncRelease(this)));
+        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
         session.pushAlert(new TransferFinishedAlert(hash()));
     }
 
@@ -533,5 +534,9 @@ public class Transfer {
 
         status.numPieces = picker.numHave();
         return status;
+    }
+
+    public void asyncRestoreBlock(final PieceBlock b, final ByteBuffer buffer) {
+        aioFutures.addLast(session.submitDiskTask(new AsyncRestore(this, b, size, buffer)));
     }
 }

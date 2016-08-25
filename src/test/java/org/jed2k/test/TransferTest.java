@@ -4,16 +4,45 @@ import org.jed2k.*;
 import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.TransferResumeData;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by ap197_000 on 25.08.2016.
  */
 public class TransferTest {
+
+    @Test
+    public void testRestore() throws JED2KException {
+        Session s = Mockito.mock(Session.class);
+        when(s.allocatePoolBuffer()).thenReturn(ByteBuffer.allocate(100));
+        TransferResumeData trd = new TransferResumeData();
+        trd.hashes.add(Hash.INVALID);
+        trd.hashes.add(Hash.EMULE);
+        trd.hashes.add(Hash.TERMINAL);
+        trd.pieces.resize(3);
+        trd.pieces.setBit(0);
+        trd.pieces.setBit(2);
+        trd.downloadedBlocks.add(new PieceBlock(1, 0));
+        trd.downloadedBlocks.add(new PieceBlock(1, 22));
+        trd.downloadedBlocks.add(new PieceBlock(1, 33));
+        AddTransferParams atp = new AddTransferParams(Hash.EMULE, Constants.PIECE_SIZE*2 + Constants.BLOCK_SIZE*2 + 334, "", true);
+        atp.resumeData.setData(trd);
+        Transfer t = Mockito.spy(new Transfer(s, atp));
+        doNothing().when(t).asyncRestoreBlock(any(PieceBlock.class), any(ByteBuffer.class));
+        assertTrue(t.getPicker().havePiece(0));
+        assertTrue(t.getPicker().havePiece(2));
+    }
 
     @Test
     public void testBytesDonePartialBlock() throws JED2KException {

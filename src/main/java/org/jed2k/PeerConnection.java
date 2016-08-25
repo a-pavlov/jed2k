@@ -748,7 +748,7 @@ public class PeerConnection extends Connection {
         }
 
         // if pending block hasn't associated buffer - allocate it
-        if (pb.buffer == null) pb.buffer = allocateBuffer();
+        if (pb.buffer == null) pb.buffer = session.allocatePoolBuffer();
 
         /**
          * if buffer pool hasn't free blocks we will get null buffer
@@ -941,14 +941,6 @@ public class PeerConnection extends Connection {
         return false;
     }
 
-    /**
-     *
-     * @return byte buffer with fixed dataSize 180K from global session pool
-     */
-    ByteBuffer allocateBuffer() {
-        return session.bufferPool.allocate();
-    }
-
     public PeerSpeed speed() {
         if (transfer != null) {
             long downloadRate = statistics().downloadPayloadRate();
@@ -1055,7 +1047,7 @@ public class PeerConnection extends Connection {
      */
     Future<AsyncOperationResult> asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
         transfer.getPicker().markAsWriting(b);
-        return session.diskIOService.submit(new AsyncWrite(b, buffer, t));
+        return session.submitDiskTask(new AsyncWrite(b, buffer, t));
     }
 
     /**
@@ -1065,6 +1057,6 @@ public class PeerConnection extends Connection {
      * @return future of hasshing operation result
      */
     Future<AsyncOperationResult> asyncHash(int pieceIndex, final Transfer t) {
-        return session.diskIOService.submit(new AsyncHash(t, pieceIndex));
+        return session.submitDiskTask(new AsyncHash(t, pieceIndex));
     }
 }

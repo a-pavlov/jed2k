@@ -36,7 +36,7 @@ public class Session extends Thread {
     private byte[] zBuffer = null;
     long zBufferLastAllocatedTime = 0;
     BufferPool bufferPool = null;
-    ExecutorService diskIOService = Executors.newSingleThreadExecutor();
+    private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
 
     // from last established server connection
     int clientId    = 0;
@@ -447,6 +447,14 @@ public class Session extends Thread {
     }
 
     /**
+     * allocate new fixed size byte buffer from session's buffer pool
+     * @return byte buffer from common session buffer pool
+     */
+    public ByteBuffer allocatePoolBuffer() {
+        return bufferPool.allocate();
+    }
+
+    /**
      * sometimes we need to skip some data received from peer
      * skip data buffer is one shared data buffer for all connections
      * @return byte buffer
@@ -467,6 +475,15 @@ public class Session extends Thread {
         zBufferLastAllocatedTime = Time.currentTime();
         if (zBuffer == null) zBuffer = new byte[Constants.BLOCK_SIZE_INT];
         return zBuffer;
+    }
+
+    /**
+     * execute async disk operation
+     * @param task special task
+     * @return future
+     */
+    public Future<AsyncOperationResult> submitDiskTask(Callable<AsyncOperationResult> task) {
+        return diskIOService.submit(task);
     }
 
     @Override
