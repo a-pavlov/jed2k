@@ -1,19 +1,17 @@
 package org.jed2k.protocol.test;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.BitField;
+import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import org.jed2k.Utils;
-import org.jed2k.protocol.ByteContainer;
-import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.BitField;
-import org.junit.Test;
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class BitFieldTest {
     private static Logger log = Logger.getLogger(BitFieldTest.class.getName());
@@ -150,6 +148,25 @@ public class BitFieldTest {
         BitField bf2 = new BitField();
         bf2.get(bb);
         //assertFalse(bb.hasRemaining());
+        assertEquals(bf1, bf2);
+    }
+
+    @Test
+    public void testGetPutResize() throws JED2KException {
+        BitField bf1 = new BitField();
+        bf1.resize(10);
+        ByteBuffer bb = ByteBuffer.allocate(bf1.bytesCount());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bf1.setBit(1);
+        bf1.setBit(2);
+        bf1.setBit(9);
+        assertEquals(10, bf1.size());
+        bf1.put(bb);
+        assertFalse(bb.hasRemaining());
+        bb.flip();
+        BitField bf2 = new BitField();
+        bf2.get(bb);
+        assertFalse(bb.hasRemaining());
         assertEquals(bf1, bf2);
     }
 }

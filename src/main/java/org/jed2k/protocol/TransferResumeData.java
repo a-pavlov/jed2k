@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  *
  */
 public class TransferResumeData implements Serializable {
-    public Container<UInt16, Hash>    hashes  = Container.makeShort(Hash.class);
+    public Container<UInt16, Hash> hashes  = Container.makeShort(Hash.class);
     public BitField pieces = new BitField();
     public Container<UInt16, PieceBlock> downloadedBlocks = Container.makeShort(PieceBlock.class);
     public Container<UInt16, NetworkIdentifier> peers = Container.makeShort(NetworkIdentifier.class);
@@ -23,11 +23,14 @@ public class TransferResumeData implements Serializable {
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        return peers.put(downloadedBlocks.put(pieces.put(hashes.put(dst))));
+        return peers.put(
+                downloadedBlocks.put(
+                        pieces.put(
+                                hashes.put(dst))));
     }
 
     @Override
     public int bytesCount() {
-        return hashes.bytesCount() + pieces.bytesCount() + downloadedBlocks.size() + peers.size();
+        return hashes.bytesCount() + pieces.bytesCount() + downloadedBlocks.bytesCount() + peers.bytesCount();
     }
 }

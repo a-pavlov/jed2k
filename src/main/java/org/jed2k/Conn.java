@@ -22,7 +22,9 @@ import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -34,6 +36,7 @@ public class Conn {
     private static SearchResult globalSearchRes = null;
     private static final boolean trial = "true".equals(System.getProperty("session.trial"));
     private static final boolean compression = "true".equals(System.getProperty("session.compression"));
+    private static Set<TransferHandle> handles = new HashSet<>();
 
     private static void printGlobalSearchResult() {
         if (globalSearchRes == null) return;
@@ -57,6 +60,38 @@ public class Conn {
         }
 
         return null;
+    }
+
+    static void saveTransferParameters(final AddTransferParams params) {
+        File f = new File(params.filepath.toString() + ".resumedata");
+        FileOutputStream stream = null;
+        FileChannel channel = null;
+
+        try {
+            stream = new FileOutputStream(f, false);
+            channel = stream.getChannel();
+            ByteBuffer bb = ByteBuffer.allocate(params.bytesCount());
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            params.put(bb);
+            channel = stream.getChannel();
+            while(bb.hasRemaining()) channel.write(bb);
+        } catch(IOException e) {
+            System.out.println("I/O exception on load " + e);
+        } catch(JED2KException e) {
+            System.out.println("Unable to load search results " + e);
+        } finally {
+            try {
+                channel.close();
+            } catch(IOException e) {
+                log.error("unable to close channel {}", e.toString());
+            }
+
+            try {
+                stream.close();
+            } catch(IOException e) {
+                log.error("unable to close stream {}", e.toString());
+            }
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -91,7 +126,6 @@ public class Conn {
                 }
             }
         }
-
 
         final Session s = (trial)?(new SessionTrial(startSettings, systemPeers)):(new Session(startSettings));
         // add sources here
@@ -221,14 +255,14 @@ public class Conn {
                             sb.append(filesize);
                             System.out.println(sb);
 
-                            addTransfer(s, sfe.hash, filesize, filepath.toAbsolutePath().toString());
+                            handles.add(addTransfer(s, sfe.hash, filesize, filepath.toAbsolutePath().toString()));
                         } else {
                             System.out.println("Not enough parameters to start new transfer");
                         }
                     }
                 } else {
                     Path filepath = Paths.get(args[0], eml.filepath);
-                    addTransfer(s, eml.hash, eml.size, filepath.toAbsolutePath().toString());
+                    handles.add(addTransfer(s, eml.hash, eml.size, filepath.toAbsolutePath().toString()));
                 }
             }
             else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
@@ -236,7 +270,7 @@ public class Conn {
                 long size = Long.parseLong(parts[2]);
                 Hash hash = Hash.fromString(parts[1]);
                 log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
-                addTransfer(s, hash, size, filepath.toAbsolutePath().toString());
+                handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
             }
             else if (parts[0].compareTo("save") == 0) {
                 // saving search results to file for next usage
@@ -295,7 +329,18 @@ public class Conn {
             }
         }
 
-
+        for(TransferHandle handle: handles) {
+            if (handle.isValid()) {
+                try {
+                    AddTransferParams atp = new AddTransferParams(handle.getHash(), handle.getSize(), handle.getFilepath(), handle.isPaused());
+                    atp.resumeData.setData(handle.getResumeData());
+                    saveTransferParameters(atp);
+                } catch(JED2KException e) {
+                    log.error("unable to generate add parameters for {}", handle.getHash());
+                }
+                log.debug("save resume data for transfer {}", handle.getHash());
+            }
+        }
 
         scheduledExecutorService.shutdown();
         log.info("Conn finished");
