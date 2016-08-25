@@ -82,6 +82,10 @@ public class Transfer {
      */
     private boolean needSaveResumeData = false;
 
+    private TransferStatus.TransferState state = TransferStatus.TransferState.LOADING_RESUME_DATA;
+
+    private PieceBlock lastResumeBlock = null;
+
     public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
         this.hash = atp.hash;
@@ -100,7 +104,22 @@ public class Transfer {
 
         if (atp.resumeData.haveData()) {
             restore(atp.resumeData.getData());
+        } else {
+            setState(TransferStatus.TransferState.DOWNLOADING);
         }
+    }
+
+    /**
+     * for testing purposes only
+     * @param atp transfer parameters
+     * @param picker external picker
+     */
+    public Transfer(final AddTransferParams atp, final PiecePicker picker) {
+        this.hash = atp.hash;
+        this.size = atp.size.longValue();
+        numPieces = Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue();
+        this.picker = picker;
+        session = null;
     }
 
     /**
@@ -126,13 +145,18 @@ public class Transfer {
                             return;
                         }
 
+                        setState(TransferStatus.TransferState.LOADING_RESUME_DATA);
                         PieceBlock b = new PieceBlock(pieceIndex, blockIndex);
+                        lastResumeBlock = b;
                         session.diskIOService.submit(new AsyncRestore(this, b, size, buffer));
                     }
                 }
             }
+
             ++pieceIndex;
         }
+
+        if (isFinished()) setState(TransferStatus.TransferState.FINISHED);
     }
 
     Hash hash() {
@@ -364,6 +388,7 @@ public class Transfer {
         disconnectAll(ErrorCode.TRANSFER_FINISHED);
         // policy will know transfer is finished automatically via call isFinished on transfer
         // async release file
+        setState(TransferStatus.TransferState.FINISHED);
         aioFutures.addLast(session.diskIOService.submit(new AsyncRelease(this)));
         session.pushAlert(new TransferFinishedAlert(hash()));
     }
@@ -388,6 +413,11 @@ public class Transfer {
             picker.abortDownload(b);
             session.pushAlert(new TransferDiskIOError(hash, ec));
             pause();
+        }
+
+        // reached last piece block from resume data, switch state
+        if (lastResumeBlock != null && lastResumeBlock.equals(b)) {
+            setState(TransferStatus.TransferState.DOWNLOADING);
         }
     }
 
@@ -449,5 +479,72 @@ public class Transfer {
 
     public String getFilepath() {
         return pm.getFilepath();
+    }
+
+    void setState(final TransferStatus.TransferState state) {
+        if (this.state == state) return;
+        this.state = state;
+    }
+
+    public void getBytesDone(final TransferStatus status) {
+        status.totalWanted = size();
+        status.totalDone = numHave()*Constants.PIECE_SIZE; //, status.totalWanted);
+        int lastPiece = numPieces() - 1;
+
+        // if we have last piece - correct total done since last piece size possibly is not equals whole piece size
+        if (picker.havePiece(lastPiece)) {
+            int corr = (int)(size() % Constants.PIECE_SIZE - Constants.PIECE_SIZE);
+            assert corr <= 0;
+            status.totalDone += corr;
+        }
+
+        int blocksInLastPiece = Utils.divCeil(size % Constants.PIECE_SIZE, Constants.BLOCK_SIZE).intValue();
+        PieceBlock lastBlock = new PieceBlock(numPieces - 1, blocksInLastPiece - 1);
+
+        List<DownloadingPiece> dq = picker.getDownloadingQueue();
+        for(final DownloadingPiece dp: dq) {
+            // skip have pieces since we are already calculated them
+            if (picker.havePiece(dp.pieceIndex)) continue;
+            status.totalDone += dp.downloadedCount()*Constants.BLOCK_SIZE;
+
+            int corr = 0;
+            if (dp.pieceIndex == lastBlock.pieceIndex && dp.isDownloaded(lastBlock.pieceBlock)) {
+                corr = lastBlock.size(size) - Constants.BLOCK_SIZE_INT;
+            }
+
+            assert corr <= 0;
+
+            status.totalDone += corr;
+        }
+    }
+
+    public TransferStatus getStatus() {
+        TransferStatus status = new TransferStatus();
+        getBytesDone(status);
+
+        status.paused = isPaused();
+        status.downloadPayload = stat.totalPayloadDownload();
+        status.downloadProtocol = stat.totalProtocolDownload();
+        status.downloadRate = (int)stat.downloadRate();
+        status.downloadPayloadRate = (int)stat.downloadPayloadRate();
+
+        if (status.totalWanted == 0)        {
+            status.progressPPM = 1000000;
+            status.progress = 1.f;
+        }
+        else {
+            status.progressPPM = (int)(status.totalDone * 1000000 / status.totalWanted);
+            status.progress = ((float)status.totalDone)/status.totalWanted;
+        }
+
+        status.numPeers = connections.size();
+        status.pieces = new BitField(picker.numPieces());
+
+        for(int i = 0; i != picker.numPieces(); ++i) {
+            if (picker.havePiece(i)) status.pieces.setBit(i);
+        }
+
+        status.numPieces = picker.numHave();
+        return status;
     }
 }

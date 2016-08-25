@@ -44,9 +44,20 @@ public class Statistics {
 		channels[ChannelsNames.UPLOAD_PAYLOAD.value].add(payloadBytes);
 	}
 
-	public long totalDownload() {
-		return channels[ChannelsNames.DOWNLOAD_PAYLOAD.value].total() +
-				channels[ChannelsNames.DOWNLOAD_PROTOCOL.value].total();
+	/**
+	 *
+	 * @return payload bytes count were received
+     */
+	public long totalPayloadDownload() {
+		return channels[ChannelsNames.DOWNLOAD_PAYLOAD.value].total();
+	}
+
+	/**
+	 *
+	 * @return auxiliary bytes count were received
+     */
+	public long totalProtocolDownload() {
+		return channels[ChannelsNames.DOWNLOAD_PROTOCOL.value].total();
 	}
 
 	public long totalUpload() {
@@ -64,6 +75,10 @@ public class Statistics {
 				channels[ChannelsNames.UPLOAD_PROTOCOL.value].counter();
 	}
 
+	/**
+	 *
+	 * @return total rate of payload and service
+     */
 	public long downloadRate() {
 		return channels[ChannelsNames.DOWNLOAD_PAYLOAD.value].rate() +
 				channels[ChannelsNames.DOWNLOAD_PROTOCOL.value].rate();

@@ -10,9 +10,11 @@ public class PieceBlock implements Comparable<PieceBlock> {
     public int pieceIndex;
     public int pieceBlock;
 
-    public PieceBlock(int pi, int pb) {
-        pieceIndex = pi;
-        pieceBlock = pb;
+    public PieceBlock(int p, int b) {
+        assert p >= 0;
+        assert b >= 0;
+        pieceIndex = p;
+        pieceBlock = b;
     }
 
     /**
@@ -79,5 +81,10 @@ public class PieceBlock implements Comparable<PieceBlock> {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return pieceIndex*Constants.BLOCKS_PER_PIECE + pieceBlock;
     }
 }

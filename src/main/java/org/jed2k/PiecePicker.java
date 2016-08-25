@@ -1,8 +1,8 @@
 package org.jed2k;
 
-import java.util.*;
-
 import org.jed2k.data.PieceBlock;
+
+import java.util.*;
 
 public class PiecePicker extends BlocksEnumerator {
 
@@ -239,5 +239,9 @@ public class PiecePicker extends BlocksEnumerator {
 
         assert(p != null);
         p.finishBlock(b.pieceBlock);
+    }
+
+    public List<DownloadingPiece> getDownloadingQueue() {
+        return downloadingPieces;
     }
 }

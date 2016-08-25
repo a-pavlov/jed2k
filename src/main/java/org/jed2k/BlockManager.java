@@ -26,14 +26,14 @@ public class BlockManager {
     }
 
     public LinkedList<ByteBuffer> registerBlock(int blockIndex, ByteBuffer buffer) {
-        assert(pieceHash == null);
+        assert pieceHash == null;
         assert(buffer.hasRemaining());
         assert(blockIndex < buffers.length);
         // have no holes - hash all contiguous blocks
         assert(buffers[blockIndex] == null);
         buffers[blockIndex] = buffer;
         if (lastHashedBlock + 1 == blockIndex) {
-            LinkedList<ByteBuffer> res = new LinkedList<ByteBuffer>();
+            LinkedList<ByteBuffer> res = new LinkedList<>();
             for(int i = blockIndex; i != buffers.length; ++i) {
                 if (buffers[i] != null) lastHashedBlock++; else break;
                 assert(lastHashedBlock == i);

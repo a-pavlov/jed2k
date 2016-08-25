@@ -113,6 +113,17 @@ public class TransferHandle {
         return null;
     }
 
+    public TransferStatus getStatus() {
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                return t.getStatus();
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public boolean equals(Object o) {
         return (o instanceof TransferHandle && ((TransferHandle)o).getHash().equals(getHash()));

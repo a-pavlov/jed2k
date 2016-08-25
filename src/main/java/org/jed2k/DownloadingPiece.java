@@ -1,8 +1,5 @@
 package org.jed2k;
 
-import org.jed2k.data.PieceBlock;
-import org.jed2k.protocol.Hash;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -61,6 +58,15 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.BlockState> {
         int res = 0;
         for(int i = 0; i < blocksCount; ++i)
             if (blockState[i] == BlockState.STATE_WRITING) res++;
+        return res;
+    }
+
+    public final int downloadedCount() {
+        int res = 0;
+        for(int i = 0; i < blocksCount; ++i) {
+            if (isDownloaded(i)) res++;
+        }
+
         return res;
     }
 
