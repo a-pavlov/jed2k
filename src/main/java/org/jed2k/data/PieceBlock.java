@@ -1,14 +1,23 @@
 package org.jed2k.data;
 
 import org.jed2k.Constants;
+import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Serializable;
+
+import java.nio.ByteBuffer;
 
 /**
  * PieceBlock describes block of data in piece
  * each piece contains few few blocks, from 1 to BLOCKS_PER_PIECE constant
  */
-public class PieceBlock implements Comparable<PieceBlock> {
+public class PieceBlock implements Comparable<PieceBlock>, Serializable {
     public int pieceIndex;
     public int pieceBlock;
+
+    public PieceBlock() {
+        pieceIndex = -1;
+        pieceBlock = -1;
+    }
 
     public PieceBlock(int p, int b) {
         assert p >= 0;
@@ -86,5 +95,22 @@ public class PieceBlock implements Comparable<PieceBlock> {
     @Override
     public int hashCode() {
         return pieceIndex*Constants.BLOCKS_PER_PIECE + pieceBlock;
+    }
+
+    @Override
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
+        pieceIndex = src.getInt();
+        pieceBlock = src.getInt();
+        return src;
+    }
+
+    @Override
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        return dst.putInt(pieceIndex).putInt(pieceBlock);
+    }
+
+    @Override
+    public int bytesCount() {
+        return 4 + 4;
     }
 }

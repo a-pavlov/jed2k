@@ -1,12 +1,12 @@
 package org.jed2k.protocol;
 
+import org.jed2k.Utils;
+import org.jed2k.exception.JED2KException;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Logger;
-
-import org.jed2k.Utils;
-import org.jed2k.exception.JED2KException;
 
 public class BitField implements Iterable<Boolean>, Serializable {
     private static Logger log = Logger.getLogger(BitField.class.getName());
@@ -128,7 +128,7 @@ public class BitField implements Iterable<Boolean>, Serializable {
         Arrays.fill(m_bytes, (byte)0);
     }
 
-    void resize(int bits) {
+    public void resize(int bits) {
         assert(bits >= 0);
         int b = bitsToBytes(bits);
 

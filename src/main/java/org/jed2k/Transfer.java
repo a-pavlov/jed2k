@@ -8,7 +8,10 @@ import org.jed2k.data.PieceBlock;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.*;
+import org.jed2k.protocol.BitField;
+import org.jed2k.protocol.Hash;
+import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.TransferResumeData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,29 +134,21 @@ public class Transfer {
     void restore(final TransferResumeData rd) {
         setHashSet(this.hash, rd.hashes);
 
-        int pieceIndex = 0;
-        for(final PieceResumeData prd: rd.pieces) {
-            if (prd.isPieceCompleted()) picker.weHave(pieceIndex);
-            BitField blocksStatus = prd.getBlocksStatus();
-            if (blocksStatus != null) {
-                for(int blockIndex = 0; blockIndex != blocksStatus.size(); blockIndex++) {
-                    if (blocksStatus.getBit(blockIndex)) {
-                        ByteBuffer buffer = session.bufferPool.allocate();
-                        if (buffer == null) {
-                            log.warn("{} have no enough buffers to restore transfer {} ",
-                                    session.bufferPool, new PieceBlock(pieceIndex, blockIndex));
-                            return;
-                        }
+        for(int i = 0; i < rd.pieces.size(); ++i) {
+            if (rd.pieces.getBit(i)) picker.restoreHave(i);
+        }
 
-                        setState(TransferStatus.TransferState.LOADING_RESUME_DATA);
-                        PieceBlock b = new PieceBlock(pieceIndex, blockIndex);
-                        lastResumeBlock = b;
-                        session.diskIOService.submit(new AsyncRestore(this, b, size, buffer));
-                    }
-                }
+        for(final PieceBlock b: rd.downloadedBlocks) {
+            ByteBuffer buffer = session.bufferPool.allocate();
+            if (buffer == null) {
+                log.warn("{} have no enough buffers to restore transfer {} ",
+                        session.bufferPool, b);
+                return;
             }
 
-            ++pieceIndex;
+            setState(TransferStatus.TransferState.LOADING_RESUME_DATA);
+            lastResumeBlock = b;
+            session.diskIOService.submit(new AsyncRestore(this, b, size, buffer));
         }
 
         if (isFinished()) setState(TransferStatus.TransferState.FINISHED);
@@ -449,25 +444,17 @@ public class Transfer {
         trd.hashes.assignFrom(hashSet);
 
         if (hasPicker()) {
+            trd.pieces.resize(picker.numPieces());
             for(int i = 0; i < numPieces(); ++i) {
                 if (picker.havePiece(i)) {
-                    trd.pieces.add(PieceResumeData.makeCompleted());
-                    continue;
+                    trd.pieces.setBit(i);
                 }
+            }
 
-                DownloadingPiece dp = picker.getDownloadingPiece(i);
-                if (dp != null) {
-                    PieceResumeData prd = new PieceResumeData(PieceResumeData.ResumePieceStatus.PARTIAL, new BitField(dp.getBlocksCount()));
-                    Iterator<DownloadingPiece.BlockState> itr = dp.iterator();
-                    int bitIndex = 0;
-                    prd.getBlocksStatus().clearAll();
-                    while(itr.hasNext()) {
-                        if (itr.next() == DownloadingPiece.BlockState.STATE_FINISHED) prd.getBlocksStatus().setBit(bitIndex);
-                        ++bitIndex;
-                    }
-                }
-                else {
-                    trd.pieces.add(PieceResumeData.makeEmpty());
+            List<DownloadingPiece> downloadingQueue = picker.getDownloadingQueue();
+            for(final DownloadingPiece dp: downloadingQueue) {
+                for(int j = 0; j < dp.getBlocksCount(); ++j) {
+                    if (dp.isFinished(j)) trd.downloadedBlocks.add(new PieceBlock(dp.pieceIndex, j));
                 }
             }
         }
