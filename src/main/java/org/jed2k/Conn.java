@@ -64,11 +64,9 @@ public class Conn {
 
     static void saveTransferParameters(final AddTransferParams params) {
         File f = new File(params.filepath.toString() + ".resumedata");
-        FileOutputStream stream = null;
         FileChannel channel = null;
 
-        try {
-            stream = new FileOutputStream(f, false);
+        try(FileOutputStream stream = new FileOutputStream(f, false)) {
             channel = stream.getChannel();
             ByteBuffer bb = ByteBuffer.allocate(params.bytesCount());
             bb.order(ByteOrder.LITTLE_ENDIAN);
@@ -81,15 +79,9 @@ public class Conn {
             System.out.println("Unable to load search results " + e);
         } finally {
             try {
-                channel.close();
+                if (channel != null) channel.close();
             } catch(IOException e) {
                 log.error("unable to close channel {}", e.toString());
-            }
-
-            try {
-                stream.close();
-            } catch(IOException e) {
-                log.error("unable to close stream {}", e.toString());
             }
         }
     }

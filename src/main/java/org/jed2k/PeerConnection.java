@@ -1059,4 +1059,15 @@ public class PeerConnection extends Connection {
     Future<AsyncOperationResult> asyncHash(int pieceIndex, final Transfer t) {
         return session.submitDiskTask(new AsyncHash(t, pieceIndex));
     }
+
+    public final PeerInfo getInfo() {
+        PeerInfo i = new PeerInfo();
+        i.downloadPayload = statistics().totalPayloadDownload();
+        i.downloadProtocol = statistics().totalProtocolDownload();
+        i.downloadSpeed = (int)statistics().downloadRate();
+        i.payloadDownloadSpeed = (int)statistics().downloadPayloadRate();
+
+
+        return i;
+    }
 }
