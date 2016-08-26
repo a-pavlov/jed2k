@@ -65,17 +65,18 @@ public class Conn {
         return null;
     }
 
-    static void saveTransferParameters(final AddTransferParams params) {
-        File transferFile = new File(params.filepath.toString());
+    static void saveTransferParameters(final AddTransferParams params) throws JED2KException {
+        File transferFile = new File(params.filepath.asString());
         File resumeDataFile = new File(resumeDataDirectory.resolve(transferFile.getName()).toString());
 
         try(FileOutputStream stream = new FileOutputStream(resumeDataFile, false); FileChannel channel = stream.getChannel();) {
             ByteBuffer bb = ByteBuffer.allocate(params.bytesCount());
             bb.order(ByteOrder.LITTLE_ENDIAN);
             params.put(bb);
+            bb.flip();
             while(bb.hasRemaining()) channel.write(bb);
         } catch(IOException e) {
-            System.out.println("I/O exception on load " + e);
+            System.out.println("I/O exception on save resume data " + e);
         } catch(JED2KException e) {
             System.out.println("Unable to load search results " + e);
         }
@@ -91,7 +92,7 @@ public class Conn {
         incomingDirectory = FileSystems.getDefault().getPath(args[0]);
         System.out.println("Incoming directory set to: " + incomingDirectory);
         File incomingFile = incomingDirectory.toFile();
-        boolean dirCreated = incomingFile.mkdirs();
+        boolean dirCreated = incomingFile.exists() || incomingFile.mkdirs();
 
         if (!dirCreated) {
             throw new JED2KException(ErrorCode.INCOMING_DIR_INACCESSIBLE);
@@ -100,7 +101,7 @@ public class Conn {
         resumeDataDirectory = incomingDirectory.resolve(".resumedata");
         File resumeFile = resumeDataDirectory.toFile();
 
-        dirCreated = resumeFile.mkdirs();
+        dirCreated = resumeFile.exists() || resumeFile.mkdirs();
 
         if (!dirCreated) {
             throw new JED2KException(ErrorCode.INCOMING_DIR_INACCESSIBLE);
@@ -111,8 +112,8 @@ public class Conn {
 
         System.out.println("Conn started");
         final Settings startSettings = new Settings();
-        startSettings.maxConnectionsPerSecond = 1;
-        startSettings.sessionConnectionsLimit = 2;
+        startSettings.maxConnectionsPerSecond = 10;
+        startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
 
         LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
