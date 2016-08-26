@@ -1,5 +1,12 @@
 package org.jed2k;
 
+import org.jed2k.exception.BaseErrorCode;
+import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -8,14 +15,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.jed2k.protocol.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.jed2k.exception.BaseErrorCode;
-import org.jed2k.exception.JED2KException;
-import org.jed2k.exception.ErrorCode;
 
 public abstract class Connection implements Dispatcher {
     private final Logger log = LoggerFactory.getLogger(ServerConnection.class);
@@ -202,7 +201,7 @@ public abstract class Connection implements Dispatcher {
     }
 
     void close(BaseErrorCode ec) {
-        log.debug("close connection {}", ec);
+        log.debug("{} close connection {}", getEndpoint(), ec);
         try {
             socket.close();
         } catch(IOException e) {

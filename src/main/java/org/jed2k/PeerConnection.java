@@ -650,6 +650,7 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientNoFileStatus(NoFileStatus value)
             throws JED2KException {
+        log.debug("{} << no file", getEndpoint());
         close(ErrorCode.FILE_NOT_FOUND);
     }
 
@@ -712,14 +713,14 @@ public class PeerConnection extends Connection {
         if (pb != null && pb.buffer == null) {
             pb.dataSize = compressedLength; // actual block size
             pb.dataLeft.shrinkEnd(compressedLength);    // reduce block size here
-            log.debug("block shrinked to {}", compressedLength);
+            log.trace("block shrinked to {}", compressedLength);
         }
 
         // when pending block exists simply calculate offset as begin of remaining range
         long beginOffset = (pb != null)? pb.dataLeft.begin() : offset;
         long dataSize = header.sizePacket() - payloadSize;
         long endOffset = beginOffset + dataSize;
-        log.debug("begin offset {} end offset {} data dataSize {}", beginOffset, endOffset, dataSize);
+        log.trace("begin offset {} end offset {} data dataSize {}", beginOffset, endOffset, dataSize);
 
         // run calculated request
         receiveData(PeerRequest.mk_request(beginOffset, endOffset), true);
@@ -846,7 +847,7 @@ public class PeerConnection extends Connection {
             statistics().receiveBytes(0, n);
 
             if (pb.buffer.remaining() == 0) {
-                log.debug("received {} bytes, buffer is full, turn off transferring data", recvPos);
+                log.trace("received {} bytes, buffer is full, turn off transferring data", recvPos);
                 assert recvPos == recvReq.length;
                 // turn off data transfer mode
                 transferringData = false;
