@@ -508,4 +508,15 @@ public class Session extends Thread {
     public String toString() {
         return "Session";
     }
+
+    public Hash getUserAgent() { return settings.userAgent; }
+    public int getClientId() { return clientId; }
+    public short getListenPort() { return settings.listenPort; }
+    public String getClientName() { return settings.clientName; }
+    public String getModName() { return settings.modName; }
+    public int getAppVersion() { return settings.version; }
+    public int getCompressionVersion() { return settings.compressionVersion; }
+    public int getModMajorVersion() { return settings.modMajor; }
+    public int getModMinorVersion() { return settings.modMinor; }
+    public int getModBuildVersion() { return settings.modBuild; }
 }

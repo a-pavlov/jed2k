@@ -59,9 +59,11 @@ public abstract class Connection implements Dispatcher {
         this.headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
         this.packetCombainer = packetCombiner;
         this.session = session;
-        this.socket = socket;
-        this.socket.configureBlocking(false);
-        key = socket.register(session.selector, SelectionKey.OP_READ, this);
+        if (socket != null) {
+            this.socket = socket;
+            this.socket.configureBlocking(false);
+            key = socket.register(session.selector, SelectionKey.OP_READ, this);
+        }
     }
 
     public void onConnectable() {

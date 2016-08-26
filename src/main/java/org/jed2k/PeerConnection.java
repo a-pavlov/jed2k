@@ -80,6 +80,8 @@ For incoming connection we have different order in first two packets
 */
 public class PeerConnection extends Connection {
 
+    public static final int MAX_OUTGOING_BUFFER_SIZE = 102*2 + 8; // look at PeerConnectionTest for details
+
     /**
      * peer connection speed over transfer's average speed
      */
@@ -206,7 +208,7 @@ public class PeerConnection extends Connection {
     public static PeerConnection make(SocketChannel socket, Session session) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(8128);
-            ByteBuffer obuff = ByteBuffer.allocate(8128);
+            ByteBuffer obuff = ByteBuffer.allocate(MAX_OUTGOING_BUFFER_SIZE);
             return  new PeerConnection(ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), session, socket);
         } catch(ClosedChannelException e) {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
@@ -218,7 +220,7 @@ public class PeerConnection extends Connection {
     public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer, Peer peerInfo) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(8128);
-            ByteBuffer obuff = ByteBuffer.allocate(8128);
+            ByteBuffer obuff = ByteBuffer.allocate(MAX_OUTGOING_BUFFER_SIZE);
             return new PeerConnection(point, ibuff, obuff, new org.jed2k.protocol.client.PacketCombiner(), ses, transfer, peerInfo);
         } catch(ClosedChannelException e) {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
@@ -364,21 +366,21 @@ public class PeerConnection extends Connection {
         return false;
     }
 
-    private HelloAnswer prepareHello(final HelloAnswer hello) throws JED2KException {
-        hello.hash.assign(session.settings.userAgent);
+    public HelloAnswer prepareHello(final HelloAnswer hello) throws JED2KException {
+        hello.hash.assign(session.getUserAgent());
         //Utils.fingerprint(hello.hash, (byte)'M', (byte)'L');
-        hello.point.setIP(session.clientId);
-        hello.point.setPort(session.settings.listenPort);
+        hello.point.setIP(session.getClientId());
+        hello.point.setPort(session.getListenPort());
 
-        hello.properties.add(Tag.tag(Tag.CT_NAME, null, session.settings.clientName));
-        hello.properties.add(Tag.tag(Tag.CT_MOD_VERSION, null, session.settings.modName));
-        hello.properties.add(Tag.tag(Tag.CT_VERSION, null, session.settings.version));
+        hello.properties.add(Tag.tag(Tag.CT_NAME, null, session.getClientName()));
+        hello.properties.add(Tag.tag(Tag.CT_MOD_VERSION, null, session.getModName()));
+        hello.properties.add(Tag.tag(Tag.CT_VERSION, null, session.getAppVersion()));
         hello.properties.add(Tag.tag(Tag.CT_EMULE_UDPPORTS, null, 0));
         // do not send CT_EM_VERSION since it will activate secure identification we are not support
 
         MiscOptions mo = new MiscOptions();
         mo.unicodeSupport = 1;
-        mo.dataCompVer = session.settings.compressionVersion;  // support data compression
+        mo.dataCompVer = session.getCompressionVersion();  // support data compression
         mo.noViewSharedFiles = 1; // temp value
         mo.sourceExchange1Ver = 0; //SOURCE_EXCHG_LEVEL - important value
 
@@ -388,9 +390,9 @@ public class PeerConnection extends Connection {
         mo2.setSourceExt2();
 
         hello.properties.add(Tag.tag(Tag.CT_EMULE_VERSION, null, Utils.makeFullED2KVersion(ClientSoftware.SO_AMULE.value,
-                session.settings.modMajor,
-                session.settings.modMinor,
-                session.settings.modBuild)));
+                session.getModMajorVersion(),
+                session.getModMinorVersion(),
+                session.getModBuildVersion())));
 
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS1, null, mo.intValue()));
         hello.properties.add(Tag.tag(Tag.CT_EMULE_MISCOPTIONS2, null, mo2.value));
