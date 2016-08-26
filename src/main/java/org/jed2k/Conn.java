@@ -4,6 +4,7 @@ import org.jed2k.alert.Alert;
 import org.jed2k.alert.SearchResultAlert;
 import org.jed2k.alert.ServerMessageAlert;
 import org.jed2k.alert.ServerStatusAlert;
+import org.jed2k.exception.ErrorCode;
 import org.jed2k.exception.JED2KException;
 import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
@@ -37,6 +38,8 @@ public class Conn {
     private static final boolean trial = "true".equals(System.getProperty("session.trial"));
     private static final boolean compression = "true".equals(System.getProperty("session.compression"));
     private static Set<TransferHandle> handles = new HashSet<>();
+    private static Path incomingDirectory;
+    private static Path resumeDataDirectory;
 
     private static void printGlobalSearchResult() {
         if (globalSearchRes == null) return;
@@ -63,38 +66,48 @@ public class Conn {
     }
 
     static void saveTransferParameters(final AddTransferParams params) {
-        File f = new File(params.filepath.toString() + ".resumedata");
-        FileChannel channel = null;
+        File transferFile = new File(params.filepath.toString());
+        File resumeDataFile = new File(resumeDataDirectory.resolve(transferFile.getName()).toString());
 
-        try(FileOutputStream stream = new FileOutputStream(f, false)) {
-            channel = stream.getChannel();
+        try(FileOutputStream stream = new FileOutputStream(resumeDataFile, false); FileChannel channel = stream.getChannel();) {
             ByteBuffer bb = ByteBuffer.allocate(params.bytesCount());
             bb.order(ByteOrder.LITTLE_ENDIAN);
             params.put(bb);
-            channel = stream.getChannel();
             while(bb.hasRemaining()) channel.write(bb);
         } catch(IOException e) {
             System.out.println("I/O exception on load " + e);
         } catch(JED2KException e) {
             System.out.println("Unable to load search results " + e);
-        } finally {
-            try {
-                if (channel != null) channel.close();
-            } catch(IOException e) {
-                log.error("unable to close channel {}", e.toString());
-            }
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, JED2KException {
 
         if (args.length < 1) {
             System.out.println("Specify incoming directory");
             return;
         }
 
-        Path incomingDir = FileSystems.getDefault().getPath(args[0]);
-        System.out.println("Incoming directory set to: " + incomingDir);
+        incomingDirectory = FileSystems.getDefault().getPath(args[0]);
+        System.out.println("Incoming directory set to: " + incomingDirectory);
+        File incomingFile = incomingDirectory.toFile();
+        boolean dirCreated = incomingFile.mkdirs();
+
+        if (!dirCreated) {
+            throw new JED2KException(ErrorCode.INCOMING_DIR_INACCESSIBLE);
+        }
+
+        resumeDataDirectory = incomingDirectory.resolve(".resumedata");
+        File resumeFile = resumeDataDirectory.toFile();
+
+        dirCreated = resumeFile.mkdirs();
+
+        if (!dirCreated) {
+            throw new JED2KException(ErrorCode.INCOMING_DIR_INACCESSIBLE);
+        }
+
+        assert incomingDirectory != null;
+        assert resumeDataDirectory != null;
 
         System.out.println("Conn started");
         final Settings startSettings = new Settings();
@@ -269,11 +282,9 @@ public class Conn {
                 if (globalSearchRes != null && !globalSearchRes.files.isEmpty()) {
                     ByteBuffer bb = ByteBuffer.allocate(globalSearchRes.bytesCount());
                     bb.order(ByteOrder.LITTLE_ENDIAN);
-                    File f = new File(Paths.get(args[0], "search_results.txt").toString());
-                    FileOutputStream stream = new FileOutputStream(f, false);
-                    FileChannel channel = stream.getChannel();
+                    File f = new File(incomingDirectory.resolve("search_results.txt").toString());
 
-                    try {
+                    try(FileOutputStream stream = new FileOutputStream(f, false);FileChannel channel = stream.getChannel()) {
                         globalSearchRes.put(bb);
                         bb.flip();
                         channel.write(bb);
@@ -283,22 +294,15 @@ public class Conn {
                     } catch(JED2KException e) {
                         System.out.println("Unable to save search result: " + e);
                     }
-                    finally {
-                        channel.close();
-                        stream.close();
-                    }
                 } else {
                     System.out.println("Won't save empty search result");
                 }
             }
             else if (parts[0].compareTo("restore") == 0) {
-                File f = new File(Paths.get(args[0], "search_results.txt").toString());
-                FileInputStream stream = new FileInputStream(f);
-                FileChannel channel = stream.getChannel();
-                try {
+                File f = new File(incomingDirectory.resolve("search_results.txt").toString());
+                try(FileInputStream stream = new FileInputStream(f); FileChannel channel = stream.getChannel()) {
                     ByteBuffer bb = ByteBuffer.allocate((int)f.length());
                     bb.order(ByteOrder.LITTLE_ENDIAN);
-                    channel = stream.getChannel();
                     channel.read(bb);
                     bb.flip();
                     globalSearchRes = new SearchResult();
@@ -307,9 +311,6 @@ public class Conn {
                     System.out.println("I/O exception on load " + e);
                 } catch(JED2KException e) {
                     System.out.println("Unable to load search results " + e);
-                } finally {
-                    channel.close();
-                    stream.close();
                 }
             }
             else if (parts[0].compareTo("print") == 0) {
@@ -318,6 +319,29 @@ public class Conn {
             else if ((parts[0].compareTo("delete") == 0) && parts.length == 2) {
                 log.debug("delete transfer {}", parts[1]);
                 s.removeTransfer(Hash.fromString(parts[1]), true);
+            }
+            else if (parts[0].compareTo("resume") == 0) {
+                File resumeDataFile = resumeDataDirectory.toFile();
+                File[] files = resumeDataFile.listFiles();
+                ByteBuffer buff = ByteBuffer.allocate(1024);
+                buff.order(ByteOrder.LITTLE_ENDIAN);
+                for (final File f: files) {
+                    try(FileInputStream stream = new FileInputStream(f); FileChannel channel = stream.getChannel()) {
+                        channel.read(buff);
+                        buff.flip();
+                        AddTransferParams atp = new AddTransferParams();
+                        atp.get(buff);
+                        handles.add(s.addTransfer(atp));
+                    }
+                    catch(IOException e) {
+                        log.error("i/o exception on restore transfer {}", e);
+                    }
+                    catch(JED2KException e) {
+                        log.error("transfer creation error {}", e);
+                    } finally {
+                        buff.clear();
+                    }
+                }
             }
         }
 

@@ -4,6 +4,8 @@ import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.TransferResumeData;
 
 import java.lang.ref.WeakReference;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * transfer handle for manipulation of transfer outside of session
@@ -122,6 +124,17 @@ public class TransferHandle {
         }
 
         return null;
+    }
+
+    public List<PeerInfo> getPeersInfo() {
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                return t.getPeersInfo();
+            }
+        }
+
+        return new LinkedList<PeerInfo>();
     }
 
     @Override

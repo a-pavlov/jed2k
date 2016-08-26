@@ -38,7 +38,8 @@ public enum ErrorCode implements BaseErrorCode {
     LINK_MAILFORMED(32, "Incorrect link format"),
     NO_MEMORY(33, "No memory available"),
     SESSION_STOPPING(34, "Session stopping"),
-    FAIL(35, "Fail");
+    INCOMING_DIR_INACCESSIBLE(35, "Incoming directory is inaccessible"),
+    FAIL(36, "Fail");
 
     private final int code;
     private final String description;

@@ -18,8 +18,7 @@ public class BitField implements Iterable<Boolean>, Serializable {
         return Utils.divCeil(count, 8);
     }
 
-    public BitField() {
-    }
+    public BitField() {}
 
     public BitField(int bits) {
         resize(bits);

@@ -363,6 +363,24 @@ public class Session extends Thread {
         return new TransferHandle(this, t);
     }
 
+    /**
+     * create new transfer in session or return previously created transfer
+     * using add transfer parameters structure with or without resume data block
+     * @param atp transfer parameters with or without resume data
+     * @return transfer handle
+     * @throws JED2KException
+     */
+    public final synchronized  TransferHandle addTransfer(final AddTransferParams atp) throws JED2KException {
+        Transfer t = transfers.get(atp.hash);
+
+        if (t == null) {
+            t = new Transfer(this, atp);
+            transfers.put(atp.hash, t);
+        }
+
+        return new TransferHandle(this, t);
+    }
+
     public final synchronized TransferHandle findTransfer(final Hash h) {
         return new TransferHandle(this, transfers.get(h));
     }

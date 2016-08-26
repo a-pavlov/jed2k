@@ -539,4 +539,13 @@ public class Transfer {
     public void asyncRestoreBlock(final PieceBlock b, final ByteBuffer buffer) {
         aioFutures.addLast(session.submitDiskTask(new AsyncRestore(this, b, size, buffer)));
     }
+
+    public final List<PeerInfo> getPeersInfo() {
+        List<PeerInfo> res = new LinkedList<>();
+        for(final PeerConnection c: connections) {
+            res.add(c.getInfo());
+        }
+
+        return res;
+    }
 }

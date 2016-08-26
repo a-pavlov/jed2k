@@ -1060,14 +1060,21 @@ public class PeerConnection extends Connection {
         return session.submitDiskTask(new AsyncHash(t, pieceIndex));
     }
 
+    /**
+     *
+     * @return information about remote peer
+     */
     public final PeerInfo getInfo() {
         PeerInfo i = new PeerInfo();
         i.downloadPayload = statistics().totalPayloadDownload();
         i.downloadProtocol = statistics().totalProtocolDownload();
         i.downloadSpeed = (int)statistics().downloadRate();
         i.payloadDownloadSpeed = (int)statistics().downloadPayloadRate();
-
-
+        i.remotePieces = remotePieces;
+        i.failCount = ((getPeer()!=null)?getPeer().failCount:0);
+        i.modName = remotePeerInfo.modName;
+        i.version = remotePeerInfo.version;
+        i.modVersion = remotePeerInfo.modNumber;
         return i;
     }
 }

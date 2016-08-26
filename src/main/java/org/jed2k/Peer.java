@@ -23,7 +23,7 @@ public class Peer implements Comparable<Peer> {
 
     long    lastConnected   = 0;
     long    nextConnection  = 0;
-    long    failCount       = 0;
+    int     failCount       = 0;
     boolean connectable     = false;
     int source      = 0;
     NetworkIdentifier   endpoint;

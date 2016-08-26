@@ -11,8 +11,10 @@ public class PeerInfo {
     int payloadDownloadSpeed;
     long downloadPayload;
     long downloadProtocol;
-    NetworkIdentifier endpoint;
     BitField remotePieces;
-    String client;
     int failCount;
+    NetworkIdentifier endpoint;
+    String modName;
+    int version;
+    int modVersion;
 }
