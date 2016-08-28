@@ -1,26 +1,25 @@
 package org.jed2k;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-
 import org.jed2k.alert.SearchResultAlert;
 import org.jed2k.alert.ServerMessageAlert;
 import org.jed2k.alert.ServerStatusAlert;
 import org.jed2k.exception.BaseErrorCode;
 import org.jed2k.exception.ErrorCode;
+import org.jed2k.exception.JED2KException;
+import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.NetworkIdentifier;
+import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.client.*;
 import org.jed2k.protocol.server.*;
-import org.jed2k.protocol.Hash;
 import org.jed2k.protocol.server.PacketCombiner;
 import org.jed2k.protocol.server.search.SearchResult;
-import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.Serializable;
 import org.jed2k.protocol.tag.Tag;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 
 import static org.jed2k.protocol.tag.Tag.tag;
 
@@ -37,8 +36,8 @@ public class ServerConnection extends Connection {
 
     public static ServerConnection makeConnection(Session ses) throws JED2KException {
         try {
-            ByteBuffer ibuff = ByteBuffer.allocate(18192);
-            ByteBuffer obuff = ByteBuffer.allocate(2048);
+            ByteBuffer ibuff = ByteBuffer.allocate(1024);
+            ByteBuffer obuff = ByteBuffer.allocate(1048);
             return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);

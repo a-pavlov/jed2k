@@ -1,10 +1,10 @@
 package org.jed2k.protocol;
 
-import static org.jed2k.Utils.byte2String;
+import org.jed2k.exception.JED2KException;
+
 import java.nio.ByteBuffer;
 
-import org.jed2k.exception.ErrorCode;
-import org.jed2k.exception.JED2KException;
+import static org.jed2k.Utils.byte2String;
 
 public class PacketHeader implements Serializable {
     public static byte OP_UNDEFINED     = (byte)0;
@@ -12,7 +12,6 @@ public class PacketHeader implements Serializable {
     public static byte OP_EDONKEYPROT   = (byte)0xE3;
     public static byte OP_PACKEDPROT    = (byte)0xD4;
     public static byte OP_EMULEPROT     = (byte)0xC5;
-    public static int MAX_SIZE = 1000000;
     public static int SIZE = 6;
 
     private byte protocol    = OP_UNDEFINED;
@@ -45,9 +44,6 @@ public class PacketHeader implements Serializable {
         protocol = src.get();
         size = src.getInt();
         packet = src.get();
-
-        if (size > MAX_SIZE) throw new JED2KException(ErrorCode.PACKET_SIZE_OVERFLOW);
-        if (size < 0) throw new JED2KException(ErrorCode.PACKET_SIZE_INCORRECT);
         return src;
     }
 

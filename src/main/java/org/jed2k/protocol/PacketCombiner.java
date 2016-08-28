@@ -1,14 +1,14 @@
 package org.jed2k.protocol;
 
-import java.nio.ByteBuffer;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-
-import org.jed2k.exception.JED2KException;
 import org.jed2k.exception.ErrorCode;
-
+import org.jed2k.exception.JED2KException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 public abstract class PacketCombiner {
 
@@ -131,7 +131,13 @@ public abstract class PacketCombiner {
             decompresser.end();
             src.clear();
 
-            // TODO check buffer has enough space for uncompressed data
+            // TODO fix this temp code
+            if (src.capacity() < resultLength) {
+                log.debug("re-create input buffer due to decompress size to {}", resultLength);
+                src = ByteBuffer.allocate(resultLength);
+                src.order(ByteOrder.LITTLE_ENDIAN);
+            }
+
             src.put(plainData, 0, resultLength);
             src.flip();
             header.reset(header.key(), resultLength);   // TODO - use correct protocol value here to be compatible with HashMap

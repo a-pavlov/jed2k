@@ -98,12 +98,29 @@ public abstract class Connection implements Dispatcher {
             assert(headerBuffer.remaining() == PacketHeader.SIZE);
             header.get(headerBuffer);
             headerBuffer.clear();
-            // TODO - add adequate resizing algorithm when packet dataSize greater than buffer dataSize
-            // but less than available limit for packet
+            int serviceSize = packetCombainer.serviceSize(header);
+            validatePacketSize(serviceSize);
+
+            // re-create buffer temp code
+            if (bufferIncoming.capacity() < serviceSize) {
+                log.debug("re-create incoming buffer to {}", serviceSize);
+                bufferIncoming = ByteBuffer.allocate(serviceSize);
+                bufferIncoming.order(ByteOrder.LITTLE_ENDIAN);
+            }
+
             bufferIncoming.limit(packetCombainer.serviceSize(header));
             log.trace("processHeader: {} await bytes: {}", header.toString(), packetCombainer.serviceSize(header));
             stat.receiveBytes(PacketHeader.SIZE, 0);
         }
+    }
+
+    /**
+     * override this method if you need special behaviour in peer or server connection
+     * @throws JED2KException
+     */
+    void validatePacketSize(int packetSize) throws JED2KException {
+        if (packetSize < 0) throw new JED2KException(ErrorCode.PACKET_SIZE_INCORRECT);
+        if (packetSize > Constants.BLOCK_SIZE_INT) throw new JED2KException(ErrorCode.PACKET_SIZE_OVERFLOW);
     }
 
     protected void processBody() throws JED2KException {
