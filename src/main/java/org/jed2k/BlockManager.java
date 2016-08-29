@@ -37,11 +37,10 @@ public class BlockManager {
             for(int i = blockIndex; i != buffers.length; ++i) {
                 if (buffers[i] != null) lastHashedBlock++; else break;
                 assert(lastHashedBlock == i);
-                // TODO - fix this useless copy!
-                byte[] b = new byte[buffers[i].remaining()];
-                buffers[i].get(b);
-                hasher.update(b);
                 assert(buffers[i] != null);
+                assert(buffers[i].hasRemaining());
+                hasher.update(buffers[i]);
+                assert(!buffers[i].hasRemaining());
                 res.addLast(buffers[i]);
                 buffers[i] = null;
             }

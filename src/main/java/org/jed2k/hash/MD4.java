@@ -18,6 +18,7 @@
 
 package org.jed2k.hash;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 
 /**
@@ -39,7 +40,7 @@ public  class MD4 extends MessageDigest implements Cloneable
 // MD4 specific object variables
 //...........................................................................
 
-    public static final int HASH_SIZE = 16; 
+    public static final int HASH_SIZE = 16;
     /**
      * The size in bytes of the input block to the tranformation algorithm.
      */
@@ -160,6 +161,33 @@ public  class MD4 extends MessageDigest implements Cloneable
         // buffer remaining input
         if (i < len)
             System.arraycopy(input, offset + i, buffer, bufferNdx, len - i);
+    }
+
+    public void engineUpdate(final ByteBuffer input) {
+        int bufferNdx = (int)(count % BLOCK_LENGTH);    // offset of free space in buffer after last operation
+        int partLen = BLOCK_LENGTH - bufferNdx; // free space in buffer after last operation
+        count += input.remaining(); // new total bytes
+
+        if (input.remaining() >= partLen) {
+            // complement last partial buffer and process it
+            input.get(buffer, bufferNdx, partLen);
+            transform(buffer, 0);
+
+            // process all remain whole blocks
+            while(input.remaining() >= BLOCK_LENGTH) {
+                input.get(buffer);
+                transform(buffer, 0);
+            }
+
+            bufferNdx = 0;
+        }
+
+        // we have remain data in buffer less than whole block, append it to buffer to future usage
+        if (input.hasRemaining()) {
+            assert input.remaining() > 0;
+            assert input.remaining() < BLOCK_LENGTH;
+            input.get(buffer, bufferNdx, input.remaining());
+        }
     }
 
     /**
