@@ -32,7 +32,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.jed2k.Conn</mainClass>
+                            <mainClass>org.dkf.jed2k.Conn</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
