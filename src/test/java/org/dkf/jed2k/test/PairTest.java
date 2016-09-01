@@ -2,6 +2,7 @@ package org.dkf.jed2k.test;
 
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.protocol.client.Hello;
+import org.junit.Assume;
 import org.junit.Test;
 
 import static junit.framework.Assert.*;
@@ -36,6 +37,7 @@ public class PairTest {
 
     @Test(expected = java.lang.AssertionError.class)
     public void testAssert() {
+        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         uncomparablePair.compareTo(uncomparablePair);
     }
 }

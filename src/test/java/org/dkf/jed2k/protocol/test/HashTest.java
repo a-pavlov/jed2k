@@ -70,7 +70,7 @@ public class HashTest{
         llh.push(Pair.make(100l, Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5")));
         llh.push(Pair.make(Constants.PIECE_SIZE, Hash.fromString("E76BADB8F958D7685B4549D874699EE9")));
         llh.push(Pair.make(Constants.PIECE_SIZE+1, Hash.fromString("49EC2B5DEF507DEA73E106FEDB9697EE")));
-        llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
+        //llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
 
         Iterator<Pair<Long, Hash>> itr = llh.iterator();
         while(itr.hasNext()) {
@@ -153,7 +153,7 @@ public class HashTest{
         llh.push(Pair.make(100l, Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5")));
         llh.push(Pair.make(Constants.PIECE_SIZE, Hash.fromString("E76BADB8F958D7685B4549D874699EE9")));
         llh.push(Pair.make(Constants.PIECE_SIZE+1, Hash.fromString("49EC2B5DEF507DEA73E106FEDB9697EE")));
-        llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
+        //llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
 
         Iterator<Pair<Long, Hash>> itr = llh.iterator();
         while(itr.hasNext()) {

@@ -5,6 +5,7 @@ import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.TransferResumeData;
+import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -24,6 +25,7 @@ public class TransferTest {
 
     @Test
     public void testRestore() throws JED2KException {
+        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         Session s = Mockito.mock(Session.class);
         when(s.allocatePoolBuffer()).thenReturn(ByteBuffer.allocate(100));
         TransferResumeData trd = new TransferResumeData();

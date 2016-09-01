@@ -5,6 +5,7 @@ import org.dkf.jed2k.Session;
 import org.dkf.jed2k.Settings;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.client.HelloAnswer;
+import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ public class PeerConnectionTest {
      */
     @Test
     public void testMaxOutgoingPacketSize() throws JED2KException, IOException {
+        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         Settings s = new Settings();
         Session session = Mockito.mock(Session.class);
         when(session.getUserAgent()).thenReturn(s.userAgent);
