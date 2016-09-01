@@ -1,6 +1,7 @@
 package org.dkf.jed2k.test;
 
 import org.dkf.jed2k.BufferPool;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
@@ -99,5 +100,21 @@ public class BufferPoolTest {
         assertEquals(0, bp.cachedBuffers());
         assertEquals(2, bp.totalAllocatedBuffers());
         assertTrue(bp.allocate() == null);
+    }
+
+    @Test
+    public void testMemoryAllocation() {
+        Assume.assumeTrue(System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        BufferPool pool = new BufferPool(100);
+        LinkedList<ByteBuffer> buffers = new LinkedList<>();
+        for(int i = 0; i < 100; ++i) {
+            buffers.add(pool.allocate());
+        }
+
+        for(final ByteBuffer buffer: buffers) {
+            pool.deallocate(buffer, 100);
+        }
+
+        buffers.clear();
     }
 }
