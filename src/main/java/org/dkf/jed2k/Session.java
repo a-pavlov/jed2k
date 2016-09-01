@@ -19,6 +19,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Session extends Thread {
     private static Logger log = LoggerFactory.getLogger(Session.class);
@@ -37,6 +38,7 @@ public class Session extends Thread {
     long zBufferLastAllocatedTime = 0;
     BufferPool bufferPool = null;
     private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
+    private AtomicBoolean finished = new AtomicBoolean(false);
 
     // from last established server connection
     int clientId    = 0;
@@ -213,6 +215,8 @@ public class Session extends Thread {
             diskIOService.shutdown();
 
             log.info("Session finished");
+            finished.set(true);
+
         }
     }
 
@@ -519,4 +523,12 @@ public class Session extends Thread {
     public int getModMajorVersion() { return settings.modMajor; }
     public int getModMinorVersion() { return settings.modMinor; }
     public int getModBuildVersion() { return settings.modBuild; }
+
+    /**
+     * thread safe
+     * @return status of session
+     */
+    public final boolean isFinished() {
+        return finished.get();
+    }
 }
