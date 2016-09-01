@@ -29,10 +29,11 @@ public class PolicyTest {
 
     private Transfer transfer = null;
     private PeerConnection connection = null;
+    private final boolean notAndroidPlatform = !System.getProperty("java.runtime.name").toLowerCase().startsWith("android");
 
     @Before
     public void beforeEachTest() throws JED2KException {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         transfer = Mockito.mock(Transfer.class);
         connection = Mockito.mock(PeerConnection.class);
         when(transfer.connectoToPeer(any(Peer.class))).thenReturn(connection);
@@ -42,7 +43,7 @@ public class PolicyTest {
 
     @Test
     public void testCandidates() {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         Policy p = new Policy(transfer);
         assertTrue(p.isConnectCandidate(p1));
         assertTrue(p.isConnectCandidate(p2));
@@ -56,7 +57,7 @@ public class PolicyTest {
 
     @Test
     public void testDuplicateInsert() throws JED2KException {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         Peer ps[] = {p1, p2, p3, p4};
         Policy p = new Policy(transfer);
         assertTrue(p.addPeer(p1));
@@ -65,7 +66,7 @@ public class PolicyTest {
 
     @Test
     public void testInsertPeer() throws JED2KException {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         Peer ps[] = {p1, p2, p3, p4};
         Policy p = new Policy(transfer);
         p.addPeer(p1);
@@ -82,7 +83,7 @@ public class PolicyTest {
 
     @Test
     public void testConnectDisconnect() throws JED2KException {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         Policy p = Mockito.spy(new Policy(transfer));
         p.addPeer(p1);
         assertEquals(1, p.numConnectCandidates());
@@ -91,7 +92,7 @@ public class PolicyTest {
 
     @Test
     public void testNewConnection() throws JED2KException {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         PeerConnection c = Mockito.mock(PeerConnection.class);
         when(c.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
         Policy p = new Policy(transfer);
@@ -106,7 +107,7 @@ public class PolicyTest {
 
     @Test(expected = JED2KException.class)
     public void testNewConnectionDuplicate() throws JED2KException {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         PeerConnection c = Mockito.mock(PeerConnection.class);
         Policy p = new Policy(transfer);
         when(c.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
@@ -118,7 +119,7 @@ public class PolicyTest {
 
     @Test
     public void testFinishedTransferPolicy() throws JED2KException {
-        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Assume.assumeTrue(notAndroidPlatform);
         Transfer t = Mockito.mock(Transfer.class);
         when(t.isFinished()).thenReturn(true);
         Policy p = new Policy(t);
