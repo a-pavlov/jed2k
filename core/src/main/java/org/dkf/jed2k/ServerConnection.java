@@ -1,6 +1,7 @@
 package org.dkf.jed2k;
 
 import org.dkf.jed2k.alert.SearchResultAlert;
+import org.dkf.jed2k.alert.ServerInfoAlert;
 import org.dkf.jed2k.alert.ServerMessageAlert;
 import org.dkf.jed2k.alert.ServerStatusAlert;
 import org.dkf.jed2k.exception.BaseErrorCode;
@@ -80,6 +81,7 @@ public class ServerConnection extends Connection {
     @Override
     public void onServerInfo(ServerInfo value) throws JED2KException {
         log.debug("server info {}", value);
+        session.pushAlert(new ServerInfoAlert(value));
     }
 
     @Override
@@ -265,7 +267,7 @@ public class ServerConnection extends Connection {
         super.secondTick(currentSessionTime);
         // ping server when feature enabled and timeout occured
         if (session.settings.serverPingTimeout > 0 &&
-                currentSessionTime - lastPingTime > session.settings.serverPingTimeout) {
+                currentSessionTime - lastPingTime > session.settings.serverPingTimeout*1000) {
             log.debug("Send ping message to server");
             write(new GetList());
         }

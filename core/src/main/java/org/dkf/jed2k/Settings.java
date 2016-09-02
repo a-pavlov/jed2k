@@ -22,8 +22,7 @@ public class Settings {
     public int compressionVersion = 0;  // use 1 for activate compression
 
     /**
-     * send ping message to server every serverPingTimeout
-     * milliseconds
+     * send ping message to server every serverPingTimeout seconds
      */
     public long serverPingTimeout = 0;
 }

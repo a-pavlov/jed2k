@@ -1,13 +1,11 @@
 package org.dkf.jed2k;
 
-import org.dkf.jed2k.alert.Alert;
-import org.dkf.jed2k.alert.SearchResultAlert;
-import org.dkf.jed2k.alert.ServerMessageAlert;
-import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.server.ServerInfo;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
@@ -115,6 +113,7 @@ public class Conn {
         startSettings.maxConnectionsPerSecond = 10;
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
+        startSettings.serverPingTimeout = 10;
 
         LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
         String sp = System.getProperty("session.peers");
@@ -158,6 +157,9 @@ public class Conn {
                             ServerStatusAlert ssa = (ServerStatusAlert)a;
                             System.out.println("Files count = " + ssa.filesCount + " users count = " + ssa.usersCount);
                         }
+                        else if (a instanceof ServerInfoAlert) {
+                            System.out.println("SI: " + ((ServerInfoAlert)a).info);
+                        }
                         else {
                             System.out.println("Unknown alert received: " + a.toString());
                         }
@@ -166,8 +168,8 @@ public class Conn {
                     }
                 }
             },
-        1, 1,
-        TimeUnit.SECONDS);
+        100, 400,
+        TimeUnit.MILLISECONDS);
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
