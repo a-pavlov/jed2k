@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.widget.RemoteViews;
 import org.dkf.jed2k.R;
 import org.dkf.jed2k.Session;
+import org.dkf.jed2k.Settings;
 import org.dkf.jed2k.alert.Alert;
 import org.dkf.jed2k.alert.SearchResultAlert;
 import org.dkf.jed2k.alert.ServerMessageAlert;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class ED2KService extends Service {
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
     private Binder binder;
+    private Settings settings  = new Settings();
     private Session session;
     ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
@@ -68,8 +70,11 @@ public class ED2KService extends Service {
 
     @Override
     public void onCreate() {
+        log.debug("ed2k service create");
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        settings.listenPort = 5000;
+        session = new Session(settings);
     }
 
     @Override
@@ -90,7 +95,7 @@ public class ED2KService extends Service {
 
         }
 
-        log.info("ED2K service started by this intent: {} flags {} startId {}", intent, flags, startId);
+        log.info("ed2k service started by this intent: {} flags {} startId {}", intent, flags, startId);
         return START_STICKY;
     }
 
@@ -103,12 +108,17 @@ public class ED2KService extends Service {
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
-        // stop session
-        session.interrupt();
-        try {
-            session.join();
-        } catch (InterruptedException e) {
-            log.error("wait session interrupted error {}", e);
+        if (session != null) {
+            log.debug("stop session");
+            // stop session
+            session.interrupt();
+            try {
+                session.join();
+            } catch (InterruptedException e) {
+                log.error("wait session interrupted error {}", e);
+            }
+        } else {
+            log.debug("session is not exist yet");
         }
     }
 
