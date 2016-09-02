@@ -16,6 +16,8 @@ import org.dkf.jed2k.R;
 import org.dkf.jed2k.Session;
 import org.dkf.jed2k.Settings;
 import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,5 +241,37 @@ public class ED2KService extends Service {
     // only for testing
     public final boolean isListening() {
         return listening.get();
+    }
+
+    /**
+     *  async search request
+     * @param minSize minimal file size in bytes
+     * @param maxSize max file size in bytes
+     * @param sourcesCount min sources count
+     * @param completeSourcesCount min complete sources count
+     * @param fileType file type as string
+     * @param fileExtension file extension
+     * @param codec media codec
+     * @param mediaLength media length
+     * @param mediaBitrate media bitrate
+     * @param phrase search phrase
+     */
+    public void startSearch(long minSize,
+                            long maxSize,
+                            int sourcesCount,
+                            int completeSourcesCount,
+                            final String fileType,
+                            final String fileExtension,
+                            final String codec,
+                            int mediaLength,
+                            int mediaBitrate,
+                            final String phrase) {
+        assert(session != null);
+
+        try {
+            session.search(SearchRequest.makeRequest(minSize, maxSize, sourcesCount, completeSourcesCount, fileType, fileExtension, codec, mediaLength, mediaBitrate, phrase));
+        } catch(JED2KException e) {
+            Log.e("ED2KService", "Error on search request " + e.toString());
+        }
     }
 }
