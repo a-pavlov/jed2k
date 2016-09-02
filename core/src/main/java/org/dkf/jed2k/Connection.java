@@ -18,15 +18,51 @@ import java.util.LinkedList;
 
 public abstract class Connection implements Dispatcher {
     private final Logger log = LoggerFactory.getLogger(ServerConnection.class);
+
+    /**
+     * NIO infrastructure
+     */
     SocketChannel socket;
-    private ByteBuffer bufferIncoming;
-    private ByteBuffer bufferOutgoing;
-    private LinkedList<Serializable> outgoingOrder = new LinkedList<Serializable>();
-    private boolean writeInProgress = false;
     SelectionKey key = null;
+
+    /**
+     * buffer for incoming packet's body
+     */
+    private ByteBuffer bufferIncoming;
+
+    /**
+     * buffer for outgoing packets, can contain more than one packet at the same time
+     */
+    private ByteBuffer bufferOutgoing;
+
+    /**
+     * order for packets to send to remote peer
+     */
+    private LinkedList<Serializable> outgoingOrder = new LinkedList<Serializable>();
+
+    /**
+     * outgoing order has pending packets or prewious write operation still in progress
+     */
+    private boolean writeInProgress = false;
+
+    /**
+     * packets parser object
+     */
     private final PacketCombiner packetCombainer;
+
+    /**
+     * origin
+     */
     final Session session;
+
+    /**
+     * last received packet's header
+     */
     protected PacketHeader header = new PacketHeader();
+
+    /**
+     * small buffer for processing packet's headers only
+     */
     private ByteBuffer headerBuffer = ByteBuffer.allocate(PacketHeader.SIZE);
     private Statistics stat = new Statistics();
     long lastReceive = Time.currentTime();
@@ -172,6 +208,10 @@ public abstract class Connection implements Dispatcher {
     void onWriteable() {
         try {
             bufferOutgoing.clear();
+            /**
+             * previous buffer was completely sent to socket
+             * obtain new write in progress status
+             */
             writeInProgress = !outgoingOrder.isEmpty();
             Iterator<Serializable> itr = outgoingOrder.iterator();
             while(itr.hasNext()) {
@@ -186,11 +226,15 @@ public abstract class Connection implements Dispatcher {
             // check write not in progress or outgoing buffer position not in begin of buffer
             assert(!writeInProgress || bufferOutgoing.position() != 0);
 
+            /**
+             * if write in progress send current all data in buffer to remote peer and wait writeable again
+             */
             if (writeInProgress) {
                 bufferOutgoing.flip();
                 stat.sendBytes(bufferOutgoing.remaining(), 0);
                 socket.write(bufferOutgoing);
             } else {
+                // write not in progress - wait for data from remote peer
                 key.interestOps(SelectionKey.OP_READ);
             }
         }
