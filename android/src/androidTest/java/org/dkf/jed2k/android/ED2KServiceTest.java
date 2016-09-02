@@ -8,11 +8,17 @@ import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+import org.dkf.jed2k.alert.ListenAlert;
+import org.dkf.jed2k.alert.SearchResultAlert;
+import org.dkf.jed2k.alert.ServerMessageAlert;
+import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -23,20 +29,64 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class ED2KServiceTest {
 
+    private final AtomicBoolean listenAlertReceived = new AtomicBoolean(false);
+
     @Rule
     public final ServiceTestRule mServiceRule = new ServiceTestRule();
 
+    private static final int MAX_ITERATION = 20;
+    ED2KService service;
+
+    @Before
+    public void setUp() throws  Exception {
+        IBinder binder = null;
+        int it = 0;
+
+        while((binder = mServiceRule.bindService(
+                new Intent(InstrumentationRegistry.getTargetContext(),
+                        ED2KService.class))) == null && it < MAX_ITERATION){
+            it++;
+        }
+
+        assertTrue(binder != null);
+
+        service = ((ED2KService.ED2KServiceBinder) binder).getService();
+    }
+
     @Test
     public void testService() throws TimeoutException, InterruptedException {
-        // Create the service Intent.
-        Intent serviceIntent =
-                new Intent(InstrumentationRegistry.getTargetContext(), ED2KService.class);
-
-        IBinder binder = mServiceRule.bindService(serviceIntent);
-        ED2KService service = ((ED2KService.ED2KServiceBinder)binder).getService();
         assertTrue(service != null);
         Thread.sleep(4000);
         assertTrue(service.isListening());
         Log.v("testService", "finished");
+    }
+
+    @Test
+    public void testListenAlert() throws TimeoutException, InterruptedException {
+        assertTrue(service != null);
+        service.setListener(new AlertListener() {
+            @Override
+            public void onListen(ListenAlert alert) {
+                listenAlertReceived.set(true);
+            }
+
+            @Override
+            public void onSearchResult(SearchResultAlert alert) {
+
+            }
+
+            @Override
+            public void onServerMessage(ServerMessageAlert alert) {
+
+            }
+
+            @Override
+            public void onServerStatus(ServerStatusAlert alert) {
+
+            }
+        });
+
+        Thread.sleep(2000);
+        assertTrue(listenAlertReceived.get());
     }
 }

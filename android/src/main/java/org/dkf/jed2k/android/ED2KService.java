@@ -30,8 +30,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ED2KService extends Service {
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
     private Binder binder;
+
+    /**
+     * session settings, currently with default parameters
+     */
     private Settings settings  = new Settings();
+
+    /**
+     * main ed2k session
+     */
     private Session session;
+
+    /**
+     * dedicated thread executor for scan session's alerts
+     */
     ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
     private final String NOTIFICATION_INTENT_OPEN = "org.dkf.jed2k.android.INTENT_OPEN";
@@ -39,6 +51,11 @@ public class ED2KService extends Service {
     private final String NOTIFICATION_INTENT_CLOSE = "org.dkf.jed2k.android.INTENT_CLOSE";
 
     private AtomicBoolean listening = new AtomicBoolean(false);
+
+    /**
+     * trivial listener
+     */
+    private AlertListener listener;
 
     /**
      * Notification ID
@@ -54,8 +71,10 @@ public class ED2KService extends Service {
 
     public ED2KService() {
         binder = new ED2KServiceBinder();
-        // create session here
-        // start alerts loop
+    }
+
+    public void setListener(final AlertListener listener) {
+        this.listener = listener;
     }
 
     public class ED2KServiceBinder extends Binder {
@@ -137,20 +156,21 @@ public class ED2KService extends Service {
                 Alert a = session.popAlert();
                 while(a != null) {
                     if (a instanceof ListenAlert) {
+                        if (listener != null) listener.onListen((ListenAlert)a);
                         listening.set(true);
                     }
                     if (a instanceof SearchResultAlert) {
+                        if (listener != null) listener.onSearchResult((SearchResultAlert)a);
                         SearchResult sr = ((SearchResultAlert)a).results;
                     }
                     else if (a instanceof ServerMessageAlert) {
-                        //System.out.println("Server message: " + ((ServerMessageAlert)a).msg);
+                        if (listener != null) listener.onServerMessage((ServerMessageAlert)a);
                     }
                     else if (a instanceof ServerStatusAlert) {
-                        ServerStatusAlert ssa = (ServerStatusAlert)a;
-                        //System.out.println("Files count = " + ssa.filesCount + " users count = " + ssa.usersCount);
+                        if (listener != null) listener.onServerStatus((ServerStatusAlert)a);
                     }
                     else {
-                        //System.out.println("Unknown alert received: " + a.toString());
+                        log.debug("alert {}", a);
                     }
 
                     a = session.popAlert();
@@ -273,5 +293,14 @@ public class ED2KService extends Service {
         } catch(JED2KException e) {
             Log.e("ED2KService", "Error on search request " + e.toString());
         }
+    }
+
+    /**
+     * setup session preferences
+     * @param settings new session config
+     */
+    public void configureSession(final Settings settings) {
+        this.settings = settings;
+        session.configureSession(settings);
     }
 }

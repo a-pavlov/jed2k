@@ -1,5 +1,6 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.android;
 
+import org.dkf.jed2k.alert.ListenAlert;
 import org.dkf.jed2k.alert.SearchResultAlert;
 import org.dkf.jed2k.alert.ServerMessageAlert;
 import org.dkf.jed2k.alert.ServerStatusAlert;
@@ -9,6 +10,8 @@ import org.dkf.jed2k.alert.ServerStatusAlert;
  * Created by ap197_000 on 01.09.2016.
  */
 public interface AlertListener {
+
+    public void onListen(final ListenAlert alert);
 
     /**
      *
