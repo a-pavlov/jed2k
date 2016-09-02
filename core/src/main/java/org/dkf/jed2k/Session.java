@@ -1,6 +1,7 @@
 package org.dkf.jed2k;
 
 import org.dkf.jed2k.alert.Alert;
+import org.dkf.jed2k.alert.ListenAlert;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -78,6 +79,7 @@ public class Session extends Thread {
                 ssc.socket().bind(new InetSocketAddress(settings.listenPort));
                 ssc.configureBlocking(false);
                 ssc.register(selector, SelectionKey.OP_ACCEPT);
+                pushAlert(new ListenAlert("", settings.listenPort));
             } else {
                 log.info("no listen mode");
             }
@@ -85,6 +87,7 @@ public class Session extends Thread {
         catch(IOException e) {
             log.error("listen failed {}", e.getMessage());
             closeListenSocket();
+            pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
         }
     }
 

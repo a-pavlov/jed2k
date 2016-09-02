@@ -29,11 +29,13 @@ Main goal - native application for Android platform. Lighter, faster, more user 
 * Advandced piece picker and piece manager
 * KAD support
 
-## Building
-Few dependencies in pom.xml - Mockito for unit tests and slf4j logging facade. Build configured using Maven.
+## Building Maven/Gradle
+Few dependencies in pom.xml - Mockito for unit tests and slf4j logging facade.
 
 1. clone project
 2. cd jed2k && mvn package
+
+If you prefer Gradle - use gradle build on second step.
 
 ## Testing
 You can use simple console downloader class org.jed2k.Conn. Before usage you have to set incoming directory as first parameter.
