@@ -5,28 +5,25 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageInstaller;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.RemoteViews;
 import org.dkf.jed2k.R;
 import org.dkf.jed2k.Session;
 import org.dkf.jed2k.Settings;
-import org.dkf.jed2k.alert.Alert;
-import org.dkf.jed2k.alert.SearchResultAlert;
-import org.dkf.jed2k.alert.ServerMessageAlert;
-import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ED2KService extends Service {
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
@@ -38,6 +35,8 @@ public class ED2KService extends Service {
     private final String NOTIFICATION_INTENT_OPEN = "org.dkf.jed2k.android.INTENT_OPEN";
 
     private final String NOTIFICATION_INTENT_CLOSE = "org.dkf.jed2k.android.INTENT_CLOSE";
+
+    private AtomicBoolean listening = new AtomicBoolean(false);
 
     /**
      * Notification ID
@@ -70,15 +69,19 @@ public class ED2KService extends Service {
 
     @Override
     public void onCreate() {
+        Log.v("ED2KService", "onCreate");
         log.debug("ed2k service create");
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         settings.listenPort = 5000;
         session = new Session(settings);
+        session.start();
+        alertsLoop();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.v("ED2KService", "onStartCommand");
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
         if (intent == null) {
@@ -101,6 +104,7 @@ public class ED2KService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.v("ED2KService", "destroy");
         log.debug("ED2K service onDestroy");
 
         // stop alerts processing
@@ -109,11 +113,12 @@ public class ED2KService extends Service {
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
         if (session != null) {
-            log.debug("stop session");
+            Log.v("ED2KService", "stop session");
             // stop session
             session.interrupt();
             try {
                 session.join();
+                Log.v("ED2KService", "session finished");
             } catch (InterruptedException e) {
                 log.error("wait session interrupted error {}", e);
             }
@@ -129,6 +134,9 @@ public class ED2KService extends Service {
             public void run() {
                 Alert a = session.popAlert();
                 while(a != null) {
+                    if (a instanceof ListenAlert) {
+                        listening.set(true);
+                    }
                     if (a instanceof SearchResultAlert) {
                         SearchResult sr = ((SearchResultAlert)a).results;
                     }
@@ -226,5 +234,10 @@ public class ED2KService extends Service {
     public void updateNotification(final String fileName, final String fileHash, int smallImage, Bitmap artImage) {
         this.smallImage = smallImage;
         buildNotification(fileName, fileHash, artImage);
+    }
+
+    // only for testing
+    public final boolean isListening() {
+        return listening.get();
     }
 }

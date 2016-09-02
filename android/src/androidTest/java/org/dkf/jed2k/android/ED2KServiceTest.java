@@ -1,24 +1,20 @@
 package org.dkf.jed2k.android;
 
 
-import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
-import android.util.Pair;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertThat;
-
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeoutException;
+
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by ap197_000 on 02.09.2016.
@@ -40,6 +36,7 @@ public class ED2KServiceTest {
         ED2KService service = ((ED2KService.ED2KServiceBinder)binder).getService();
         assertTrue(service != null);
         Thread.sleep(4000);
+        assertTrue(service.isListening());
         Log.v("testService", "finished");
     }
 }

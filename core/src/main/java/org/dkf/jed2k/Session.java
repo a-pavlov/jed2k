@@ -334,13 +334,13 @@ public class Session extends Thread {
     	});
     }
 
-    public void pushAlert(Alert e) {
-        assert(e != null);
+    public void pushAlert(Alert alert) {
+        assert(alert != null);
         try {
-            alerts.put(e);
+            alerts.put(alert);
         }
-        catch (InterruptedException ex) {
-            // handle exception
+        catch (InterruptedException e) {
+            log.error("push alert interrupted {}", e);
         }
     }
 
