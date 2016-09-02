@@ -104,7 +104,6 @@ public class BufferPoolTest {
 
     @Test
     public void testMemoryAllocation() {
-        Assume.assumeTrue(System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         BufferPool pool = new BufferPool(100);
         LinkedList<ByteBuffer> buffers = new LinkedList<>();
         for(int i = 0; i < 100; ++i) {

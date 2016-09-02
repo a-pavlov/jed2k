@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         //classpath 'com.android.tools.build:gradle:2.0.0'
-		classpath 'com.android.tools.build:gradle:2.2.0-beta1'
+        classpath 'com.android.tools.build:gradle:2.2.0-beta1'
     }
 }
 
@@ -29,21 +29,22 @@ android {
 
     sourceSets {
         main {
-			java {
-				srcDirs += '../src/main/java'
-				exclude '**/Conn.java'
-			}
-		}
+            java {
+                srcDirs += '../core/src/main/java'
+                exclude '**/Conn.java'
+            }
+        }
 
         androidTest {
             java {
-                srcDir '../src/test/java'
+                srcDir '../core/src/test/java'
             }
 
             resources {
-                srcDir '../src/test/resources'
+                srcDir '../core/src/test/resources'
             }
         }
+
     }
 
     lintOptions {
