@@ -30,18 +30,18 @@ android {
     sourceSets {
         main {
             java {
-                srcDirs += '../core/src/main/java'
+                srcDirs += '../../core/src/main/java'
                 exclude '**/Conn.java'
             }
         }
 
         androidTest {
             java {
-                srcDirs += '../core/src/test/java'
+                srcDirs += '../../core/src/test/java'
             }
 
             resources {
-                srcDir '../core/src/test/resources'
+                srcDir '../../core/src/test/resources'
             }
         }
 
