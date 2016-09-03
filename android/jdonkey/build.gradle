@@ -14,6 +14,24 @@ repositories {
     mavenCentral()
 }
 
+def manifestVersionCode() {
+    def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
+
+    def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
+    def xml = new XmlParser().parse(manifestFile)
+
+    return Integer.parseInt(xml.attributes()[ns.versionCode].toString())
+}
+
+def manifestVersionName() {
+    def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
+
+    def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
+    def xml = new XmlParser().parse(manifestFile)
+
+    return xml.attributes()[ns.versionName].toString()
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
@@ -24,7 +42,12 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+    }
 
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+        }
     }
 }
 

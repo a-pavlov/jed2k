@@ -2,4 +2,11 @@
     <string name="app_name">library</string>
     <string name="INTENT_OPEN">org.dkf.jed2k.android.INTENT_OPEN</string>
     <string name="INTENT_CLOSE">org.dkf.jed2k.android.INTENT_CLOSE</string>
+    <string name="media_type_all_types">All Types</string>
+    <string name="media_type_documents">Books/Docs</string>
+    <string name="media_type_applications">Applications</string>
+    <string name="media_type_audio">Audio</string>
+    <string name="media_type_video">Video</string>
+    <string name="media_type_images">Images</string>
+    <string name="media_type_torrents">Torrents</string>
 </resources>

@@ -52,6 +52,8 @@ public class ED2KService extends Service {
 
     private AtomicBoolean listening = new AtomicBoolean(false);
 
+    private AndroidPlatform platform;
+
     /**
      * trivial listener
      */
@@ -93,6 +95,7 @@ public class ED2KService extends Service {
         Log.v("ED2KService", "onCreate");
         log.debug("ed2k service create");
         super.onCreate();
+        platform = new AndroidPlatform(this);
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         settings.listenPort = 5000;
         session = new Session(settings);
