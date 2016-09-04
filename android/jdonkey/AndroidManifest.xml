@@ -8,16 +8,17 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.AboutActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".MediaActivity"/>
-        <activity android:name=".RadioActivity"/>
+        <activity android:name=".activities.MediaActivity"/>
+        <activity android:name=".activities.RadioActivity"/>
 
     </application>
 

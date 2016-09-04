@@ -1,5 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Created by Angel Leon (@gubatron), Alden Torres (aldenml), Marcelina Knitter (@marcelinkaaa)
+ * Copyright (c) 2011-2016, FrostWire(R). All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="mainmenu_width">250dp</dimen>
+    <dimen name="mainmenu_shadow_width">15dp</dimen>
+
+    <!-- Donations View -->
+    <dimen name="view_donations_button_width">50dp</dimen>
+
+    <!-- Promotions -->
+    <dimen name="promo_download_button_width">130dp</dimen>
+
+    <dimen name="view_transfer_list_item_title_left_drawable">20dp</dimen>
+
+    <!-- Text sizes -->
+    <dimen name="text_extra_micro">10.0sp</dimen>
+    <dimen name="text_micro">11.0sp</dimen>
+    <dimen name="text_x_small">12.0sp</dimen>
+    <dimen name="text_small">14.0sp</dimen>
+    <dimen name="text_x_medium">15.0sp</dimen>
+    <dimen name="text_medium">16.0sp</dimen>
+    <dimen name="text_large">18.0sp</dimen>
+    <dimen name="text_x_large">20.0sp</dimen>
+    <dimen name="text_xx_large">24.0sp</dimen>
+
+    <dimen name="dialog_min_width_major">200dp</dimen>
+    <dimen name="dialog_min_width_minor">300dp</dimen>
+
+    <dimen name="text_size_extra_micro">10.0sp</dimen>
+    <dimen name="text_size_micro">12.0sp</dimen>
+    <dimen name="text_size_small">14.0sp</dimen>
+    <dimen name="text_size_medium">16.0sp</dimen>
+    <dimen name="text_size_large">18.0sp</dimen>
+    <dimen name="text_size_x_large">20.0sp</dimen>
+    <dimen name="text_size_xx_large">24.0sp</dimen>
+    <dimen name="text_size_xxx_large">28.0sp</dimen>
+    <dimen name="text_size_dayum">36.0sp</dimen>
 </resources>
