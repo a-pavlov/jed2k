@@ -58,8 +58,7 @@ public class AboutFragment extends Fragment implements MainFragment {
         View view = inflater.inflate(R.layout.fragment_about, container, false);
 
         final TextView title = (TextView) view.findViewById(R.id.fragment_about_title);
-        final String basicOrPlus = Constants.IS_GOOGLE_PLAY_DISTRIBUTION ? "Basic" : "Plus";
-        title.setText("FrostWire " + basicOrPlus + " v" + Constants.JED2K_VERSION_STRING);
+        title.setText("JDonkey " + " v" + Constants.JED2K_VERSION_STRING);
 
         final TextView buildNumber = (TextView) view.findViewById(R.id.fragment_about_build_number);
         buildNumber.setText("\nbuild " + BuildConfig.VERSION_CODE + " - sdk level " + Build.VERSION.SDK_INT);
