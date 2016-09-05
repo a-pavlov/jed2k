@@ -27,7 +27,7 @@ import java.io.File;
  * @author gubatron
  * @author aldenml
  */
-final class AndroidPaths {
+public final class AndroidPaths {
 
     private static final String STORAGE_PATH = "JDonkey";
     private static final String TORRENT_DATA_PATH = "jed2kdata";

@@ -3,12 +3,13 @@
     package="org.dkf.jdonkey" >
 
     <application
+            android:name="org.dkf.jdonkey.MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".activities.AboutActivity"
+            android:name=".activities.SettingsActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,6 +20,7 @@
 
         <activity android:name=".activities.MediaActivity"/>
         <activity android:name=".activities.RadioActivity"/>
+        <activity android:name=".activities.AboutActivity"/>
 
     </application>
 

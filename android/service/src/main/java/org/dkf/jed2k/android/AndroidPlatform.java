@@ -29,7 +29,7 @@ import java.io.File;
  * @author gubatron
  * @author aldenml
  */
-public final class AndroidPlatform {
+public final class AndroidPlatform implements Platform {
 
     private final FileSystem fileSystem;
     private final AndroidPaths systemPaths;
@@ -46,6 +46,21 @@ public final class AndroidPlatform {
         systemPaths = new AndroidPaths(app);
         appSettings = new AndroidSettings();
         this.sdk = Build.VERSION.SDK_INT;
+    }
+
+    @Override
+    public FileSystem fileSystem() {
+        return fileSystem;
+    }
+
+    @Override
+    public AndroidPaths systemPaths() {
+        return systemPaths;
+    }
+
+    @Override
+    public AndroidSettings appSettings() {
+        return appSettings;
     }
 
     public boolean android() {
