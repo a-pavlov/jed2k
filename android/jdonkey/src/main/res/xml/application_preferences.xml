@@ -37,6 +37,41 @@
         </Preference>
     </PreferenceCategory>
 
+    <PreferenceCategory android:key="@string/common_settings">
+
+        <EditTextPreference
+            android:key="address"
+            android:summary="@string/how_other_users_will_see_you"
+            android:title="@string/nickname">
+        </EditTextPreference>
+
+        <org.dkf.jdonkey.views.preference.NumberPickerPreference
+            android:key="frostwire.prefs.torrent.max_download_speed"
+            android:summary="@string/listen_port_summary"
+            android:title="@string/listen_port"
+            frostwire:picker_defaultValue="30000"
+            frostwire:picker_endRange="99999"
+            frostwire:picker_startRange="1000"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceScreen
+        android:key="frostwire.prefs.torrent.servers_category"
+        android:title="@string/servers_settings"
+        android:persistent="false">
+
+        <SwitchPreference android:key="frostwire.prefs.internal.connect_disconnect_server"
+                          android:summary="@string/bittorrent_network_summary"
+                          android:title="@string/server_connect"/>
+
+        <org.dkf.jdonkey.views.preference.ServersPreference
+            android:key="frostwire.prefs.servers.id"
+            android:summary="@string/choose_server_summary"
+            android:title="@string/choose_server_title"/>
+    </PreferenceScreen>
+
+
     <PreferenceScreen
             android:key="frostwire.prefs.torrent.preference_category"
             android:title="@string/torrent_settings"
@@ -106,67 +141,7 @@
                 android:title="@string/clear_search_cache"
                 frostwire:button_text="@string/clear"/>
     </PreferenceScreen>
-    <PreferenceScreen
-            android:key="frostwire.prefs.search.preference_category"
-            android:title="@string/search_settings"
-            android:persistent="false">
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_archiveorg"
-                android:summary="@string/use_archiveorg"
-                android:title="@string/use_archiveorg"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_bitsnoop"
-                android:summary="@string/use_bitsnoop"
-                android:title="@string/use_bitsnoop"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_btjunkie"
-                android:summary="@string/use_btjunkie"
-                android:title="@string/use_btjunkie"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_extratorrent"
-                android:summary="@string/use_extratorrent"
-                android:title="@string/use_extratorrent"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_eztv"
-                android:summary="@string/use_eztv"
-                android:title="@string/use_eztv"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_frostclick"
-                android:summary="@string/use_frostclick"
-                android:title="@string/use_frostclick"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_mininova"
-                android:summary="@string/use_mininova"
-                android:title="@string/use_mininova"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_monova"
-                android:summary="@string/use_monova_summary"
-                android:title="@string/use_monova"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_soundcloud"
-                android:summary="@string/use_soundcloud"
-                android:title="@string/use_soundcloud"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_tpb"
-                android:summary="@string/use_tpb_summary"
-                android:title="@string/use_tpb"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_torlock"
-                android:summary="@string/use_torlock"
-                android:title="@string/use_torlock"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_torrentdownloads"
-                android:summary="@string/use_torrentdownloads"
-                android:title="@string/use_torrentdownloads"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_yify"
-                android:summary="@string/use_yify_summary"
-                android:title="@string/use_yify"/>
-        <CheckBoxPreference
-                android:key="frostwire.prefs.search.use_youtube"
-                android:summary="@string/use_youtube"
-                android:title="@string/use_youtube"/>
-    </PreferenceScreen>
+
     <PreferenceScreen
             android:key="frostwire.prefs.other.preference_category"
             android:title="@string/other_settings"
@@ -206,8 +181,8 @@
             android:title="@string/about">
         <intent
                 android:action="android.intent.action.VIEW"
-                android:targetPackage="com.frostwire.android"
-                android:targetClass="com.frostwire.android.gui.activities.AboutActivity"
+                android:targetPackage="org.dkf.jdonkey"
+                android:targetClass="org.dkf.jdonkey.activities.AboutActivity"
         />
     </Preference>
 
