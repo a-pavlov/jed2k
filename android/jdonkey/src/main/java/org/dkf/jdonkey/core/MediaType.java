@@ -13,7 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jed2k.android;
+package org.dkf.jdonkey.core;
 
 import org.dkf.jed2k.R;
 

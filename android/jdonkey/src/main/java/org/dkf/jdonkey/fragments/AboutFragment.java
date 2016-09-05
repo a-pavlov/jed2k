@@ -32,8 +32,8 @@ import android.widget.TextView;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jdonkey.BuildConfig;
 import org.dkf.jdonkey.R;
+import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.util.UIUtils;
-import org.dkf.jed2k.android.Constants;
 
 import java.io.IOException;
 import java.io.InputStream;

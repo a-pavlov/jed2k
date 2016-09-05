@@ -39,13 +39,13 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.StoragePicker;
+import org.dkf.jdonkey.core.AndroidPlatform;
+import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.Constants;
+import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.preference.SimpleActionPreference;
 import org.dkf.jdonkey.views.preference.StoragePreference;
-import org.dkf.jed2k.android.AndroidPlatform;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Constants;
-import org.dkf.jed2k.android.NetworkManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +97,6 @@ public class SettingsActivity extends PreferenceActivity {
 
         updateConnectSwitch();
     }
-
-
 
     private void hideActionBarIcon(ActionBar bar) {
         if (bar != null) {

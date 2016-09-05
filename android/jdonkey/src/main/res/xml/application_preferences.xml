@@ -206,8 +206,8 @@
             android:title="@string/about">
         <intent
                 android:action="android.intent.action.VIEW"
-                android:targetPackage="com.frostwire.android"
-                android:targetClass="com.frostwire.android.gui.activities.AboutActivity"
+                android:targetPackage="org.dkf.jdonkey"
+                android:targetClass="org.dkf.jdonkey.activities.AboutActivity"
         />
     </Preference>
 

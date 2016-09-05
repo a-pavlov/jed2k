@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jed2k.android;
+package org.dkf.jdonkey.core;
 
 import java.io.File;
 
@@ -24,9 +24,41 @@ import java.io.File;
  * @author gubatron
  * @author aldenml
  */
-public interface FileFilter extends java.io.FileFilter {
+public interface FileSystem {
 
-    boolean accept(File file);
+    boolean isDirectory(File file);
 
-    void file(File file);
+    boolean isFile(File file);
+
+    boolean canRead(File file);
+
+    boolean canWrite(File file);
+
+    long length(File file);
+
+    long lastModified(File file);
+
+    boolean exists(File file);
+
+    boolean mkdirs(File file);
+
+    boolean delete(File file);
+
+    File[] listFiles(File file, FileFilter filter);
+
+    boolean copy(File src, File dest);
+
+    boolean write(File file, byte[] data);
+
+    /**
+     * This should instruct the underlying operating system
+     * that a new file is in place, it could be a simple
+     * notification for update in database or media scan like
+     * in android.
+     *
+     * @param file the file to scan.
+     */
+    void scan(File file);
+
+    void walk(File file, FileFilter filter);
 }

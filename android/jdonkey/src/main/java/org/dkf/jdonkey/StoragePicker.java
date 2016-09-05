@@ -24,9 +24,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
+import org.dkf.jdonkey.core.LollipopFileSystem;
+import org.dkf.jdonkey.core.Platforms;
 import org.dkf.jdonkey.util.UIUtils;
-import org.dkf.jed2k.android.LollipopFileSystem;
-import org.dkf.jed2k.android.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -52,8 +52,6 @@ public class ED2KService extends Service {
 
     private AtomicBoolean listening = new AtomicBoolean(false);
 
-    private AndroidPlatform platform;
-
     /**
      * trivial listener
      */
@@ -95,7 +93,6 @@ public class ED2KService extends Service {
         Log.v("ED2KService", "onCreate");
         log.debug("ed2k service create");
         super.onCreate();
-        platform = new AndroidPlatform(this);
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         settings.listenPort = 5000;
         session = new Session(settings);
@@ -113,13 +110,14 @@ public class ED2KService extends Service {
         }
 
         String action = intent.getAction();
+        if (action != null ) {
 
-        if (action.equals(NOTIFICATION_INTENT_CLOSE)) {
-            if (mNotificationManager != null)
-                mNotificationManager.cancel(NOTIFICATION_ID);
-        }
-        else if (action.equals(NOTIFICATION_INTENT_OPEN)) {
+            if (action.equals(NOTIFICATION_INTENT_CLOSE)) {
+                if (mNotificationManager != null)
+                    mNotificationManager.cancel(NOTIFICATION_ID);
+            } else if (action.equals(NOTIFICATION_INTENT_OPEN)) {
 
+            }
         }
 
         log.info("ed2k service started by this intent: {} flags {} startId {}", intent, flags, startId);
@@ -305,5 +303,18 @@ public class ED2KService extends Service {
     public void configureSession(final Settings settings) {
         this.settings = settings;
         session.configureSession(settings);
+    }
+
+    public void startServices() {
+
+    }
+
+    public void stopServices() {
+
+    }
+
+    public void shutdown(){
+        stopForeground(true);
+        stopSelf(-1);
     }
 }

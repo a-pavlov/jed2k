@@ -37,9 +37,9 @@ import android.widget.*;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.activities.MainActivity;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Constants;
-import org.dkf.jed2k.android.MimeDetector;
+import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.Constants;
+import org.dkf.jdonkey.core.MimeDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

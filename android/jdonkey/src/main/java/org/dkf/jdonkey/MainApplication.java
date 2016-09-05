@@ -21,9 +21,9 @@ package org.dkf.jdonkey;
 import android.app.Application;
 import android.view.ViewConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.dkf.jed2k.android.AndroidPlatform;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Platforms;
+import org.dkf.jdonkey.core.AndroidPlatform;
+import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +46,7 @@ public class MainApplication extends Application {
 
             Platforms.set(new AndroidPlatform(this));
             ConfigurationManager.create(this);
+            Engine.create(this);
             /*
             PlayStore.getInstance().initialize(this); // as early as possible
 

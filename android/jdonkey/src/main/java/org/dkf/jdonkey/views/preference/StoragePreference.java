@@ -36,13 +36,13 @@ import android.view.ViewGroup;
 import android.widget.*;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.StoragePicker;
+import org.dkf.jdonkey.core.AndroidPlatform;
+import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.util.SystemUtils;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractAdapter;
 import org.dkf.jdonkey.views.AbstractAdapter.OnItemClickAdapter;
-import org.dkf.jed2k.android.AndroidPlatform;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Constants;
 
 import java.io.File;
 import java.util.ArrayList;
