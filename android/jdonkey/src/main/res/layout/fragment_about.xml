@@ -64,7 +64,7 @@
                 android:weightSum="3">
 
                 <ImageButton
-                    android:id="@+id/fragment_about_facebook_button"
+                    android:id="@+id/fragment_github_button"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     android:layout_marginRight="10dp"
@@ -74,46 +74,8 @@
                     android:maxHeight="80dp"
                     android:maxWidth="80dp"
                     android:scaleType="fitXY"
-                    android:src="@drawable/social_wizard_facebook" />
-
-
-                <ImageButton
-                    android:id="@+id/fragment_about_twitter_button"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_weight="1"
-                    android:background="@color/transparent"
-                    android:maxHeight="80dp"
-                    android:maxWidth="80dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/social_wizard_twitter" />
-
-
-                <ImageButton
-                    android:id="@+id/fragment_about_reddit_button"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:layout_weight="1"
-                    android:background="@color/transparent"
-                    android:maxHeight="80dp"
-                    android:maxWidth="80dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/social_wizard_reddit" />
-
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/fragment_about_love_frostwire"
-                style="@style/BlueButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="15dp"
-                android:layout_marginTop="15dp"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:text="@string/love_frostwire" />
+                    android:src="@drawable/octocat" />
+                </LinearLayout>
         </LinearLayout>
 
         <TextView

@@ -115,25 +115,25 @@ public final class Constants {
 
     public static final String PREF_KEY_UXSTATS_ENABLED = "jed2k.prefs.uxstats.enabled";
 
-    public static final String ACTION_REQUEST_SHUTDOWN = "com.jed2k.android.ACTION_REQUEST_SHUTDOWN";
-    public static final String ACTION_SHOW_TRANSFERS = "com.jed2k.android.ACTION_SHOW_TRANSFERS";
-    public static final String ACTION_SHOW_VPN_STATUS_PROTECTED = "com.jed2k.android.ACTION_SHOW_VPN_STATUS_PROTECTED";
-    public static final String ACTION_SHOW_VPN_STATUS_UNPROTECTED = "com.jed2k.android.ACTION_SHOW_VPN_STATUS_UNPROTECTED";
-    public static final String ACTION_START_TRANSFER_FROM_PREVIEW = "com.jed2k.android.ACTION_START_TRANSFER_FROM_PREVIEW";
-    public static final String ACTION_MEDIA_PLAYER_PLAY = "com.jed2k.android.ACTION_MEDIA_PLAYER_PLAY";
-    public static final String ACTION_MEDIA_PLAYER_STOPPED = "com.jed2k.android.ACTION_MEDIA_PLAYER_STOPPED";
-    public static final String ACTION_MEDIA_PLAYER_PAUSED = "com.jed2k.android.ACTION_MEDIA_PLAYER_PAUSED";
-    public static final String ACTION_REFRESH_FINGER = "com.jed2k.android.ACTION_REFRESH_FINGER";
-    public static final String ACTION_SETTINGS_SELECT_STORAGE = "com.jed2k.android.ACTION_SETTINGS_SELECT_STORAGE";
-    public static final String ACTION_SETTINGS_OPEN_TORRENT_SETTINGS = "com.jed2k.android.ACTION_SETTINGS_OPEN_TORRENT_SETTINGS";
-    public static final String ACTION_NOTIFY_SDCARD_MOUNTED = "com.jed2k.android.ACTION_NOTIFY_SDCARD_MOUNTED";
-    public static final String ACTION_FILE_ADDED_OR_REMOVED = "com.jed2k.android.ACTION_FILE_ADDED_OR_REMOVED";
-    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "com.jed2k.android.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
-    public static final String EXTRA_DOWNLOAD_COMPLETE_PATH = "com.jed2k.android.EXTRA_DOWNLOAD_COMPLETE_PATH";
-    public static final String EXTRA_REFRESH_FILE_TYPE = "com.jed2k.android.EXTRA_REFRESH_FILE_TYPE";
-    public static final String EXTRA_FINISH_MAIN_ACTIVITY = "com.jed2k.android.EXTRA_FINISH_MAIN_ACTIVITY";
+    public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jdonkey.ACTION_REQUEST_SHUTDOWN";
+    public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jdonkey.ACTION_SHOW_TRANSFERS";
+    public static final String ACTION_SHOW_VPN_STATUS_PROTECTED = "org.dkf.jdonkey.ACTION_SHOW_VPN_STATUS_PROTECTED";
+    public static final String ACTION_SHOW_VPN_STATUS_UNPROTECTED = "org.dkf.jdonkey.ACTION_SHOW_VPN_STATUS_UNPROTECTED";
+    public static final String ACTION_START_TRANSFER_FROM_PREVIEW = "org.dkf.jdonkey.ACTION_START_TRANSFER_FROM_PREVIEW";
+    public static final String ACTION_MEDIA_PLAYER_PLAY = "org.dkf.jdonkey.ACTION_MEDIA_PLAYER_PLAY";
+    public static final String ACTION_MEDIA_PLAYER_STOPPED = "org.dkf.jdonkey.ACTION_MEDIA_PLAYER_STOPPED";
+    public static final String ACTION_MEDIA_PLAYER_PAUSED = "org.dkf.jdonkey.ACTION_MEDIA_PLAYER_PAUSED";
+    public static final String ACTION_REFRESH_FINGER = "org.dkf.jdonkey.ACTION_REFRESH_FINGER";
+    public static final String ACTION_SETTINGS_SELECT_STORAGE = "org.dkf.jdonkey.ACTION_SETTINGS_SELECT_STORAGE";
+    public static final String ACTION_SETTINGS_OPEN_TORRENT_SETTINGS = "org.dkf.jdonkey.ACTION_SETTINGS_OPEN_TORRENT_SETTINGS";
+    public static final String ACTION_NOTIFY_SDCARD_MOUNTED = "org.dkf.jdonkey.ACTION_NOTIFY_SDCARD_MOUNTED";
+    public static final String ACTION_FILE_ADDED_OR_REMOVED = "org.dkf.jdonkey.ACTION_FILE_ADDED_OR_REMOVED";
+    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jdonkey.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
+    public static final String EXTRA_DOWNLOAD_COMPLETE_PATH = "org.dkf.jdonkey.EXTRA_DOWNLOAD_COMPLETE_PATH";
+    public static final String EXTRA_REFRESH_FILE_TYPE = "org.dkf.jdonkey.EXTRA_REFRESH_FILE_TYPE";
+    public static final String EXTRA_FINISH_MAIN_ACTIVITY = "org.dkf.jdonkey.EXTRA_FINISH_MAIN_ACTIVITY";
 
-    public static final String BROWSE_PEER_FRAGMENT_LISTVIEW_FIRST_VISIBLE_POSITION = "com.jed2k.android.BROWSE_PEER_FRAGMENT_LISTVIEW_FIRST_VISIBLE_POSITION.";
+    public static final String BROWSE_PEER_FRAGMENT_LISTVIEW_FIRST_VISIBLE_POSITION = "org.dkf.jdonkey.BROWSE_PEER_FRAGMENT_LISTVIEW_FIRST_VISIBLE_POSITION.";
 
     public static final int NOTIFICATION_DOWNLOAD_TRANSFER_FINISHED = 1001;
 

@@ -18,8 +18,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.AboutActivity"/>
-        <activity android:name=".activities.SettingsActivity"/>
+        <activity android:name=".activities.AboutActivity"
+                  android:label="@string/about"/>
+
+        <activity android:name=".activities.SettingsActivity"
+                  android:label="@string/settings"/>
 
     </application>
 

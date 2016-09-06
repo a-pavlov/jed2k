@@ -26,7 +26,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import org.apache.commons.io.IOUtils;
@@ -67,46 +66,16 @@ public class AboutFragment extends Fragment implements MainFragment {
         content.setText(Html.fromHtml(getAboutText()));
         content.setMovementMethod(LinkMovementMethod.getInstance());
 
-        final Button loveFrostWireButton = (Button) view.findViewById(R.id.fragment_about_love_frostwire);
-        loveFrostWireButton.setOnClickListener(new View.OnClickListener() {
+        final ImageButton githubButton = (ImageButton) view.findViewById(R.id.fragment_github_button);
+
+        githubButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onLoveFrostWire();
-            }
-        });
-
-        final ImageButton fbButton = (ImageButton) view.findViewById(R.id.fragment_about_facebook_button);
-        final ImageButton twitterButton = (ImageButton) view.findViewById(R.id.fragment_about_twitter_button);
-        final ImageButton redditButton = (ImageButton) view.findViewById(R.id.fragment_about_reddit_button);
-
-        final String referrerParam  = "?ref=android_about";
-
-        fbButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UIUtils.openURL(v.getContext(), Constants.SOCIAL_URL_FACEBOOK_PAGE + referrerParam);
-            }
-        });
-
-        twitterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UIUtils.openURL(v.getContext(), Constants.SOCIAL_URL_TWITTER_PAGE + referrerParam);
-            }
-        });
-
-        redditButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UIUtils.openURL(v.getContext(), Constants.SOCIAL_URL_REDDIT_PAGE + referrerParam);
+                UIUtils.openURL(v.getContext(), "http://github.com/a-pavlov/jed2k");
             }
         });
 
         return view;
-    }
-
-    private void onLoveFrostWire() {
-        UIUtils.openURL(getActivity(), /*Constants.JDONKEY_GIVE_URL + */"plus-about");
     }
 
     @Override

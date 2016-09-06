@@ -278,7 +278,9 @@ public class MainActivity extends AbstractActivity implements
                 }
                 */
             } else if (action.equals(Constants.ACTION_REQUEST_SHUTDOWN)) {
+                LOG.info("onNewIntent", "shutdown");
                 showShutdownDialog();
+                finish();
             }
         }
 
@@ -299,6 +301,8 @@ public class MainActivity extends AbstractActivity implements
                 LOG.warn("Error handling download complete notification", e);
             }
         }
+
+        LOG.info("onNewIntent: {}", intent);
 
         if (intent.hasExtra(Constants.EXTRA_FINISH_MAIN_ACTIVITY)) {
             finish();
@@ -572,9 +576,12 @@ public class MainActivity extends AbstractActivity implements
 
     private void onLastDialogButtonPositive() {
         //Offers.showInterstitial(this, false, true);
+        LOG.info("dialog positive");
+        finish();
     }
 
     private void onShutdownDialogButtonPositive() {
+        LOG.info("dialog negative");
         //Offers.showInterstitial(this, true, false);
     }
 
@@ -657,6 +664,7 @@ public class MainActivity extends AbstractActivity implements
                     if (id == R.id.menu_main_settings) {
                         controller.showPreferences();
                     } else if (id == R.id.menu_main_shutdown) {
+                        LOG.info("setupMenuItems", "shutdown dialog");
                         showShutdownDialog();
                     //} else if (id == R.id.menu_main_my_music) {
                     //    controller.launchMyMusic();
