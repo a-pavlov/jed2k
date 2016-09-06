@@ -39,7 +39,8 @@ public enum ErrorCode implements BaseErrorCode {
     NO_MEMORY(33, "No memory available"),
     SESSION_STOPPING(34, "Session stopping"),
     INCOMING_DIR_INACCESSIBLE(35, "Incoming directory is inaccessible"),
-    FAIL(36, "Fail");
+    SERVER_MET_HEADER_INCORRECT(36, "Server met file contains incorrect header byte"),
+    FAIL(37, "Fail");
 
     private final int code;
     private final String description;

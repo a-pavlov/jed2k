@@ -639,4 +639,13 @@
     <string name="i_have_read_and_agree_to_the">I have read and agree to the</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="cancel">Cancel</string>
+
+    <string name="common_settings">Common settings</string>
+    <string name="listen_port">Listen port</string>
+    <string name="listen_port_summary">Port for incoming connections</string>
+
+    <string name="servers_settings">Servers settings</string>
+    <string name="server_connect">Connect to server</string>
+    <string name="choose_server_title">Choose server</string>
+    <string name="choose_server_summary">Choose server for search files and sources</string>
 </resources>
