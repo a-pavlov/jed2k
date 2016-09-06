@@ -1,10 +1,12 @@
 package org.dkf.jed2k.protocol.server;
 
-import com.sun.corba.se.spi.activation.Server;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.*;
+import org.dkf.jed2k.protocol.Container;
+import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.tag.Tag;
 
 import java.nio.ByteBuffer;
@@ -17,9 +19,10 @@ public class ServerMet implements Serializable {
     private static final byte  MET_HEADER_WITH_LARGEFILES  = 0x0F;
 
     private byte header = MET_HEADER;
-    Container<UInt32, ServerMetEntry>   servers = Container.makeInt(ServerMetEntry.class);
+    private Container<UInt32, ServerMet.ServerMetEntry>   servers = Container.makeInt(ServerMet.ServerMetEntry.class);
 
-    private class ServerMetEntry implements Serializable {
+
+    public static class ServerMetEntry implements Serializable {
         final NetworkIdentifier endpoint = new NetworkIdentifier();
         final Container<UInt32, Tag> tags = Container.makeInt(Tag.class);
 
@@ -59,5 +62,9 @@ public class ServerMet implements Serializable {
     @Override
     public int bytesCount() {
         return Utils.sizeof(header) + servers.bytesCount();
+    }
+
+    public final Container<UInt32, ServerMetEntry> getServers() {
+        return servers;
     }
 }

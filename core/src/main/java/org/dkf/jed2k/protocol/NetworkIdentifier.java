@@ -6,6 +6,7 @@ import org.dkf.jed2k.exception.JED2KException;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static org.dkf.jed2k.Utils.int2Address;
 import static org.dkf.jed2k.Utils.sizeof;
@@ -48,6 +49,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
+        assert(src.order() == ByteOrder.LITTLE_ENDIAN);
         ip = src.getInt();
         port = src.getShort();
         return src;
@@ -55,6 +57,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        assert(dst.order() == ByteOrder.LITTLE_ENDIAN);
         return dst.putInt(ip).putShort(port);
     }
 

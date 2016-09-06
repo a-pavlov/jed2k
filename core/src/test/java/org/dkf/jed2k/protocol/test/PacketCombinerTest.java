@@ -70,6 +70,7 @@ public class PacketCombinerTest {
     @Test
     public void testBufferOverflow() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(128);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         LinkedList<Serializable> order = new LinkedList<Serializable>();
         order.add(new IdChange());
         assert(login.bytesCount() < 120);

@@ -40,7 +40,9 @@ public enum ErrorCode implements BaseErrorCode {
     SESSION_STOPPING(34, "Session stopping"),
     INCOMING_DIR_INACCESSIBLE(35, "Incoming directory is inaccessible"),
     SERVER_MET_HEADER_INCORRECT(36, "Server met file contains incorrect header byte"),
-    FAIL(37, "Fail");
+    FILE_IO_ERROR(37, "File I/O error occured"),
+    BUFFER_TOO_LARGE(38, "Buffer too large"),
+    FAIL(39, "Fail");
 
     private final int code;
     private final String description;

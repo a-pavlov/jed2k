@@ -4,6 +4,7 @@ import org.dkf.jed2k.exception.JED2KException;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class UInt64 extends UNumber implements Comparable<UInt64>{
     /**
@@ -47,6 +48,7 @@ public class UInt64 extends UNumber implements Comparable<UInt64>{
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
+        assert(src.order() == ByteOrder.LITTLE_ENDIAN);
         value = src.getLong();
         return src;
     }
@@ -54,6 +56,7 @@ public class UInt64 extends UNumber implements Comparable<UInt64>{
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        assert(dst.order() == ByteOrder.LITTLE_ENDIAN);
         return dst.putLong(value);
     }
 

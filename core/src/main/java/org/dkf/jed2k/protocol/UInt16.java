@@ -3,6 +3,7 @@ package org.dkf.jed2k.protocol;
 import org.dkf.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static org.dkf.jed2k.Utils.sizeof;
 
@@ -42,12 +43,14 @@ public class UInt16 extends UNumber implements Comparable<UInt16>{
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
+        assert(src.order() == ByteOrder.LITTLE_ENDIAN);
         value = src.getShort();
         return src;
     }
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        assert(dst.order() == ByteOrder.LITTLE_ENDIAN);
         return dst.putShort(value);
     }
 

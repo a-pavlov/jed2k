@@ -48,6 +48,7 @@ public class OptionalTest {
     @Test
     public void testInOut() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(20);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         Optional<NetworkIdentifier> opt1 = new Optional<NetworkIdentifier>(NetworkIdentifier.class);
         Optional<NetworkIdentifier> opt2 = new Optional<NetworkIdentifier>(NetworkIdentifier.class);
         opt2.setData(new NetworkIdentifier(1120, (short)3));

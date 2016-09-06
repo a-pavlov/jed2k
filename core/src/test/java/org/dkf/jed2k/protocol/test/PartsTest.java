@@ -44,6 +44,7 @@ public class PartsTest {
     @Test
     public void testRequest64() throws JED2KException {
         ByteBuffer buffer = ByteBuffer.allocate(100);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
         RequestParts64 rp = new RequestParts64(Hash.EMULE);
         rp.append(19999999999L, 29999999999L);
         rp.put(buffer);
