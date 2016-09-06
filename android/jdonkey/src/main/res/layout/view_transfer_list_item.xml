@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Created by Angel Leon (@gubatron), Alden Torres (aldenml)
+ * Copyright (c) 2011-2015, FrostWire(R). All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/transfers_listview_item_background_selector"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:paddingBottom="1px"
+    android:paddingTop="1px" >
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/body_background_gray"
+        android:gravity="center|center_vertical"
+        android:paddingBottom="20dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="20dp" >
+
+        <ImageView
+            android:id="@+id/view_transfer_list_item_group_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|center_vertical"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/transfer_menuitem_plus" />
+
+        <ImageView
+            android:id="@+id/view_transfer_list_item_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|center_vertical"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:id="@+id/view_transfer_list_item_title"
+            style="@style/TransfersList.Item.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dummy_title" />
+
+        <ProgressBar
+            android:id="@+id/view_transfer_list_item_progress"
+            android:layout_width="fill_parent"
+            android:layout_height="5dp"
+            android:layout_below="@id/view_transfer_list_item_title"
+            android:indeterminateOnly="false"
+            android:progressDrawable="@drawable/transfer_progress_horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="1dp">
+
+            <TextView
+                android:id="@+id/view_transfer_list_item_status"
+                style="@style/TransfersList.Item.Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/view_transfer_list_item_title"
+                android:text="@string/dummy_status"
+                android:foregroundGravity="left" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:foregroundGravity="right"
+                android:gravity="right">
+
+                <TextView
+                    android:id="@+id/view_transfer_list_item_peers"
+                    style="@style/TransfersList.Item.Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dummy_peers"
+                    android:layout_marginRight="4dp" />
+
+                <TextView
+                    style="@style/TransfersList.Item.Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-" />
+
+                <TextView
+                    android:id="@+id/view_transfer_list_item_seeds"
+                    style="@style/TransfersList.Item.Status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/dummy_seeds"
+                    android:layout_marginLeft="4dp" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/view_transfer_list_item_size"
+                style="@style/TransferListItemSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/dummy_size" />
+
+            <TextView
+                android:id="@+id/view_transfer_list_item_speed"
+                style="@style/TransfersList.Item.Status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text="@string/dummy_speed"
+                android:gravity="right" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/view_transfer_list_item_button_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|center_vertical"
+        android:background="@null"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        android:src="@drawable/browse_peer_play_icon" />
+
+</LinearLayout>
