@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Created by Angel Leon (@gubatron), Alden Torres (aldenml)
+ * Copyright (c) 2011-2016, FrostWire(R). All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:frostwire="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <ProgressBar
+            android:id="@+id/fragment_search_deepsearch_progress"
+            style="@style/ProgressBarHolo.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="5dip"
+            android:indeterminate="true"
+            android:progress="25"/>
+
+    <org.dkf.jdonkey.views.SearchInputView
+            android:id="@+id/fragment_search_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <org.dkf.jdonkey.views.RichNotification
+            android:id="@+id/fragment_search_rating_reminder_notification"
+            frostwire:rich_notification_icon="@null"
+            frostwire:rich_notification_title="@string/rate_our_app"
+            frostwire:rich_notification_title_underlined="true"
+            frostwire:rich_notification_description="@string/rating_reminder_description"
+            frostwire:rich_notification_number_of_action_links="2"
+            frostwire:rich_notification_action_links_horizontal_margin="14"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+    />
+
+    <LinearLayout
+            android:id="@+id/fragment_search_adview_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/black"
+            android:orientation="horizontal">
+    </LinearLayout>
+
+    <org.dkf.jdonkey.views.SwipeLayout
+            android:id="@+id/fragment_search_swipe"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+        <FrameLayout
+                android:id="@+id/fragment_search_framelayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <org.dkf.jdonkey.views.SearchProgressView
+                    android:id="@+id/fragment_search_search_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            <ListView
+                    android:id="@+id/fragment_search_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/basic_white"
+                    android:fastScrollEnabled="true"/>
+        </FrameLayout>
+    </org.dkf.jdonkey.views.SwipeLayout>
+
+</LinearLayout>

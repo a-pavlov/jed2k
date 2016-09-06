@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<com.frostwire.android.gui.views.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<org.dkf.jdonkey.views.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
@@ -47,4 +47,4 @@
         android:layout_below="@id/slidemenu_listitem_icon"
         android:background="@color/app_menu_item_line" />
 
-</com.frostwire.android.gui.views.CheckableRelativeLayout>
+</org.dkf.jdonkey.views.CheckableRelativeLayout>

@@ -17,9 +17,12 @@
 
 package org.dkf.jdonkey.activities.internal;
 
+import android.app.Fragment;
 import android.content.Intent;
+import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.activities.MainActivity;
 import org.dkf.jdonkey.activities.SettingsActivity;
+import org.dkf.jdonkey.fragments.TransfersFragment;
 import org.dkf.jdonkey.fragments.TransfersFragment.TransferStatus;
 
 /**
@@ -38,17 +41,17 @@ public final class MainController {
         return activity;
     }
 
-    /*public void closeSlideMenu() {
+    public void closeSlideMenu() {
         activity.closeSlideMenu();
     }
-    */
+
 
     public void switchFragment(int itemId) {
-        /*Fragment fragment = activity.getFragmentByMenuId(itemId);
+        Fragment fragment = activity.getFragmentByMenuId(itemId);
         if (fragment != null) {
             activity.switchContent(fragment);
         }
-        */
+
     }
 
     public void showPreferences() {
@@ -57,11 +60,11 @@ public final class MainController {
     }
 
     public void showTransfers(TransferStatus status) {
-        /*if (!(activity.getCurrentFragment() instanceof TransfersFragment)) {
+        if (!(activity.getCurrentFragment() instanceof TransfersFragment)) {
             TransfersFragment fragment = (TransfersFragment) activity.getFragmentByMenuId(R.id.menu_main_transfers);
-            fragment.selectStatusTab(status);
+            //fragment.selectStatusTab(status);
             switchFragment(R.id.menu_main_transfers);
         }
-        */
+
     }
 }

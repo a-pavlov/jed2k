@@ -23,7 +23,7 @@
               android:layout_height="fill_parent"
               android:orientation="vertical">
 
-    <com.frostwire.android.gui.views.ClearableEditTextView
+    <org.dkf.jdonkey.views.ClearableEditTextView
             android:id="@+id/fragment_transfers_add_transfer_text_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
                 android:textSize="12sp"/>
     </RadioGroup>
 
-    <com.frostwire.android.gui.views.RichNotification
+    <org.dkf.jdonkey.views.RichNotification
             android:id="@+id/fragment_transfers_sd_card_notification"
             frostwire:rich_notification_icon="@drawable/sd_card_notification"
             frostwire:rich_notification_title="@string/saving_to_sd_card"
@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
     />
 
-    <com.frostwire.android.gui.views.RichNotification
+    <org.dkf.jdonkey.views.RichNotification
             android:id="@+id/fragment_transfers_internal_memory_notification"
             frostwire:rich_notification_icon="@drawable/internal_memory_notification"
             frostwire:rich_notification_title="@string/saving_to_internal_memory"
@@ -103,7 +103,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:background="@color/body_background_gray_light">
-        <com.frostwire.android.gui.views.SwipeLayout
+        <org.dkf.jdonkey.views.SwipeLayout
                 android:id="@+id/fragment_transfers_swipe"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -115,7 +115,7 @@
                     android:background="@color/body_background_gray_light"
                     android:fadingEdge="none"
                     android:groupIndicator="@android:color/transparent"/>
-        </com.frostwire.android.gui.views.SwipeLayout>
+        </org.dkf.jdonkey.views.SwipeLayout>
         <TextView android:id="@+id/fragment_transfers_vpn_notification"
                   style="@style/GetVPNToastNotification"
                   android:layout_width="wrap_content"
