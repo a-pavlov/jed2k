@@ -252,7 +252,7 @@ public class Session extends Thread {
         }
     }
 
-    public void connectoTo(final InetSocketAddress point) {
+    public void connectoTo(final String id, final InetSocketAddress point) {
         commands.add(new Runnable() {
             @Override
             public void run() {
@@ -261,13 +261,41 @@ public class Session extends Thread {
                 }
 
                 try {
-                    serverConection = ServerConnection.makeConnection(Session.this);
+                    serverConection = ServerConnection.makeConnection(id, Session.this);
                     serverConection.connect(point);
                     NetworkIdentifier endpoint = new NetworkIdentifier(point);
                     log.debug("connect to server {}", endpoint);
                 } catch(JED2KException e) {
                     // emit alert - connect to server failed
                     log.error("server connection failed {}", e);
+                }
+            }
+        });
+    }
+
+    public void connectoTo(final String id, final String host, final int port) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final InetSocketAddress addr = new InetSocketAddress(host, port);
+
+                    if (serverConection != null) {
+                        serverConection.close(ErrorCode.NO_ERROR);
+                    }
+
+                    try {
+                        serverConection = ServerConnection.makeConnection(id, Session.this);
+                        serverConection.connect(addr);
+                        NetworkIdentifier endpoint = new NetworkIdentifier(addr);
+                        log.debug("connect to server {}", endpoint);
+                    } catch(JED2KException e) {
+                        // emit alert - connect to server failed
+                        log.error("server connection failed {}", e);
+                    }
+                }
+                catch(Exception e) {
+                    log.error("Illegal input parameters {} or {}", host, port);
                 }
             }
         });

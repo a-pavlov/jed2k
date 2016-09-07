@@ -5,7 +5,6 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
-import org.dkf.jed2k.protocol.server.ServerInfo;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
@@ -193,7 +192,7 @@ public class Conn {
             	s.configureSession(settings);
             }
             if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
-                s.connectoTo(new InetSocketAddress(parts[1], (short)Integer.parseInt((parts.length > 2)?parts[2]:"4661")));
+                s.connectoTo("server", parts[1], Integer.parseInt((parts.length > 2)?parts[2]:"4661"));
             }
             else if (parts[0].compareTo("search2") == 0) {
                 try {

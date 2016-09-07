@@ -18,12 +18,13 @@ import org.dkf.jed2k.Settings;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
-import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,10 +53,12 @@ public class ED2KService extends Service {
 
     private AtomicBoolean listening = new AtomicBoolean(false);
 
+    private ScheduledFuture scheduledFuture;
+
     /**
      * trivial listener
      */
-    private AlertListener listener;
+    private LinkedList<AlertListener> listeners = new LinkedList<>();
 
     /**
      * Notification ID
@@ -71,10 +74,6 @@ public class ED2KService extends Service {
 
     public ED2KService() {
         binder = new ED2KServiceBinder();
-    }
-
-    public void setListener(final AlertListener listener) {
-        this.listener = listener;
     }
 
     public class ED2KServiceBinder extends Binder {
@@ -149,31 +148,47 @@ public class ED2KService extends Service {
         }
     }
 
+    synchronized public void addListener(AlertListener listener) {
+        listeners.add(listener);
+    }
+
+    synchronized public void removeListener(AlertListener listener) {
+        listeners.remove(listener);
+    }
+
+    synchronized public void processAlert(Alert a) {
+        if (a instanceof ListenAlert) {
+            Log.v("ED2KService", "listen");
+            for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
+        }
+        if (a instanceof SearchResultAlert) {
+            for(final AlertListener ls: listeners)  ls.onSearchResult((SearchResultAlert)a);
+        }
+        else if (a instanceof ServerMessageAlert) {
+            for(final AlertListener ls: listeners) ls.onServerMessage((ServerMessageAlert)a);
+        }
+        else if (a instanceof ServerStatusAlert) {
+            for(final AlertListener ls: listeners) ls.onServerStatus((ServerStatusAlert)a);
+        }
+        else if (a instanceof ServerConectionClosed) {
+            Log.v("ED2KService", "closed socket ");
+            for(final AlertListener ls: listeners) ls.onServerConnectionClosed((ServerConectionClosed)a);
+        }
+        else {
+            log.debug("alert {}", a);
+        }
+    }
+
     private void alertsLoop() {
+        Log.d("ED2KService", "alertsLoop");
         assert(session != null);
-        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+        scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+                Log.v("ED2KService", "process alerts");
                 Alert a = session.popAlert();
                 while(a != null) {
-                    if (a instanceof ListenAlert) {
-                        if (listener != null) listener.onListen((ListenAlert)a);
-                        listening.set(true);
-                    }
-                    if (a instanceof SearchResultAlert) {
-                        if (listener != null) listener.onSearchResult((SearchResultAlert)a);
-                        SearchResult sr = ((SearchResultAlert)a).results;
-                    }
-                    else if (a instanceof ServerMessageAlert) {
-                        if (listener != null) listener.onServerMessage((ServerMessageAlert)a);
-                    }
-                    else if (a instanceof ServerStatusAlert) {
-                        if (listener != null) listener.onServerStatus((ServerStatusAlert)a);
-                    }
-                    else {
-                        log.debug("alert {}", a);
-                    }
-
+                    processAlert(a);
                     a = session.popAlert();
                 }
             }
@@ -262,6 +277,11 @@ public class ED2KService extends Service {
     // only for testing
     public final boolean isListening() {
         return listening.get();
+    }
+
+    public void connectoServer(final String serverId, final String host, final int port) {
+        Log.i("server connection", "Connect to " + host);
+        session.connectoTo(serverId, host, port);
     }
 
     /**

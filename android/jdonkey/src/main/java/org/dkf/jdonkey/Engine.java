@@ -24,9 +24,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
+import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.android.ED2KService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
 
 /**
  * @author gubatron
@@ -37,6 +41,7 @@ public final class Engine {
     private ED2KService service;
     private ServiceConnection connection;
     private Context context;
+    private LinkedList<AlertListener> pendingListeners = new LinkedList<>();
 
     private static Engine instance;
 
@@ -92,6 +97,29 @@ public final class Engine {
         }
     }
 
+    public void setListener(final AlertListener ls) {
+        if (service != null) service.addListener(ls);
+        else pendingListeners.add(ls);
+    }
+
+    public void removeListener(final AlertListener ls) {
+        if (service != null) service.removeListener(ls);
+        pendingListeners.remove(ls);
+    }
+
+    public boolean connectTo(final String serverId, final String host, int port) {
+        if (service != null) {
+            try {
+                service.connectoServer(serverId, host, port);
+            } catch(Exception e) {
+                Log.e("server connection", e.toString());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * @param context This must be the application context, otherwise there will be a leak.
      */
@@ -106,7 +134,13 @@ public final class Engine {
 
             public void onServiceConnected(ComponentName name, IBinder service) {
                 if (service instanceof ED2KService.ED2KServiceBinder) {
+                    LOG.info("Service connected");
                     Engine.this.service = ((ED2KService.ED2KServiceBinder) service).getService();
+                    for(final AlertListener ls: pendingListeners) {
+                        Engine.this.service.addListener(ls);
+                    }
+                    LOG.info("bind {} pending listeners", pendingListeners.size());
+                    pendingListeners.clear();
                     //registerStatusReceiver(context);
                 } else {
                     throw new IllegalArgumentException("IBinder on service connected class is not instance of ED2KService.ED2KServiceBinder");
@@ -114,4 +148,5 @@ public final class Engine {
             }
         }, Context.BIND_AUTO_CREATE);
     }
+
 }

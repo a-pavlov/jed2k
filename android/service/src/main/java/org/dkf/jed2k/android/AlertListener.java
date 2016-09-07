@@ -1,9 +1,6 @@
 package org.dkf.jed2k.android;
 
-import org.dkf.jed2k.alert.ListenAlert;
-import org.dkf.jed2k.alert.SearchResultAlert;
-import org.dkf.jed2k.alert.ServerMessageAlert;
-import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.dkf.jed2k.alert.*;
 
 /**
  * listener to handle events from session
@@ -17,17 +14,23 @@ public interface AlertListener {
      *
      * @param alert search result from session for all types of search
      */
-    public void onSearchResult(final SearchResultAlert alert);
+    void onSearchResult(final SearchResultAlert alert);
 
     /**
      *
      * @param alert server message
      */
-    public void onServerMessage(final ServerMessageAlert alert);
+    void onServerMessage(final ServerMessageAlert alert);
 
     /**
      *
      * @param alert some server's information
      */
-    public void onServerStatus(final ServerStatusAlert alert);
+    void onServerStatus(final ServerStatusAlert alert);
+
+    /**
+     *
+     * @param alert server connection closed with reason in code field
+     */
+    void onServerConnectionClosed(final ServerConectionClosed alert);
 }

@@ -3,23 +3,14 @@ package org.dkf.jed2k.alert;
 /**
  * Created by inkpot on 24.07.2016.
  */
-public class ServerStatusAlert extends Alert {
-    public int filesCount;
-    public int usersCount;
+public class ServerStatusAlert extends ServerAlert {
+    public final int filesCount;
+    public final int usersCount;
 
-    public ServerStatusAlert(int fc, int uc) {
+    public ServerStatusAlert(final String id, int fc, int uc) {
+        super(id);
         filesCount = fc;
         usersCount = uc;
-    }
-
-    @Override
-    public Severity severity() {
-        return null;
-    }
-
-    @Override
-    public int category() {
-        return 0;
     }
 
     @Override

@@ -1,9 +1,6 @@
 package org.dkf.jed2k;
 
-import org.dkf.jed2k.alert.SearchResultAlert;
-import org.dkf.jed2k.alert.ServerInfoAlert;
-import org.dkf.jed2k.alert.ServerMessageAlert;
-import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -28,18 +25,27 @@ public class ServerConnection extends Connection {
     private static Logger log = LoggerFactory.getLogger(ServerConnection.class);
     private long lastPingTime = 0;
 
-    private ServerConnection(ByteBuffer incomingBuffer,
+    /**
+     * special identifier for server connection
+     * will be added to each server alert
+     */
+    private final String identifier;
+
+    private ServerConnection(
+            final String id,
+            ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer,
             PacketCombiner packetCombiner,
             Session session) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session);
+        identifier = id;
     }
 
-    public static ServerConnection makeConnection(Session ses) throws JED2KException {
+    public static ServerConnection makeConnection(final String id, Session ses) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(1024);
             ByteBuffer obuff = ByteBuffer.allocate(1048);
-            return  new ServerConnection(ibuff, obuff, new PacketCombiner(), ses);
+            return  new ServerConnection(id, ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
@@ -81,7 +87,7 @@ public class ServerConnection extends Connection {
     @Override
     public void onServerInfo(ServerInfo value) throws JED2KException {
         log.debug("server info {}", value);
-        session.pushAlert(new ServerInfoAlert(value));
+        session.pushAlert(new ServerInfoAlert(identifier, value));
     }
 
     @Override
@@ -92,13 +98,13 @@ public class ServerConnection extends Connection {
     @Override
     public void onServerMessage(Message value) throws JED2KException {
         log.debug("server message {}", value);
-        session.pushAlert(new ServerMessageAlert(value.asString()));
+        session.pushAlert(new ServerMessageAlert(identifier, value.asString()));
     }
 
     @Override
     public void onServerStatus(Status value) throws JED2KException {
         log.debug("server status {}", value);
-        session.pushAlert(new ServerStatusAlert(value.filesCount, value.usersCount));
+        session.pushAlert(new ServerStatusAlert(identifier, value.filesCount, value.usersCount));
     }
 
     @Override
@@ -141,6 +147,7 @@ public class ServerConnection extends Connection {
         session.tcpFlags = 0;
         session.auxPort = 0;
         session.serverConection = null;
+        session.pushAlert(new ServerConectionClosed(identifier, ec));
     }
 
     @Override
@@ -287,5 +294,9 @@ public class ServerConnection extends Connection {
 
     void sendCallbackRequest(final int clientId) {
         write(new CallbackRequest(clientId));
+    }
+
+    public final String getIdentifier() {
+        return identifier;
     }
 }

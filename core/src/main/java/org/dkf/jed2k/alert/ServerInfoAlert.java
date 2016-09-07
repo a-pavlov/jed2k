@@ -5,21 +5,11 @@ import org.dkf.jed2k.protocol.server.ServerInfo;
 /**
  * Created by inkpot on 02.09.2016.
  */
-public class ServerInfoAlert extends Alert {
-
+public class ServerInfoAlert extends ServerAlert {
     public final ServerInfo info;
 
-    public ServerInfoAlert(final ServerInfo info) {
+    public ServerInfoAlert(final String id, final ServerInfo info) {
+        super(id);
         this.info = info;
-    }
-
-    @Override
-    public Severity severity() {
-        return null;
-    }
-
-    @Override
-    public int category() {
-        return 0;
     }
 }

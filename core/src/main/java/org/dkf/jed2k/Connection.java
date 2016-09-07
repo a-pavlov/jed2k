@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
@@ -123,7 +124,11 @@ public abstract class Connection implements Dispatcher {
         int bytes;
         try {
             bytes = socket.read(headerBuffer);
-        } catch(IOException e) {
+        }
+        catch(NotYetConnectedException e) {
+            throw new JED2KException(ErrorCode.NOT_CONNECTED);
+        }
+        catch(IOException e) {
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
 
@@ -165,7 +170,11 @@ public abstract class Connection implements Dispatcher {
 
             try {
                 bytes = socket.read(bufferIncoming);
-            } catch(IOException e) {
+            }
+            catch(NotYetConnectedException e) {
+                throw new JED2KException(ErrorCode.NOT_CONNECTED);
+            }
+            catch(IOException e) {
                 throw new JED2KException(ErrorCode.IO_EXCEPTION);
             }
 
@@ -241,7 +250,12 @@ public abstract class Connection implements Dispatcher {
         catch(JED2KException e) {
             log.error(e.getMessage());
             close(e.getErrorCode());
-        } catch (IOException e) {
+        }
+        catch(NotYetConnectedException e) {
+            log.error(e.getMessage());
+            close(ErrorCode.NOT_CONNECTED);
+        }
+        catch (IOException e) {
             log.error(e.getMessage());
             close(ErrorCode.IO_EXCEPTION);
         }
@@ -269,7 +283,11 @@ public abstract class Connection implements Dispatcher {
             socket.close();
         } catch(IOException e) {
             log.error(e.getMessage());
-        } finally {
+        }
+        catch(Exception e) {
+            log.error(e.getMessage());
+        }
+        finally {
             key.cancel();
             disconnecting = true;
             onDisconnect(ec);

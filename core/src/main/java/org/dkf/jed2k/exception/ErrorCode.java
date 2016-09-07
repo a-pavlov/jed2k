@@ -42,7 +42,8 @@ public enum ErrorCode implements BaseErrorCode {
     SERVER_MET_HEADER_INCORRECT(36, "Server met file contains incorrect header byte"),
     FILE_IO_ERROR(37, "File I/O error occured"),
     BUFFER_TOO_LARGE(38, "Buffer too large"),
-    FAIL(39, "Fail");
+    NOT_CONNECTED(39, "Not connected"),
+    FAIL(40, "Fail");
 
     private final int code;
     private final String description;
