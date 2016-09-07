@@ -8,6 +8,7 @@ import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.views.AbstractAdapter;
 import org.dkf.jdonkey.views.AbstractFragment;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class ServersFragment extends AbstractFragment implements AlertListener {
     private final Logger log = LoggerFactory.getLogger(ServersFragment.class);
     private ListView list;
+    private ServersAdapter adapter;
 
     public ServersFragment() {
         super(R.layout.fragment_servers);
@@ -28,13 +30,14 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
     @Override
     protected void initComponents(final View rootView) {
         list = (ListView)findView(rootView, R.id.servers_list);
-        list.setAdapter(new ServersAdapter(getActivity()));
+        adapter = new ServersAdapter(getActivity());
+        list.setAdapter(adapter);
         list.setOnItemClickListener(new AbstractAdapter.OnItemClickAdapter<ServerEntry>() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, AbstractAdapter<ServerEntry> adapter, int position, long id) {
                 log.info("selected server {}", adapter.getItem(position).description);
                 ServerEntry se = adapter.getItem(position);
-                if (!Engine.instance().connectTo(se.id, se.ip, se.port)) {
+                if (!Engine.instance().connectTo(se.getIdentifier(), se.ip, se.port)) {
                     log.error("Unable to start connection to ", se.ip);
                 }
             }
@@ -62,14 +65,36 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
         Engine.instance().removeListener(this);
     }
 
-    private void setupItem(final String id, final String msg) {
+    private void handleServerIdChanged(final String id, int userId) {
+        ServerEntry se = adapter.getItem(id);
+        if (se != null) {
+            se.userId = userId;
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void handleServerMessage(final String id, final String msg) {
         log.info("server {} message {}", id, msg);
         Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 
-    private void serverConnClosed(final String str) {
-        log.info("server conn closed {}", str);
-        Toast.makeText(getActivity(), "conn closed " + str, Toast.LENGTH_LONG).show();
+    private void handleServerConnectionClosed(final String id) {
+        ServerEntry se = adapter.getItem(id);
+        if (se != null) {
+            se.userId = 0;
+            se.filesCount = 0;
+            se.usersCount = 0;
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void handleServerStatus(final String id, int uc, int fc) {
+        ServerEntry se = adapter.getItem(id);
+        if (se != null) {
+            se.usersCount = uc;
+            se.filesCount = fc;
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void listenAlert() {
@@ -98,14 +123,29 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                setupItem(alert.identifier, alert.msg);
+                handleServerMessage(alert.identifier, alert.msg);
             }
         });
     }
 
     @Override
-    public void onServerStatus(ServerStatusAlert alert) {
+    public void onServerStatus(final ServerStatusAlert alert) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleServerStatus(alert.identifier, alert.usersCount, alert.filesCount);
+            }
+        });
+    }
 
+    @Override
+    public void onServerIdAlert(final ServerIdAlert alert) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleServerIdChanged(alert.identifier, alert.userId);
+            }
+        });
     }
 
     @Override
@@ -113,27 +153,37 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                serverConnClosed(alert.code.getDescription());
+                handleServerConnectionClosed(alert.code.getDescription());
             }
         });
     }
 
     private static final class ServerEntry {
-        public ServerEntry(final String id, final String description, final String ip, final int port) {
-            this.id = id;
+        public ServerEntry(final int rand, final String description, final String ip, final int port) {
+            this.rand = rand;
             this.description = description;
             this.ip = ip;
             this.port = port;
         }
 
-        public final String id;
+        public final int rand;
         public final String description;
         public final String ip;
         public final int port;
+        public int usersCount = 0;
+        public int filesCount = 0;
+        public int userId = 0;
+
+
+        public final String getIdentifier() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(Integer.toString(rand)).append(ip).append(Integer.toString(port));
+            return sb.toString();
+        }
 
         @Override
         public String toString() {
-            return "ID {" + id + "} " + ip + ":" + port;
+            return "ID {" + getIdentifier() + "} " + ip + ":" + port;
         }
     }
 /*
@@ -175,18 +225,46 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
             ImageView icon = findView(view, R.id.view_preference_servers_list_item_icon);
             TextView label = findView(view, R.id.view_preference_servers_list_item_label);
             TextView description = findView(view, R.id.view_preference_servers_list_item_description);
+            TextView details = findView(view, R.id.view_server_details);
+            TextView userId = findView(view, R.id.view_server_user_id);
             icon.setImageResource(R.drawable.internal_memory_notification_dark_bg/* : R.drawable.sd_card_notification_dark_bg*/);
             label.setText(item.description);
-            description.setText(item.ip + "/" + item.port);
+            description.setText(item.ip + "/" + Integer.toString(item.port));
+
+            if (item.filesCount != 0 && item.usersCount != 0) {
+                details.setText(String.format("%s: %d %s: %d",
+                        getString(R.string.users_count),
+                        item.usersCount,
+                        getString(R.string.files_count),
+                        item.filesCount));
+            }
+            else {
+                details.setText(getString(R.string.NA));
+            }
+
+            if (item.userId != 0) {
+                userId.setText(String.format("%s: %s",
+                        getString(R.string.user_id),
+                        Utils.isLowId(item.userId)?"Lo":"Hi"));
+            }
         }
 
         private void addItems(Context context) {
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 3; ++i) {
                 log.info("add server {}", i);
-                add(new ServerEntry("id" + Integer.toString(i), "description " + i, "host", 56678));
+                add(new ServerEntry(i, "description " + i, "host", 56678));
             }
 
-            add(new ServerEntry("is", "IS Emule", "emule.is74.ru", 4661));
+            add(new ServerEntry(100400, "Emule IS74 server", "emule.is74.ru", 4661));
+        }
+
+        final ServerEntry getItem(final String id) {
+            for(int i = 0; i < getCount(); ++i) {
+                ServerEntry sr = getItem(i);
+                if (sr.getIdentifier().compareTo(id) == 0) return sr;
+            }
+
+            return null;
         }
     }
 }

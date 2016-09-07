@@ -114,6 +114,8 @@ public abstract class Connection implements Dispatcher {
         } catch(JED2KException e) {
             log.error(e.getMessage());
             close(e.getErrorCode());
+        } catch(Exception e) {
+            close(ErrorCode.NOT_CONNECTED);
         }
     }
 

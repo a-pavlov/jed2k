@@ -637,6 +637,11 @@
     <string name="listen_port">Listen port</string>
     <string name="listen_port_summary">Port for incoming connections</string>
 
+    <string name="NA">N/A</string>
+    <string name="users_count">Users</string>
+    <string name="files_count">Files</string>
+    <string name="user_id">User ID</string>
+
     <string name="servers_settings">Servers settings</string>
     <string name="server_connect">Connect to server</string>
     <string name="choose_server_title">Choose server</string>

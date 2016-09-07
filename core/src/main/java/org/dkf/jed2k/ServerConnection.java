@@ -82,6 +82,7 @@ public class ServerConnection extends Connection {
         session.clientId = value.clientId;
         session.tcpFlags = value.tcpFlags;
         session.auxPort = value.auxPort;
+        session.pushAlert(new ServerIdAlert(identifier, value.clientId));
     }
 
     @Override

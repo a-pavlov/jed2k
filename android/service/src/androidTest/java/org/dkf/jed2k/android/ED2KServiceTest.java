@@ -82,6 +82,11 @@ public class ED2KServiceTest {
             }
 
             @Override
+            public void onServerIdAlert(ServerIdAlert alert) {
+
+            }
+
+            @Override
             public void onServerConnectionClosed(ServerConectionClosed alert) {
 
             }

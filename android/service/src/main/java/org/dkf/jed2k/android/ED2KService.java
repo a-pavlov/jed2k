@@ -175,6 +175,9 @@ public class ED2KService extends Service {
             Log.v("ED2KService", "closed socket ");
             for(final AlertListener ls: listeners) ls.onServerConnectionClosed((ServerConectionClosed)a);
         }
+        else if (a instanceof ServerIdAlert) {
+            for(final AlertListener ls: listeners) ls.onServerIdAlert((ServerIdAlert) a);
+        }
         else {
             log.debug("alert {}", a);
         }

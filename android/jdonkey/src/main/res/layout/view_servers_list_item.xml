@@ -29,4 +29,21 @@
         android:layout_below="@id/view_preference_servers_list_item_label"
         android:layout_toRightOf="@id/view_preference_servers_list_item_icon"
         android:text="@string/dummy_summary" />
+
+    <TextView
+        android:id="@+id/view_server_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_preference_servers_list_item_description"
+        android:layout_toRightOf="@id/view_preference_servers_list_item_icon"
+        android:text="@string/NA" />
+
+    <TextView
+        android:id="@+id/view_server_user_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_server_details"
+        android:layout_toRightOf="@id/view_preference_servers_list_item_icon"
+        android:text="@string/NA" />
+
 </RelativeLayout>
