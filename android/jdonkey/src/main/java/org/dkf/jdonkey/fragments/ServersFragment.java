@@ -1,44 +1,30 @@
-package org.dkf.jdonkey.views.preference;
+package org.dkf.jdonkey.fragments;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.preference.DialogPreference;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.views.AbstractAdapter;
+import org.dkf.jdonkey.views.AbstractFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by inkpot on 05.09.2016.
+ * Created by ap197_000 on 07.09.2016.
  */
-public class ServersPreference extends DialogPreference {
-    private final Logger log = LoggerFactory.getLogger(ServersPreference.class);
+public class ServersFragment extends AbstractFragment {
+    private final Logger log = LoggerFactory.getLogger(ServersFragment.class);
+    private ListView list;
 
-    public ServersPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setDialogLayoutResource(R.layout.dialog_preference_servers);
-    }
-
-    public ServersPreference(Context context) {
-        this(context, null);
+    public ServersFragment() {
+        super(R.layout.fragment_servers);
     }
 
     @Override
-    public void showDialog(Bundle state) {
-        super.showDialog(state);
-    }
-
-    @Override
-    protected void onBindDialogView(View view) {
-        super.onBindDialogView(view);
-
-        ListView list = (ListView) view.findViewById(R.id.preference_servers_list);
-
-        list.setAdapter(new ServersAdapter(getContext()));
+    protected void initComponents(final View rootView) {
+        list = (ListView)findView(rootView, R.id.servers_list);
+        list.setAdapter(new ServersAdapter(getActivity()));
         list.setOnItemClickListener(new AbstractAdapter.OnItemClickAdapter<ServerEntry>() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, AbstractAdapter<ServerEntry> adapter, int position, long id) {
@@ -46,7 +32,6 @@ public class ServersPreference extends DialogPreference {
             }
         });
     }
-
 
     private static final class ServerEntry {
         public ServerEntry(final String description, final String ip, final String port) {
@@ -60,12 +45,10 @@ public class ServersPreference extends DialogPreference {
         public final String port;
     }
 
-
     private final class ServersAdapter extends AbstractAdapter<ServerEntry> {
 
         public ServersAdapter(Context context) {
             super(context, R.layout.view_preference_servers_list_item);
-
             addItems(context);
         }
 
@@ -84,6 +67,7 @@ public class ServersPreference extends DialogPreference {
 
         private void addItems(Context context) {
             for (int i = 0; i < 10; ++i) {
+                log.info("add server {}", i);
                 add(new ServerEntry("description " + i, "host", "port"));
             }
         }

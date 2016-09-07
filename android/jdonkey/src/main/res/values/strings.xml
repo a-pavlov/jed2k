@@ -648,4 +648,9 @@
     <string name="server_connect">Connect to server</string>
     <string name="choose_server_title">Choose server</string>
     <string name="choose_server_summary">Choose server for search files and sources</string>
+    <string name="servers">Servers</string>
+    <string name="random_server">Random</string>
+    <string name="random_server_summary">Choose random server on start</string>
+    <string name="connect_on_start_server">Reconnect</string>
+    <string name="connect_on_start_server_summary">Connect to server on start</string>
 </resources>

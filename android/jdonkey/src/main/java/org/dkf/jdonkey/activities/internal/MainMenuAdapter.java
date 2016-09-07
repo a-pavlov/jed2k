@@ -60,6 +60,7 @@ public final class MainMenuAdapter extends AbstractAdapter<MainMenuAdapter.MenuI
     }
 
     private void addItems() {
+        add(new MenuItem(R.id.menu_main_servers, R.string.servers, R.drawable.menu_icon_library));
         add(new MenuItem(R.id.menu_main_search, R.string.search, R.drawable.menu_icon_search));
         add(new MenuItem(R.id.menu_main_transfers, R.string.transfers, R.drawable.menu_icon_transfers));
         add(new MenuItem(R.id.menu_main_settings, R.string.settings, R.drawable.menu_icon_settings));
@@ -68,6 +69,8 @@ public final class MainMenuAdapter extends AbstractAdapter<MainMenuAdapter.MenuI
 
     private int getOverIcon(MenuItem item) {
         switch (item.itemId()) {
+            case R.id.menu_main_servers:
+                return R.drawable.menu_icon_library;
             case R.id.menu_main_search:
                 return R.drawable.menu_icon_search_over;
             case R.id.menu_main_transfers:

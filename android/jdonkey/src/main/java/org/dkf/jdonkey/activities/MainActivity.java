@@ -50,6 +50,7 @@ import org.dkf.jdonkey.dialogs.SDPermissionDialog;
 import org.dkf.jdonkey.dialogs.YesNoDialog;
 import org.dkf.jdonkey.fragments.MainFragment;
 import org.dkf.jdonkey.fragments.SearchFragment;
+import org.dkf.jdonkey.fragments.ServersFragment;
 import org.dkf.jdonkey.fragments.TransfersFragment;
 import org.dkf.jdonkey.fragments.TransfersFragment.TransferStatus;
 import org.dkf.jdonkey.util.DangerousPermissionsChecker;
@@ -118,6 +119,7 @@ public class MainActivity extends AbstractActivity implements
     private View leftDrawer;
     private ListView listMenu;
     private SearchFragment search;
+    private ServersFragment servers;
     //private BrowsePeerFragment library;
     private TransfersFragment transfers;
     private Fragment currentFragment;
@@ -591,6 +593,9 @@ public class MainActivity extends AbstractActivity implements
 
         Fragment fragment = getCurrentFragment();
         int menuId = R.id.menu_main_search;
+        if (fragment instanceof ServersFragment) {
+            menuId = R.id.menu_main_servers;
+        }
         if (fragment instanceof SearchFragment) {
             menuId = R.id.menu_main_search;
         //} else if (fragment instanceof BrowsePeerFragment) {
@@ -598,6 +603,7 @@ public class MainActivity extends AbstractActivity implements
         } else if (fragment instanceof TransfersFragment) {
             menuId = R.id.menu_main_transfers;
         }
+
         setCheckedItem(menuId);
         updateHeader(getCurrentFragment());
     }
@@ -682,8 +688,8 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void setupFragments() {
+        servers = (ServersFragment) getFragmentManager().findFragmentById(R.id.activity_main_fragment_servers);
         search = (SearchFragment) getFragmentManager().findFragmentById(R.id.activity_main_fragment_search);
-        //library = (BrowsePeerFragment) getFragmentManager().findFragmentById(R.id.activity_main_fragment_browse_peer);
         transfers = (TransfersFragment) getFragmentManager().findFragmentById(R.id.activity_main_fragment_transfers);
         hideFragments(getFragmentManager().beginTransaction()).commit();
     }
@@ -699,9 +705,10 @@ public class MainActivity extends AbstractActivity implements
             fragment = getFragmentManager().getFragment(savedInstanceState, CURRENT_FRAGMENT_KEY);
             restoreFragmentsStack(savedInstanceState);
         }
+
         if (fragment == null) {
-            fragment = search;
-            setCheckedItem(R.id.menu_main_search);
+            fragment = servers;
+            setCheckedItem(R.id.menu_main_servers);
         }
 
         switchContent(fragment);

@@ -41,6 +41,13 @@
                 android:layout_weight="1" >
 
                 <fragment
+                    android:id="@+id/activity_main_fragment_servers"
+                    android:name="org.dkf.jdonkey.fragments.ServersFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:tag="servers_fragment" />
+
+                <fragment
                     android:id="@+id/activity_main_fragment_search"
                     android:name="org.dkf.jdonkey.fragments.SearchFragment"
                     android:layout_width="match_parent"

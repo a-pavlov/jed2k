@@ -55,22 +55,17 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:key="@string/servers_settings">
+        <CheckBoxPreference
+            android:key="frostwire.prefs.random_server"
+            android:summary="@string/random_server_summary"
+            android:title="@string/random_server"/>
 
-    <PreferenceScreen
-        android:key="frostwire.prefs.torrent.servers_category"
-        android:title="@string/servers_settings"
-        android:persistent="false">
-
-        <SwitchPreference android:key="frostwire.prefs.internal.connect_disconnect_server"
-                          android:summary="@string/bittorrent_network_summary"
-                          android:title="@string/server_connect"/>
-
-        <org.dkf.jdonkey.views.preference.ServersPreference
-            android:key="frostwire.prefs.servers.id"
-            android:summary="@string/choose_server_summary"
-            android:title="@string/choose_server_title"/>
-    </PreferenceScreen>
-
+        <CheckBoxPreference
+            android:key="frostwire.prefs.reconnect"
+            android:summary="@string/connect_on_start_server_summary"
+            android:title="@string/connect_on_start_server"/>
+    </PreferenceCategory>
 
     <PreferenceScreen
             android:key="frostwire.prefs.torrent.preference_category"
