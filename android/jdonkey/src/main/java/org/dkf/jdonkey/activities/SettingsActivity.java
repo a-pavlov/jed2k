@@ -42,10 +42,11 @@ import org.dkf.jdonkey.StoragePicker;
 import org.dkf.jdonkey.core.AndroidPlatform;
 import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
-import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jdonkey.util.UIUtils;
+import org.dkf.jdonkey.views.preference.NumberPickerPreference;
 import org.dkf.jdonkey.views.preference.SimpleActionPreference;
 import org.dkf.jdonkey.views.preference.StoragePreference;
+import org.dkf.jed2k.android.ED2KService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,7 @@ public class SettingsActivity extends PreferenceActivity {
                 StoragePreference.invokeStoragePreference(this);
             } else if (action.equals(Constants.ACTION_SETTINGS_OPEN_TORRENT_SETTINGS)) {
                 finishOnBack = true;
-                openPreference("frostwire.prefs.torrent.preference_category");
+                openPreference("jdonkey.prefs.transfer.preference_category");
                 return;
             }
         }
@@ -100,6 +101,8 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void hideActionBarIcon(ActionBar bar) {
         if (bar != null) {
+            LOG.info("set home button enabled");
+            bar.setHomeButtonEnabled(true);
             bar.setDisplayHomeAsUpEnabled(true);
             bar.setDisplayShowHomeEnabled(false);
             bar.setDisplayShowTitleEnabled(true);
@@ -111,40 +114,40 @@ public class SettingsActivity extends PreferenceActivity {
         setupConnectSwitch();
         setupStorageOption();
         setupOtherOptions();
-        setupSeedingOptions();
-        setupTorrentOptions();
+        setupTransferOptions();
         setupClearIndex();
-        setupSearchEngines();
-        setupUXStatsOption();
         setupStore(removeAdsPurchaseTime);
     }
 
-    private void setupTorrentOptions() {
-        //final BTEngine e = BTEngine.getInstance();
-        setupTorrentMaxDownloads();
-        setupTorrentMaxTotalConnections();
+    private void setupTransferOptions() {
+        setupMaxDownloads();
+        setupMaxTotalConnections();
     }
 
-
-    private void setupTorrentMaxDownloads() {
-
-    }
-
-    private void setupTorrentMaxTotalConnections() {
-        /*NumberPickerPreference pickerPreference = (NumberPickerPreference) findPreference(Constants.PREF_KEY_TORRENT_MAX_TOTAL_CONNECTIONS);
+    private void setupMaxTotalConnections() {
+        NumberPickerPreference pickerPreference = (NumberPickerPreference) findPreference(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS);
         if (pickerPreference != null) {
             pickerPreference.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if (e != null) {
-                        e.setMaxConnections((int) newValue);
-                        return e.getMaxConnections() == (int) newValue;
-                    }
-                    return false;
+                    LOG.info("explicit setup total connections to {}", (int)newValue);
+                    return true;
                 }
             });
         }
-        */
+    }
+
+    private void setupMaxDownloads() {
+        NumberPickerPreference pickerPref = (NumberPickerPreference) findPreference(Constants.PREF_KEY_TRANSFER_MAX_DOWNLOADS);
+        if (pickerPref != null) {
+            pickerPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    LOG.info("explicit set max downloads {}", (int)newValue);
+                    return true;
+                }
+            });
+        }
     }
 
     private void setupOtherOptions() {
@@ -161,7 +164,7 @@ public class SettingsActivity extends PreferenceActivity {
                     if (!notificationEnabled) {
                         NotificationManager notificationService = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                         if (notificationService != null) {
-                            //notificationService.cancel(EngineService.FROSTWIRE_STATUS_NOTIFICATION);
+                            notificationService.cancel(ED2KService.ED2K_STATUS_NOTIFICATION);
                         }
                     }
                     return true;
@@ -172,6 +175,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        LOG.info("options item selected {}", item);
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
@@ -181,53 +185,8 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    private void setupSeedingOptions() {
-        final CheckBoxPreference preferenceSeeding = (CheckBoxPreference)
-                findPreference(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS);
-
-        // our custom preference, only so that we can change its status, or hide it.
-        final CheckBoxPreference preferenceSeedingWifiOnly = (CheckBoxPreference)findPreference(Constants.PREF_KEY_TORRENT_SEED_FINISHED_TORRENTS_WIFI_ONLY);
-
-        if (preferenceSeeding != null) {
-            preferenceSeeding.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean newVal = (Boolean) newValue;
-
-                    if (!newVal) { // not seeding at all
-                        //TransferManager.instance().stopSeedingTorrents();
-                        UIUtils.showShortMessage(SettingsActivity.this, R.string.seeding_has_been_turned_off);
-                    }
-
-                    if (preferenceSeedingWifiOnly != null) {
-                        preferenceSeedingWifiOnly.setEnabled(newVal);
-                    }
-
-                    //UXStats.instance().log(newVal ? UXAction.SHARING_SEEDING_ENABLED : UXAction.SHARING_SEEDING_DISABLED);
-                    return true;
-                }
-            });
-        }
-
-        if (preferenceSeedingWifiOnly != null) {
-            preferenceSeedingWifiOnly.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean newVal = (Boolean) newValue;
-                    if (newVal && !NetworkManager.instance().isDataWIFIUp()) { // not seeding on mobile data
-                        //TransferManager.instance().stopSeedingTorrents();
-                        UIUtils.showShortMessage(SettingsActivity.this, R.string.wifi_seeding_has_been_turned_off);
-                    }
-                    return true;
-                }
-            });
-        }
-
-        if (preferenceSeeding != null && preferenceSeedingWifiOnly != null) {
-            preferenceSeedingWifiOnly.setEnabled(preferenceSeeding.isChecked());
-        }
-    }
-
     private void setupClearIndex() {
-        final SimpleActionPreference preference = (SimpleActionPreference) findPreference("frostwire.prefs.internal.clear_index");
+        final SimpleActionPreference preference = (SimpleActionPreference) findPreference("jdonkey.prefs.internal.clear_index");
 
         if (preference != null) {
             updateIndexSummary(preference);
@@ -241,43 +200,28 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    private void setupSearchEngines() {
-        PreferenceScreen category = (PreferenceScreen) findPreference(Constants.PREF_KEY_SEARCH_PREFERENCE_CATEGORY);
-        /*if (category != null) {
-            for (SearchEngine engine : SearchEngine.getEngines()) {
-                CheckBoxPreference preference = (CheckBoxPreference) findPreference(engine.getPreferenceKey());
-                if (preference != null) { //it could already have been removed due to remote config value.
-                    //LOG.info(engine.getName() + " is enabled: " + engine.isActive());
-                    if (!engine.isActive()) {
-                        LOG.info("removing preference for engine " + engine.getName());
-                        category.removePreference(preference);
-                    }
-                }
-            }
-        }
-        */
-    }
-
     private void updateIndexSummary(SimpleActionPreference preference) {
         //float size = (((float) LocalSearchEngine.instance().getCacheSize()) / 1024) / 1024;
         //preference.setSummary(getString(R.string.crawl_cache_size, size));
     }
 
     private void updateConnectSwitch() {
-        SwitchPreference preference = (SwitchPreference) findPreference("frostwire.prefs.internal.connect_disconnect");
+        SwitchPreference preference = (SwitchPreference) findPreference("jdonkey.prefs.internal.connect_disconnect");
         if (preference != null) {
             final OnPreferenceChangeListener onPreferenceChangeListener = preference.getOnPreferenceChangeListener();
             preference.setOnPreferenceChangeListener(null);
 
-            preference.setSummary(R.string.bittorrent_network_summary);
+            preference.setSummary(R.string.ed2k_network_summary);
             preference.setEnabled(true);
-            //if (Engine.instance().isStarted()) {
-            //    preference.setChecked(true);
-            //} else if (Engine.instance().isStarting() || Engine.instance().isStopping()) {
-            //    connectSwitchImOnIt(preference);
-            //} else if (Engine.instance().isStopped() || Engine.instance().isDisconnected()) {
-            //    preference.setChecked(false);
-            //}
+            /*
+            if (Engine.instance().isStarted()) {
+                preference.setChecked(true);
+            } else if (Engine.instance().isStarting() || Engine.instance().isStopping()) {
+                connectSwitchImOnIt(preference);
+            } else if (Engine.instance().isStopped() || Engine.instance().isDisconnected()) {
+                preference.setChecked(false);
+            }
+            */
             preference.setOnPreferenceChangeListener(onPreferenceChangeListener);
         }
     }
@@ -291,7 +235,7 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void setupConnectSwitch() {
-        SwitchPreference preference = (SwitchPreference) findPreference("frostwire.prefs.internal.connect_disconnect");
+        SwitchPreference preference = (SwitchPreference) findPreference("jdonkey.prefs.internal.connect_disconnect");
         if (preference != null) {
             preference.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
@@ -308,27 +252,12 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    private void setupUXStatsOption() {
-        final CheckBoxPreference checkPref = (CheckBoxPreference) findPreference(Constants.PREF_KEY_UXSTATS_ENABLED);
-        if (checkPref != null) {
-            checkPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    boolean newVal = (Boolean) newValue;
-                    if (!newVal) { // not send ux stats
-                        //UXStats.instance().setContext(null);
-                    }
-                    return true;
-                }
-            });
-        }
-    }
-
     private void setupStorageOption() {
         // intentional repetition of preference value here
-        String kitkatKey = "frostwire.prefs.storage.path";
-        String lollipopKey = "frostwire.prefs.storage.path_asf";
+        String kitkatKey = "jdonkey.prefs.storage.path";
+        String lollipopKey = "jdonkey.prefs.storage.path_asf";
 
-        PreferenceCategory category = (PreferenceCategory) findPreference("frostwire.prefs.general");
+        PreferenceCategory category = (PreferenceCategory) findPreference("jdonkey.prefs.general");
 
         if (AndroidPlatform.saf()) {
             // make sure this won't be saved for kitkat
@@ -388,28 +317,6 @@ public class SettingsActivity extends PreferenceActivity {
         */
     }
 
-    /*
-    private void initRemoveAdsSummaryWithPurchaseInfo(Preference p, Collection<Product> purchasedProducts) {
-
-        final Product product = purchasedProducts.iterator().next();
-        String daysLeft = "";
-        // if it's a one time purchase, show user how many days left she has.
-        if (!product.subscription() && product.purchased()) {
-            int daysBought = Products.toDays(product.sku());
-            if (daysBought > 0) {
-                final int MILLISECONDS_IN_A_DAY = 86400000;
-                long timePassed = System.currentTimeMillis() - product.purchaseTime();
-                int daysPassed = (int) timePassed / MILLISECONDS_IN_A_DAY;
-                if (daysPassed > 0 && daysPassed < daysBought) {
-                    daysLeft = " (" + getString(R.string.days_left) + ": " + String.valueOf(daysBought - daysPassed) + ")";
-                }
-            }
-        }
-        p.setSummary(getString(R.string.current_plan) + ": " + product.description() + daysLeft);
-        p.setOnPreferenceClickListener(new RemoveAdsOnPreferenceClickListener(this, purchasedProducts));
-    }
-    */
-
     @Override
     public void startActivity(Intent intent) {
         if (intent != null && StoragePicker.ACTION_OPEN_DOCUMENT_TREE.equals(intent.getAction())) {
@@ -442,12 +349,13 @@ public class SettingsActivity extends PreferenceActivity {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
+
                 //Engine.instance().startServices();
 
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        SwitchPreference preference = (SwitchPreference) findPreference("frostwire.prefs.internal.connect_disconnect");
+                        SwitchPreference preference = (SwitchPreference) findPreference("jdonkey.prefs.internal.connect_disconnect");
                         connectSwitchImOnIt(preference);
                     }
                 });
@@ -486,9 +394,10 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-
+        LOG.info("on pref tree click");
         boolean r = super.onPreferenceTreeClick(preferenceScreen, preference);
         if (preference instanceof PreferenceScreen) {
+            LOG.info("pref is screen");
             initializePreferenceScreen((PreferenceScreen) preference);
             currentPreferenceKey = preference.getKey();
         }
@@ -524,6 +433,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             hideActionBarIcon(dialog.getActionBar());
             View homeButton = dialog.findViewById(android.R.id.home);
+            LOG.info("home btn: {}", homeButton!=null?"yes":"no");
 
             if (homeButton != null) {
                 OnClickListener dismissDialogClickListener = new OnClickListener() {
@@ -566,51 +476,4 @@ public class SettingsActivity extends PreferenceActivity {
             }
         }
     }
-
-    /*
-    private static class RemoveAdsOnPreferenceClickListener implements Preference.OnPreferenceClickListener {
-        private int clicksLeftToConsumeProducts = 20;
-        private final Collection<Product> purchasedProducts;
-        private WeakReference<SettingsActivity> activityRef;
-
-        RemoveAdsOnPreferenceClickListener(SettingsActivity activity, final Collection<Product> purchasedProducts) {
-            activityRef = Ref.weak(activity);
-            this.purchasedProducts = purchasedProducts;
-        }
-
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-            if (purchasedProducts != null && !purchasedProducts.isEmpty()) {
-                LOG.info("Products purchased by user:");
-                for (Product p : purchasedProducts) {
-                    LOG.info(" - " + p.description() + " (" + p.sku() + ")");
-                }
-
-                if (INTERNAL_BUILD) {
-                    clicksLeftToConsumeProducts--;
-                    LOG.info("If you click again " + clicksLeftToConsumeProducts + " times, all your ONE-TIME purchases will be forced-consumed.");
-                    if (0 >= clicksLeftToConsumeProducts && clicksLeftToConsumeProducts < 11) {
-                        if (clicksLeftToConsumeProducts == 0) {
-                            for (Product p : purchasedProducts) {
-                                PlayStore.getInstance().consume(p);
-                                LOG.info(" - " + p.description() + " (" + p.sku() + ") force-consumed!");
-                                UIUtils.showToastMessage(preference.getContext(),
-                                        "Product " + p.sku() + " forced-consumed.",
-                                        Toast.LENGTH_SHORT);
-                            }
-                            if (Ref.alive(activityRef)) {
-                                activityRef.get().finish();
-                            }
-                        }
-                    }
-                }
-
-                return true; // true = click was handled.
-            } else {
-                LOG.info("Couldn't find any purchases.");
-            }
-            return false;
-        }
-    }
-    */
 }

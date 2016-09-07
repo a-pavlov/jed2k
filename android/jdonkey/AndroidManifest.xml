@@ -22,7 +22,8 @@
                   android:label="@string/about"/>
 
         <activity android:name=".activities.SettingsActivity"
-                  android:label="@string/settings"/>
+                  android:label="@string/activity_preferences_name"
+                  android:theme="@style/Preferences"/>
 
     </application>
 

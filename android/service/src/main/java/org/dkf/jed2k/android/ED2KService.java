@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ED2KService extends Service {
+    public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
     private Binder binder;
 

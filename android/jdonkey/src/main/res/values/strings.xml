@@ -185,7 +185,7 @@
     <string name="other_settings">Other Settings</string>
     <string name="vibrate_on_finished_download">Vibrate when download finishes</string>
     <string name="use_mobile_data">Use 3G/4G for BitTorrent</string>
-    <string name="use_mobile_data_summary">Use mobile network for BitTorrent downloads. Data Overage charges may apply. Use carefully.</string>
+    <string name="use_mobile_data_summary">Use mobile network for ed2k downloads. Data Overage charges may apply. Use carefully.</string>
     <string name="connected_using_dataplan">Connected using Data Plan</string>
     <string name="send_to_chat">Send to Chat</string>
     <string name="sent_file_to_chat">Sent file to Chat</string>
@@ -320,19 +320,12 @@
     <string name="download_type_not_supported">Download Type not supported</string>
     <string name="im_on_it">I\'m on it…</string>
     <string name="hint_transfers">Use "menu" for bulk actions</string>
-    <string name="torrent_settings">Torrent Settings</string>
-    <string name="torrent_max_download_speed_summary">Max Download Speed (0 means unlimited)</string>
-    <string name="torrent_max_download_speed">Max Download Speed</string>
-    <string name="torrent_max_upload_speed_summary">Max Upload Speed (0 means unlimited)</string>
-    <string name="torrent_max_upload_speed">Max Upload Speed</string>
-    <string name="torrent_max_downloads_summary">Max Downloads</string>
-    <string name="torrent_max_downloads">Max Downloads</string>
-    <string name="torrent_max_uploads_summary">Max Uploads</string>
-    <string name="torrent_max_uploads">Max Uploads</string>
-    <string name="torrent_max_total_connections_summary">Max Total Connections</string>
-    <string name="torrent_max_total_connections">Max Total Connections</string>
-    <string name="torrent_max_peers_summary">Max Peers</string>
-    <string name="torrent_max_peers">Max Peers</string>
+    <string name="transfers_settings">Transfers Settings</string>
+    <string name="transfers_max_downloads_summary">Max Downloads</string>
+    <string name="transfers_max_downloads">Max Downloads</string>
+    <string name="transfers_max_total_connections_summary">Max Total Connections</string>
+    <string name="transfers_max_total_connections">Max Total Connections</string>
+
     <string name="dummy_summary" translatable="false">[Summary]</string>
     <string name="dummy_version" translatable="false">[Version]</string>
     <string name="dummy_engine" translatable="false">[Engine]</string>
@@ -405,8 +398,8 @@
     <string name="support_frostwire_summary">Show ads to support the development of this app.</string>
     <string name="storage_preference_title">Select Storage Location</string>
     <string name="storage_preference_summary">The default storage location where files will be saved.</string>
-    <string name="bittorrent">BitTorrent</string>
-    <string name="bittorrent_network_summary">Connection status</string>
+    <string name="ed2k">ED2K</string>
+    <string name="ed2k_network_summary">Connection status</string>
     <string name="loading">Loading</string>
     <string name="wifi_sharing">Wi-Fi Sharing</string>
     <string name="activity_mediaplayer_name">Media Player</string>
@@ -584,8 +577,8 @@
     <string name="vpn_on_toast_notification">You\'re connected to a VPN.</string>
     <string name="vpn_off_toast_notification">Your connection may not be private.</string>
     <string name="dht_contacts">DHT contacts</string>
-    <string name="notify_frostwire_is_running">Notify if FrostWire is running</string>
-    <string name="notify_frostwire_is_running_summary">Show a permanent Android notification with status of transfers</string>
+    <string name="notify_jdonkey_is_running">Notify if JDonkey is running</string>
+    <string name="notify_jdonkey_is_running_summary">Show a permanent Android notification with status of transfers</string>
     <string name="invalid_filename">Invalid file name</string>
     <string name="storage_picker_treeuri_null">No storage path was selected</string>
     <string name="storage_picker_treeuri_not_directory">The selected path is not a directory</string>
@@ -653,4 +646,6 @@
     <string name="random_server_summary">Choose random server on start</string>
     <string name="connect_on_start_server">Reconnect</string>
     <string name="connect_on_start_server_summary">Connect to server on start</string>
+    <string name="show_server_messages_summary">Show messages from server</string>
+    <string name="show_server_messages">Server msg</string>
 </resources>
