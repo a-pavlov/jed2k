@@ -18,8 +18,13 @@ public class ResourceFile {
     public ByteBuffer read(final String fileName, ByteBuffer input) throws JED2KException {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(fileName).getFile());
+        FileInputStream stream = null;
+        FileChannel channel = null;
 
-        try(FileInputStream stream = new FileInputStream(file); FileChannel channel = stream.getChannel()) {
+        try {
+            // do not use try-with-resources due to limit of android api level 16
+            stream = new FileInputStream(file);
+            channel = stream.getChannel();
             ByteBuffer data = input;
 
             long fileSize = file.length();
@@ -38,6 +43,19 @@ public class ResourceFile {
         }
         catch(IOException e) {
             throw new JED2KException(ErrorCode.FILE_IO_ERROR);
+        }
+        finally {
+            try {
+                if (stream != null ) stream.close();
+            } catch(IOException e) {
+                // just ignore
+            }
+
+            try {
+                if (channel != null) channel.close();
+            } catch(IOException e) {
+                // just ignore
+            }
         }
     }
 }

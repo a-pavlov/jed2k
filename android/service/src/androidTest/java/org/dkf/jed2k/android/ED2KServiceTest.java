@@ -8,10 +8,7 @@ import android.support.test.rule.ServiceTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
-import org.dkf.jed2k.alert.ListenAlert;
-import org.dkf.jed2k.alert.SearchResultAlert;
-import org.dkf.jed2k.alert.ServerMessageAlert;
-import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.dkf.jed2k.alert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,14 +54,13 @@ public class ED2KServiceTest {
     public void testService() throws TimeoutException, InterruptedException {
         assertTrue(service != null);
         Thread.sleep(4000);
-        assertTrue(service.isListening());
         Log.v("testService", "finished");
     }
 
     @Test
     public void testListenAlert() throws TimeoutException, InterruptedException {
         assertTrue(service != null);
-        service.setListener(new AlertListener() {
+        service.addListener(new AlertListener() {
             @Override
             public void onListen(ListenAlert alert) {
                 listenAlertReceived.set(true);
@@ -82,6 +78,11 @@ public class ED2KServiceTest {
 
             @Override
             public void onServerStatus(ServerStatusAlert alert) {
+
+            }
+
+            @Override
+            public void onServerConnectionClosed(ServerConectionClosed alert) {
 
             }
         });
