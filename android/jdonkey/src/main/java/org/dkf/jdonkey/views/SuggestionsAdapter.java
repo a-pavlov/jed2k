@@ -22,11 +22,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import org.dkf.jdonkey.R;
+import org.dkf.jed2k.util.HttpClientFactory;
+import org.dkf.jed2k.util.http.HttpClient;
+import org.json.JSONArray;
 
+import java.net.URLEncoder;
 import java.util.Locale;
-
-//import com.frostwire.util.http.HttpClient;
-//import com.frostwire.util.HttpClientFactory;
 
 /**
  * @author gubatron
@@ -37,19 +38,19 @@ class SuggestionsAdapter extends SimpleCursorAdapter {
     private static final String SUGGESTIONS_URL = buildSuggestionsUrl();
     private static final int HTTP_QUERY_TIMEOUT = 1000;
 
-    //private final HttpClient client;
+    private final HttpClient client;
 
     private boolean discardLastResult;
 
     public SuggestionsAdapter(Context context) {
         super(context, R.layout.view_suggestion_item, null, new String[]{SuggestionsCursor.COLUMN_SUGGESTION}, new int[]{R.id.view_suggestion_item_text}, 0);
-        //this.client = HttpClientFactory.getInstance(HttpClientFactory.HttpContext.MISC);
+        this.client = HttpClientFactory.getInstance(HttpClientFactory.HttpContext.MISC);
     }
 
     @Override
     public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
         try {
-            /*
+
             String url = String.format(SUGGESTIONS_URL, URLEncoder.encode(constraint.toString(), "UTF-8"));
 
             String js = client.get(url, HTTP_QUERY_TIMEOUT);
@@ -58,7 +59,7 @@ class SuggestionsAdapter extends SimpleCursorAdapter {
             if (!discardLastResult) {
                 return new SuggestionsCursor(new JSONArray(json).getJSONArray(1));
             }
-            */
+
             throw new Exception("Do nothing now");
         } catch (Exception e) {
             // ignore
