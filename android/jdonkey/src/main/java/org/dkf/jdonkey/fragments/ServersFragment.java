@@ -68,7 +68,6 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
     @Override
     public void onResume() {
         super.onResume();
-        log.info("register servers listener");
         Engine.instance().setListener(this);
         invalidateServersState();
     }
@@ -88,20 +87,22 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
     }
 
     private void invalidateServersState() {
+        log.info("invalidate server parameters");
         final String connectedServerId = Engine.instance().getCurrentServerId();
-        adapter.process(new ServerEntryProcessor() {
+        boolean needRefresh = adapter.process(new ServerEntryProcessor() {
             @Override
             public boolean process(final ServerEntry e) {
-                boolean res = false;
                 if (e.getIdentifier().compareTo(connectedServerId) == 0) {
-                    res = (e.connStatus != ServerEntry.ConnectionStatus.CONNECTED);
                     e.connStatus = ServerEntry.ConnectionStatus.CONNECTED;
+                } else {
+                    e.connStatus = ServerEntry.ConnectionStatus.DISCONNECTED;
                 }
 
-                return res;
+                return true;
             }
         });
 
+        if (needRefresh) adapter.notifyDataSetChanged();
     }
 
     private void handleServerIdChanged(final String id, int userId) {
