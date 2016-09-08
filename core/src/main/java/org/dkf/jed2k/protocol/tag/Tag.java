@@ -509,9 +509,20 @@ public final class Tag implements Serializable {
 
     public final String stringValue() throws JED2KException {
         assert(initialized());
-        StringSerial ss = (StringSerial)value;
-        if (ss == null) throw new JED2KException(ErrorCode.TAG_TO_STRING_INVALID);
-        return ss.stringValue();
+
+        if (value instanceof StringSerial) {
+            return ((StringSerial) value).stringValue();
+        }
+
+        throw new JED2KException(ErrorCode.TAG_TO_STRING_INVALID);
+    }
+
+    public final String asStringValue() {
+        try {
+            return stringValue();
+        } catch(JED2KException e) {
+            return "";
+        }
     }
 
     public final boolean isNumberTag() {
@@ -526,11 +537,27 @@ public final class Tag implements Serializable {
         return n.intValue();
     }
 
+    public final int asIntValue() {
+        try {
+            return intValue();
+        } catch(JED2KException e) {
+            return 0;
+        }
+    }
+
     public final long longValue() throws JED2KException {
         assert(initialized());
         UNumber n = (UNumber)value;
         if (n == null) throw new JED2KException(ErrorCode.TAG_TO_LONG_INVALID);
         return n.longValue();
+    }
+
+    public final long asLongValue() {
+        try {
+            return longValue();
+        } catch(JED2KException e) {
+            return 0;
+        }
     }
 
     public final boolean isFloatTag() {

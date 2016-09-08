@@ -107,7 +107,11 @@ public class MediaType implements Serializable {
      * All media types.
      */
     private static final MediaType[] ALL_MEDIA_TYPES = new MediaType[] {
-            TYPE_AUDIO, TYPE_DOCUMENTS, TYPE_PICTURES, TYPE_TORRENTS, TYPE_VIDEO,
+            TYPE_AUDIO,
+            TYPE_DOCUMENTS,
+            TYPE_PICTURES,
+            TYPE_TORRENTS,
+            TYPE_VIDEO,
             TYPE_APPLICATIONS};
 
     private final int id;

@@ -34,6 +34,7 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
     @Override
     protected void initComponents(final View rootView) {
         list = (ListView)findView(rootView, R.id.servers_list);
+
         adapter = new ServersAdapter(getActivity());
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AbstractAdapter.OnItemClickAdapter<ServerEntry>() {

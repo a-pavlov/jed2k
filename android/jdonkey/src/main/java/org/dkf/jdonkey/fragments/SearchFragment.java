@@ -29,23 +29,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
-import org.dkf.jdonkey.SearchResult;
 import org.dkf.jdonkey.adapters.SearchResultListAdapter;
-import org.dkf.jdonkey.adapters.SearchResultListAdapter.FilteredSearchResults;
 import org.dkf.jdonkey.core.Constants;
+import org.dkf.jdonkey.core.MediaType;
 import org.dkf.jdonkey.dialogs.NewTransferDialog;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractDialog.OnDialogClickListener;
 import org.dkf.jdonkey.views.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
+import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+//import org.dkf.jdonkey.SearchResult;
 
 //import com.frostwire.android.gui.LocalSearchEngine;
 //import com.frostwire.android.gui.dialogs.HandpickedTorrentDownloadDialogOnFetch;
@@ -221,7 +224,10 @@ public final class SearchFragment extends AbstractFragment implements
             }
         });
 
-        showSearchView(view, false);
+        final RichNotification ratingReminder = findView(view, R.id.fragment_search_rating_reminder_notification);
+        ratingReminder.setVisibility(View.GONE);
+
+        showSearchView(view);
         warnServerNotConnected(view);
     }
 
@@ -245,8 +251,9 @@ public final class SearchFragment extends AbstractFragment implements
         if (adapter == null) {
             adapter = new SearchResultListAdapter(getActivity()) {
                 @Override
-                protected void searchResultClicked(SearchResult sr) {
-                    startTransfer(sr, getString(R.string.download_added_to_queue));
+                protected void searchResultClicked(SharedFileEntry sr) {
+                    LOG.info("start transfer {}", sr.getFileName());
+                    //startTransfer(sr, getString(R.string.download_added_to_queue));
                 }
             };
 /*
@@ -284,19 +291,21 @@ public final class SearchFragment extends AbstractFragment implements
                     });
                 }
             });
-            */
+
         }
 
+        */
+        }
         list.setAdapter(adapter);
     }
 
     private void refreshFileTypeCounters(boolean fileTypeCountersVisible) {
-        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_APPLICATIONS, fileTypeCounter.fsr.numApplications);
-        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_AUDIO, fileTypeCounter.fsr.numAudio);
-        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_DOCUMENTS, fileTypeCounter.fsr.numDocuments);
-        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_PICTURES, fileTypeCounter.fsr.numPictures);
-        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_TORRENTS, fileTypeCounter.fsr.numTorrents);
-        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_VIDEOS, fileTypeCounter.fsr.numVideo);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_APPLICATIONS, fileTypeCounter.numApplications);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_AUDIO, fileTypeCounter.numAudio);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_DOCUMENTS, fileTypeCounter.numDocuments);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_PICTURES, fileTypeCounter.numPictures);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_TORRENTS, fileTypeCounter.numTorrents);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_VIDEOS, fileTypeCounter.numVideo);
 
         searchInput.setFileTypeCountersVisible(fileTypeCountersVisible);
     }
@@ -329,27 +338,37 @@ public final class SearchFragment extends AbstractFragment implements
             currentQuery = query;
             Engine.instance().performSearch(query);
             searchProgress.setProgressEnabled(true);
-            showSearchView(getView(), true);
+            showSearchView(getView());
         }
     }
 
     private void cancelSearch() {
-        awaitingResults = false;
-        adapter.clear();
-        fileTypeCounter.clear();
-        refreshFileTypeCounters(false);
-        currentQuery = null;
-        searchProgress.setProgressEnabled(false);
-        showSearchView(getView(), false);
+        if (awaitingResults) {
+            awaitingResults = false;
+            adapter.clear();
+            fileTypeCounter.clear();
+            refreshFileTypeCounters(false);
+            currentQuery = null;
+            searchProgress.setProgressEnabled(false);
+            showSearchView(getView());
+        }
     }
 
     private void searchCompleted(final SearchResultAlert alert) {
         awaitingResults = false;
+        adapter.addResults(alert.results);
+
+        // temporary solution, next use filter by hash to support related search
+        for(SharedFileEntry entry: alert.results.files) {
+            fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
+        }
+
+        refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
-        showSearchView(getView(), false);
+        showSearchView(getView());
     }
 
-    private void showSearchView(View view, boolean inProgress) {
+    private void showSearchView(View view) {
         if (awaitingResults) {
             //switchView(view, R.id.fragment_search_promos);
             //deepSearchProgress.setVisibility(View.GONE);
@@ -395,7 +414,7 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    private void startTransfer(final SearchResult sr, final String toastMessage) {
+    private void startTransfer(final SharedFileEntry sr, final String toastMessage) {
         /*
         if (!(sr instanceof AbstractTorrentSearchResult || sr instanceof TorrentPromotionSearchResult) &&
                 ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG)) {
@@ -420,7 +439,7 @@ public final class SearchFragment extends AbstractFragment implements
         */
     }
 
-    public static void startDownload(Context ctx, SearchResult sr, String message) {
+    public static void startDownload(Context ctx, SharedFileEntry sr, String message) {
         /*
         if (sr instanceof AbstractTorrentSearchResult) {
             UIUtils.showShortMessage(ctx, R.string.fetching_torrent_ellipsis);
@@ -434,39 +453,6 @@ public final class SearchFragment extends AbstractFragment implements
     private void warnServerNotConnected(View v) {
         if (Engine.instance().getCurrentServerId().isEmpty()) {
             final RichNotification ratingReminder = findView(v, R.id.fragment_search_rating_reminder_notification);
-            ratingReminder.setVisibility(View.GONE);
-            //final ConfigurationManager CM = ConfigurationManager.instance();
-            //boolean alreadyRated = CM.getBoolean(Constants.PREF_KEY_GUI_ALREADY_RATED_US_IN_MARKET);
-
-            //if (alreadyRated || ratingReminder.wasDismissed()) {
-            //    return;
-            //}
-
-            //final int finishedDownloads = Engine.instance().getNotifiedDownloadsBloomFilter().count();
-            //final int intervalFactor = Constants.IS_GOOGLE_PLAY_DISTRIBUTION ? 4 : 1;
-            //final int REMINDER_INTERVAL = intervalFactor * CM.getInt(Constants.PREF_KEY_GUI_FINISHED_DOWNLOADS_BETWEEN_RATINGS_REMINDER);
-
-            //LOG.info("successful finishedDownloads: " + finishedDownloads);
-
-            //if (finishedDownloads < REMINDER_INTERVAL) {
-            //    return;
-            //}
-
-            //ClickAdapter<SearchFragment> onRateAdapter = createOnRateClickAdapter(ratingReminder, CM);
-            //ratingReminder.setOnClickListener(onRateAdapter);
-
-            /*RichNotificationActionLink rateFrostWireActionLink =
-                    new RichNotificationActionLink(ratingReminder.getContext(),
-                            getString(R.string.love_frostwire),
-                            onRateAdapter);
-
-            RichNotificationActionLink sendFeedbackActionLink =
-                    new RichNotificationActionLink(ratingReminder.getContext(),
-                            getString(R.string.send_feedback),
-                            createOnFeedbackClickAdapter(ratingReminder, CM));
-
-            ratingReminder.updateActionLinks(rateFrostWireActionLink, sendFeedbackActionLink);
-            */
             ratingReminder.setVisibility(View.VISIBLE);
         }
     }
@@ -602,7 +588,7 @@ public final class SearchFragment extends AbstractFragment implements
 
         public void onMediaTypeSelected(View view, int mediaTypeId) {
             fragment.adapter.setFileType(mediaTypeId);
-            fragment.showSearchView(parentView, false);
+            fragment.showSearchView(parentView);
         }
 
         public void onClear(View v) {
@@ -645,25 +631,54 @@ public final class SearchFragment extends AbstractFragment implements
     }
 */
     private static final class FileTypeCounter {
+        public int numAudio = 0;
+        public int numVideo = 0;
+        public int numPictures  = 0;
+        public int numApplications  = 0;
+        public int numDocuments = 0;
+        public int numTorrents  = 0;
+        public int numOther = 0;
 
-        private final FilteredSearchResults fsr = new FilteredSearchResults();
-
-        public void add(FilteredSearchResults fsr) {
-            this.fsr.numAudio += fsr.numAudio;
-            this.fsr.numApplications += fsr.numApplications;
-            this.fsr.numDocuments += fsr.numDocuments;
-            this.fsr.numPictures += fsr.numPictures;
-            this.fsr.numTorrents += fsr.numTorrents;
-            this.fsr.numVideo += fsr.numVideo;
+        private void increment(MediaType mt) {
+            if (mt != null) {
+                switch (mt.getId()) {
+                    case Constants.FILE_TYPE_AUDIO:
+                        numAudio++;
+                        break;
+                    case Constants.FILE_TYPE_VIDEOS:
+                        numVideo++;
+                        break;
+                    case Constants.FILE_TYPE_PICTURES:
+                        numPictures++;
+                        break;
+                    case Constants.FILE_TYPE_APPLICATIONS:
+                        numApplications++;
+                        break;
+                    case Constants.FILE_TYPE_DOCUMENTS:
+                        numDocuments++;
+                        break;
+                    case Constants.FILE_TYPE_TORRENTS:
+                        numTorrents++;
+                        break;
+                    default:
+                        numOther++;
+                        break;
+                }
+            }
+            else {
+                numOther++;
+            }
         }
 
         public void clear() {
-            this.fsr.numAudio = 0;
-            this.fsr.numApplications = 0;
-            this.fsr.numDocuments = 0;
-            this.fsr.numPictures = 0;
-            this.fsr.numTorrents = 0;
-            this.fsr.numVideo = 0;
+            this.numAudio = 0;
+            this.numApplications = 0;
+            this.numDocuments = 0;
+            this.numPictures = 0;
+            this.numTorrents = 0;
+            this.numVideo = 0;
+            this.numOther = 0;
+
         }
     }
 /*
