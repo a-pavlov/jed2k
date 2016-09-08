@@ -3,9 +3,13 @@ package org.dkf.jdonkey.fragments;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.*;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
+import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.views.AbstractAdapter;
 import org.dkf.jdonkey.views.AbstractFragment;
 import org.dkf.jed2k.Utils;
@@ -37,8 +41,17 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
             public void onItemClick(AdapterView<?> parent, View view, AbstractAdapter<ServerEntry> adapter, int position, long id) {
                 log.info("selected server {}", adapter.getItem(position).description);
                 ServerEntry se = adapter.getItem(position);
-                if (!Engine.instance().connectTo(se.getIdentifier(), se.ip, se.port)) {
-                    log.error("Unable to start connection to ", se.ip);
+
+                if (se.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
+                    se.connStatus = ServerEntry.ConnectionStatus.CONNECTING;
+                    adapter.notifyDataSetChanged();
+                    Engine.instance().connectTo(se.getIdentifier(), se.ip, se.port);
+                } else {
+                    boolean needRefresh = ((ServersAdapter)adapter).disconnectAll();
+                    Engine.instance().disconnectFrom();
+                    if (needRefresh) {
+                        adapter.notifyDataSetChanged();
+                    }
                 }
             }
         });
@@ -69,13 +82,16 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
         ServerEntry se = adapter.getItem(id);
         if (se != null) {
             se.userId = userId;
+            se.connStatus = ServerEntry.ConnectionStatus.CONNECTED;
             adapter.notifyDataSetChanged();
         }
     }
 
     private void handleServerMessage(final String id, final String msg) {
         log.info("server {} message {}", id, msg);
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+        if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_SHOW_SERVER_MSG)) {
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void handleServerConnectionClosed(final String id) {
@@ -84,6 +100,7 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
             se.userId = 0;
             se.filesCount = 0;
             se.usersCount = 0;
+            se.connStatus = ServerEntry.ConnectionStatus.DISCONNECTED;
             adapter.notifyDataSetChanged();
         }
     }
@@ -153,12 +170,18 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                handleServerConnectionClosed(alert.code.getDescription());
+                handleServerConnectionClosed(alert.identifier);
             }
         });
     }
 
     private static final class ServerEntry {
+        public enum ConnectionStatus {
+            CONNECTED,
+            CONNECTING,
+            DISCONNECTED;
+        }
+
         public ServerEntry(final int rand, final String description, final String ip, final int port) {
             this.rand = rand;
             this.description = description;
@@ -173,6 +196,7 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
         public int usersCount = 0;
         public int filesCount = 0;
         public int userId = 0;
+        public ConnectionStatus connStatus = ConnectionStatus.DISCONNECTED;
 
 
         public final String getIdentifier() {
@@ -231,6 +255,29 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
             label.setText(item.description);
             description.setText(item.ip + "/" + Integer.toString(item.port));
 
+            switch(item.connStatus) {
+                case CONNECTED:
+                    icon.clearAnimation();
+                    icon.setAlpha(1.0f);
+                    break;
+                case DISCONNECTED:
+                    icon.clearAnimation();
+                    icon.setAlpha(0.5f);
+                    break;
+                case CONNECTING:
+                    log.info("connecting......");
+                    AlphaAnimation animation1 = new AlphaAnimation(0.5f, 1.0f);
+                    animation1.setDuration(500);
+                    animation1.setStartOffset(100);
+                    animation1.setFillAfter(true);
+                    animation1.setRepeatCount(Animation.INFINITE);
+                    animation1.setRepeatMode(Animation.REVERSE);
+                    icon.startAnimation(animation1);
+                    //icon.setAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+                    //icon.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+                    break;
+            }
+
             if (item.filesCount != 0 && item.usersCount != 0) {
                 details.setText(String.format("%s: %d %s: %d",
                         getString(R.string.users_count),
@@ -256,6 +303,7 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
             }
 
             add(new ServerEntry(100400, "Emule IS74 server", "emule.is74.ru", 4661));
+            add(new ServerEntry(9955, "eMule security", "91.200.42.46", 1176));
         }
 
         final ServerEntry getItem(final String id) {
@@ -265,6 +313,19 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
             }
 
             return null;
+        }
+
+        public final boolean disconnectAll() {
+            boolean affected = false;
+            for(int i = 0; i < getCount(); ++i) {
+                ServerEntry sr = getItem(i);
+                if (sr.connStatus != ServerEntry.ConnectionStatus.DISCONNECTED) {
+                    affected = true;
+                    sr.connStatus = ServerEntry.ConnectionStatus.DISCONNECTED;
+                }
+            }
+
+            return affected;
         }
     }
 }

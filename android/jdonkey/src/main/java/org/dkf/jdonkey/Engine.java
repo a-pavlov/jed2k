@@ -120,6 +120,16 @@ public final class Engine {
         return true;
     }
 
+    public void disconnectFrom() {
+        if (service != null) {
+            try {
+                service.disconnectServer();
+            } catch(Exception e) {
+
+            }
+        }
+    }
+
     /**
      * @param context This must be the application context, otherwise there will be a leak.
      */

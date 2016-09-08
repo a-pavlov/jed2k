@@ -172,7 +172,6 @@ public class ED2KService extends Service {
             for(final AlertListener ls: listeners) ls.onServerStatus((ServerStatusAlert)a);
         }
         else if (a instanceof ServerConectionClosed) {
-            Log.v("ED2KService", "closed socket ");
             for(final AlertListener ls: listeners) ls.onServerConnectionClosed((ServerConectionClosed)a);
         }
         else if (a instanceof ServerIdAlert) {
@@ -286,6 +285,11 @@ public class ED2KService extends Service {
     public void connectoServer(final String serverId, final String host, final int port) {
         Log.i("server connection", "Connect to " + host);
         session.connectoTo(serverId, host, port);
+    }
+
+    public void disconnectServer() {
+        Log.i("server connection", "disconnect from");
+        session.disconnectFrom();
     }
 
     /**
