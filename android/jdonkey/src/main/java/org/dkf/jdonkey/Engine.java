@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
+import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.android.ED2KService;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ import java.util.LinkedList;
  * @author gubatron
  * @author aldenml
  */
-public final class Engine {
+public final class Engine implements AlertListener {
     private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
     private ED2KService service;
     private ServiceConnection connection;
@@ -44,6 +45,44 @@ public final class Engine {
     private LinkedList<AlertListener> pendingListeners = new LinkedList<>();
 
     private static Engine instance;
+
+    private SearchState searchState = SearchState.SEARCH_FINISHED;
+
+    @Override
+    public void onListen(ListenAlert alert) {
+
+    }
+
+    @Override
+    public void onSearchResult(SearchResultAlert alert) {
+
+    }
+
+    @Override
+    public void onServerMessage(ServerMessageAlert alert) {
+
+    }
+
+    @Override
+    public void onServerStatus(ServerStatusAlert alert) {
+
+    }
+
+    @Override
+    public void onServerIdAlert(ServerIdAlert alert) {
+
+    }
+
+    @Override
+    public void onServerConnectionClosed(ServerConectionClosed alert) {
+
+    }
+
+    public enum SearchState {
+        SEARCH_STARTED,
+        SEARCH_FINISHED,
+        SEARCH_STOPPED;
+    }
 
     public synchronized static void create(Application context) {
         if (instance != null) {
@@ -164,4 +203,25 @@ public final class Engine {
         }, Context.BIND_AUTO_CREATE);
     }
 
+    public void performSearch(final String query) {
+        if (service != null) {
+            setSearchState(SearchState.SEARCH_STARTED);
+            service.startSearch(0,0,0,0,"","","",0,0,query);
+        }
+    }
+
+    public void cancelSearch() {
+        if (service != null) {
+            setSearchState(SearchState.SEARCH_STOPPED);
+            service.cancelSearch();
+        }
+    }
+
+    synchronized private void setSearchState(SearchState state) {
+        searchState = state;
+    }
+
+    synchronized public final boolean isSearchFinished() { return searchState == SearchState.SEARCH_FINISHED; }
+    synchronized public final boolean isSeachStopped() { return searchState == SearchState.SEARCH_STOPPED; }
+    synchronized public final boolean isSearhStarted() { return searchState == SearchState.SEARCH_STARTED; }
 }

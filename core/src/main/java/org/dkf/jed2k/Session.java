@@ -322,7 +322,18 @@ public class Session extends Thread {
             @Override
             public void run() {
                 if (serverConection != null) {
-                    serverConection.write(value);
+                    serverConection.search(value);
+                }
+            }
+        });
+    }
+
+    synchronized public void cancelSearch() {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                if (serverConection != null) {
+                    serverConection.cancelSearch();
                 }
             }
         });

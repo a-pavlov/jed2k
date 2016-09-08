@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.SearchResult;
 import org.dkf.jdonkey.adapters.SearchResultListAdapter;
@@ -40,6 +41,8 @@ import org.dkf.jdonkey.views.AbstractFragment;
 import org.dkf.jdonkey.views.SearchInputView;
 import org.dkf.jdonkey.views.SearchProgressView;
 import org.dkf.jdonkey.views.SwipeLayout;
+import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.android.AlertListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +84,8 @@ import com.frostwire.util.JsonUtils;
 public final class SearchFragment extends AbstractFragment implements
         MainFragment,
         OnDialogClickListener,
-        SearchProgressView.CurrentQueryReporter {
+        SearchProgressView.CurrentQueryReporter,
+        AlertListener {
     private static final Logger LOG = LoggerFactory.getLogger(SearchFragment.class);
     private SearchResultListAdapter adapter;
     //private List<Slide> slides;
@@ -153,6 +157,7 @@ public final class SearchFragment extends AbstractFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        Engine.instance().setListener(this);
 
         if (adapter != null && (adapter.getCount() > 0 || adapter.getTotalCount() > 0)) {
             refreshFileTypeCounters(true);
@@ -161,7 +166,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onDestroy() {
-        //LocalSearchEngine.instance().setListener(null);
+        Engine.instance().removeListener(this);
         super.onDestroy();
     }
 
@@ -189,18 +194,17 @@ public final class SearchFragment extends AbstractFragment implements
 */
         searchProgress = findView(view, R.id.fragment_search_search_progress);
         searchProgress.setCurrentQueryReporter(this);
-        /*
+
         searchProgress.setCancelOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (LocalSearchEngine.instance().isSearchFinished()) {
+                if (Engine.instance().isSearchFinished()) {
                     performSearch(searchInput.getText(), adapter.getFileType()); // retry
                 } else {
                     cancelSearch();
                 }
             }
         });
-        */
 
         list = findView(view, R.id.fragment_search_list);
         SwipeLayout swipe = findView(view, R.id.fragment_search_swipe);
@@ -216,7 +220,7 @@ public final class SearchFragment extends AbstractFragment implements
             }
         });
 
-        showSearchView(view);
+        showSearchView(view, false);
         showRatingsReminder(view);
     }
 
@@ -312,10 +316,9 @@ public final class SearchFragment extends AbstractFragment implements
         fileTypeCounter.clear();
         refreshFileTypeCounters(false);
         currentQuery = query;
-        //LocalSearchEngine.instance().performSearch(query);
+        Engine.instance().performSearch(query);
         searchProgress.setProgressEnabled(true);
-        showSearchView(getView());
-        //UXStats.instance().log(UXAction.SEARCH_STARTED_ENTER_KEY);
+        showSearchView(getView(), true);
     }
 
     private void cancelSearch() {
@@ -323,19 +326,27 @@ public final class SearchFragment extends AbstractFragment implements
         fileTypeCounter.clear();
         refreshFileTypeCounters(false);
         currentQuery = null;
-        //LocalSearchEngine.instance().cancelSearch();
+        Engine.instance().cancelSearch();
         searchProgress.setProgressEnabled(false);
-        showSearchView(getView());
+        showSearchView(getView(), false);
     }
 
-    private void showSearchView(View view) {
-        //if (LocalSearchEngine.instance().isSearchStopped()) {
+    private void searchCompleted(final SearchResultAlert alert) {
+        searchProgress.setProgressEnabled(false);
+        showSearchView(getView(), false);
+    }
+
+    private void showSearchView(View view, boolean inProgress) {
+        if (inProgress) {
             //switchView(view, R.id.fragment_search_promos);
             //deepSearchProgress.setVisibility(View.GONE);
         /*} else {
             if (adapter != null && adapter.getCount() > 0) {
             */
-                switchView(view, R.id.fragment_search_list);
+            switchView(view, R.id.fragment_search_search_progress);
+        } else {
+            switchView(view, R.id.fragment_search_list);
+        }
 /*                deepSearchProgress.setVisibility(LocalSearchEngine.instance().isSearchFinished() ? View.GONE : View.VISIBLE);
             } else {
                 switchView(view, R.id.fragment_search_search_progress);
@@ -345,9 +356,8 @@ public final class SearchFragment extends AbstractFragment implements
 
         boolean searchFinished = LocalSearchEngine.instance().isSearchFinished();
         */
-        boolean searchFinished = true;
-
-        searchProgress.setProgressEnabled(!searchFinished);
+        //boolean searchFinished = true;
+        //searchProgress.setProgressEnabled(!searchFinished);
     }
 
     private void switchView(View v, int id) {
@@ -526,6 +536,42 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
+    @Override
+    public void onListen(ListenAlert alert) {
+
+    }
+
+    @Override
+    public void onSearchResult(final SearchResultAlert alert) {
+        LOG.info("search result size {} more {}", alert.results.files.size(), alert.results.hasMoreResults()?"YES":"NO");
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                searchCompleted(alert);
+            }
+        });
+    }
+
+    @Override
+    public void onServerMessage(ServerMessageAlert alert) {
+
+    }
+
+    @Override
+    public void onServerStatus(ServerStatusAlert alert) {
+
+    }
+
+    @Override
+    public void onServerIdAlert(ServerIdAlert alert) {
+
+    }
+
+    @Override
+    public void onServerConnectionClosed(ServerConectionClosed alert) {
+
+    }
+
     private static class SearchInputOnSearchListener implements SearchInputView.OnSearchListener {
         private final LinearLayout parentView;
         private final SearchFragment fragment;
@@ -536,26 +582,12 @@ public final class SearchFragment extends AbstractFragment implements
         }
 
         public void onSearch(View v, String query, int mediaTypeId) {
-            /*
-            if (query.contains("://m.soundcloud.com/") || query.contains("://soundcloud.com/")) {
-                fragment.cancelSearch();
-                new DownloadSoundcloudFromUrlTask(fragment.getActivity(), query).execute();
-                fragment.searchInput.setText("");
-            } else if (query.contains("youtube.com/")) {
-                fragment.performYTSearch(query);
-            } else if (query.startsWith("magnet:?xt=urn:btih:")) {
-                fragment.startMagnetDownload(query);
-                fragment.currentQuery = null;
-                fragment.searchInput.setText("");
-            } else {
-                fragment.performSearch(query, mediaTypeId);
-            }
-            */
+            fragment.performSearch(query, mediaTypeId);
         }
 
         public void onMediaTypeSelected(View view, int mediaTypeId) {
             fragment.adapter.setFileType(mediaTypeId);
-            fragment.showSearchView(parentView);
+            fragment.showSearchView(parentView, false);
         }
 
         public void onClear(View v) {

@@ -161,8 +161,7 @@ public class ED2KService extends Service {
         if (a instanceof ListenAlert) {
             Log.v("ED2KService", "listen");
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
-        }
-        if (a instanceof SearchResultAlert) {
+        } else if (a instanceof SearchResultAlert) {
             for(final AlertListener ls: listeners)  ls.onSearchResult((SearchResultAlert)a);
         }
         else if (a instanceof ServerMessageAlert) {
@@ -188,7 +187,6 @@ public class ED2KService extends Service {
         scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                Log.v("ED2KService", "process alerts");
                 Alert a = session.popAlert();
                 while(a != null) {
                     processAlert(a);
@@ -326,6 +324,10 @@ public class ED2KService extends Service {
         } catch(JED2KException e) {
             Log.e("ED2KService", "Error on search request " + e.toString());
         }
+    }
+
+    public void cancelSearch() {
+        session.cancelSearch();
     }
 
     /**

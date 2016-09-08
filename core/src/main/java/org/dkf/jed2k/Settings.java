@@ -20,6 +20,7 @@ public class Settings {
     public int bufferPoolSize = 250;    // dataSize of buffer pool in blocks of 180K
     public int maxConnectionsPerSecond = 10;    // for testing purposes
     public int compressionVersion = 0;  // use 1 for activate compression
+    public int serverSearchTimeout = 15;    // seconds
 
     /**
      * send ping message to server every serverPingTimeout seconds

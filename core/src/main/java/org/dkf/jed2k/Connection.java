@@ -296,7 +296,7 @@ public abstract class Connection implements Dispatcher {
         }
     }
 
-    void write(Serializable packet) {
+    protected void write(Serializable packet) {
         outgoingOrder.add(packet);
         if (!writeInProgress) {
             key.interestOps(SelectionKey.OP_WRITE);

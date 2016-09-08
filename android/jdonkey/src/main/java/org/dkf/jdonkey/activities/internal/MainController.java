@@ -51,7 +51,6 @@ public final class MainController {
         if (fragment != null) {
             activity.switchContent(fragment);
         }
-
     }
 
     public void showPreferences() {

@@ -695,7 +695,7 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private FragmentTransaction hideFragments(FragmentTransaction ts) {
-        return ts.hide(search).hide(transfers);
+        return ts.hide(search).hide(transfers).hide(servers);
     }
 
     private void setupInitialFragment(Bundle savedInstanceState) {
@@ -771,6 +771,8 @@ public class MainActivity extends AbstractActivity implements
 
     public Fragment getFragmentByMenuId(int id) {
         switch (id) {
+            case R.id.menu_main_servers:
+                return servers;
             case R.id.menu_main_search:
                 return search;
             //case R.id.menu_main_library:
