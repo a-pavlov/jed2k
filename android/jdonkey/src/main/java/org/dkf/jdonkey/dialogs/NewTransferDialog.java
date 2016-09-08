@@ -34,8 +34,6 @@ import org.dkf.jdonkey.views.AbstractDialog;
 import org.dkf.jdonkey.views.ClickAdapter;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 
-import java.io.Serializable;
-
 //import com.frostwire.search.FileSearchResult;
 
 /**
@@ -50,19 +48,21 @@ public class NewTransferDialog extends AbstractDialog {
     private static final String SEARCH_RESULT_DATA_KEY = "search_result_data";
     private static final String HIDE_CHECK_SHOW_KEY = "hide_check_show";
 
-    private final SharedFileEntry entry;
+    private SharedFileEntry entry;
     private boolean hideCheckShow;
 
-    public NewTransferDialog(final SharedFileEntry entry, boolean hideCheckShow) {
+    public NewTransferDialog() {
         super(R.layout.dialog_default_checkbox);
+    }
+
+    void setArgument(final SharedFileEntry entry, boolean hideCheckShow) {
         this.entry = entry;
         this.hideCheckShow = hideCheckShow;
     }
 
-    //public static WeakReference<FileSearchResult> srRef;
-
     public static NewTransferDialog newInstance(SharedFileEntry entry, boolean hideCheckShow) {
-        NewTransferDialog f = new NewTransferDialog(entry, hideCheckShow);
+        NewTransferDialog f = new NewTransferDialog();
+        f.setArgument(entry, hideCheckShow);
 
         Bundle args = new Bundle();
         //srRef = Ref.weak(sr);
@@ -136,25 +136,6 @@ public class NewTransferDialog extends AbstractDialog {
         @Override
         public void onCheckedChanged(NewTransferDialog owner, CompoundButton buttonView, boolean isChecked) {
             ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG, isChecked);
-        }
-    }
-
-    private static final class SearchResultData implements Serializable {
-
-        private final String displayName = "";
-        private final long size = 0;
-
-        //public SearchResultData(FileSearchResult sr) {
-        //    this.displayName = sr.getDisplayName();
-        //    this.size = sr.getSize();
-        //}
-
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public long getSize() {
-            return size;
         }
     }
 }
