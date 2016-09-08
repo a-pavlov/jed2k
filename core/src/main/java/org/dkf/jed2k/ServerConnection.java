@@ -25,7 +25,6 @@ import static org.dkf.jed2k.protocol.tag.Tag.tag;
 public class ServerConnection extends Connection {
     private static Logger log = LoggerFactory.getLogger(ServerConnection.class);
     private long lastPingTime = 0;
-    private long lastSearchRequest = 0;
 
     /**
      * special identifier for server connection
@@ -57,15 +56,6 @@ public class ServerConnection extends Connection {
 
     public void search(final SearchRequest sr) {
         write(sr);
-        lastSearchRequest = Time.currentTime();
-    }
-
-    /**
-     * cancel last search request
-     * executed as async call in session to avoid race condition between start search call and synchronized cancel
-     */
-    public void cancelSearch() {
-        lastSearchRequest = 0;
     }
 
     private Serializable hello() throws JED2KException {
@@ -126,11 +116,7 @@ public class ServerConnection extends Connection {
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
         log.info("search result: " + value);
-        // skip expired search result or forward it to user
-        if (lastSearchRequest != 0) {
-            session.pushAlert(new SearchResultAlert(value));
-            lastSearchRequest = 0;
-        }
+        session.pushAlert(new SearchResultAlert(value));
     }
 
     @Override
@@ -297,12 +283,6 @@ public class ServerConnection extends Connection {
                 currentSessionTime - lastPingTime > session.settings.serverPingTimeout*1000) {
             log.debug("Send ping message to server");
             write(new GetList());
-        }
-
-        // timeout on search, post artificial empty search result and cancel search
-        if (lastSearchRequest != 0 && session.settings.serverSearchTimeout*1000 > (currentSessionTime - lastSearchRequest)) {
-            lastSearchRequest = 0;
-            session.pushAlert(new SearchResultAlert(new SearchResult()));
         }
     }
 

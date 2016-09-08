@@ -328,17 +328,6 @@ public class Session extends Thread {
         });
     }
 
-    synchronized public void cancelSearch() {
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                if (serverConection != null) {
-                    serverConection.cancelSearch();
-                }
-            }
-        });
-    }
-
     // TODO - remove only
     public void connectToPeer(final NetworkIdentifier point) {
         commands.add(new Runnable() {

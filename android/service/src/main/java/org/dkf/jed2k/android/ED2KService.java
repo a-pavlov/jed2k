@@ -326,10 +326,6 @@ public class ED2KService extends Service {
         }
     }
 
-    public void cancelSearch() {
-        session.cancelSearch();
-    }
-
     /**
      * setup session preferences
      * @param settings new session config

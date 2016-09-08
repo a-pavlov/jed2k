@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,6 +100,9 @@ public final class SearchFragment extends AbstractFragment implements
     private final FileTypeCounter fileTypeCounter;
     private final SparseArray<Byte> toTheRightOf = new SparseArray<>(6);
     private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(6);
+
+    private boolean awaitingResults = false;
+    Handler ensureEndOfSearch = new Handler();
 
     public SearchFragment() {
         super(R.layout.fragment_search);
@@ -198,11 +202,11 @@ public final class SearchFragment extends AbstractFragment implements
         searchProgress.setCancelOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Engine.instance().isSearchFinished()) {
-                    performSearch(searchInput.getText(), adapter.getFileType()); // retry
-                } else {
+                //if (Engine.instance().isSearchFinished()) {
+                //    performSearch(searchInput.getText(), adapter.getFileType()); // retry
+                //} else {
                     cancelSearch();
-                }
+                //}
             }
         });
 
@@ -311,6 +315,14 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void performSearch(String query, int mediaTypeId) {
+        awaitingResults = true;
+        ensureEndOfSearch.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                cancelSearch();
+            }
+        }, 15000);
+
         adapter.clear();
         adapter.setFileType(mediaTypeId);
         fileTypeCounter.clear();
@@ -322,22 +334,23 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void cancelSearch() {
+        awaitingResults = false;
         adapter.clear();
         fileTypeCounter.clear();
         refreshFileTypeCounters(false);
         currentQuery = null;
-        Engine.instance().cancelSearch();
         searchProgress.setProgressEnabled(false);
         showSearchView(getView(), false);
     }
 
     private void searchCompleted(final SearchResultAlert alert) {
+        awaitingResults = false;
         searchProgress.setProgressEnabled(false);
         showSearchView(getView(), false);
     }
 
     private void showSearchView(View view, boolean inProgress) {
-        if (inProgress) {
+        if (awaitingResults) {
             //switchView(view, R.id.fragment_search_promos);
             //deepSearchProgress.setVisibility(View.GONE);
         /*} else {
