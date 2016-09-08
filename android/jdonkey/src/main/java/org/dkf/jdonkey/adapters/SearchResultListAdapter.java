@@ -41,8 +41,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-//import org.dkf.jdonkey.SearchResult;
-
 /**
  * @author gubatron
  * @author aldenml

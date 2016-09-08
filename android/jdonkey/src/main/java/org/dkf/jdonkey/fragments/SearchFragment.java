@@ -48,36 +48,6 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//import org.dkf.jdonkey.SearchResult;
-
-//import com.frostwire.android.gui.LocalSearchEngine;
-//import com.frostwire.android.gui.dialogs.HandpickedTorrentDownloadDialogOnFetch;
-/*
-import com.frostwire.android.gui.tasks.DownloadSoundcloudFromUrlTask;
-import com.frostwire.android.gui.tasks.StartDownloadTask;
-import com.frostwire.android.gui.tasks.Tasks;
-import com.frostwire.android.gui.transfers.HttpSlideSearchResult;
-import com.frostwire.android.gui.transfers.TransferManager;
-*/
-/*
-import com.frostwire.android.gui.views.PromotionsView.OnPromotionClickListener;
-import com.frostwire.android.offers.Offers;
-import com.frostwire.frostclick.Slide;
-import com.frostwire.frostclick.SlideList;
-import com.frostwire.frostclick.TorrentPromotionSearchResult;
-import com.frostwire.util.Logger;
-import com.frostwire.search.*;
-import com.frostwire.search.torrent.AbstractTorrentSearchResult;
-import com.frostwire.search.torrent.TorrentCrawledSearchResult;
-import com.frostwire.search.torrent.TorrentSearchResult;
-import com.frostwire.search.youtube.YouTubeSearchResult;
-import com.frostwire.util.HttpClientFactory;
-import com.frostwire.util.JsonUtils;
-*/
-//import com.frostwire.util.http.HttpClient;
-//import com.frostwire.uxstats.UXAction;
-//import com.frostwire.uxstats.UXStats;
-
 /**
  * @author gubatron
  * @author aldenml
@@ -224,10 +194,9 @@ public final class SearchFragment extends AbstractFragment implements
             }
         });
 
+        showSearchView(view);
         final RichNotification ratingReminder = findView(view, R.id.fragment_search_rating_reminder_notification);
         ratingReminder.setVisibility(View.GONE);
-
-        showSearchView(view);
         warnServerNotConnected(view);
     }
 
