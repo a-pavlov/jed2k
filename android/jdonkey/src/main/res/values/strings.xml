@@ -653,4 +653,7 @@
     <string name="connect_on_start_server_summary">Connect to server on start</string>
     <string name="show_server_messages_summary">Show messages from server</string>
     <string name="show_server_messages">Server msg</string>
+
+    <string name="server_not_connected">Not connected to server</string>
+    <string name="server_not_connected_det">Before search connect to server please</string>
 </resources>

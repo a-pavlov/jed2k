@@ -38,10 +38,7 @@ import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.dialogs.NewTransferDialog;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractDialog.OnDialogClickListener;
-import org.dkf.jdonkey.views.AbstractFragment;
-import org.dkf.jdonkey.views.SearchInputView;
-import org.dkf.jdonkey.views.SearchProgressView;
-import org.dkf.jdonkey.views.SwipeLayout;
+import org.dkf.jdonkey.views.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.slf4j.Logger;
@@ -225,7 +222,7 @@ public final class SearchFragment extends AbstractFragment implements
         });
 
         showSearchView(view, false);
-        showRatingsReminder(view);
+        warnServerNotConnected(view);
     }
 
     private void startMagnetDownload(String magnet) {
@@ -315,22 +312,25 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void performSearch(String query, int mediaTypeId) {
-        awaitingResults = true;
-        ensureEndOfSearch.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                cancelSearch();
-            }
-        }, 15000);
+        warnServerNotConnected(getView());
+        if (!Engine.instance().getCurrentServerId().isEmpty()) {
+            awaitingResults = true;
+            ensureEndOfSearch.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    cancelSearch();
+                }
+            }, 15000);
 
-        adapter.clear();
-        adapter.setFileType(mediaTypeId);
-        fileTypeCounter.clear();
-        refreshFileTypeCounters(false);
-        currentQuery = query;
-        Engine.instance().performSearch(query);
-        searchProgress.setProgressEnabled(true);
-        showSearchView(getView(), true);
+            adapter.clear();
+            adapter.setFileType(mediaTypeId);
+            fileTypeCounter.clear();
+            refreshFileTypeCounters(false);
+            currentQuery = query;
+            Engine.instance().performSearch(query);
+            searchProgress.setProgressEnabled(true);
+            showSearchView(getView(), true);
+        }
     }
 
     private void cancelSearch() {
@@ -430,43 +430,45 @@ public final class SearchFragment extends AbstractFragment implements
         */
     }
 
-    private void showRatingsReminder(View v) {
-        /*
-        final RichNotification ratingReminder = findView(v, R.id.fragment_search_rating_reminder_notification);
-        ratingReminder.setVisibility(View.GONE);
-        final ConfigurationManager CM = ConfigurationManager.instance();
-        boolean alreadyRated = CM.getBoolean(Constants.PREF_KEY_GUI_ALREADY_RATED_US_IN_MARKET);
 
-        if (alreadyRated || ratingReminder.wasDismissed()) {
-            return;
+    private void warnServerNotConnected(View v) {
+        if (Engine.instance().getCurrentServerId().isEmpty()) {
+            final RichNotification ratingReminder = findView(v, R.id.fragment_search_rating_reminder_notification);
+            ratingReminder.setVisibility(View.GONE);
+            //final ConfigurationManager CM = ConfigurationManager.instance();
+            //boolean alreadyRated = CM.getBoolean(Constants.PREF_KEY_GUI_ALREADY_RATED_US_IN_MARKET);
+
+            //if (alreadyRated || ratingReminder.wasDismissed()) {
+            //    return;
+            //}
+
+            //final int finishedDownloads = Engine.instance().getNotifiedDownloadsBloomFilter().count();
+            //final int intervalFactor = Constants.IS_GOOGLE_PLAY_DISTRIBUTION ? 4 : 1;
+            //final int REMINDER_INTERVAL = intervalFactor * CM.getInt(Constants.PREF_KEY_GUI_FINISHED_DOWNLOADS_BETWEEN_RATINGS_REMINDER);
+
+            //LOG.info("successful finishedDownloads: " + finishedDownloads);
+
+            //if (finishedDownloads < REMINDER_INTERVAL) {
+            //    return;
+            //}
+
+            //ClickAdapter<SearchFragment> onRateAdapter = createOnRateClickAdapter(ratingReminder, CM);
+            //ratingReminder.setOnClickListener(onRateAdapter);
+
+            /*RichNotificationActionLink rateFrostWireActionLink =
+                    new RichNotificationActionLink(ratingReminder.getContext(),
+                            getString(R.string.love_frostwire),
+                            onRateAdapter);
+
+            RichNotificationActionLink sendFeedbackActionLink =
+                    new RichNotificationActionLink(ratingReminder.getContext(),
+                            getString(R.string.send_feedback),
+                            createOnFeedbackClickAdapter(ratingReminder, CM));
+
+            ratingReminder.updateActionLinks(rateFrostWireActionLink, sendFeedbackActionLink);
+            */
+            ratingReminder.setVisibility(View.VISIBLE);
         }
-
-        final int finishedDownloads = Engine.instance().getNotifiedDownloadsBloomFilter().count();
-        final int intervalFactor = Constants.IS_GOOGLE_PLAY_DISTRIBUTION ? 4 : 1;
-        final int REMINDER_INTERVAL = intervalFactor * CM.getInt(Constants.PREF_KEY_GUI_FINISHED_DOWNLOADS_BETWEEN_RATINGS_REMINDER);
-
-        //LOG.info("successful finishedDownloads: " + finishedDownloads);
-
-        if (finishedDownloads < REMINDER_INTERVAL) {
-            return;
-        }
-
-        ClickAdapter<SearchFragment> onRateAdapter = createOnRateClickAdapter(ratingReminder, CM);
-        ratingReminder.setOnClickListener(onRateAdapter);
-
-        RichNotificationActionLink rateFrostWireActionLink =
-                new RichNotificationActionLink(ratingReminder.getContext(),
-                        getString(R.string.love_frostwire),
-                        onRateAdapter);
-
-        RichNotificationActionLink sendFeedbackActionLink =
-                new RichNotificationActionLink(ratingReminder.getContext(),
-                        getString(R.string.send_feedback),
-                        createOnFeedbackClickAdapter(ratingReminder, CM));
-
-        ratingReminder.updateActionLinks(rateFrostWireActionLink, sendFeedbackActionLink);
-        ratingReminder.setVisibility(View.VISIBLE);
-        */
     }
 
     // takes user to Google Play store so it can rate the app.
