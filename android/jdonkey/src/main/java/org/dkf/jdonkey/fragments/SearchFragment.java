@@ -33,6 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.adapters.SearchResultListAdapter;
+import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.MediaType;
 import org.dkf.jdonkey.dialogs.NewTransferDialog;
@@ -222,7 +223,7 @@ public final class SearchFragment extends AbstractFragment implements
                 @Override
                 protected void searchResultClicked(SharedFileEntry sr) {
                     LOG.info("start transfer {}", sr.getFileName());
-                    //startTransfer(sr, getString(R.string.download_added_to_queue));
+                    startTransfer(sr, getString(R.string.download_added_to_queue));
                 }
             };
 /*
@@ -332,6 +333,9 @@ public final class SearchFragment extends AbstractFragment implements
             fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
         }
 
+        // TODO - fix it!
+        adapter.setFileType(0);
+
         refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
         showSearchView(getView());
@@ -384,28 +388,18 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void startTransfer(final SharedFileEntry sr, final String toastMessage) {
-        /*
-        if (!(sr instanceof AbstractTorrentSearchResult || sr instanceof TorrentPromotionSearchResult) &&
-                ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG)) {
-            if (sr instanceof FileSearchResult && !(sr instanceof YouTubeSearchResult)) {
-                try {
-                    NewTransferDialog dlg = NewTransferDialog.newInstance((FileSearchResult) sr, false);
-                    dlg.show(getFragmentManager());
-                } catch (IllegalStateException e) {
-                    // android.app.FragmentManagerImpl.checkStateLoss:1323 -> java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
-                    // just start the download then if the dialog crapped out.
-                    onDialogClick(NewTransferDialog.TAG, Dialog.BUTTON_POSITIVE);
-                }
-            } else if (sr instanceof YouTubeSearchResult) {
-                startDownload(getActivity(), sr, toastMessage);
+        if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG)) {
+            try {
+                NewTransferDialog dlg = NewTransferDialog.newInstance(sr, false);
+                dlg.show(getFragmentManager());
+            } catch (IllegalStateException e) {
+                // android.app.FragmentManagerImpl.checkStateLoss:1323 -> java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+                // just start the download then if the dialog crapped out.
+                onDialogClick(NewTransferDialog.TAG, Dialog.BUTTON_POSITIVE);
             }
         } else {
-            if (isVisible()) {
-                startDownload(getActivity(), sr, toastMessage);
-            }
+            startDownload(getActivity(), sr, toastMessage);
         }
-        uxLogAction(sr);
-        */
     }
 
     public static void startDownload(Context ctx, SharedFileEntry sr, String message) {

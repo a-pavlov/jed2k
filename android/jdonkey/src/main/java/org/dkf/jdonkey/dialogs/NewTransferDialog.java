@@ -32,6 +32,7 @@ import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractDialog;
 import org.dkf.jdonkey.views.ClickAdapter;
+import org.dkf.jed2k.protocol.server.SharedFileEntry;
 
 import java.io.Serializable;
 
@@ -49,19 +50,24 @@ public class NewTransferDialog extends AbstractDialog {
     private static final String SEARCH_RESULT_DATA_KEY = "search_result_data";
     private static final String HIDE_CHECK_SHOW_KEY = "hide_check_show";
 
-    public NewTransferDialog() {
+    private final SharedFileEntry entry;
+    private boolean hideCheckShow;
+
+    public NewTransferDialog(final SharedFileEntry entry, boolean hideCheckShow) {
         super(R.layout.dialog_default_checkbox);
+        this.entry = entry;
+        this.hideCheckShow = hideCheckShow;
     }
 
     //public static WeakReference<FileSearchResult> srRef;
 
-    public static NewTransferDialog newInstance(/*FileSearchResult sr,*/ boolean hideCheckShow) {
-        NewTransferDialog f = new NewTransferDialog();
+    public static NewTransferDialog newInstance(SharedFileEntry entry, boolean hideCheckShow) {
+        NewTransferDialog f = new NewTransferDialog(entry, hideCheckShow);
 
         Bundle args = new Bundle();
         //srRef = Ref.weak(sr);
         //args.putSerializable(SEARCH_RESULT_DATA_KEY, new SearchResultData(sr));
-        args.putBoolean(HIDE_CHECK_SHOW_KEY, hideCheckShow);
+        //args.putBoolean(HIDE_CHECK_SHOW_KEY, hideCheckShow);
         f.setArguments(args);
 
         return f;
@@ -72,8 +78,7 @@ public class NewTransferDialog extends AbstractDialog {
 
         Bundle args = getArguments();
 
-        SearchResultData data = (SearchResultData) args.getSerializable(SEARCH_RESULT_DATA_KEY);
-        boolean hideCheckShow = args.getBoolean(HIDE_CHECK_SHOW_KEY);
+        //boolean hideCheckShow = args.getBoolean(HIDE_CHECK_SHOW_KEY);
 
         dlg.setContentView(R.layout.dialog_default_checkbox);
 
@@ -85,10 +90,10 @@ public class NewTransferDialog extends AbstractDialog {
 
         Context ctx = dlg.getContext();
 
-        String sizeStr = data.getSize() > 0 ? UIUtils.getBytesInHuman(data.getSize()) : ctx.getString(R.string.size_unknown);
+        String sizeStr = entry.getFileSize() > 0 ? UIUtils.getBytesInHuman(entry.getFileSize()) : ctx.getString(R.string.size_unknown);
 
         TextView textQuestion = findView(dlg, R.id.dialog_default_checkbox_text);
-        textQuestion.setText(dlg.getContext().getString(R.string.dialog_new_transfer_text_text, data.getDisplayName(), sizeStr));
+        textQuestion.setText(dlg.getContext().getString(R.string.dialog_new_transfer_text_text, entry.getFileName(), sizeStr));
 
         DialogListener yes = new DialogListener(this, true);
         DialogListener no = new DialogListener(this, false);
