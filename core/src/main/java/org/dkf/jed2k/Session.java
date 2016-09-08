@@ -312,6 +312,11 @@ public class Session extends Thread {
         });
     }
 
+    synchronized public String getCurrentServerId() {
+        if (serverConection != null) return serverConection.getIdentifier();
+        return "";
+    }
+
     public void search(final SearchRequest value) {
         commands.add(new Runnable() {
             @Override

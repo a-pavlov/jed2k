@@ -292,6 +292,10 @@ public class ED2KService extends Service {
         session.disconnectFrom();
     }
 
+    public String getCurrentServerId() {
+        return session.getCurrentServerId();
+    }
+
     /**
      *  async search request
      * @param minSize minimal file size in bytes

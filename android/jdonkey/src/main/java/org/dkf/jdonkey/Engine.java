@@ -130,6 +130,11 @@ public final class Engine {
         }
     }
 
+    public String getCurrentServerId() {
+        if (service != null) return service.getCurrentServerId();
+        return "";
+    }
+
     /**
      * @param context This must be the application context, otherwise there will be a leak.
      */
