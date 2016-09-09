@@ -18,7 +18,6 @@
 
 package org.dkf.jdonkey.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -65,7 +64,9 @@ public final class SearchFragment extends AbstractFragment implements
     private SearchInputView searchInput;
     private ProgressBar deepSearchProgress;
     private RichNotification serverConnectionWarning;
+    private SearchParametersView searchParametersView;
     private SearchProgressView searchProgress;
+    ButtonSearchParametersListener buttonSearchParametersListener;
     private ListView list;
     private String currentQuery;
     private final FileTypeCounter fileTypeCounter;
@@ -77,6 +78,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     public SearchFragment() {
         super(R.layout.fragment_search);
+        buttonSearchParametersListener = new ButtonSearchParametersListener(this);
         fileTypeCounter = new FileTypeCounter();
         currentQuery = null;
 
@@ -113,19 +115,14 @@ public final class SearchFragment extends AbstractFragment implements
     public View getHeader(Activity activity) {
 
         LayoutInflater inflater = LayoutInflater.from(activity);
-        @SuppressLint("InflateParams") TextView header = (TextView) inflater.inflate(R.layout.view_main_fragment_simple_header, null);
-        header.setText(R.string.search);
-        header.setOnClickListener(new OnClickListener() {
-            private int clickCount = 0;
-            @Override
-            public void onClick(View v) {
-                clickCount++;
-                LOG.info("header.onClick() - clickCount => " + clickCount);
-                if (clickCount % 5 == 0) {
-                    //Offers.showInterstitial(getActivity(), false, false);
-                }
-            }
-        });
+
+        View header = inflater.inflate(R.layout.view_search_header, null);
+
+        TextView text = (TextView) header.findViewById(R.id.view_search_header_text_title);
+        text.setText(R.string.search);
+
+        ImageButton buttonMenu = (ImageButton) header.findViewById(R.id.view_search_header_more_parameters);
+        buttonMenu.setOnClickListener(buttonSearchParametersListener);
         return header;
     }
 
@@ -161,6 +158,9 @@ public final class SearchFragment extends AbstractFragment implements
 
         serverConnectionWarning = findView(view, R.id.fragment_search_rating_reminder_notification);
         serverConnectionWarning.setVisibility(View.GONE);
+
+        searchParametersView = findView(view, R.id.fragment_search_parameters);
+        searchParametersView.setVisibility(View.GONE);
 
         /*promotions = findView(view, R.id.fragment_search_promos);
         promotions.setOnPromotionClickListener(new OnPromotionClickListener() {
@@ -199,6 +199,26 @@ public final class SearchFragment extends AbstractFragment implements
         });
 
         showSearchView(view);
+    }
+
+    private void toggleSearchParametersView() {
+        if (searchParametersView.getVisibility() == View.GONE) {
+            searchParametersView.setVisibility(View.VISIBLE);
+        } else {
+            searchParametersView.setVisibility(View.GONE);
+        }
+    }
+
+    private static final class ButtonSearchParametersListener extends ClickAdapter<SearchFragment> {
+
+        ButtonSearchParametersListener(SearchFragment f) {
+            super(f);
+        }
+
+        @Override
+        public void onClick(SearchFragment f, View v) {
+            f.toggleSearchParametersView();
+        }
     }
 
     private void startMagnetDownload(String magnet) {

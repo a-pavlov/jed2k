@@ -660,4 +660,9 @@
     <string name="confirm_server_disconnect">Confirm disconnect</string>
     <string name="server_disconnect_connect">Close previous connection and connect to %1$s</string>
     <string name="server_disconnect">Disconnect from server %1$s</string>
+
+    <string name="search_parameter_min_size">Min size, Mb</string>
+    <string name="search_parameter_max_size">Max size, Mb</string>
+    <string name="search_parameter_sources">Sources count</string>
+    <string name="search_paramter_zero">0</string>
 </resources>

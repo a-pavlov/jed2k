@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="1">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/search_params_min_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_min_size"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:id="@+id/view_search_parameter_min_size"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_min_size"/>
+
+        <TextView
+            android:id="@+id/search_params_max_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_max_size"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/view_search_parameter_min_size"
+            />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:id="@+id/view_search_parameter_max_size"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_max_size"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/search_params_sources"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_sources"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/view_search_parameter_sources"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_sources"/>
+    </RelativeLayout>
+
+</LinearLayout>
