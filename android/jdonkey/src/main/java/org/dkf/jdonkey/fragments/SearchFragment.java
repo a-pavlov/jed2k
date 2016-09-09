@@ -64,7 +64,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     private SearchInputView searchInput;
     private ProgressBar deepSearchProgress;
-    //private PromotionsView promotions;
+    private RichNotification serverConnectionWarning;
     private SearchProgressView searchProgress;
     private ListView list;
     private String currentQuery;
@@ -147,7 +147,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onShow() {
-
+        warnServerNotConnected(getView());
     }
 
     @Override
@@ -158,6 +158,9 @@ public final class SearchFragment extends AbstractFragment implements
 
         deepSearchProgress = findView(view, R.id.fragment_search_deepsearch_progress);
         deepSearchProgress.setVisibility(View.GONE);
+
+        serverConnectionWarning = findView(view, R.id.fragment_search_rating_reminder_notification);
+        serverConnectionWarning.setVisibility(View.GONE);
 
         /*promotions = findView(view, R.id.fragment_search_promos);
         promotions.setOnPromotionClickListener(new OnPromotionClickListener() {
@@ -196,9 +199,6 @@ public final class SearchFragment extends AbstractFragment implements
         });
 
         showSearchView(view);
-        final RichNotification ratingReminder = findView(view, R.id.fragment_search_rating_reminder_notification);
-        ratingReminder.setVisibility(View.GONE);
-        warnServerNotConnected(view);
     }
 
     private void startMagnetDownload(String magnet) {
@@ -415,8 +415,11 @@ public final class SearchFragment extends AbstractFragment implements
 
     private void warnServerNotConnected(View v) {
         if (Engine.instance().getCurrentServerId().isEmpty()) {
-            final RichNotification ratingReminder = findView(v, R.id.fragment_search_rating_reminder_notification);
-            ratingReminder.setVisibility(View.VISIBLE);
+            LOG.info("server is not connected");
+            serverConnectionWarning.setVisibility(View.VISIBLE);
+        } else {
+            LOG.info("server connected");
+            serverConnectionWarning.setVisibility(View.GONE);
         }
     }
 

@@ -551,7 +551,7 @@ public class MainActivity extends AbstractActivity implements
     private void showLastBackDialog() {
         YesNoDialog dlg = YesNoDialog.newInstance(
                 LAST_BACK_DIALOG_ID,
-                R.string.minimize_frostwire,
+                R.string.minimize_application,
                 R.string.are_you_sure_you_wanna_leave,
                 YesNoDialog.FLAG_DISMISS_ON_OK_BEFORE_PERFORM_DIALOG_CLICK);
         dlg.show(getFragmentManager()); //see onDialogClick

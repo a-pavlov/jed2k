@@ -126,7 +126,7 @@
     <string name="tos_accept">Accept</string>
     <string name="tos_refuse">Refuse</string>
     <string name="downloads">Downloads</string>
-    <string name="minimize_frostwire">Minimize FrostWire</string>
+    <string name="minimize_application">Minimize JDonkey</string>
     <string name="are_you_sure_you_wanna_leave">Are you sure you want to go back to the home screen?</string>
     <string name="set_as_wallpaper">Set as Wallpaper</string>
     <string name="failed_to_set_wallpaper">Failed to set Wallpaper</string>

@@ -236,7 +236,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     public View getHeader(Activity activity) {
         LayoutInflater inflater = LayoutInflater.from(activity);
         @SuppressLint("InflateParams") TextView header = (TextView) inflater.inflate(R.layout.view_main_fragment_simple_header, null);
-        header.setText(R.string.search);
+        header.setText(R.string.servers);
         header.setOnClickListener(new View.OnClickListener() {
             private int clickCount = 0;
             @Override
