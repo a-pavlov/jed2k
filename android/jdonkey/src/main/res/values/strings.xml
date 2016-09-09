@@ -643,7 +643,7 @@
     <string name="user_id">User ID</string>
 
     <string name="servers_settings">Servers settings</string>
-    <string name="server_connect">Connect to server</string>
+    <string name="server_connect">Connect to server %1$s</string>
     <string name="choose_server_title">Choose server</string>
     <string name="choose_server_summary">Choose server for search files and sources</string>
     <string name="servers">Servers</string>
@@ -656,4 +656,8 @@
 
     <string name="server_not_connected">Not connected to server</string>
     <string name="server_not_connected_det">Before search connect to server please</string>
+    <string name="confirm_server_connect">Confirm connect</string>
+    <string name="confirm_server_disconnect">Confirm disconnect</string>
+    <string name="server_disconnect_connect">Close previous connection and connect to %1$s</string>
+    <string name="server_disconnect">Disconnect from server %1$s</string>
 </resources>

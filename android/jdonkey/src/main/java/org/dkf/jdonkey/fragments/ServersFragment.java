@@ -1,6 +1,10 @@
 package org.dkf.jdonkey.fragments;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -10,7 +14,10 @@ import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
+import org.dkf.jdonkey.dialogs.ConnectServerDialog;
+import org.dkf.jdonkey.dialogs.NewTransferDialog;
 import org.dkf.jdonkey.views.AbstractAdapter;
+import org.dkf.jdonkey.views.AbstractDialog;
 import org.dkf.jdonkey.views.AbstractFragment;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
@@ -21,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ap197_000 on 07.09.2016.
  */
-public class ServersFragment extends AbstractFragment implements AlertListener {
+public class ServersFragment extends AbstractFragment implements MainFragment, AlertListener, AbstractDialog.OnDialogClickListener {
     private final Logger log = LoggerFactory.getLogger(ServersFragment.class);
     private ListView list;
     private ServersAdapter adapter;
@@ -43,26 +50,19 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
                 log.info("selected server {}", adapter.getItem(position).description);
                 ServerEntry se = adapter.getItem(position);
 
-                if (se.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
-                    se.connStatus = ServerEntry.ConnectionStatus.CONNECTING;
-                    adapter.notifyDataSetChanged();
-                    Engine.instance().connectTo(se.getIdentifier(), se.ip, se.port);
-                } else {
-                    boolean needRefresh = ((ServersAdapter)adapter).process(new ServerEntryProcessor() {
-                                                                                @Override
-                                                                                public boolean process(final ServerEntry e) {
-                                                                                    boolean res = (e.connStatus != ServerEntry.ConnectionStatus.DISCONNECTED);
-                                                                                    e.connStatus = ServerEntry.ConnectionStatus.DISCONNECTED;
-                                                                                    return res;
-                                                                                }
-                                                                            });
-                    Engine.instance().disconnectFrom();
-                    if (needRefresh) {
-                        adapter.notifyDataSetChanged();
-                    }
+                try {
+                    ConnectServerDialog dlg = new ConnectServerDialog(se.getIdentifier());
+                    dlg.initializeServerAttributes(se.getIdentifier(), se.ip, se.port);
+                    dlg.show(getFragmentManager());
+                } catch (IllegalStateException e) {
+                    // android.app.FragmentManagerImpl.checkStateLoss:1323 -> java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+                    // just start the download then if the dialog crapped out.
+                    onDialogClick(NewTransferDialog.TAG, Dialog.BUTTON_POSITIVE);
                 }
             }
+
         });
+
     }
 
     @Override
@@ -202,6 +202,60 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
         });
     }
 
+    @Override
+    public void onDialogClick(String tag, int which) {
+        log.info("on dialog clicked {}", tag);
+        if (which == Dialog.BUTTON_POSITIVE) {
+            ServerEntry se = adapter.getItem(tag);
+            if (se != null) {
+                if (se.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
+                    se.connStatus = ServerEntry.ConnectionStatus.CONNECTING;
+                    adapter.notifyDataSetChanged();
+                    Engine.instance().connectTo(se.getIdentifier(), se.ip, se.port);
+                } else {
+                    boolean needRefresh = ((ServersAdapter) adapter).process(new ServerEntryProcessor() {
+                        @Override
+                        public boolean process(final ServerEntry e) {
+                            boolean res = (e.connStatus != ServerEntry.ConnectionStatus.DISCONNECTED);
+                            e.connStatus = ServerEntry.ConnectionStatus.DISCONNECTED;
+                            return res;
+                        }
+                    });
+
+                    Engine.instance().disconnectFrom();
+                    if (needRefresh) {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public View getHeader(Activity activity) {
+        LayoutInflater inflater = LayoutInflater.from(activity);
+        @SuppressLint("InflateParams") TextView header = (TextView) inflater.inflate(R.layout.view_main_fragment_simple_header, null);
+        header.setText(R.string.search);
+        header.setOnClickListener(new View.OnClickListener() {
+            private int clickCount = 0;
+            @Override
+            public void onClick(View v) {
+                clickCount++;
+                log.info("header.onClick() - clickCount => " + clickCount);
+                if (clickCount % 5 == 0) {
+                    //Offers.showInterstitial(getActivity(), false, false);
+                }
+            }
+        });
+        return header;
+    }
+
+    @Override
+    public void onShow() {
+
+    }
+
     private static final class ServerEntry {
         public enum ConnectionStatus {
             CONNECTED,
@@ -293,19 +347,17 @@ public class ServersFragment extends AbstractFragment implements AlertListener {
                     break;
                 case DISCONNECTED:
                     icon.clearAnimation();
-                    icon.setAlpha(0.5f);
+                    icon.setAlpha(0.4f);
                     break;
                 case CONNECTING:
                     log.info("connecting......");
                     AlphaAnimation animation1 = new AlphaAnimation(0.5f, 1.0f);
-                    animation1.setDuration(500);
+                    animation1.setDuration(300);
                     animation1.setStartOffset(100);
                     animation1.setFillAfter(true);
                     animation1.setRepeatCount(Animation.INFINITE);
                     animation1.setRepeatMode(Animation.REVERSE);
                     icon.startAnimation(animation1);
-                    //icon.setAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-                    //icon.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
                     break;
             }
 
