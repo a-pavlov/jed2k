@@ -16,7 +16,6 @@ public class TransferStatus {
         FINISHED
     };
 
-
     public boolean paused;
     public float progress   = 0f;
     public int progressPPM;

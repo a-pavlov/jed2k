@@ -23,6 +23,7 @@ import android.view.ViewConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.dkf.jdonkey.core.AndroidPlatform;
 import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jdonkey.core.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class MainApplication extends Application {
 
             Platforms.set(new AndroidPlatform(this));
             ConfigurationManager.create(this);
+            NetworkManager.create(this);
             Engine.create(this);
             /*
             PlayStore.getInstance().initialize(this); // as early as possible
