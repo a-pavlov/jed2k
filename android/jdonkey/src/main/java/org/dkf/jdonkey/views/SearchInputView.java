@@ -129,6 +129,9 @@ public class SearchInputView extends LinearLayout {
         initRadioButton(R.id.view_search_input_radio_applications, Constants.FILE_TYPE_APPLICATIONS);
         initRadioButton(R.id.view_search_input_radio_documents, Constants.FILE_TYPE_DOCUMENTS);
         initRadioButton(R.id.view_search_input_radio_torrents, Constants.FILE_TYPE_TORRENTS);
+        initRadioButton(R.id.view_search_input_radio_archive, Constants.FILE_TYPE_ARCHIVE);
+        initRadioButton(R.id.view_search_input_radio_cd_image, Constants.FILE_TYPE_CD_IMAGE);
+        initRadioButton(R.id.view_search_input_radio_others, Constants.FILE_TYPE_OTHERS);
 
         setFileTypeCountersVisible(false);
 
@@ -224,6 +227,7 @@ public class SearchInputView extends LinearLayout {
     public void updateFileTypeCounter(byte fileType, int numFiles) {
         try {
             int radioId = Constants.FILE_TYPE_AUDIO;
+
             switch (fileType) {
             case Constants.FILE_TYPE_AUDIO:
                 radioId = R.id.view_search_input_radio_audio;
@@ -243,7 +247,15 @@ public class SearchInputView extends LinearLayout {
             case Constants.FILE_TYPE_TORRENTS:
                 radioId = R.id.view_search_input_radio_torrents;
                 break;
-
+            case Constants.FILE_TYPE_ARCHIVE:
+                radioId = R.id.view_search_input_radio_archive;
+                break;
+                case Constants.FILE_TYPE_CD_IMAGE:
+                radioId = R.id.view_search_input_radio_cd_image;
+                    break;
+                case Constants.FILE_TYPE_OTHERS:
+                    radioId = R.id.view_search_input_radio_others;
+                    break;
             }
 
             RadioButton rButton = (RadioButton) findViewById(radioId);
@@ -251,6 +263,7 @@ public class SearchInputView extends LinearLayout {
             if (numFiles > 9999) {
                 numFilesStr = "+1k";
             }
+
             rButton.setText(numFilesStr);
         } catch (Exception e) {
             // NPE

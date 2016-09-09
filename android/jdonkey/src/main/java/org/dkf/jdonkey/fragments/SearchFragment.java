@@ -276,7 +276,9 @@ public final class SearchFragment extends AbstractFragment implements
         searchInput.updateFileTypeCounter(Constants.FILE_TYPE_PICTURES, fileTypeCounter.numPictures);
         searchInput.updateFileTypeCounter(Constants.FILE_TYPE_TORRENTS, fileTypeCounter.numTorrents);
         searchInput.updateFileTypeCounter(Constants.FILE_TYPE_VIDEOS, fileTypeCounter.numVideo);
-
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_ARCHIVE, fileTypeCounter.numArchive);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_CD_IMAGE, fileTypeCounter.numCDImage);
+        searchInput.updateFileTypeCounter(Constants.FILE_TYPE_OTHERS, fileTypeCounter.numOther);
         searchInput.setFileTypeCountersVisible(fileTypeCountersVisible);
     }
 
@@ -603,6 +605,8 @@ public final class SearchFragment extends AbstractFragment implements
         public int numApplications  = 0;
         public int numDocuments = 0;
         public int numTorrents  = 0;
+        public int numArchive = 0;
+        public int numCDImage = 0;
         public int numOther = 0;
 
         private void increment(MediaType mt) {
@@ -626,6 +630,12 @@ public final class SearchFragment extends AbstractFragment implements
                     case Constants.FILE_TYPE_TORRENTS:
                         numTorrents++;
                         break;
+                    case Constants.FILE_TYPE_ARCHIVE:
+                        numArchive++;
+                        break;
+                    case Constants.FILE_TYPE_CD_IMAGE:
+                        numCDImage++;
+                        break;
                     default:
                         numOther++;
                         break;
@@ -643,8 +653,9 @@ public final class SearchFragment extends AbstractFragment implements
             this.numPictures = 0;
             this.numTorrents = 0;
             this.numVideo = 0;
+            this.numArchive = 0;
+            this.numCDImage = 0;
             this.numOther = 0;
-
         }
     }
 /*

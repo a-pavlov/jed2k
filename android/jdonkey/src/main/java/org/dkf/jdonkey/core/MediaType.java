@@ -39,6 +39,8 @@ public class MediaType implements Serializable {
     // These values should match standard MIME content-type
     // categories and/or XSD schema names.
     public static final String SCHEMA_CUSTOM = "custom";
+    public static final String SCHEMA_ARCHIVE = "archive";
+    public static final String SCHEMA_CD_IMAGE = "cdimage";
     public static final String SCHEMA_DOCUMENTS = "document";
     public static final String SCHEMA_PROGRAMS = "application";
     public static final String SCHEMA_AUDIO = "audio";
@@ -48,12 +50,23 @@ public class MediaType implements Serializable {
     public static final String SCHEMA_OTHER = "other";
 
     // These are used as resource keys to retrieve descriptions in the GUI
+    public static final int ARCHIVES_STRING_RESOURCE_ID = R.string.media_type_archives;
+    public static final int CD_IMAGE_STRING_RESOURCE_ID = R.string.media_type_cd_images;
     public static final int DOCUMENTS_STRING_RESOURCE_ID = R.string.media_type_documents;
     public static final int APPLICATIONS_STRING_RESOURCE_ID = R.string.media_type_applications;
     public static final int AUDIO_STRING_RESOURCE_ID = R.string.media_type_audio;
     public static final int VIDEO_STRING_RESOURCE_ID = R.string.media_type_video;
     public static final int IMAGES_STRING_RESOURCE_ID = R.string.media_type_images;
     public static final int TORRENTS_STRING_RESOURCE_ID = R.string.media_type_torrents;
+
+
+    private static final MediaType TYPE_ARCHIVE = new MediaType(Constants.FILE_TYPE_ARCHIVE, SCHEMA_ARCHIVE, ARCHIVES_STRING_RESOURCE_ID,
+            new String[] {"7z", "ace", "alz", "arc", "arj", "bz2", "cab", "cbr", "cbz", "gz", "hqx", "lha", "lzh", "msi", "pak",
+                    "par", "par2", "rar", "sit", "sitx", "tar", "tbz2", "tgz", "xpi", "z", "zip" });
+
+
+    private static final MediaType TYPE_CD_IMAGE = new MediaType(Constants.FILE_TYPE_CD_IMAGE, SCHEMA_CD_IMAGE, CD_IMAGE_STRING_RESOURCE_ID,
+            new String[] {"bin", "bwa", "bwi", "bws", "bwt", "ccd", "cue", "dmg", "img", "iso", "mdf", "mds", "nrg", "sub", "toast"});
 
     /**
      * Type for 'documents'
@@ -67,9 +80,9 @@ public class MediaType implements Serializable {
     /**
      * Type for applications.
      */
-    private static final MediaType TYPE_APPLICATIONS = new MediaType(
-            Constants.FILE_TYPE_APPLICATIONS, SCHEMA_PROGRAMS,
-            APPLICATIONS_STRING_RESOURCE_ID, new String[] {"apk"});
+    private static final MediaType TYPE_APPLICATIONS = new MediaType(Constants.FILE_TYPE_APPLICATIONS, SCHEMA_PROGRAMS,
+            APPLICATIONS_STRING_RESOURCE_ID, new String[] {"apk", "bat", "cmd", "com", "exe", "hta", "js", "jse", "msc", "vbe", "vbs", "wsf", "wsh"});
+
     /**
      * desktop world
      "zip", "jar", "cab", "msi", "msp", "arj", "rar", "ace",
@@ -107,6 +120,8 @@ public class MediaType implements Serializable {
      * All media types.
      */
     private static final MediaType[] ALL_MEDIA_TYPES = new MediaType[] {
+            TYPE_ARCHIVE,
+            TYPE_CD_IMAGE,
             TYPE_AUDIO,
             TYPE_DOCUMENTS,
             TYPE_PICTURES,
@@ -344,9 +359,9 @@ public class MediaType implements Serializable {
 
     public static int getFileTypeIconId(String ext) {
         MediaType mt = MediaType.getMediaTypeForExtension(ext);
-        //if (mt == null) {
+        if (mt == null) {
             return R.drawable.question_mark;
-        //}
+        }
         /*
         if (mt.equals(MediaType.getApplicationsMediaType())) {
             return R.drawable.browse_peer_application_icon_selector_menu;
@@ -362,7 +377,7 @@ public class MediaType implements Serializable {
             return R.drawable.browse_peer_torrent_icon_selector_menu;
         } else {
             return R.drawable.question_mark;
-        }
-        */
+        }*/
+        return R.drawable.question_mark;
     }
 }

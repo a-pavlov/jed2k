@@ -46,7 +46,19 @@
         style="@style/SearchInputFileTypeButton"/>
 
     <RadioButton
+        android:id="@+id/view_search_input_radio_archive"
+        style="@style/SearchInputFileTypeButton"/>
+
+    <RadioButton
+        android:id="@+id/view_search_input_radio_cd_image"
+        style="@style/SearchInputFileTypeButton"/>
+
+    <RadioButton
         android:id="@+id/view_search_input_radio_torrents"
+        style="@style/SearchInputFileTypeButton"/>
+
+    <RadioButton
+        android:id="@+id/view_search_input_radio_others"
         style="@style/SearchInputFileTypeButton"/>
 
 </RadioGroup>

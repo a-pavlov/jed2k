@@ -9,4 +9,6 @@
     <string name="media_type_video">Video</string>
     <string name="media_type_images">Images</string>
     <string name="media_type_torrents">Torrents</string>
+    <string name="media_type_archives">Archives</string>
+    <string name="media_type_cd_images">CD Images</string>
 </resources>

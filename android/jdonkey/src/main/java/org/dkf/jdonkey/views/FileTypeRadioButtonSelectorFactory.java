@@ -156,6 +156,18 @@ public final class FileTypeRadioButtonSelectorFactory {
                     selectorOnDrawableId = R.drawable.browse_peer_video_icon_selector_on;
                     selectorOffDrawableId = R.drawable.browse_peer_video_icon_selector_off;
                     break;
+                case Constants.FILE_TYPE_ARCHIVE:
+                    selectorOnDrawableId = R.drawable.browse_peer_archive_icon_selector_on;
+                    selectorOffDrawableId = R.drawable.browse_peer_archive_icon_selector_off;
+                    break;
+                case Constants.FILE_TYPE_CD_IMAGE:
+                    selectorOnDrawableId = R.drawable.browse_peer_document_icon_selector_on;
+                    selectorOffDrawableId = R.drawable.browse_peer_document_icon_selector_off;
+                    break;
+                case Constants.FILE_TYPE_OTHERS:
+                    selectorOnDrawableId = R.drawable.browse_peer_document_icon_selector_on;
+                    selectorOffDrawableId = R.drawable.browse_peer_document_icon_selector_off;
+                    break;
             }
         }
     }
