@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Transfer {
+    public static long INVALID_ETA = -1;
+
     private Logger log = LoggerFactory.getLogger(Transfer.class);
 
     /**
@@ -88,6 +90,8 @@ public class Transfer {
     private TransferStatus.TransferState state = TransferStatus.TransferState.LOADING_RESUME_DATA;
 
     private PieceBlock lastResumeBlock = null;
+
+    private SpeedMonitor speedMon = new SpeedMonitor(30);
 
     public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
@@ -284,6 +288,8 @@ public class Transfer {
             c.secondTick(currentSessionTime);
             if (c.isDisconnecting()) itr.remove();
         }
+
+        speedMon.addSample(stat.downloadRate());
 
         while(!aioFutures.isEmpty()) {
             Future<AsyncOperationResult> res = aioFutures.peek();
@@ -536,6 +542,11 @@ public class Transfer {
             }
 
             status.numPieces = picker.numHave();
+
+            long averageSpeed = speedMon.averageSpeed();
+            if (averageSpeed != SpeedMonitor.INVALID_SPEED) {
+                status.eta = (status.totalWanted - status.totalDone) / averageSpeed;
+            }
         }
         else {
             status.pieces.setAll();
