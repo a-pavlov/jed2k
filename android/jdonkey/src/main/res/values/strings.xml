@@ -665,4 +665,7 @@
     <string name="search_parameter_max_size">Max size, Mb</string>
     <string name="search_parameter_sources">Sources count</string>
     <string name="search_paramter_zero">0</string>
+
+    <string name="peer_speed">Speed %1$s</string>
+    <string name="peer_total_bytes_download">Total bytes %1$s</string>
 </resources>
