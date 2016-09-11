@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
@@ -34,5 +35,11 @@ public class TransferHandleTest {
         assertFalse(h1.equals(h2));
         assertEquals(1000l, h1.getSize());
         assertEquals(0, h2.getSize());
+    }
+
+    @Test
+    public void testPeerInfo() {
+        TransferHandle h = new TransferHandle(session);
+        assertTrue(h.getPeersInfo().isEmpty());
     }
 }
