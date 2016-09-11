@@ -44,7 +44,6 @@ import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.preference.NumberPickerPreference;
-import org.dkf.jdonkey.views.preference.SimpleActionPreference;
 import org.dkf.jdonkey.views.preference.StoragePreference;
 import org.dkf.jed2k.android.ED2KService;
 import org.slf4j.Logger;
@@ -115,7 +114,6 @@ public class SettingsActivity extends PreferenceActivity {
         setupStorageOption();
         setupOtherOptions();
         setupTransferOptions();
-        setupClearIndex();
         setupStore(removeAdsPurchaseTime);
     }
 
@@ -183,26 +181,6 @@ public class SettingsActivity extends PreferenceActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void setupClearIndex() {
-        final SimpleActionPreference preference = (SimpleActionPreference) findPreference("jdonkey.prefs.internal.clear_index");
-
-        if (preference != null) {
-            updateIndexSummary(preference);
-            preference.setOnActionListener(new OnClickListener() {
-                public void onClick(View v) {
-                    //LocalSearchEngine.instance().clearCache();
-                    UIUtils.showShortMessage(SettingsActivity.this, R.string.deleted_crawl_cache);
-                    updateIndexSummary(preference);
-                }
-            });
-        }
-    }
-
-    private void updateIndexSummary(SimpleActionPreference preference) {
-        //float size = (((float) LocalSearchEngine.instance().getCacheSize()) / 1024) / 1024;
-        //preference.setSummary(getString(R.string.crawl_cache_size, size));
     }
 
     private void updateConnectSwitch() {
@@ -394,10 +372,8 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        LOG.info("on pref tree click");
         boolean r = super.onPreferenceTreeClick(preferenceScreen, preference);
         if (preference instanceof PreferenceScreen) {
-            LOG.info("pref is screen");
             initializePreferenceScreen((PreferenceScreen) preference);
             currentPreferenceKey = preference.getKey();
         }

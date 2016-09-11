@@ -74,7 +74,6 @@ public final class Constants {
     // ed2k common and servers
     public static final String PREF_KEY_NICKNAME = "jdonkey.prefs.nickname";
     public static final String PREF_KEY_LISTEN_PORT = "jdonkey.prefs.listen_port";
-    public static final String PREF_KEY_RANDOM_SERVER = "jdonkey.prefs.random_server";
     public static final String PREF_KEY_CONN_SERVER_ON_START = "jdonkey.prefs.connect_server_on_start";
     public static final String PREF_KEY_SHOW_SERVER_MSG = "jdonkey.prefs.show_servers_messages";
 

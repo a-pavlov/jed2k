@@ -113,7 +113,7 @@ public class StoragePreference extends DialogPreference {
     public void onClick(DialogInterface dialog, int which) {
         if (dialog != null && dialog.equals(confirmDlg)) {
             if (which == Dialog.BUTTON_POSITIVE && selectedPath != null) {
-                //ConfigurationManager.instance().setStoragePath(selectedPath);
+                ConfigurationManager.instance().setStoragePath(selectedPath);
                 //BTEngine.ctx.dataDir = Platforms.data();
                 //BTEngine.ctx.torrentsDir = Platforms.torrents();
                 dismissPreferenceDialog();
