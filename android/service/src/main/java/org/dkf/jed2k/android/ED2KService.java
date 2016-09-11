@@ -15,8 +15,10 @@ import android.widget.RemoteViews;
 import org.dkf.jed2k.R;
 import org.dkf.jed2k.Session;
 import org.dkf.jed2k.Settings;
+import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,6 +160,7 @@ public class ED2KService extends Service {
     }
 
     synchronized public void processAlert(Alert a) {
+        Log.v("ED2KService", "service alive");
         if (a instanceof ListenAlert) {
             Log.v("ED2KService", "listen");
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
@@ -193,7 +196,7 @@ public class ED2KService extends Service {
                     a = session.popAlert();
                 }
             }
-        },  100, 500, TimeUnit.MILLISECONDS);
+        },  100, 2000, TimeUnit.MILLISECONDS);
     }
 
     private void buildNotification(final String fileName, final String fileHash, Bitmap artImage) {
@@ -346,5 +349,9 @@ public class ED2KService extends Service {
     public void shutdown(){
         stopForeground(true);
         stopSelf(-1);
+    }
+
+    TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
+        return session.addTransfer(hash, fileSize, filePath);
     }
 }

@@ -77,8 +77,8 @@ public final class Platforms {
      *
      * @return
      */
-    public static File torrents() {
-        return get().systemPaths().torrents();
+    public static File metadata() {
+        return get().systemPaths().metadata();
     }
 
     /**

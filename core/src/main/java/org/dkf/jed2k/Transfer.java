@@ -155,7 +155,7 @@ public class Transfer {
         if (isFinished()) setState(TransferStatus.TransferState.FINISHED);
     }
 
-    Hash hash() {
+    public Hash hash() {
         return hash;
     }
 
@@ -526,13 +526,21 @@ public class Transfer {
         }
 
         status.numPeers = connections.size();
-        status.pieces = new BitField(picker.numPieces());
+        status.pieces = new BitField(numPieces());
 
-        for(int i = 0; i != picker.numPieces(); ++i) {
-            if (picker.havePiece(i)) status.pieces.setBit(i);
+        if (hasPicker()) {
+            status.pieces = new BitField(picker.numPieces());
+
+            for (int i = 0; i != picker.numPieces(); ++i) {
+                if (picker.havePiece(i)) status.pieces.setBit(i);
+            }
+
+            status.numPieces = picker.numHave();
+        }
+        else {
+            status.pieces.setAll();
         }
 
-        status.numPieces = picker.numHave();
         return status;
     }
 
