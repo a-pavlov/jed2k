@@ -32,13 +32,9 @@ import android.widget.*;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.activities.MainActivity;
 import org.dkf.jdonkey.activities.SettingsActivity;
-import org.dkf.jdonkey.adapters.TransferListAdapter;
-import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jdonkey.dialogs.MenuDialog;
-import org.dkf.jdonkey.transfers.Transfer;
-import org.dkf.jdonkey.transfers.TransferManager;
 import org.dkf.jdonkey.util.SystemUtils;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractDialog.OnDialogClickListener;
@@ -48,7 +44,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
+// TODO - uncomment after add mised files
+//import org.dkf.jdonkey.adapters.TransferListAdapter;
+//import org.dkf.jdonkey.core.ConfigurationManager;
+// TODO - uncomment after add mised files
+//import org.dkf.jdonkey.transfers.Transfer;
+//import org.dkf.jdonkey.transfers.TransferManager;
 
 /*
 import com.frostwire.android.gui.activities.VPNStatusDetailActivity;
@@ -78,7 +82,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private static final int UI_UPDATE_INTERVAL_IN_SECS = 2;
     private static final int DHT_STATUS_UPDATE_INTERVAL_IN_SECS = 10;
 
-    private final Comparator<Transfer> transferComparator;
+    //private final Comparator<Transfer> transferComparator;
     private final ButtonAddTransferListener buttonAddTransferListener;
     private final ButtonMenuListener buttonMenuListener;
     private Button buttonSelectAll;
@@ -90,7 +94,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private TextView textUploads;
     private TextView vpnRichToast;
     private ClearableEditTextView addTransferUrlTextView;
-    private TransferListAdapter adapter;
+    //private TransferListAdapter adapter;
     private TransferStatus selectedStatus;
     private TimerSubscription subscription;
     private int delayedDHTUpdateTimeElapsed;
@@ -102,7 +106,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
     public TransfersFragment() {
         super(R.layout.fragment_transfers);
-        this.transferComparator = new TransferComparator();
+        //this.transferComparator = new TransferComparator();
         this.buttonAddTransferListener = new ButtonAddTransferListener(this);
         this.buttonMenuListener = new ButtonMenuListener(this);
         selectedStatus = TransferStatus.ALL;
@@ -158,7 +162,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
     @Override
     public void onTime() {
-        if (adapter != null) {
+        /*if (adapter != null) {
             List<Transfer> transfers = filter(TransferManager.instance().getTransfers(), selectedStatus);
             Collections.sort(transfers, transferComparator);
             adapter.updateList(transfers);
@@ -176,6 +180,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         delayedDHTCheck();
         updateStatusBar(sDown, sUp, downloads, uploads);
+        */
     }
 
     private void updateStatusBar(String sDown, String sUp, int downloads, int uploads) {
@@ -243,10 +248,10 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         }
 
         // Saving Data on Mobile
-        if (TransferManager.instance().isMobileAndDataSavingsOn()) {
+        /*if (TransferManager.instance().isMobileAndDataSavingsOn()) {
             textDHTPeers.setText(R.string.bittorrent_off_data_saver_on);
             return;
-        }
+        }*/
 
         // BitTorrent Turned off
         /*if (Engine.instance().isStopped() || Engine.instance().isDisconnected()) {
@@ -423,7 +428,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         RichNotification internalMemoryNotification = findView(v, R.id.fragment_transfers_internal_memory_notification);
         internalMemoryNotification.setVisibility(View.GONE);
 
-        if (TransferManager.isUsingSDCardPrivateStorage() && !sdCardNotification.wasDismissed()) {
+        /*if (TransferManager.isUsingSDCardPrivateStorage() && !sdCardNotification.wasDismissed()) {
             String currentPath = ConfigurationManager.instance().getStoragePath();
             boolean inPrivateFolder = currentPath.contains("Android/data");
 
@@ -445,15 +450,17 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             internalMemoryNotification.setVisibility(View.VISIBLE);
             internalMemoryNotification.setOnClickListener(new SDCardNotificationListener(this));
         }
+        */
     }
 
     private void setupAdapter() {
-        List<Transfer> transfers = filter(TransferManager.instance().getTransfers(), selectedStatus);
+        /*List<Transfer> transfers = filter(TransferManager.instance().getTransfers(), selectedStatus);
         Collections.sort(transfers, transferComparator);
         adapter = new TransferListAdapter(TransfersFragment.this.getActivity(), transfers);
         list.setAdapter(adapter);
+        */
     }
-
+/*
     private List<Transfer> filter(List<Transfer> transfers, TransferStatus status) {
         Iterator<Transfer> it;
 
@@ -478,7 +485,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                 return transfers;
         }
     }
-
+*/
     private static final String TRANSFERS_DIALOG_ID = "transfers_dialog";
 
     private static final int CLEAR_MENU_DIALOG_ID = 0;
@@ -487,6 +494,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
     @Override
     public void onDialogClick(String tag, int which) {
+        /*
         if (tag.equals(TRANSFERS_DIALOG_ID)) {
             switch (which) {
                 case CLEAR_MENU_DIALOG_ID:
@@ -511,6 +519,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             }
             setupAdapter();
         }
+        */
     }
 
     private void showContextMenu() {
@@ -519,7 +528,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         MenuDialog.MenuItem resume = new MenuDialog.MenuItem(RESUME_MENU_DIALOG_ID, R.string.transfers_context_resume_all_torrent_transfers, R.drawable.contextmenu_icon_play);
 
         List<MenuDialog.MenuItem> dlgActions = new ArrayList<>();
-
+/*
         TransferManager tm = TransferManager.instance();
         boolean bittorrentDisconnected = false; //tm.isBittorrentDisconnected();
         final List<Transfer> transfers = tm.getTransfers();
@@ -542,13 +551,13 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                 dlgActions.add(resume);
             }
         }
-
+*/
         if (dlgActions.size() > 0) {
             MenuDialog dlg = MenuDialog.newInstance(TRANSFERS_DIALOG_ID, dlgActions);
             dlg.show(getFragmentManager());
         }
     }
-
+/*
     private boolean someTransfersInactive(List<Transfer> transfers) {
         for (Transfer t : transfers) {
                 //BittorrentDownload bt = (BittorrentDownload) t;
@@ -567,21 +576,22 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                 return true;
             }
         }
+
         return false;
     }
 
     private boolean someTransfersActive(List<Transfer> transfers) {
-        for (Transfer t : transfers) {
+        //for (Transfer t : transfers) {
             return true;
             //BittorrentDownload bt = (BittorrentDownload) t;
             //if (bt.isDownloading() || bt.isSeeding()) {
             //    return true;
             //}
-        }
+        //}
 
-        return false;
+       // return false;
     }
-
+*/
     private void startTransferFromURL() {
         /*
         String url = addTransferUrlTextView.getText();
@@ -701,7 +711,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         return null;
     }
-
+/*
     private static final class TransferComparator implements Comparator<Transfer> {
         public int compare(Transfer lhs, Transfer rhs) {
             try {
@@ -712,7 +722,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             return 0;
         }
     }
-
+*/
     public enum TransferStatus {
         ALL, DOWNLOADING, COMPLETED;
 

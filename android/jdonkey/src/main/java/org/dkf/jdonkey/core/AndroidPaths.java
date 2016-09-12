@@ -29,13 +29,22 @@ import java.io.File;
  */
 public final class AndroidPaths {
 
+    /**
+     * base storage path
+     */
     private static final String STORAGE_PATH = "JDonkey";
-    private static final String TORRENT_DATA_PATH = "jed2kdata";
-    private static final String TORRENTS_PATH = "jdonkey";
-    private static final String TEMP_PATH = "temp";
-    private static final String LIBTORRENT_PATH = "ed2k";
 
-    private static final String UPDATE_APK_NAME = "frostwire.apk";
+    /**
+     *  downloaded files path
+     */
+    private static final String DOWNLOADS_PATH = "";
+
+    /**
+     * metadata path for fast resume data saving
+     */
+    private static final String METADATA_PATH = ".metadata";
+
+    private static final String TEMP_PATH = "temp";
 
     private final Context context;
 
@@ -44,23 +53,15 @@ public final class AndroidPaths {
     }
 
     public File data() {
-        return new File(storage(), TORRENT_DATA_PATH);
+        return new File(storage(), DOWNLOADS_PATH);
     }
 
-    public File torrents() {
-        return new File(storage(), TORRENTS_PATH);
+    public File metadata() {
+        return new File(storage(), METADATA_PATH);
     }
 
     public File temp() {
         return new File(context.getExternalFilesDir(null), TEMP_PATH);
-    }
-
-    public File libtorrent() {
-        return new File(context.getExternalFilesDir(null), LIBTORRENT_PATH);
-    }
-
-    public File update() {
-        return new File(context.getExternalFilesDir(null), UPDATE_APK_NAME);
     }
 
     private static File storage() {

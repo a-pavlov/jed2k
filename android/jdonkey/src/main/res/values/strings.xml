@@ -320,7 +320,7 @@
     <string name="download_type_not_supported">Download Type not supported</string>
     <string name="im_on_it">I\'m on it…</string>
     <string name="hint_transfers">Use "menu" for bulk actions</string>
-    <string name="transfers_settings">Transfers Settings</string>
+    <string name="transfers_settings">Transfers settings</string>
     <string name="transfers_max_downloads_summary">Max Downloads</string>
     <string name="transfers_max_downloads">Max Downloads</string>
     <string name="transfers_max_total_connections_summary">Max Total Connections</string>
@@ -660,4 +660,12 @@
     <string name="confirm_server_disconnect">Confirm disconnect</string>
     <string name="server_disconnect_connect">Close previous connection and connect to %1$s</string>
     <string name="server_disconnect">Disconnect from server %1$s</string>
+
+    <string name="search_parameter_min_size">Min size, Mb</string>
+    <string name="search_parameter_max_size">Max size, Mb</string>
+    <string name="search_parameter_sources">Sources count</string>
+    <string name="search_paramter_zero">0</string>
+
+    <string name="peer_speed">Speed %1$s</string>
+    <string name="peer_total_bytes_download">Total bytes %1$s</string>
 </resources>

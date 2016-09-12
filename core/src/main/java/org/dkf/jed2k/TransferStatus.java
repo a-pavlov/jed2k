@@ -18,14 +18,15 @@ public class TransferStatus {
 
     public boolean paused;
     public float progress   = 0f;
-    public int progressPPM;
-    public long downloadPayload;
-    public long downloadProtocol;
-    public int downloadRate;
-    public int downloadPayloadRate;
-    public int numPeers;
-    public long totalDone;
-    public long totalWanted;
+    public int progressPPM          = 0;
+    public long downloadPayload     = 0;
+    public long downloadProtocol    = 0;
+    public int downloadRate         = 0;
+    public int downloadPayloadRate  = 0;
+    public int numPeers             = 0;
+    public long totalDone           = 0;
+    public long totalWanted         = 0;
+    public long eta                 = 0;
     public BitField pieces;
-    public int numPieces;
+    public int numPieces            = 0;
 }

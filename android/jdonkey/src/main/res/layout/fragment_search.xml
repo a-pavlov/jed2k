@@ -23,6 +23,13 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
+    <org.dkf.jdonkey.views.SearchParametersView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_search_parameters"
+        android:visibility="gone"
+        />
+
     <ProgressBar
             android:id="@+id/fragment_search_deepsearch_progress"
             style="@style/ProgressBarHolo.Horizontal"

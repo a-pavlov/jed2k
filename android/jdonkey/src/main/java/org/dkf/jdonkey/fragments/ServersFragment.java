@@ -16,6 +16,7 @@ import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.dialogs.ConnectServerDialog;
 import org.dkf.jdonkey.dialogs.NewTransferDialog;
+import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractAdapter;
 import org.dkf.jdonkey.views.AbstractDialog;
 import org.dkf.jdonkey.views.AbstractFragment;
@@ -117,7 +118,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private void handleServerMessage(final String id, final String msg) {
         log.info("server {} message {}", id, msg);
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_SHOW_SERVER_MSG)) {
-            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+            UIUtils.showShortMessage(getActivity(), msg);
         }
     }
 
@@ -143,7 +144,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     private void listenAlert() {
         log.info("listen received");
-        Toast.makeText(getActivity(), "listen", Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -1078,6 +1078,7 @@ public class PeerConnection extends Connection {
         i.modName = remotePeerInfo.modName;
         i.version = remotePeerInfo.version;
         i.modVersion = remotePeerInfo.modNumber;
+        i.endpoint = getEndpoint();
         return i;
     }
 }

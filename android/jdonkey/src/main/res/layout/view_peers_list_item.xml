@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+    <ImageView
+        android:id="@+id/view_peers_list_item_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="22dp"
+        android:layout_marginTop="12dp"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/view_peers_list_item_endpoint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/view_peers_list_item_icon"
+        android:text="@string/dummy_title" />
+
+    <TextView
+        android:id="@+id/view_peers_list_item_client_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_peers_list_item_endpoint"
+        android:layout_toRightOf="@id/view_peers_list_item_icon"
+        android:text="@string/dummy_summary" />
+
+    <TextView
+        android:id="@+id/view_peers_list_item_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_peers_list_item_client_name"
+        android:layout_toRightOf="@id/view_peers_list_item_icon"
+        android:text="@string/peer_speed" />
+
+    <TextView
+        android:id="@+id/view_peers_list_item_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_peers_list_item_client_name"
+        android:layout_toRightOf="@id/view_peers_list_item_speed"
+        android:text="@string/peer_total_bytes_download" />
+
+</RelativeLayout>

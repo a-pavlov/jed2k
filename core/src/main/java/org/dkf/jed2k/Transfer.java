@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Transfer {
+    public static long INVALID_ETA = -1;
+
     private Logger log = LoggerFactory.getLogger(Transfer.class);
 
     /**
@@ -89,6 +91,8 @@ public class Transfer {
 
     private PieceBlock lastResumeBlock = null;
 
+    private SpeedMonitor speedMon = new SpeedMonitor(30);
+
     public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
         this.hash = atp.hash;
@@ -155,7 +159,7 @@ public class Transfer {
         if (isFinished()) setState(TransferStatus.TransferState.FINISHED);
     }
 
-    Hash hash() {
+    public Hash hash() {
         return hash;
     }
 
@@ -284,6 +288,8 @@ public class Transfer {
             c.secondTick(currentSessionTime);
             if (c.isDisconnecting()) itr.remove();
         }
+
+        speedMon.addSample(stat.downloadRate());
 
         while(!aioFutures.isEmpty()) {
             Future<AsyncOperationResult> res = aioFutures.peek();
@@ -526,13 +532,26 @@ public class Transfer {
         }
 
         status.numPeers = connections.size();
-        status.pieces = new BitField(picker.numPieces());
+        status.pieces = new BitField(numPieces());
 
-        for(int i = 0; i != picker.numPieces(); ++i) {
-            if (picker.havePiece(i)) status.pieces.setBit(i);
+        if (hasPicker()) {
+            status.pieces = new BitField(picker.numPieces());
+
+            for (int i = 0; i != picker.numPieces(); ++i) {
+                if (picker.havePiece(i)) status.pieces.setBit(i);
+            }
+
+            status.numPieces = picker.numHave();
+
+            long averageSpeed = speedMon.averageSpeed();
+            if (averageSpeed != SpeedMonitor.INVALID_SPEED) {
+                status.eta = (status.totalWanted - status.totalDone) / averageSpeed;
+            }
+        }
+        else {
+            status.pieces.setAll();
         }
 
-        status.numPieces = picker.numHave();
         return status;
     }
 

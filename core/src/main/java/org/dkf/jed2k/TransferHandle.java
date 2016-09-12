@@ -13,16 +13,18 @@ import java.util.List;
  * handle can be invalid if session has no transfer linked with it
  * Created by inkpot on 26.07.2016.
  */
-public class TransferHandle {
+public class TransferHandle implements Comparable<TransferHandle> {
     private WeakReference<Transfer> transfer;
     private Session ses;
 
     public TransferHandle(final Session s) {
+        assert s != null;
         ses = s;
         transfer = new WeakReference<Transfer>(null);
     }
 
     public TransferHandle(final Session s, Transfer t) {
+        assert s != null;
         ses = s;
         transfer = new WeakReference<Transfer>(t);
     }
@@ -39,7 +41,7 @@ public class TransferHandle {
             }
         }
 
-        return null;
+        return Hash.INVALID;
     }
 
     public final long getSize() {
@@ -140,5 +142,15 @@ public class TransferHandle {
     @Override
     public boolean equals(Object o) {
         return (o instanceof TransferHandle && ((TransferHandle)o).getHash().equals(getHash()));
+    }
+
+    @Override
+    public int hashCode() {
+        return getHash().hashCode();
+    }
+
+    @Override
+    public int compareTo(TransferHandle o) {
+        return getHash().compareTo(o.getHash());
     }
 }

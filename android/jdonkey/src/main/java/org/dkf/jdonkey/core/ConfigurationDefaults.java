@@ -48,6 +48,7 @@ final class ConfigurationDefaults {
     }
 
     private void load() {
+        defaultValues.put(Constants.PREF_KEY_STORAGE_PATH, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
         defaultValues.put(Constants.PREF_KEY_CORE_UUID, uuidToByteArray(UUID.randomUUID()));
         defaultValues.put(Constants.PREF_KEY_CORE_LAST_SEEN_VERSION, "");//won't know until I see it.
 
@@ -86,7 +87,6 @@ final class ConfigurationDefaults {
         defaultValues.put(Constants.PREF_KEY_NICKNAME, "Nickname");
         defaultValues.put(Constants.PREF_KEY_LISTEN_PORT, 30000L);
         defaultValues.put(Constants.PREF_KEY_CONN_SERVER_ON_START, false);
-        defaultValues.put(Constants.PREF_KEY_RANDOM_SERVER, false);
         defaultValues.put(Constants.PREF_KEY_SHOW_SERVER_MSG, true);
     }
 

@@ -1,0 +1,28 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false" >
+
+    <ImageButton
+        android:id="@+id/view_search_header_more_parameters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:background="@null"
+        android:contentDescription="@null"
+        android:src="@drawable/add_transfer" />
+
+    <TextView
+        android:id="@+id/view_search_header_text_title"
+        style="@style/MainFragmentSimpleHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:paddingRight="40dp"
+        android:layout_centerInParent="true"
+        android:text="@null" />
+</RelativeLayout>
