@@ -45,9 +45,6 @@ import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author gubatron
  * @author aldenml
@@ -176,11 +173,7 @@ public final class SearchFragment extends AbstractFragment implements
         searchProgress.setCancelOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                //if (Engine.instance().isSearchFinished()) {
-                //    performSearch(searchInput.getText(), adapter.getFileType()); // retry
-                //} else {
-                    cancelSearch();
-                //}
+                cancelSearch();
             }
         });
 
@@ -225,16 +218,6 @@ public final class SearchFragment extends AbstractFragment implements
         UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
         //TransferManager.instance().downloadTorrent(magnet,
         //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
-    }
-
-    private static String extractYTId(String ytUrl) {
-        String vId = null;
-        Pattern pattern = Pattern.compile(".*(?:youtu.be\\/|v\\/|u\\/\\w\\/|embed\\/|watch\\?v=)([^#\\&\\?]*).*");
-        Matcher matcher = pattern.matcher(ytUrl);
-        if (matcher.matches()) {
-            vId = matcher.group(1);
-        }
-        return vId;
     }
 
     private void setupAdapter() {
@@ -300,16 +283,6 @@ public final class SearchFragment extends AbstractFragment implements
         searchInput.updateFileTypeCounter(Constants.FILE_TYPE_CD_IMAGE, fileTypeCounter.numCDImage);
         searchInput.updateFileTypeCounter(Constants.FILE_TYPE_OTHERS, fileTypeCounter.numOther);
         searchInput.setFileTypeCountersVisible(fileTypeCountersVisible);
-    }
-
-    public void performYTSearch(String query) {
-        String ytId = extractYTId(query);
-        if (ytId != null) {
-            searchInput.setText("");
-            searchInput.performClickOnRadioButton(Constants.FILE_TYPE_VIDEOS);
-            performSearch(ytId, Constants.FILE_TYPE_VIDEOS);
-            searchInput.setHint(getActivity().getString(R.string.searching_for) + " youtube:" + ytId);
-        }
     }
 
     private void performSearch(String query, int mediaTypeId) {

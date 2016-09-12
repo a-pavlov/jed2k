@@ -903,12 +903,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    public void performYTSearch(String ytUrl) {
-        SearchFragment searchFragment = (SearchFragment) getFragmentByMenuId(R.id.menu_main_search);
-        searchFragment.performYTSearch(ytUrl);
-        switchContent(searchFragment);
-    }
-
     // TODO: refactor and move this method for a common place when needed
     private static String saveViewContent(Context context, Uri uri, String name) {
         InputStream inStream = null;

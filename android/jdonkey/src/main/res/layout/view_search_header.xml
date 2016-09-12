@@ -4,11 +4,23 @@
                 android:baselineAligned="false" >
 
     <ImageButton
-        android:id="@+id/view_search_header_more_parameters"
+        android:id="@+id/view_search_header_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:background="@null"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_menu_moreoverflow" />
+
+    <ImageButton
+        android:id="@+id/view_search_header_more_parameters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/view_search_header_more"
         android:layout_centerVertical="true"
         android:layout_marginRight="8dp"
         android:background="@null"

@@ -23,6 +23,7 @@ import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractAdapter;
 import org.dkf.jdonkey.views.AbstractDialog;
 import org.dkf.jdonkey.views.AbstractFragment;
+import org.dkf.jdonkey.views.ClickAdapter;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -409,6 +410,56 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             }
 
             return affected;
+        }
+    }
+
+    private void showContextMenu() {
+        /*
+        MainMenuAdapter.MenuItem clear = new MenuItem(CLEAR_MENU_DIALOG_ID, R.string.transfers_context_menu_clear_finished, R.drawable.contextmenu_icon_remove_transfer);
+        MenuItem pause = new MenuItem(PAUSE_MENU_DIALOG_ID, R.string.transfers_context_menu_pause_stop_all_transfers, R.drawable.contextmenu_icon_pause_transfer);
+        MenuItem resume = new MenuItem(RESUME_MENU_DIALOG_ID, R.string.transfers_context_resume_all_torrent_transfers, R.drawable.contextmenu_icon_play);
+
+        List<MenuItem> dlgActions = new ArrayList<>();
+
+        TransferManager tm = TransferManager.instance();
+        boolean bittorrentDisconnected = tm.isBittorrentDisconnected();
+        final List<Transfer> transfers = tm.getTransfers();
+
+        if (transfers != null && transfers.size() > 0) {
+            if (someTransfersComplete(transfers)) {
+                dlgActions.add(clear);
+            }
+
+            if (!bittorrentDisconnected) {
+                if (someTransfersActive(transfers)) {
+                    dlgActions.add(pause);
+                }
+            }
+
+            //let's show it even if bittorrent is disconnected
+            //user should get a message telling them to check why they can't resume.
+            //Preferences > Connectivity is disconnected.
+            if (someTransfersInactive(transfers)) {
+                dlgActions.add(resume);
+            }
+        }
+
+        if (dlgActions.size() > 0) {
+            MenuDialog dlg = MenuDialog.newInstance(TRANSFERS_DIALOG_ID, dlgActions);
+            dlg.show(getFragmentManager());
+        }
+        */
+    }
+
+    private static final class ButtonMenuListener extends ClickAdapter<SearchFragment> {
+
+        ButtonMenuListener(SearchFragment f) {
+            super(f);
+        }
+
+        @Override
+        public void onClick(SearchFragment f, View v) {
+            //f.showContextMenu();
         }
     }
 }

@@ -30,7 +30,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import org.dkf.jdonkey.R;
-import org.dkf.jdonkey.activities.MainActivity;
 import org.dkf.jdonkey.activities.SettingsActivity;
 import org.dkf.jdonkey.adapters.TransferListAdapter;
 import org.dkf.jdonkey.core.Constants;
@@ -604,15 +603,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
         }
         */
-    }
-
-    private void startYouTubeSearchFromUrl(String ytUrl) {
-        //fragments are not supposed to communicate directly so I'll let my activity know
-        //(NOTE: This is a poor implementation of fragment to fragment communication
-        // despite what the android documentation says http://developer.android.com/training/basics/fragments/communicating.html
-        // as this could not scale if you wanted to reuse fragments on other activities)
-        MainActivity activity = (MainActivity) getActivity();
-        activity.performYTSearch(ytUrl);
     }
 
     private void autoPasteMagnetOrURL() {
