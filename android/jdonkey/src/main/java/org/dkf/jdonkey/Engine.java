@@ -28,10 +28,12 @@ import android.util.Log;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jed2k.util.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author gubatron
@@ -43,6 +45,7 @@ public final class Engine implements AlertListener {
     private ServiceConnection connection;
     private Context context;
     private LinkedList<AlertListener> pendingListeners = new LinkedList<>();
+    static final ExecutorService threadPool = ThreadPool.newThreadPool("Engine");
 
     private static Engine instance;
 
@@ -105,6 +108,10 @@ public final class Engine implements AlertListener {
         if (service != null) {
             service.stopServices();
         }
+    }
+
+    public boolean isDisconnected() {
+        return false;
     }
 
     public void shutdown() {
@@ -199,5 +206,9 @@ public final class Engine implements AlertListener {
         if (service != null) {
             service.startSearch(0,0,0,0,"","","",0,0,query);
         }
+    }
+
+    public ExecutorService getThreadPool() {
+        return threadPool;
     }
 }

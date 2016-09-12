@@ -23,6 +23,8 @@ public class TransferStatus {
     public long downloadProtocol    = 0;
     public int downloadRate         = 0;
     public int downloadPayloadRate  = 0;
+    public long upload              = 0;
+    public int uploadRate           = 0;
     public int numPeers             = 0;
     public long totalDone           = 0;
     public long totalWanted         = 0;

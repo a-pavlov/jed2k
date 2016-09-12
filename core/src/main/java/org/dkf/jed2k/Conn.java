@@ -350,7 +350,7 @@ public class Conn {
         for(TransferHandle handle: handles) {
             if (handle.isValid()) {
                 try {
-                    AddTransferParams atp = new AddTransferParams(handle.getHash(), handle.getSize(), handle.getFilepath(), handle.isPaused());
+                    AddTransferParams atp = new AddTransferParams(handle.getHash(), handle.getCreateTime(), handle.getSize(), handle.getFilepath(), handle.isPaused());
                     atp.resumeData.setData(handle.getResumeData());
                     saveTransferParameters(atp);
                 } catch(JED2KException e) {

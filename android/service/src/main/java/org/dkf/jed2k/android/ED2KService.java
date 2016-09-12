@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ED2KService extends Service {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
+
     private Binder binder;
 
     /**
@@ -353,5 +355,9 @@ public class ED2KService extends Service {
 
     TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
         return session.addTransfer(hash, fileSize, filePath);
+    }
+
+    List<TransferHandle> getTransfers() {
+        return session.getTransfers();
     }
 }

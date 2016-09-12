@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.test;
 
 import org.dkf.jed2k.AddTransferParams;
+import org.dkf.jed2k.Time;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
@@ -64,7 +65,7 @@ public class ResumeDataTest {
 
     @Test
     public void testAddTransferParameters() throws JED2KException {
-        AddTransferParams atp = new AddTransferParams(Hash.EMULE, 100500L, "xxxx", false);
+        AddTransferParams atp = new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), 100500L, "xxxx", false);
         ByteBuffer bb = ByteBuffer.allocate(200);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         atp.put(bb);

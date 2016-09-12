@@ -44,6 +44,17 @@ public class TransferHandle implements Comparable<TransferHandle> {
         return Hash.INVALID;
     }
 
+    public final long getCreateTime() {
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                return t.getCreateTime();
+            }
+        }
+
+        return 0;
+    }
+
     public final long getSize() {
         Transfer t = transfer.get();
         if (t != null) {
@@ -106,6 +117,19 @@ public class TransferHandle implements Comparable<TransferHandle> {
         return res;
     }
 
+    public final boolean isFinished() {
+        boolean res = false;
+        Transfer t = transfer.get();
+        if (t != null) {
+            synchronized (ses) {
+                res = t.isFinished();
+            }
+
+        }
+
+        return res;
+    }
+
     public TransferResumeData getResumeData() {
         Transfer t = transfer.get();
         if (t != null) {
@@ -125,7 +149,7 @@ public class TransferHandle implements Comparable<TransferHandle> {
             }
         }
 
-        return null;
+        return new TransferStatus();
     }
 
     public List<PeerInfo> getPeersInfo() {

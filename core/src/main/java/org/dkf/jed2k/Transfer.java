@@ -30,6 +30,8 @@ public class Transfer {
      */
     private Hash hash;
 
+    private long createTime;
+
     /**
      * transfer's file dataSize
      */
@@ -96,6 +98,7 @@ public class Transfer {
     public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
         this.hash = atp.hash;
+        this.createTime = atp.createTime.longValue();
         this.size = atp.size.longValue();
         assert(hash != null);
         assert(size != 0);
@@ -161,6 +164,10 @@ public class Transfer {
 
     public Hash hash() {
         return hash;
+    }
+
+    public long getCreateTime() {
+        return createTime;
     }
 
     public long size() {
@@ -521,6 +528,8 @@ public class Transfer {
         status.downloadProtocol = stat.totalProtocolDownload();
         status.downloadRate = (int)stat.downloadRate();
         status.downloadPayloadRate = (int)stat.downloadPayloadRate();
+        status.upload = stat.totalUpload();
+        status.uploadRate = (int)stat.uploadRate();
 
         if (status.totalWanted == 0)        {
             status.progressPPM = 1000000;
@@ -560,7 +569,7 @@ public class Transfer {
     }
 
     public final List<PeerInfo> getPeersInfo() {
-        List<PeerInfo> res = new LinkedList<>();
+        List<PeerInfo> res = new ArrayList<>();
         for(final PeerConnection c: connections) {
             res.add(c.getInfo());
         }

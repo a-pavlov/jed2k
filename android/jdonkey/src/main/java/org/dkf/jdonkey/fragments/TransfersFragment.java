@@ -32,9 +32,12 @@ import android.widget.*;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.activities.MainActivity;
 import org.dkf.jdonkey.activities.SettingsActivity;
+import org.dkf.jdonkey.adapters.TransferListAdapter;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jdonkey.dialogs.MenuDialog;
+import org.dkf.jdonkey.transfers.Transfer;
+import org.dkf.jdonkey.transfers.TransferManager;
 import org.dkf.jdonkey.util.SystemUtils;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractDialog.OnDialogClickListener;
@@ -44,15 +47,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 // TODO - uncomment after add mised files
-//import org.dkf.jdonkey.adapters.TransferListAdapter;
-//import org.dkf.jdonkey.core.ConfigurationManager;
 // TODO - uncomment after add mised files
-//import org.dkf.jdonkey.transfers.Transfer;
-//import org.dkf.jdonkey.transfers.TransferManager;
 
 /*
 import com.frostwire.android.gui.activities.VPNStatusDetailActivity;
@@ -82,7 +80,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private static final int UI_UPDATE_INTERVAL_IN_SECS = 2;
     private static final int DHT_STATUS_UPDATE_INTERVAL_IN_SECS = 10;
 
-    //private final Comparator<Transfer> transferComparator;
+    private final Comparator<Transfer> transferComparator;
     private final ButtonAddTransferListener buttonAddTransferListener;
     private final ButtonMenuListener buttonMenuListener;
     private Button buttonSelectAll;
@@ -94,7 +92,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private TextView textUploads;
     private TextView vpnRichToast;
     private ClearableEditTextView addTransferUrlTextView;
-    //private TransferListAdapter adapter;
+    private TransferListAdapter adapter;
     private TransferStatus selectedStatus;
     private TimerSubscription subscription;
     private int delayedDHTUpdateTimeElapsed;
@@ -106,7 +104,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
     public TransfersFragment() {
         super(R.layout.fragment_transfers);
-        //this.transferComparator = new TransferComparator();
+        this.transferComparator = new TransferComparator();
         this.buttonAddTransferListener = new ButtonAddTransferListener(this);
         this.buttonMenuListener = new ButtonMenuListener(this);
         selectedStatus = TransferStatus.ALL;
@@ -129,7 +127,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        subscription = TimerService.subscribe(this, 2);
+        subscription = TimerService.subscribe(this, 20);
     }
 
     @Override
@@ -154,15 +152,14 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     @Override
     public void onPause() {
         super.onPause();
-        /*if (adapter != null) {
+        if (adapter != null) {
             adapter.dismissDialogs();
         }
-        */
     }
 
     @Override
     public void onTime() {
-        /*if (adapter != null) {
+        if (adapter != null) {
             List<Transfer> transfers = filter(TransferManager.instance().getTransfers(), selectedStatus);
             Collections.sort(transfers, transferComparator);
             adapter.updateList(transfers);
@@ -180,7 +177,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         delayedDHTCheck();
         updateStatusBar(sDown, sUp, downloads, uploads);
-        */
     }
 
     private void updateStatusBar(String sDown, String sUp, int downloads, int uploads) {
@@ -454,13 +450,12 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     }
 
     private void setupAdapter() {
-        /*List<Transfer> transfers = filter(TransferManager.instance().getTransfers(), selectedStatus);
+        List<Transfer> transfers = filter(TransferManager.instance().getTransfers(), selectedStatus);
         Collections.sort(transfers, transferComparator);
         adapter = new TransferListAdapter(TransfersFragment.this.getActivity(), transfers);
         list.setAdapter(adapter);
-        */
     }
-/*
+
     private List<Transfer> filter(List<Transfer> transfers, TransferStatus status) {
         Iterator<Transfer> it;
 
@@ -485,7 +480,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                 return transfers;
         }
     }
-*/
+
     private static final String TRANSFERS_DIALOG_ID = "transfers_dialog";
 
     private static final int CLEAR_MENU_DIALOG_ID = 0;
@@ -711,7 +706,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         return null;
     }
-/*
+
     private static final class TransferComparator implements Comparator<Transfer> {
         public int compare(Transfer lhs, Transfer rhs) {
             try {
@@ -722,7 +717,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             return 0;
         }
     }
-*/
+
     public enum TransferStatus {
         ALL, DOWNLOADING, COMPLETED;
 

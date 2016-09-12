@@ -7,14 +7,14 @@ import org.dkf.jed2k.protocol.NetworkIdentifier;
  * Created by inkpot on 25.08.2016.
  */
 public class PeerInfo {
-    int downloadSpeed   = 0;
-    int payloadDownloadSpeed = 0;
-    long downloadPayload    = 0;
-    long downloadProtocol   = 0;
-    BitField remotePieces;
-    int failCount   = 0;
-    NetworkIdentifier endpoint;
-    String modName;
-    int version;
-    int modVersion;
+    public int downloadSpeed   = 0;
+    public int payloadDownloadSpeed = 0;
+    public long downloadPayload    = 0;
+    public long downloadProtocol   = 0;
+    public BitField remotePieces;
+    public int failCount   = 0;
+    public NetworkIdentifier endpoint;
+    public String modName;
+    public int version;
+    public int modVersion;
 }

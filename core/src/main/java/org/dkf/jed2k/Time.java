@@ -26,4 +26,10 @@ public class Time {
     public static long currentTimeHiRes() {
         return System.nanoTime() / 1000000;
     }
+
+    /**
+     *
+     * @return current time offset convertable to Date object
+     */
+    public static long currentTimeMillis() { return System.currentTimeMillis(); }
 }
