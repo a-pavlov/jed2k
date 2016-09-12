@@ -2,7 +2,8 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:background="@color/body_background_gray">
 
     <ImageView
         android:id="@+id/view_preference_servers_list_item_icon"
@@ -13,10 +14,12 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="22dp"
         android:layout_marginTop="12dp"
-        android:contentDescription="@null" />
+        android:contentDescription="@null"
+        android:adjustViewBounds="true"/>
 
     <TextView
         android:id="@+id/view_preference_servers_list_item_label"
+        style="@style/TransfersList.SubItem.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/view_preference_servers_list_item_icon"
@@ -24,6 +27,7 @@
 
     <TextView
         android:id="@+id/view_preference_servers_list_item_description"
+        style="@style/TransfersList.SubItem.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/view_preference_servers_list_item_label"
@@ -32,6 +36,7 @@
 
     <TextView
         android:id="@+id/view_server_details"
+        style="@style/TransferListItemSize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/view_preference_servers_list_item_description"
@@ -40,6 +45,7 @@
 
     <TextView
         android:id="@+id/view_server_user_id"
+        style="@style/TransferListItemSize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/view_server_details"

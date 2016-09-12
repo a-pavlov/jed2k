@@ -9,7 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.core.ConfigurationManager;
@@ -336,7 +339,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             TextView description = findView(view, R.id.view_preference_servers_list_item_description);
             TextView details = findView(view, R.id.view_server_details);
             TextView userId = findView(view, R.id.view_server_user_id);
-            icon.setImageResource(R.drawable.internal_memory_notification_dark_bg/* : R.drawable.sd_card_notification_dark_bg*/);
+            icon.setImageResource(R.drawable.server/* : R.drawable.sd_card_notification_dark_bg*/);
             label.setText(item.description);
             description.setText(item.ip + "/" + Integer.toString(item.port));
 
