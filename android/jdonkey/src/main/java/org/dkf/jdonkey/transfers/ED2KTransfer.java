@@ -78,6 +78,16 @@ public class ED2KTransfer implements Transfer {
         return getStatus().eta;
     }
 
+    @Override
+    public int getTotalPeers() {
+        return getStatus().numPeers;
+    }
+
+    @Override
+    public int getConnectedPeers() {
+        return handle.getPeersInfo().size();
+    }
+
     /**
      * [0..100]
      *

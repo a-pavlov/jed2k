@@ -540,10 +540,10 @@ public class Transfer {
             status.progress = ((float)status.totalDone)/status.totalWanted;
         }
 
-        status.numPeers = connections.size();
         status.pieces = new BitField(numPieces());
 
         if (hasPicker()) {
+            status.numPeers = policy.size();
             status.pieces = new BitField(picker.numPieces());
 
             for (int i = 0; i != picker.numPieces(); ++i) {

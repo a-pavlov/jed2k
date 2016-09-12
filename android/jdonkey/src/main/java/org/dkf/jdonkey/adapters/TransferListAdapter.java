@@ -25,12 +25,10 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
-import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.adapters.menu.*;
 import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
-import org.dkf.jdonkey.core.MediaType;
 import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jdonkey.transfers.Transfer;
 import org.dkf.jdonkey.util.UIUtils;
@@ -317,38 +315,12 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
 
     private void prepareGroupIndicatorDrawable(final Transfer item,
                                                final ImageView groupIndicator,
-                                               final boolean hasMultipleFiles,
+                                               final boolean hasPeers,
                                                final boolean expanded) {
-        if (hasMultipleFiles) {
+        if (hasPeers) {
             groupIndicator.setImageResource(expanded ? R.drawable.transfer_menuitem_minus : R.drawable.transfer_menuitem_plus);
         } else {
-            String path = item.getFilePath();
-            Transfer transferItem = (Transfer) item;
-            //if (transferItem.getSavePath() != null) {
-            //    path = transferItem.getSavePath().getAbsolutePath();
-            //}
-
-            String extension = null;
-            if (path != null) {
-                extension = FilenameUtils.getExtension(path);
-            }
-
-            if (extension != null && extension.equals("apk")) {
-                try {
-                    //Apk apk = new Apk(context,path);
-
-                    //TODO: Get the APK Icon so we can show the APK icon on the transfer manager once
-                    //it's finished downloading, or as it's uploading to another peer.
-                    //apk.getDrawable(id);
-
-                    //in the meantime, just hardcode it
-                    groupIndicator.setImageResource(R.drawable.browse_peer_application_icon_selector_menu);
-                } catch (Exception e) {
-                    groupIndicator.setImageResource(R.drawable.browse_peer_application_icon_selector_menu);
-                }
-            } else {
-                groupIndicator.setImageResource(MediaType.getFileTypeIconId(extension));
-            }
+            groupIndicator.setImageResource(R.drawable.browse_peer_application_icon_selector_menu);
         }
     }
 
@@ -422,8 +394,8 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
     }
 
     private static String formatPeers(Transfer dl) {
-        int connectedPeers = 0; //dl.getConnectedPeers();
-        int peers = 0; //dl.getTotalPeers();
+        int connectedPeers = dl.getConnectedPeers();
+        int peers = dl.getTotalPeers();
 
         String tmp = connectedPeers > peers ? "%1" : "%1 " + "/" + " %2";
 
@@ -436,15 +408,21 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
     private void populatePeerItem(View view, PeerInfo item) {
         ImageView icon = findView(view, R.id.view_transfer_item_list_item_icon);
         TextView title = findView(view, R.id.view_transfer_item_list_item_title);
-        ProgressBar progress = findView(view, R.id.view_transfer_item_list_item_progress);
-        TextView size = findView(view, R.id.view_transfer_item_list_item_size);
+        TextView summary = findView(view, R.id.view_transfer_item_list_item_summary);
+        TextView totalBytes = findView(view, R.id.view_transfer_item_list_item_total_bytes);
+        TextView speed = findView(view, R.id.view_transfer_item_list_item_speed);
         ImageButton buttonPlay = findView(view, R.id.view_transfer_item_list_item_button_play);
 
         //icon.setImageResource(MediaType.getFileTypeIconId(FilenameUtils.getExtension(item.getFilePath().getAbsolutePath())));
         title.setText(item.endpoint.toString());
-        setProgress(progress, 0); //item.getProgress());
-        size.setText(UIUtils.getBytesInHuman(item.downloadPayload + item.downloadProtocol));
-
+        String templateTotalBytes = view.getResources().getString(R.string.peer_total_bytes_download);
+        String templateSpeed = view.getResources().getString(R.string.peer_speed);
+        String strTotalBytes = String.format(templateTotalBytes, UIUtils.getBytesInHuman(item.downloadPayload + item.downloadProtocol));
+        String strSpeed = String.format(templateSpeed, UIUtils.rate2speed(item.downloadSpeed / 1024));
+        String strSummary = String.format("[%s] %s", item.strModVersion, item.modName);
+        totalBytes.setText(strTotalBytes);
+        speed.setText(strSpeed);
+        summary.setText(strSummary);
         buttonPlay.setTag(item);
         updatePlayButtonVisibility(item, buttonPlay);
         buttonPlay.setOnClickListener(playOnClickListener);

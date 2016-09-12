@@ -68,27 +68,39 @@
             android:layout_marginLeft="3sp"
             android:text="@string/dummy_title" />
 
-        <ProgressBar
-            android:id="@+id/view_transfer_item_list_item_progress"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/view_transfer_item_list_item_title"
-            android:layout_margin="4sp"
-            android:indeterminateOnly="false"
-            android:progressDrawable="@drawable/transfer_progress_horizontal_dark" />
 
         <TextView
-            android:id="@+id/view_transfer_item_list_item_size"
-            style="@style/TransferListItemSize"
+            android:id="@+id/view_transfer_item_list_item_summary"
+            style="@style/TransfersList.SubItem.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/view_transfer_item_list_item_progress"
-            android:layout_marginBottom="3sp"
             android:layout_marginLeft="3sp"
-            android:text="@string/dummy_size" />
+            android:text="@string/dummy_title" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/view_transfer_item_list_item_total_bytes"
+                style="@style/TransferListItemSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginBottom="3sp"
+                android:layout_marginLeft="3sp"
+                android:text="@string/peer_total_bytes_download" />
+
+            <TextView
+                android:id="@+id/view_transfer_item_list_item_speed"
+                style="@style/TransferListItemSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3sp"
+                android:layout_marginLeft="3sp"
+                android:layout_toRightOf="@+id/view_transfer_item_list_item_total_bytes"
+                android:text="@string/peer_speed" />
+        </RelativeLayout>
     </LinearLayout>
 
     <ImageButton

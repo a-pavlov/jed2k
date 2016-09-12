@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /*
 import com.frostwire.android.R;
@@ -65,7 +64,6 @@ public final class TransferManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransferManager.class);
 
-    private final List<Transfer> httpDownloads;
     private int downloadsToReview;
     private int startedTransfers = 0;
     private final Object alreadyDownloadingMonitor = new Object();
@@ -83,7 +81,6 @@ public final class TransferManager {
     private TransferManager() {
         registerPreferencesChangeListener();
         CM = ConfigurationManager.instance();
-        this.httpDownloads = new CopyOnWriteArrayList<>();
         this.downloadsToReview = 0;
         loadTorrents();
     }
@@ -107,36 +104,6 @@ public final class TransferManager {
         }
 
         return transfers;
-    }
-
-    private boolean alreadyDownloading(String detailsUrl) {
-        synchronized (alreadyDownloadingMonitor) {
-            for (Transfer dt : httpDownloads) {
-                if (dt.isDownloading()) {
-                    if (dt.getName() != null && dt.getName().equals(detailsUrl)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean isAlreadyDownloadingTorrentByUri(String uri) {
-        /*
-        synchronized (alreadyDownloadingMonitor) {
-            for (Transfer dt : httpDownloads) {
-                if (dt instanceof TorrentFetcherDownload) {
-                    String torrentUri = ((TorrentFetcherDownload) dt).getTorrentUri();
-                    if (torrentUri != null && torrentUri.equals(uri)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        */
-        return false;
-
     }
 
     public Transfer download(SharedFileEntry sr) {
@@ -177,47 +144,38 @@ public final class TransferManager {
 
     public int getActiveDownloads() {
         int count = 0;
-        /*
-        for (BittorrentDownload d : bittorrentDownloads) {
-            if (!d.isComplete() && d.isDownloading()) {
+
+        for (final Transfer t: transfers) {
+            if (!t.isComplete() && t.isDownloading()) {
                 count++;
             }
         }
-        for (Transfer d : httpDownloads) {
-            if (!d.isComplete() && d.isDownloading()) {
-                count++;
-            }
-        }
-        */
+
         return count;
     }
 
     public int getActiveUploads() {
         int count = 0;
-        /*
-        for (BittorrentDownload d : bittorrentDownloads) {
-            if (!d.isComplete() && d.isSeeding()) {
-                count++;
-            }
-        }
-        */
         return count;
     }
 
     public long getDownloadsBandwidth() {
-        /*long torrentDownloadsBandwidth = BTEngine.getInstance().getDownloadRate();
-        long peerDownloadsBandwidth = 0;
-        for (Transfer d : httpDownloads) {
-            peerDownloadsBandwidth += d.getDownloadSpeed();
+        long res = 0;
+
+        for(final Transfer t: transfers) {
+            res += t.getDownloadSpeed();
         }
-        return torrentDownloadsBandwidth + peerDownloadsBandwidth;
-        */
-        return 0;
+
+        return res;
     }
 
     public double getUploadsBandwidth() {
-        return 0.0;
-        //return BTEngine.getInstance().getUploadRate();
+        long res = 0;
+        for(final Transfer t: transfers) {
+            res += t.getUploadSpeed();
+        }
+
+        return res;
     }
 
     public int getDownloadsToReview() {
@@ -392,19 +350,6 @@ public final class TransferManager {
         }*/
     }
 
-    /**
-     * Stops all HttpDownloads (Cloud and Wi-Fi)
-     */
-    public void stopHttpTransfers() {
-        List<Transfer> transfers = new ArrayList<>();
-        transfers.addAll(httpDownloads);
-        for (Transfer t : transfers) {
-            if (t instanceof Transfer && !t.isComplete() && t.isDownloading()) {
-                t.remove();
-            }
-        }
-}
-
     public int getStartedTransfers() {
         return startedTransfers;
     }
@@ -460,6 +405,7 @@ public final class TransferManager {
         private int eta = rnd.nextInt(40000);
         private int progress = rnd.nextInt(100);
         private boolean paused = rnd.nextBoolean();
+        private int totalPees = rnd.nextInt(20);
 
         public MockTransfer() {
             int count = rnd.nextInt(6);
@@ -468,10 +414,11 @@ public final class TransferManager {
                 pi.endpoint = new NetworkIdentifier(rnd.nextInt(), (short)rnd.nextInt(30000));
                 pi.modName = "mod";
                 pi.modVersion = rnd.nextInt(22);
+                pi.strModVersion = Integer.toString(rnd.nextInt(33));
                 pi.downloadPayload = rnd.nextInt(555656);
+                pi.downloadSpeed = rnd.nextInt(30000);
                 info.add(pi);
             }
-
         }
 
         @Override
@@ -517,6 +464,16 @@ public final class TransferManager {
         @Override
         public long getETA() {
             return eta;
+        }
+
+        @Override
+        public int getTotalPeers() {
+            return totalPees;
+        }
+
+        @Override
+        public int getConnectedPeers() {
+            return info.size();
         }
 
         @Override

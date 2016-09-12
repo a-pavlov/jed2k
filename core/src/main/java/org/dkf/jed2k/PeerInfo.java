@@ -17,4 +17,5 @@ public class PeerInfo {
     public String modName;
     public int version;
     public int modVersion;
+    public String strModVersion;
 }

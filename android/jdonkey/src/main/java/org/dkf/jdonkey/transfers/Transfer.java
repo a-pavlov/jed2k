@@ -41,8 +41,6 @@ public interface Transfer {
 
     public Date getCreated();
 
-    //public TransferState getState();
-
     public long getBytesReceived();
 
     public long getBytesSent();
@@ -54,6 +52,10 @@ public interface Transfer {
     boolean isDownloading();
 
     public long getETA();
+
+    public int getTotalPeers();
+
+    public int getConnectedPeers();
 
     /**
      * [0..100]
