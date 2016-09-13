@@ -378,7 +378,13 @@ public class ED2KService extends Service {
     }
 
     public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
-        return session.addTransfer(hash, fileSize, filePath);
+        Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
+        TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
+        if (handle.isValid()) {
+            Log.i("ED2KService", "handle is valid");
+        }
+
+        return handle;
     }
 
     List<TransferHandle> getTransfers() {
