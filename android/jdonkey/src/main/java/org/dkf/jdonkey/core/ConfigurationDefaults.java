@@ -18,6 +18,8 @@
 package org.dkf.jdonkey.core;
 
 import android.os.Environment;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.server.ServerMet;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -88,6 +90,21 @@ final class ConfigurationDefaults {
         defaultValues.put(Constants.PREF_KEY_LISTEN_PORT, 30000L);
         defaultValues.put(Constants.PREF_KEY_CONN_SERVER_ON_START, false);
         defaultValues.put(Constants.PREF_KEY_SHOW_SERVER_MSG, true);
+
+        // servers section
+        ServerMet sm = new ServerMet();
+        try {
+            sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.46", (short) 1176, "eMule Security No1", "www.emule-security.org"));
+            sm.addServer(ServerMet.ServerMetEntry.create("176.103.48.36", (short)4184, "TV Underground", "Operated by TVUnderground.org.ru"));
+            sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.47", (short)3883, "eMule Security No2", "www.emule-security.org"));
+            sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.119", (short)9939, "eMule Security No3", "www.emule-security.org"));
+            sm.addServer(ServerMet.ServerMetEntry.create("77.120.115.66", (short)5041, "eMule Security No4", "www.emule-security.org"));
+            sm.addServer(ServerMet.ServerMetEntry.create("85.204.50.116", (short)4232, "!! www.Sharing-Devils.to No.3 !!", "www.Sharing-Devils.to"));
+            sm.addServer(ServerMet.ServerMetEntry.create("emule.is74.ru", (short)4661, "IS74", "IS 74 emule server"));
+            defaultValues.put(Constants.PREF_KEY_SERVERS_LIST, sm);
+        } catch(JED2KException e) {
+            // wtf?
+        }
     }
 
     private void resetValue(String key) {

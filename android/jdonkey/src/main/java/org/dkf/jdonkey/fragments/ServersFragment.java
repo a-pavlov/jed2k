@@ -24,10 +24,12 @@ import org.dkf.jdonkey.views.*;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
+import org.dkf.jed2k.protocol.server.ServerMet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -53,7 +55,11 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private void setupAdapter() {
         if (adapter == null) {
             adapter = new ServersAdapter(getActivity());
-            adapter.addItems();
+            ServerMet sm = new ServerMet();
+            ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+            log.info("servers count {}", sm.getServers().size());
+            adapter.clear();
+            adapter.addServers(sm.getServers());
         }
 
         list.setAdapter(adapter);
@@ -97,7 +103,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         super.onPause();
         log.info("remove servers listener");
         Engine.instance().removeListener(this);
-        adapter.addItems();
     }
 
     @Override
@@ -299,14 +304,24 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             DISCONNECTED;
         }
 
-        public ServerEntry(final int rand, final String description, final String ip, final int port) {
+        public ServerEntry(final ServerMet.ServerMetEntry entry) {
+            this.rand = 0;
+            this.name = entry.getName();
+            this.description = entry.getDescription();
+            this.ip = entry.getHost();
+            this.port = entry.getPort();
+        }
+
+        public ServerEntry(final int rand, final String name, final String description, final String ip, final int port) {
             this.rand = rand;
+            this.name = name;
             this.description = description;
             this.ip = ip;
             this.port = port;
         }
 
         public final int rand;
+        public final String name;
         public final String description;
         public final String ip;
         public final int port;
@@ -347,8 +362,8 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             TextView details = findView(view, R.id.view_server_details);
             TextView userId = findView(view, R.id.view_server_user_id);
             icon.setImageResource(R.drawable.server/* : R.drawable.sd_card_notification_dark_bg*/);
-            label.setText(item.description);
-            description.setText(item.ip + "/" + Integer.toString(item.port));
+            label.setText(item.name + " [" + item.ip + ":" + Integer.toString(item.port) + "]");
+            description.setText(item.description);
 
             switch(item.connStatus) {
                 case CONNECTED:
@@ -385,19 +400,18 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             if (item.userId != 0) {
                 userId.setText(String.format("%s: %s",
                         getString(R.string.user_id),
-                        Utils.isLowId(item.userId)?"Lo":"Hi"));
+                        Utils.isLowId(item.userId)?"LowID":"HiID"));
             }
         }
 
-        private void addItems() {
-            for (int i = 0; i < 3; ++i) {
-                log.info("add server {}", i);
-                visualList.add(new ServerEntry(i, "description " + i, "host", 56678));
+        public void addServers(final Collection<ServerMet.ServerMetEntry> servers) {
+            for(final ServerMet.ServerMetEntry e: servers) {
+                list.add(new ServerEntry(e));
             }
 
-            visualList.add(new ServerEntry(100400, "Emule IS74 server", "emule.is74.ru", 4661));
-            visualList.add(new ServerEntry(9955, "eMule security", "91.200.42.46", 1176));
-            notifyDataSetChanged();
+            for(final ServerMet.ServerMetEntry e: servers) {
+                visualList.add(new ServerEntry(e));
+            }
         }
 
         final ServerEntry getItem(final String id) {

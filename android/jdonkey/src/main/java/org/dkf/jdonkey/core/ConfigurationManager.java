@@ -23,10 +23,16 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.util.Hex;
 import org.dkf.jed2k.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -37,6 +43,7 @@ import java.util.Map.Entry;
  * @author aldenml
  */
 public class ConfigurationManager {
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
     private final SharedPreferences preferences;
     private final Editor editor;
 
@@ -161,26 +168,59 @@ public class ConfigurationManager {
         return getBoolean(Constants.PREF_KEY_GUI_VIBRATE_ON_FINISHED_DOWNLOAD);
     }
 
+    public <T extends Serializable> void setSerializable(final String key, T value) {
+        ByteBuffer buffer = ByteBuffer.allocate(value.bytesCount());
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        try {
+            value.put(buffer);
+            byte data[] = new byte[buffer.capacity()];
+            buffer.flip();
+            buffer.get(data);
+            setByteArray(key, data);
+        } catch(JED2KException e) {
+            log.error("set serialize failed {}", e);
+        }
+    }
+
+    public <T extends Serializable> T getSerializable(final String key, T value) {
+        byte[] data = getByteArray(key);
+        if (data != null) {
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            try {
+                value.get(buffer);
+                return value;
+            } catch(JED2KException e) {
+                log.error("get serialize failed {}", e);
+            }
+        } else {
+            log.warn("get serializable data array is null");
+        }
+
+        return null;
+    }
+
 
     // TODO - refactor that methods to standard emule archives before usage
+    /*
     public String[] getStringArray(String key) {
         return null;
-        /*
+
         String jsonStringArray = preferences.getString(key, null);
         if (jsonStringArray == null) {
             return null;
         }
         return JsonUtils.toObject(jsonStringArray, String[].class);
-        */
     }
+    */
 
 
     public void setStringArray(String key, String[] values) {
-        /*
-        editor.putString(key, JsonUtils.toJson(values));
+        /*editor.putString(key, JsonUtils.toJson(values));
         editor.commit();
         */
     }
+
 
 
     public int maxConcurrentUploads() {
@@ -235,6 +275,8 @@ public class ConfigurationManager {
             initFilePreference(key, (File) value, force);
         } else if (value instanceof String[]) {
             initStringArrayPreference(key, (String[]) value, force);
+        } else if (value instanceof Serializable) {
+            initSerializable(key, (Serializable)value, force);
         }
     }
 
@@ -280,6 +322,12 @@ public class ConfigurationManager {
         }
     }
 
+    private void initSerializable(String prefKeyName, Serializable defaultValue, boolean force) {
+        if (!preferences.contains(prefKeyName) || force) {
+            setSerializable(prefKeyName, defaultValue);
+        }
+    }
+
     private void resetToDefaults(Map<String, Object> map) {
         for (Entry<String, Object> entry : map.entrySet()) {
             if (entry.getValue() instanceof String) {
@@ -296,6 +344,8 @@ public class ConfigurationManager {
                 setFile(entry.getKey(), (File) entry.getValue());
             } else if (entry.getValue() instanceof String[]) {
                 setStringArray(entry.getKey(), (String[]) entry.getValue());
+            } else if (entry.getValue() instanceof Serializable) {
+                setSerializable(entry.getKey(), (Serializable) entry.getValue());
             }
         }
     }

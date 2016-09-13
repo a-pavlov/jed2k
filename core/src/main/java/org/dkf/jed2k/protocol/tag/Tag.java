@@ -144,6 +144,29 @@ public final class Tag implements Serializable {
     public static final byte ET_FEATURES             = (byte)0x27;
     public static final byte ET_MOD_VERSION          = CT_MOD_VERSION;
 
+    public static final byte ST_SERVERNAME         = (byte)0x01; // <string>
+    // Unused (0x02-0x0A)
+    public static final byte ST_DESCRIPTION        = (byte)0x0B; // <string>
+    public static final byte ST_PING               = (byte)0x0C; // <uint32>
+    public static final byte ST_FAIL               = (byte)0x0D; // <uint32>
+    public static final byte ST_PREFERENCE         = (byte)0x0E; // <uint32>
+    // Unused (0x0F-0x84)
+    public static final byte ST_DYNIP              = (byte)0x85;
+    public static final byte ST_LASTPING_DEPRECATED= (byte)0x86; // <uint32> // DEPRECATED, use 0x90
+    public static final byte ST_MAXUSERS           = (byte)0x87;
+    public static final byte ST_SOFTFILES          = (byte)0x88;
+    public static final byte ST_HARDFILES          = (byte)0x89;
+    // Unused (0x8A-0x8F)
+    public static final byte ST_LASTPING           = (byte)0x90; // <uint32>
+    public static final byte ST_VERSION            = (byte)0x91; // <string>
+    public static final byte ST_UDPFLAGS           = (byte)0x92; // <uint32>
+    public static final byte ST_AUXPORTSLIST       = (byte)0x93; // <string>
+    public static final byte ST_LOWIDUSERS         = (byte)0x94; // <uint32>
+    public static final byte ST_UDPKEY             = (byte)0x95; // <uint32>
+    public static final byte ST_UDPKEYIP           = (byte)0x96; // <uint32>
+    public static final byte ST_TCPPORTOBFUSCATION = (byte)0x97; // <uint16>
+    public static final byte ST_UDPPORTOBFUSCATION = (byte)0x98; // <uint16>
+
     public static String type2String(byte id) {
         switch(id) {
             case TAGTYPE_UNDEFINED: return "TAGTYPE_UNDEFINED";

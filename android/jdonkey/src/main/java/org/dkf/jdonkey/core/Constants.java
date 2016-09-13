@@ -76,6 +76,7 @@ public final class Constants {
     public static final String PREF_KEY_LISTEN_PORT = "jdonkey.prefs.listen_port";
     public static final String PREF_KEY_CONN_SERVER_ON_START = "jdonkey.prefs.connect_server_on_start";
     public static final String PREF_KEY_SHOW_SERVER_MSG = "jdonkey.prefs.show_servers_messages";
+    public static final String PREF_KEY_SERVERS_LIST = "jdonkey.prefs.servers_list";
 
 
     public static final String PREF_KEY_TRANSFER_PREFERENCE_CATEGORY = "jdonkey.prefs.transfer.preference_category";

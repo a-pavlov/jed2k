@@ -21,10 +21,43 @@ public class ServerMet implements Serializable {
     private byte header = MET_HEADER;
     private Container<UInt32, ServerMet.ServerMetEntry>   servers = Container.makeInt(ServerMet.ServerMetEntry.class);
 
+    public void addServer(final ServerMetEntry entry) {
+        servers.add(entry);
+    }
 
     public static class ServerMetEntry implements Serializable {
         final NetworkIdentifier endpoint = new NetworkIdentifier();
         final Container<UInt32, Tag> tags = Container.makeInt(Tag.class);
+
+        public static ServerMetEntry create(int ip, short port, final String name, final String description) throws JED2KException {
+            assert ip != 0;
+            assert port != 0;
+            assert name != null && !name.isEmpty();
+            ServerMetEntry e = new ServerMetEntry();
+            e.endpoint.assign(ip, port);
+            e.tags.add(Tag.tag(Tag.FT_FILENAME, null, name));
+            if (description != null && !description.isEmpty()) {
+                e.tags.add(Tag.tag(Tag.ST_DESCRIPTION, null, description));
+            }
+
+            return e;
+        }
+
+        public static ServerMetEntry create(final String host, short port, final String name, final String description) throws JED2KException {
+            assert host != null && !host.isEmpty();
+            assert port != 0;
+            assert name != null && !name.isEmpty();
+            ServerMetEntry e = new ServerMetEntry();
+            e.endpoint.assign(0, port);
+
+            e.tags.add(Tag.tag(Tag.ST_PREFERENCE, null, host));
+            e.tags.add(Tag.tag(Tag.FT_FILENAME, null, name));
+            if (description != null && !description.isEmpty()) {
+                e.tags.add(Tag.tag(Tag.ST_DESCRIPTION, null, description));
+            }
+
+            return e;
+        }
 
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
@@ -39,6 +72,44 @@ public class ServerMet implements Serializable {
         @Override
         public int bytesCount() {
             return endpoint.bytesCount() + tags.bytesCount();
+        }
+
+        public String getName() {
+            for(Tag t: tags) {
+                if (t.id() == Tag.FT_FILENAME) {
+                    return t.asStringValue();
+                }
+            }
+
+            return "";
+        }
+
+        public String getDescription() {
+            for(Tag t: tags) {
+                if (t.id() == Tag.ST_DESCRIPTION) return t.asStringValue();
+            }
+
+            return "";
+        }
+
+        public String getHost() {
+            String host = "";
+            if (endpoint.getIP() == 0) {
+                for(Tag t: tags) {
+                    if (t.id() == Tag.ST_PREFERENCE) {
+                        host = t.asStringValue();
+                        break;
+                    }
+                }
+            } else {
+                host = Utils.int2Address(endpoint.getIP()).getHostAddress();
+            }
+
+            return host;
+        }
+
+        public int getPort() {
+            return endpoint.getPort();
         }
     }
 
