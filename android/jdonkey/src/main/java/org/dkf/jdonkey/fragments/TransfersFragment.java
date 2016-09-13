@@ -120,7 +120,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         addTransferUrlTextView.replaceSearchIconDrawable(R.drawable.clearable_edittext_add_icon);
         addTransferUrlTextView.setFocusable(true);
         addTransferUrlTextView.setFocusableInTouchMode(true);
-        //addTransferUrlTextView.setOnKeyListener(new AddTransferTextListener(this));
+        addTransferUrlTextView.setOnKeyListener(new AddTransferTextListener(this));
     }
 
     @Override
@@ -587,22 +587,19 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     }
 */
     private void startTransferFromURL() {
-        /*
+
         String url = addTransferUrlTextView.getText();
-        if (!StringUtils.isNullOrEmpty(url) && (url.startsWith("magnet") || url.startsWith("http"))) {
+        if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
             toggleAddTransferControls();
-            if (url.startsWith("http") && (url.contains("soundcloud.com/") || url.contains("youtube.com/"))) {
-                startCloudTransfer(url);
-            } else if (url.startsWith("http")) { //magnets are automatically started if found on the clipboard by autoPasteMagnetOrURL
-                TransferManager.instance().downloadTorrent(url.trim(),
-                        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
+            if (url.startsWith("http")) { //magnets are automatically started if found on the clipboard by autoPasteMagnetOrURL
+                //TransferManager.instance().downloadTorrent(url.trim(),
+                //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
                 UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
             }
             addTransferUrlTextView.setText("");
         } else {
             UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
         }
-        */
     }
 
     private void autoPasteMagnetOrURL() {
@@ -623,9 +620,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                     }
 
                     if (text != null && !text.isEmpty()) {
-                        if (text.startsWith("http")) {
-                            addTransferUrlTextView.setText(text.trim());
-                        } else if (text.startsWith("magnet")) {
+                        if (text.startsWith("ed2k")) {
                             addTransferUrlTextView.setText(text.trim());
                             //TransferManager.instance().downloadTorrent(text.trim(),
                             //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
@@ -636,6 +631,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                     }
                 }
             } catch (Exception ignored) {
+
             }
         }
     }

@@ -22,10 +22,12 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Environment;
 import android.os.StatFs;
+import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jed2k.PeerInfo;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.slf4j.Logger;
@@ -106,40 +108,8 @@ public final class TransferManager {
         return transfers;
     }
 
-    public Transfer download(SharedFileEntry sr) {
-        Transfer transfer = null;
-/*
-        if (sr instanceof TorrentSearchResult) {
-            transfer = newBittorrentDownload((TorrentSearchResult) sr);
-        } else if (sr instanceof HttpSlideSearchResult) {
-            transfer = newHttpDownload((HttpSlideSearchResult) sr);
-        } else if (sr instanceof YouTubeCrawledSearchResult) {
-            transfer = newYouTubeDownload((YouTubeCrawledSearchResult) sr);
-        } else if (sr instanceof SoundcloudSearchResult) {
-            transfer = newSoundcloudDownload((SoundcloudSearchResult) sr);
-        } else if (sr instanceof HttpSearchResult) {
-            transfer = newHttpDownload((HttpSearchResult) sr);
-        }
-*/
-        return transfer;
-    }
-
-    public void clearComplete() {
-        /*
-        List<Transfer> transfers = getTransfers();
-        for (Transfer transfer : transfers) {
-            if (transfer != null && transfer.isComplete()) {
-                if (transfer instanceof BittorrentDownload) {
-                    BittorrentDownload bd = (BittorrentDownload) transfer;
-                    if (bd.isPaused()) {
-                        bd.remove(false);
-                    }
-                } else {
-                    transfer.remove(false);
-                }
-            }
-        }
-        */
+    public Transfer download(final Hash hash, long size, final String fileName) {
+        return Engine.instance().startDownload(hash, size, fileName);
     }
 
     public int getActiveDownloads() {

@@ -36,6 +36,8 @@ import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.MediaType;
 import org.dkf.jdonkey.dialogs.NewTransferDialog;
+import org.dkf.jdonkey.tasks.StartDownloadTask;
+import org.dkf.jdonkey.tasks.Tasks;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractDialog.OnDialogClickListener;
 import org.dkf.jdonkey.views.*;
@@ -220,45 +222,6 @@ public final class SearchFragment extends AbstractFragment implements
                     startTransfer(sr, getString(R.string.download_added_to_queue));
                 }
             };
-/*
-            LocalSearchEngine.instance().setListener(new SearchListener() {
-                @Override
-                public void onResults(long token, final List<? extends SearchResult> results) {
-                    FilteredSearchResults fsr = adapter.filter((List<SearchResult>) results);
-                    final List<SearchResult> filteredList = fsr.filtered;
-
-                    fileTypeCounter.add(fsr);
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.addResults(results, filteredList);
-                            showSearchView(getView());
-                            refreshFileTypeCounters(true);
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(long token, SearchError error) {
-                    LOG.error("Some error in search stream: " + error);
-                }
-
-                @Override
-                public void onStopped(long token) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            searchProgress.setProgressEnabled(false);
-                            deepSearchProgress.setVisibility(View.GONE);
-                        }
-                    });
-                }
-            });
-
-        }
-
-        */
         }
         list.setAdapter(adapter);
     }
@@ -350,26 +313,10 @@ public final class SearchFragment extends AbstractFragment implements
 
     private void showSearchView(View view) {
         if (awaitingResults) {
-            //switchView(view, R.id.fragment_search_promos);
-            //deepSearchProgress.setVisibility(View.GONE);
-        /*} else {
-            if (adapter != null && adapter.getCount() > 0) {
-            */
             switchView(view, R.id.fragment_search_search_progress);
         } else {
             switchView(view, R.id.fragment_search_list);
         }
-/*                deepSearchProgress.setVisibility(LocalSearchEngine.instance().isSearchFinished() ? View.GONE : View.VISIBLE);
-            } else {
-                switchView(view, R.id.fragment_search_search_progress);
-                deepSearchProgress.setVisibility(View.GONE);
-            }
-        }
-
-        boolean searchFinished = LocalSearchEngine.instance().isSearchFinished();
-        */
-        //boolean searchFinished = true;
-        //searchProgress.setProgressEnabled(!searchFinished);
     }
 
     private void switchView(View v, int id) {
@@ -386,11 +333,8 @@ public final class SearchFragment extends AbstractFragment implements
     @Override
     public void onDialogClick(String tag, int which) {
         if (tag.equals(NewTransferDialog.TAG) && which == Dialog.BUTTON_POSITIVE) {
-            /*if (Ref.alive(NewTransferDialog.srRef)) {
-                startDownload(this.getActivity(), NewTransferDialog.srRef.get(), getString(R.string.download_added_to_queue));
-                LocalSearchEngine.instance().markOpened(NewTransferDialog.srRef.get(), adapter);
-            }
-            */
+            startDownload(this.getActivity(), NewTransferDialog.entry, getString(R.string.download_added_to_queue));
+            NewTransferDialog.entry = null;
         }
     }
 
@@ -409,16 +353,10 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    public static void startDownload(Context ctx, SharedFileEntry sr, String message) {
-        /*
-        if (sr instanceof AbstractTorrentSearchResult) {
-            UIUtils.showShortMessage(ctx, R.string.fetching_torrent_ellipsis);
-        }
-        StartDownloadTask task = new StartDownloadTask(ctx, sr, message);
+    public static void startDownload(Context ctx, SharedFileEntry entry, String message) {
+        StartDownloadTask task = new StartDownloadTask(ctx, entry, null, message);
         Tasks.executeParallel(task);
-        */
     }
-
 
     private void warnServerNotConnected(View v) {
         if (Engine.instance().getCurrentServerId().isEmpty()) {

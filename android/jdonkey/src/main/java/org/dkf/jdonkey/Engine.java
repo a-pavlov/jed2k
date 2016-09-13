@@ -25,9 +25,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
+import org.dkf.jdonkey.transfers.ED2KTransfer;
+import org.dkf.jdonkey.transfers.Transfer;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.util.ThreadPool;
 import org.slf4j.Logger;
@@ -225,6 +228,16 @@ public final class Engine implements AlertListener {
     public boolean hasTransfer(final Hash h) {
         if (service != null) service.containsHash(h);
         return false;
+    }
+
+    public Transfer startDownload(final Hash hash, long size, final String fileName) {
+        try {
+            if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
+        } catch(JED2KException e) {
+            LOG.error("add transfer error {}", e);
+        }
+
+        return null;
     }
 
     public ExecutorService getThreadPool() {

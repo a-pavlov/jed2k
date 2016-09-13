@@ -377,7 +377,7 @@ public class ED2KService extends Service {
         stopSelf(-1);
     }
 
-    TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
+    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
         return session.addTransfer(hash, fileSize, filePath);
     }
 

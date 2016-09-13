@@ -48,7 +48,7 @@ public class NewTransferDialog extends AbstractDialog {
     private static final String SEARCH_RESULT_DATA_KEY = "search_result_data";
     private static final String HIDE_CHECK_SHOW_KEY = "hide_check_show";
 
-    private SharedFileEntry entry;
+    public static SharedFileEntry entry;
     private boolean hideCheckShow;
 
     public NewTransferDialog() {
