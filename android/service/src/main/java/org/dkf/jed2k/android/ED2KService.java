@@ -335,6 +335,13 @@ public class ED2KService extends Service {
     }
 
     /**
+     * search more results, run only if search result has flag more results
+     */
+    public void searchMore() {
+        session.searchMore();
+    }
+
+    /**
      * setup session preferences
      * @param settings new session config
      */

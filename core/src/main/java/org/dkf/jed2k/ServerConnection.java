@@ -10,6 +10,7 @@ import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.client.*;
 import org.dkf.jed2k.protocol.server.*;
 import org.dkf.jed2k.protocol.server.PacketCombiner;
+import org.dkf.jed2k.protocol.server.search.SearchMore;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.dkf.jed2k.protocol.tag.Tag;
@@ -57,6 +58,9 @@ public class ServerConnection extends Connection {
 
     public void search(final SearchRequest sr) {
         write(sr);
+    }
+    public void searchMore() {
+        write(new SearchMore());
     }
 
     private Serializable hello() throws JED2KException {

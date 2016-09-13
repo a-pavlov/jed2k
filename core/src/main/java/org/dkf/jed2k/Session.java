@@ -330,6 +330,18 @@ public class Session extends Thread {
         });
     }
 
+
+    public void searchMore() {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                if (serverConection != null) {
+                    serverConection.searchMore();
+                }
+            }
+        });
+    }
+
     // TODO - remove only
     public void connectToPeer(final NetworkIdentifier point) {
         commands.add(new Runnable() {

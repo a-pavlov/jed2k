@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.R;
+import org.dkf.jdonkey.activities.MainActivity;
 import org.dkf.jdonkey.adapters.menu.SearchMoreAction;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.MediaType;
@@ -224,7 +225,12 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     }
 
     void populateMenuActions(SharedFileEntry entry, List<MenuAction> actions) {
-        actions.add(new SearchMoreAction(getContext()));
+        // HACK!
+        // TODO - replace it with appropriate solution
+        MainActivity a = (MainActivity)getContext();
+        if (a != null) {
+            actions.add(new SearchMoreAction(getContext(), a.getSearchFragment()));
+        }
     }
 
     protected MenuAdapter getMenuAdapter(View view) {

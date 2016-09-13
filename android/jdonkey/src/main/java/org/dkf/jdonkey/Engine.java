@@ -217,6 +217,10 @@ public final class Engine implements AlertListener {
         }
     }
 
+    public void performSearchMore() {
+        if (service != null) service.searchMore();
+    }
+
     public ExecutorService getThreadPool() {
         return threadPool;
     }

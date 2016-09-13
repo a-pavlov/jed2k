@@ -796,6 +796,8 @@ public class MainActivity extends AbstractActivity implements
         drawerLayout.closeDrawer(leftDrawer);
     }
 
+    public SearchFragment getSearchFragment() { return search; }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (drawerToggle != null) {

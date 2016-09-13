@@ -298,6 +298,25 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
+    public void performSearchMore() {
+        if (!Engine.instance().getCurrentServerId().isEmpty()) {
+            awaitingResults = true;
+            ensureEndOfSearch.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    cancelSearch();
+                }
+            }, 15000);
+
+            adapter.clear();
+            adapter.setFileType(0);
+            refreshFileTypeCounters(false);
+            Engine.instance().performSearchMore();
+            searchProgress.setProgressEnabled(true);
+            showSearchView(getView());
+        }
+    }
+
     private void cancelSearch() {
         if (awaitingResults) {
             awaitingResults = false;
