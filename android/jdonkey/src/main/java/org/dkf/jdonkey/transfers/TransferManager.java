@@ -33,6 +33,7 @@ import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -109,7 +110,8 @@ public final class TransferManager {
     }
 
     public Transfer download(final Hash hash, long size, final String fileName) {
-        return Engine.instance().startDownload(hash, size, fileName);
+        File f = new File(ConfigurationManager.instance().getStoragePath(), fileName);
+        return Engine.instance().startDownload(hash, size, f.getAbsolutePath());
     }
 
     public int getActiveDownloads() {

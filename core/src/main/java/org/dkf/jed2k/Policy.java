@@ -167,7 +167,7 @@ public class Policy extends AbstractCollection<Peer> {
         int eraseCandidate = -1;
         if (roundRobin >= peers.size()) roundRobin = 0;
         for(int iteration = 0; iteration < Math.min(peers.size(), 300); ++iteration) {
-            if (roundRobin > peers.size()) roundRobin = 0;
+            if (roundRobin >= peers.size()) roundRobin = 0;
             Peer pe = peers.get(iteration);
             assert(pe != null);
             int current = roundRobin;

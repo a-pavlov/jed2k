@@ -31,5 +31,18 @@ public class NetworkIdentifierTest{
         NetworkIdentifier endpoint = new NetworkIdentifier(new InetSocketAddress("192.168.0.9", 1223));
         assertEquals(new InetSocketAddress("192.168.0.9", 1223), endpoint.toInetSocketAddress());
     }
+
+    @Test
+    public void testLargePort() throws JED2KException {
+        NetworkIdentifier endpoint = new NetworkIdentifier(0, 64000);
+        ByteBuffer bb = ByteBuffer.allocate(endpoint.bytesCount());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        endpoint.put(bb);
+        NetworkIdentifier endpoint2 = new NetworkIdentifier();
+        bb.flip();
+        endpoint2.get(bb);
+        assertEquals(64000, endpoint2.getPort());
+
+    }
 }
 

@@ -13,7 +13,7 @@ import static org.dkf.jed2k.Utils.sizeof;
 
 public final class NetworkIdentifier implements Serializable, Comparable<NetworkIdentifier> {
     private int ip = 0;
-    private short port = 0;
+    private int port = 0;
 
     /**
      * for serialization purposes
@@ -26,12 +26,12 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
         port = (short)ep.getPort();
     }
 
-    public NetworkIdentifier(int ip, short port) {
+    public NetworkIdentifier(int ip, int port) {
         this.ip = ip;
         this.port = port;
     }
 
-    public NetworkIdentifier assign(int ip, short port) {
+    public NetworkIdentifier assign(int ip, int port) {
         this.ip = ip;
         this.port = port;
         return this;
@@ -51,19 +51,21 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         assert(src.order() == ByteOrder.LITTLE_ENDIAN);
         ip = src.getInt();
-        port = src.getShort();
+        UInt16 p = new UInt16(0);
+        p.get(src);
+        port = p.intValue();
         return src;
     }
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
         assert(dst.order() == ByteOrder.LITTLE_ENDIAN);
-        return dst.putInt(ip).putShort(port);
+        return dst.putInt(ip).putShort((short)port);
     }
 
     @Override
     public int bytesCount() {
-        return sizeof(ip) + sizeof(port);
+        return sizeof(ip) + sizeof(port) / 2;
     }
 
     @Override
@@ -111,5 +113,5 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     }
 
     public int getIP() { return ip; }
-    public short getPort() { return port; }
+    public int getPort() { return port; }
 }

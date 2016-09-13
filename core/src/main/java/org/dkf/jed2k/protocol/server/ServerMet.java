@@ -29,7 +29,7 @@ public class ServerMet implements Serializable {
         final NetworkIdentifier endpoint = new NetworkIdentifier();
         final Container<UInt32, Tag> tags = Container.makeInt(Tag.class);
 
-        public static ServerMetEntry create(int ip, short port, final String name, final String description) throws JED2KException {
+        public static ServerMetEntry create(int ip, int port, final String name, final String description) throws JED2KException {
             assert ip != 0;
             assert port != 0;
             assert name != null && !name.isEmpty();
@@ -43,7 +43,7 @@ public class ServerMet implements Serializable {
             return e;
         }
 
-        public static ServerMetEntry create(final String host, short port, final String name, final String description) throws JED2KException {
+        public static ServerMetEntry create(final String host, int port, final String name, final String description) throws JED2KException {
             assert host != null && !host.isEmpty();
             assert port != 0;
             assert name != null && !name.isEmpty();
