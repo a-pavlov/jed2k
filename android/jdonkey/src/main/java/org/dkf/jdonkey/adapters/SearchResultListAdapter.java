@@ -19,12 +19,13 @@
 package org.dkf.jdonkey.adapters;
 
 import android.content.Context;
-import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 import org.apache.commons.io.FilenameUtils;
+import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.activities.MainActivity;
 import org.dkf.jdonkey.adapters.menu.SearchMoreAction;
@@ -40,6 +41,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -54,6 +57,7 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     private final OnLinkClickListener linkListener;
     private final PreviewClickListener previewClickListener;
     private boolean moreResults = false;
+    private Comparator<SharedFileEntry> sourcesCountComparator = new SourcesCountComparator();
 
     private int fileType;
 
@@ -79,8 +83,9 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     public void addResults(final SearchResult sr) {
         log.debug("results {} more {}", sr.files.size(), sr.hasMoreResults()?"yes":"no");
         moreResults = sr.hasMoreResults();
-        visualList.addAll(sr.files);
         list.addAll(sr.files);
+        Collections.sort(list, Collections.reverseOrder(sourcesCountComparator));
+        visualList.addAll(list);
         notifyDataSetChanged();
     }
 
@@ -108,6 +113,9 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
 
         TextView title = findView(view, R.id.view_bittorrent_search_result_list_item_title);
         title.setText(entry.getFileName());
+        if (Engine.instance().hasTransfer(entry.hash)) {
+            title.setTextColor(ContextCompat.getColor(view.getContext(), R.color.warning_red));
+        }
 
         TextView fileSize = findView(view, R.id.view_bittorrent_search_result_list_item_file_size);
         if (entry.getFileSize() > 0) {
@@ -120,13 +128,15 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
         extra.setText(FilenameUtils.getExtension(entry.getFileName()));
 
         TextView seeds = findView(view, R.id.view_bittorrent_search_result_list_item_text_seeds);
-        seeds.setText(Integer.toString(entry.getCompleteSources()));
-
+        String strSeeds = view.getContext().getResources().getString(R.string.search_item_sources);
+        seeds.setText(String.format(strSeeds, entry.getSources()));
         TextView sourceLink = findView(view, R.id.view_bittorrent_search_result_list_item_text_source);
-        sourceLink.setText(entry.hash.toString()); // TODO: ask for design
-        sourceLink.setTag(entry.getFileName());
-        sourceLink.setPaintFlags(sourceLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        sourceLink.setOnClickListener(linkListener);
+        sourceLink.setText(R.string.search_item_source_server);
+
+        //sourceLink.setText(entry.hash.toString()); // TODO: ask for design
+        //sourceLink.setTag(entry.getFileName());
+        //sourceLink.setPaintFlags(sourceLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        //sourceLink.setOnClickListener(linkListener);
     }
 
     private void populateThumbnail(View view, SharedFileEntry sr) {
@@ -239,5 +249,16 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
         List<MenuAction> items = new ArrayList<>();
         populateMenuActions((SharedFileEntry)tag, items);
         return items.size() > 0 ? new MenuAdapter(view.getContext(), title, items) : null;
+    }
+
+    private static final class SourcesCountComparator implements Comparator<SharedFileEntry> {
+        public int compare(final SharedFileEntry lhs, SharedFileEntry rhs) {
+            try {
+                return Integer.signum(lhs.getSources() - rhs.getSources());
+            } catch (Exception e) {
+                // ignore, not really super important
+            }
+            return 0;
+        }
     }
 }

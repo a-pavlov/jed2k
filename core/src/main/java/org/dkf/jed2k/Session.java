@@ -3,6 +3,7 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.alert.Alert;
 import org.dkf.jed2k.alert.ListenAlert;
 import org.dkf.jed2k.alert.ServerConnectionAlert;
+import org.dkf.jed2k.alert.TransferRemovedAlert;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -449,6 +450,7 @@ public class Session extends Thread {
                         t.abort();
                         if (removeFile) t.deleteFile();
                         transfers.remove(h);
+                        pushAlert(new TransferRemovedAlert(h));
                     }
             }
         });

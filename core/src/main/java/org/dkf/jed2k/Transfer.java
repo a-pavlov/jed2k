@@ -1,9 +1,6 @@
 package org.dkf.jed2k;
 
-import org.dkf.jed2k.alert.TransferDiskIOError;
-import org.dkf.jed2k.alert.TransferFinishedAlert;
-import org.dkf.jed2k.alert.TransferPausedAlert;
-import org.dkf.jed2k.alert.TransferResumedAlert;
+import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
@@ -117,6 +114,8 @@ public class Transfer {
         } else {
             setState(TransferStatus.TransferState.DOWNLOADING);
         }
+
+        session.pushAlert(new TransferAddedAlert(this.hash));
     }
 
     /**

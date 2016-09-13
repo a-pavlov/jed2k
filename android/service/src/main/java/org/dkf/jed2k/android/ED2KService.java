@@ -23,8 +23,10 @@ import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -46,6 +48,8 @@ public class ED2KService extends Service {
      * main ed2k session
      */
     private Session session;
+
+    private Set<Hash> localHashes = new HashSet<>();
 
     /**
      * dedicated thread executor for scan session's alerts
@@ -161,6 +165,10 @@ public class ED2KService extends Service {
         listeners.remove(listener);
     }
 
+    public synchronized boolean containsHash(final Hash h) {
+        return localHashes.contains(h);
+    }
+
     synchronized public void processAlert(Alert a) {
         Log.v("ED2KService", "service alive");
         if (a instanceof ListenAlert) {
@@ -183,6 +191,12 @@ public class ED2KService extends Service {
         }
         else if (a instanceof ServerConnectionAlert) {
             for(final AlertListener ls: listeners) ls.onServerConnectionAlert((ServerConnectionAlert)a);
+        }
+        else if (a instanceof TransferAddedAlert) {
+            localHashes.add(((TransferAddedAlert) a).hash);
+        }
+        else if (a instanceof TransferRemovedAlert) {
+            localHashes.remove(((TransferAddedAlert) a).hash);
         }
         else {
             log.debug("alert {}", a);

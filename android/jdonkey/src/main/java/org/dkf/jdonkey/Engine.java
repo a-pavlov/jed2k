@@ -28,6 +28,7 @@ import android.util.Log;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.util.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,6 +220,11 @@ public final class Engine implements AlertListener {
 
     public void performSearchMore() {
         if (service != null) service.searchMore();
+    }
+
+    public boolean hasTransfer(final Hash h) {
+        if (service != null) service.containsHash(h);
+        return false;
     }
 
     public ExecutorService getThreadPool() {

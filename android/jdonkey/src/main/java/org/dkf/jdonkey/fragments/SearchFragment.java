@@ -330,12 +330,14 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void searchCompleted(final SearchResultAlert alert) {
-        awaitingResults = false;
-        adapter.addResults(alert.results);
+        if (awaitingResults) {
+            awaitingResults = false;
+            adapter.addResults(alert.results);
 
-        // temporary solution, next use filter by hash to support related search
-        for(SharedFileEntry entry: alert.results.files) {
-            fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
+            // temporary solution, next use filter by hash to support related search
+            for (SharedFileEntry entry : alert.results.files) {
+                fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
+            }
         }
 
         // TODO - fix it!
