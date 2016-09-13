@@ -33,7 +33,6 @@ import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.activities.SettingsActivity;
 import org.dkf.jdonkey.adapters.TransferListAdapter;
 import org.dkf.jdonkey.core.Constants;
-import org.dkf.jdonkey.core.NetworkManager;
 import org.dkf.jdonkey.dialogs.MenuDialog;
 import org.dkf.jdonkey.transfers.Transfer;
 import org.dkf.jdonkey.transfers.TransferManager;
@@ -47,27 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
-
-// TODO - uncomment after add mised files
-// TODO - uncomment after add mised files
-
-/*
-import com.frostwire.android.gui.activities.VPNStatusDetailActivity;
-import com.frostwire.android.gui.adapters.TransferListAdapter;
-import com.frostwire.android.gui.dialogs.HandpickedTorrentDownloadDialogOnFetch;
-import com.frostwire.android.gui.dialogs.MenuDialog;
-import com.frostwire.android.gui.dialogs.MenuDialog.MenuItem;
-import com.frostwire.android.gui.services.Engine;
-import com.frostwire.android.gui.tasks.DownloadSoundcloudFromUrlTask;
-import com.frostwire.android.gui.transfers.TransferManager;
-*/
-/*import com.frostwire.bittorrent.BTEngine;
-import com.frostwire.jlibtorrent.Session;
-import com.frostwire.transfers.*;
-import com.frostwire.util.Logger;
-import com.frostwire.util.Ref;
-import com.frostwire.util.StringUtils;
-*/
 
 /**
  * @author gubatron
@@ -86,10 +64,8 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private Button buttonSelectDownloading;
     private Button buttonSelectCompleted;
     private ExpandableListView list;
-    private TextView textDHTPeers;
     private TextView textDownloads;
     private TextView textUploads;
-    private TextView vpnRichToast;
     private ClearableEditTextView addTransferUrlTextView;
     private TransferListAdapter adapter;
     private TransferStatus selectedStatus;
@@ -174,96 +150,12 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         int downloads = TransferManager.instance().getActiveDownloads();
         int uploads = TransferManager.instance().getActiveUploads();
 
-        delayedDHTCheck();
         updateStatusBar(sDown, sUp, downloads, uploads);
     }
 
     private void updateStatusBar(String sDown, String sUp, int downloads, int uploads) {
         textDownloads.setText(downloads + " @ " + sDown);
         textUploads.setText(uploads + " @ " + sUp);
-        updateVPNButtonIfStatusChanged(NetworkManager.instance().isTunnelUp());
-    }
-
-    private void delayedDHTCheck() {
-        delayedDHTUpdateTimeElapsed += UI_UPDATE_INTERVAL_IN_SECS;
-        if (delayedDHTUpdateTimeElapsed >= DHT_STATUS_UPDATE_INTERVAL_IN_SECS) {
-            delayedDHTUpdateTimeElapsed = 0;
-            checkDHTPeers();
-        }
-    }
-
-
-    private void checkDHTPeers() {
-        /*
-        try {
-            BTEngine engine = BTEngine.getInstance();
-            final Session session = engine.getSession();
-            if (session != null && session.isDHTRunning()) {
-                session.postDHTStats();
-                final int totalDHTNodes = engine.getTotalDHTNodes();
-                if (totalDHTNodes > 0) {
-                    onCheckDHT(true, totalDHTNodes);
-
-                }
-            } else {
-                onCheckDHT(false, 0);
-            }
-        } catch (Throwable e) {
-            LOG.error("Error updating DHT status in transfers", e);
-        }
-        */
-    }
-
-    private void updateVPNButtonIfStatusChanged(boolean vpnActive) {
-        boolean wasActiveBefore = isVPNactive && !vpnActive;
-
-        isVPNactive = vpnActive;
-        final ImageView view = findView(getView(), R.id.fragment_transfers_status_vpn_icon);
-        if (view != null) {
-            view.setImageResource(vpnActive ? R.drawable.notification_vpn_on : R.drawable.notification_vpn_off);
-        }
-
-        if (wasActiveBefore) {
-            showVPNRichToast();
-        }
-    }
-
-    private void onCheckDHT(final boolean dhtEnabled, final int dhtPeers) {
-        if (textDHTPeers == null || !TransfersFragment.this.isAdded()) {
-            return;
-        }
-
-        textDHTPeers.setVisibility(View.VISIBLE);
-        showTorrentSettingsOnClick = true;
-
-        // No Internet
-        if (NetworkManager.instance().isInternetDown()) {
-            textDHTPeers.setText(R.string.check_internet_connection);
-            return;
-        }
-
-        // Saving Data on Mobile
-        /*if (TransferManager.instance().isMobileAndDataSavingsOn()) {
-            textDHTPeers.setText(R.string.bittorrent_off_data_saver_on);
-            return;
-        }*/
-
-        // BitTorrent Turned off
-        /*if (Engine.instance().isStopped() || Engine.instance().isDisconnected()) {
-            // takes you to main settings screen so you can turn it back on.
-            showTorrentSettingsOnClick = false;
-            textDHTPeers.setText(R.string.bittorrent_off);
-            return;
-        }*/
-
-        // No DHT
-        if (!dhtEnabled) {
-            textDHTPeers.setVisibility(View.INVISIBLE);
-            return;
-        }
-
-        // DHT On.
-        textDHTPeers.setText(dhtPeers + " " + TransfersFragment.this.getString(R.string.dht_contacts));
     }
 
     @Override
@@ -322,21 +214,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     public void onShow() {
         if (firstTimeShown) {
             firstTimeShown = false;
-            if (!NetworkManager.instance().isTunnelUp()) {
-                showVPNRichToast();
-            }
         }
-    }
-
-    private void showVPNRichToast() {
-        vpnRichToast.setVisibility(View.VISIBLE);
-        long VPN_NOTIFICATION_DURATION = 10000;
-        vpnRichToastHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                vpnRichToast.setVisibility(View.GONE);
-            }
-        }, VPN_NOTIFICATION_DURATION);
     }
 
     @Override
@@ -366,51 +244,8 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             }
         });
 
-        textDHTPeers = findView(v, R.id.fragment_transfers_dht_peers);
-        textDHTPeers.setVisibility(View.INVISIBLE);
-        textDHTPeers.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Context ctx = v.getContext();
-                Intent i = new Intent(ctx, SettingsActivity.class);
-                if (showTorrentSettingsOnClick) {
-                    i.setAction(Constants.ACTION_SETTINGS_OPEN_TORRENT_SETTINGS);
-                }
-                ctx.startActivity(i);
-            }
-        });
         textDownloads = findView(v, R.id.fragment_transfers_text_downloads);
         textUploads = findView(v, R.id.fragment_transfers_text_uploads);
-
-        vpnRichToast = findView(v, R.id.fragment_transfers_vpn_notification);
-        vpnRichToast.setVisibility(View.GONE);
-        vpnRichToast.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                vpnRichToast.setVisibility(View.GONE);
-            }
-        });
-        initVPNStatusButton(v);
-        checkDHTPeers();
-    }
-
-    private void initVPNStatusButton(View v) {
-        final ImageView vpnStatusButton = findView(v, R.id.fragment_transfers_status_vpn_icon);
-        /*
-        vpnStatusButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Context ctx = v.getContext();
-                Intent i = new Intent(ctx, VPNStatusDetailActivity.class);
-                i.setAction(isVPNactive ?
-                        Constants.ACTION_SHOW_VPN_STATUS_PROTECTED :
-                        Constants.ACTION_SHOW_VPN_STATUS_UNPROTECTED).
-                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                i.putExtra("from", "transfers");
-                ctx.startActivity(i);
-            }
-        });
-        */
     }
 
     public void initStorageRelatedRichNotifications(View v) {
@@ -591,7 +426,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         String url = addTransferUrlTextView.getText();
         if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
             toggleAddTransferControls();
-            if (url.startsWith("http")) { //magnets are automatically started if found on the clipboard by autoPasteMagnetOrURL
+            if (url.startsWith("ed2k")) { //magnets are automatically started if found on the clipboard by autoPasteMagnetOrURL
                 //TransferManager.instance().downloadTorrent(url.trim(),
                 //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
                 UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
