@@ -4,31 +4,31 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
+import org.dkf.jdonkey.adapters.menu.ServerConnectAction;
+import org.dkf.jdonkey.adapters.menu.ServerDisconnectAction;
+import org.dkf.jdonkey.adapters.menu.ServerRemoveAction;
 import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
-import org.dkf.jdonkey.dialogs.ConnectServerDialog;
-import org.dkf.jdonkey.dialogs.NewTransferDialog;
 import org.dkf.jdonkey.util.UIUtils;
-import org.dkf.jdonkey.views.AbstractAdapter;
-import org.dkf.jdonkey.views.AbstractDialog;
-import org.dkf.jdonkey.views.AbstractFragment;
-import org.dkf.jdonkey.views.ClickAdapter;
+import org.dkf.jdonkey.views.*;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ap197_000 on 07.09.2016.
@@ -44,12 +44,26 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setupAdapter();
+        setRetainInstance(true);
+    }
+
+    private void setupAdapter() {
+        if (adapter == null) {
+            adapter = new ServersAdapter(getActivity());
+            adapter.addItems();
+        }
+
+        list.setAdapter(adapter);
+    }
+
+    @Override
     protected void initComponents(final View rootView) {
         list = (ListView)findView(rootView, R.id.servers_list);
-
-        adapter = new ServersAdapter(getActivity());
-        list.setAdapter(adapter);
-        list.setOnItemClickListener(new AbstractAdapter.OnItemClickAdapter<ServerEntry>() {
+        list.setVisibility(View.VISIBLE);
+        /*list.setOnItemClickListener(new AbstractAdapter.OnItemClickAdapter<ServerEntry>() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, AbstractAdapter<ServerEntry> adapter, int position, long id) {
                 log.info("selected server {}", adapter.getItem(position).description);
@@ -67,6 +81,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             }
 
         });
+        */
 
     }
 
@@ -82,6 +97,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         super.onPause();
         log.info("remove servers listener");
         Engine.instance().removeListener(this);
+        adapter.addItems();
     }
 
     @Override
@@ -126,6 +142,14 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         }
     }
 
+    private void handleServerConnectionAlert(final String id) {
+        ServerEntry se = adapter.getItem(id);
+        if (se != null) {
+            se.connStatus = ServerEntry.ConnectionStatus.CONNECTING;
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     private void handleServerConnectionClosed(final String id) {
         ServerEntry se = adapter.getItem(id);
         if (se != null) {
@@ -146,9 +170,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         }
     }
 
-    private void listenAlert() {
-        log.info("listen received");
-    }
+    private void listenAlert() { }
 
     @Override
     public void onListen(ListenAlert alert) {
@@ -163,6 +185,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     @Override
     public void onSearchResult(SearchResultAlert alert) {
 
+    }
+
+    @Override
+    public void onServerConnectionAlert(final ServerConnectionAlert alert) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleServerConnectionAlert(alert.identifier);
+            }
+        });
     }
 
     @Override
@@ -295,46 +327,20 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             return "ID {" + getIdentifier() + "} " + ip + ":" + port;
         }
     }
-/*
-    private class ServersAdapter2 extends AbstractListAdapter<ServerEntry> {
 
-        public ServersAdapter2(Context context) {
-            super(context, R.layout.view_servers_list_item);
-            addItems(context);
-            addItem(new ServerEntry("is", "some description", "emule.is74.ru", (short)4661));
-        }
-
-        @Override
-        protected void populateView(View view, ServerEntry data) {
-            ImageView icon = findView(view, R.id.view_preference_servers_list_item_icon);
-            TextView label = findView(view, R.id.view_preference_servers_list_item_label);
-            TextView description = findView(view, R.id.view_preference_servers_list_item_description);
-            icon.setImageResource(R.drawable.internal_memory_notification_dark_bg);
-            label.setText(data.description);
-            description.setText(data.ip + data.port);
-        }
-
-        private void addItems(Context context) {
-            for (int i = 0; i < 10; ++i) {
-                log.info("add server {}", i);
-                addItem(new ServerEntry("id" + Integer.toString(i), "description " + i, "host", 5667), true);
-            }
-        }
-    }
-*/
     private interface ServerEntryProcessor {
         boolean process(final ServerEntry e);
     }
 
-    private final class ServersAdapter extends AbstractAdapter<ServerEntry> {
+    private final class ServersAdapter extends AbstractListAdapter<ServerEntry> {
 
         public ServersAdapter(Context context) {
             super(context, R.layout.view_servers_list_item);
-            addItems(context);
         }
 
         @Override
-        protected void setupView(View view, ViewGroup parent, ServerEntry item) {
+        protected void populateView(View view, ServerEntry item) {
+            log.info("populate servers view");
             ImageView icon = findView(view, R.id.view_preference_servers_list_item_icon);
             TextView label = findView(view, R.id.view_preference_servers_list_item_label);
             TextView description = findView(view, R.id.view_preference_servers_list_item_description);
@@ -383,14 +389,15 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             }
         }
 
-        private void addItems(Context context) {
+        private void addItems() {
             for (int i = 0; i < 3; ++i) {
                 log.info("add server {}", i);
-                add(new ServerEntry(i, "description " + i, "host", 56678));
+                visualList.add(new ServerEntry(i, "description " + i, "host", 56678));
             }
 
-            add(new ServerEntry(100400, "Emule IS74 server", "emule.is74.ru", 4661));
-            add(new ServerEntry(9955, "eMule security", "91.200.42.46", 1176));
+            visualList.add(new ServerEntry(100400, "Emule IS74 server", "emule.is74.ru", 4661));
+            visualList.add(new ServerEntry(9955, "eMule security", "91.200.42.46", 1176));
+            notifyDataSetChanged();
         }
 
         final ServerEntry getItem(final String id) {
@@ -411,55 +418,19 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
             return affected;
         }
-    }
-
-    private void showContextMenu() {
-        /*
-        MainMenuAdapter.MenuItem clear = new MenuItem(CLEAR_MENU_DIALOG_ID, R.string.transfers_context_menu_clear_finished, R.drawable.contextmenu_icon_remove_transfer);
-        MenuItem pause = new MenuItem(PAUSE_MENU_DIALOG_ID, R.string.transfers_context_menu_pause_stop_all_transfers, R.drawable.contextmenu_icon_pause_transfer);
-        MenuItem resume = new MenuItem(RESUME_MENU_DIALOG_ID, R.string.transfers_context_resume_all_torrent_transfers, R.drawable.contextmenu_icon_play);
-
-        List<MenuItem> dlgActions = new ArrayList<>();
-
-        TransferManager tm = TransferManager.instance();
-        boolean bittorrentDisconnected = tm.isBittorrentDisconnected();
-        final List<Transfer> transfers = tm.getTransfers();
-
-        if (transfers != null && transfers.size() > 0) {
-            if (someTransfersComplete(transfers)) {
-                dlgActions.add(clear);
-            }
-
-            if (!bittorrentDisconnected) {
-                if (someTransfersActive(transfers)) {
-                    dlgActions.add(pause);
-                }
-            }
-
-            //let's show it even if bittorrent is disconnected
-            //user should get a message telling them to check why they can't resume.
-            //Preferences > Connectivity is disconnected.
-            if (someTransfersInactive(transfers)) {
-                dlgActions.add(resume);
-            }
-        }
-
-        if (dlgActions.size() > 0) {
-            MenuDialog dlg = MenuDialog.newInstance(TRANSFERS_DIALOG_ID, dlgActions);
-            dlg.show(getFragmentManager());
-        }
-        */
-    }
-
-    private static final class ButtonMenuListener extends ClickAdapter<SearchFragment> {
-
-        ButtonMenuListener(SearchFragment f) {
-            super(f);
-        }
 
         @Override
-        public void onClick(SearchFragment f, View v) {
-            //f.showContextMenu();
+        protected MenuAdapter getMenuAdapter(View view) {
+            List<MenuAction> items = new ArrayList<>();
+            ServerEntry entry = (ServerEntry)view.getTag();
+            items.add(new ServerRemoveAction(view.getContext(), entry.ip, entry.getIdentifier()));
+            if (entry.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
+                items.add(new ServerConnectAction(view.getContext(), entry.ip, entry.port, entry.getIdentifier()));
+            } else {
+                items.add(new ServerDisconnectAction(view.getContext(), entry.ip, entry.port, entry.getIdentifier()));
+            }
+
+            return new MenuAdapter(view.getContext(), R.string.sever_menu_title, items);
         }
     }
 }

@@ -26,16 +26,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.R;
+import org.dkf.jdonkey.adapters.menu.SearchMoreAction;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.MediaType;
 import org.dkf.jdonkey.util.UIUtils;
-import org.dkf.jdonkey.views.AbstractListAdapter;
-import org.dkf.jdonkey.views.ClickAdapter;
-import org.dkf.jdonkey.views.MediaPlaybackOverlay;
-import org.dkf.jdonkey.views.SearchThumbnailImageView;
+import org.dkf.jdonkey.views.*;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.dkf.jed2k.util.Ref;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -47,10 +47,12 @@ import java.util.List;
  */
 public abstract class SearchResultListAdapter extends AbstractListAdapter<SharedFileEntry> {
 
+    private static final Logger log = LoggerFactory.getLogger(SearchResultListAdapter.class);
     private static final int NO_FILE_TYPE = -1;
 
     private final OnLinkClickListener linkListener;
     private final PreviewClickListener previewClickListener;
+    private boolean moreResults = false;
 
     private int fileType;
 
@@ -74,6 +76,8 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     }
 
     public void addResults(final SearchResult sr) {
+        log.debug("results {} more {}", sr.files.size(), sr.hasMoreResults()?"yes":"no");
+        moreResults = sr.hasMoreResults();
         visualList.addAll(sr.files);
         list.addAll(sr.files);
         notifyDataSetChanged();
@@ -197,7 +201,6 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
         public void onClick(View v) {
             String url = (String) v.getTag();
             UIUtils.openURL(v.getContext(), url);
-            //UXStats.instance().log(UXAction.SEARCH_RESULT_SOURCE_VIEW);
         }
     }
 
@@ -214,23 +217,21 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
             if (v == null) {
                 return;
             }
-/*
-            StreamableSearchResult sr = (StreamableSearchResult) v.getTag();
 
-            if (sr != null) {
-                LocalSearchEngine.instance().markOpened(sr, (Ref.alive(adapterRef)) ? adapterRef.get() : null);
-                PreviewPlayerActivity.srRef = Ref.weak((FileSearchResult) sr);
-                Intent i = new Intent(ctx, PreviewPlayerActivity.class);
-                i.putExtra("displayName", sr.getDisplayName());
-                i.putExtra("source", sr.getSource());
-                i.putExtra("thumbnailUrl", sr.getThumbnailUrl());
-                i.putExtra("streamUrl", sr.getStreamUrl());
-                i.putExtra("audio", isAudio(sr));
-                i.putExtra("hasVideo", hasVideo(sr));
-                ctx.startActivity(i);
-            }
-            */
+            SharedFileEntry entry = (SharedFileEntry) v.getTag();
+            log.info("request preview for {}", entry);
         }
+    }
 
+    void populateMenuActions(SharedFileEntry entry, List<MenuAction> actions) {
+        actions.add(new SearchMoreAction(getContext()));
+    }
+
+    protected MenuAdapter getMenuAdapter(View view) {
+        Object tag = view.getTag();
+        String title = "";
+        List<MenuAction> items = new ArrayList<>();
+        populateMenuActions((SharedFileEntry)tag, items);
+        return items.size() > 0 ? new MenuAdapter(view.getContext(), title, items) : null;
     }
 }

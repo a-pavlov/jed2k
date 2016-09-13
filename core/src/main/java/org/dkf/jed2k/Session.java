@@ -2,6 +2,7 @@ package org.dkf.jed2k;
 
 import org.dkf.jed2k.alert.Alert;
 import org.dkf.jed2k.alert.ListenAlert;
+import org.dkf.jed2k.alert.ServerConnectionAlert;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -288,6 +289,7 @@ public class Session extends Thread {
                         serverConection = ServerConnection.makeConnection(id, Session.this);
                         serverConection.connect(addr);
                         NetworkIdentifier endpoint = new NetworkIdentifier(addr);
+                        pushAlert(new ServerConnectionAlert(id));
                         log.debug("connect to server {}", endpoint);
                     } catch(JED2KException e) {
                         // emit alert - connect to server failed
@@ -312,8 +314,8 @@ public class Session extends Thread {
         });
     }
 
-    synchronized public String getCurrentServerId() {
-        if (serverConection != null) return serverConection.getIdentifier();
+    synchronized public String getConnectedServerId() {
+        if (serverConection != null && serverConection.isHandshakeCompleted()) return serverConection.getIdentifier();
         return "";
     }
 

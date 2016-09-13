@@ -60,6 +60,11 @@ public final class Engine implements AlertListener {
     }
 
     @Override
+    public void onServerConnectionAlert(ServerConnectionAlert alert) {
+
+    }
+
+    @Override
     public void onServerMessage(ServerMessageAlert alert) {
 
     }
@@ -166,6 +171,10 @@ public final class Engine implements AlertListener {
 
             }
         }
+    }
+
+    public void removeServer(final String serverId) {
+
     }
 
     public String getCurrentServerId() {

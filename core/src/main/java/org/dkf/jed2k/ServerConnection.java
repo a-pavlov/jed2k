@@ -25,6 +25,7 @@ import static org.dkf.jed2k.protocol.tag.Tag.tag;
 public class ServerConnection extends Connection {
     private static Logger log = LoggerFactory.getLogger(ServerConnection.class);
     private long lastPingTime = 0;
+    private boolean handshakeCompleted = false;
 
     /**
      * special identifier for server connection
@@ -87,6 +88,7 @@ public class ServerConnection extends Connection {
         session.clientId = value.clientId;
         session.tcpFlags = value.tcpFlags;
         session.auxPort = value.auxPort;
+        handshakeCompleted = true;
         session.pushAlert(new ServerIdAlert(identifier, value.clientId));
     }
 
@@ -153,6 +155,7 @@ public class ServerConnection extends Connection {
         session.tcpFlags = 0;
         session.auxPort = 0;
         session.serverConection = null;
+        handshakeCompleted = false;
         session.pushAlert(new ServerConectionClosed(identifier, ec));
     }
 
@@ -305,4 +308,6 @@ public class ServerConnection extends Connection {
     public final String getIdentifier() {
         return identifier;
     }
+
+    public boolean isHandshakeCompleted() { return handshakeCompleted; }
 }

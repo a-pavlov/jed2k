@@ -217,6 +217,8 @@
     <string name="delete_file_menu_action_count">Delete (%s)</string>
     <string name="open_menu_action">Open %s</string>
     <string name="cancel_menu_action">Stop Transfer</string>
+    <string name="search_more_action">Search more</string>
+
     <string name="cancel_delete_menu_action">Stop and Delete Data</string>
     <string name="remove_torrent_and_data">Remove Torrent and Data</string>
     <string name="wanna_download_question">Want to download?</string>
@@ -668,4 +670,8 @@
 
     <string name="peer_speed">Speed %1$s</string>
     <string name="peer_total_bytes_download">Total bytes %1$s</string>
+    <string name="sever_menu_title">Server operations</string>
+    <string name="server_remove_action">Remove %1$s</string>
+    <string name="server_connect_action">Connect to %1$s</string>
+    <string name="server_disconnect_action">Disconnect from %1$s</string>
 </resources>

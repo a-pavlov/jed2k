@@ -181,6 +181,9 @@ public class ED2KService extends Service {
         else if (a instanceof ServerIdAlert) {
             for(final AlertListener ls: listeners) ls.onServerIdAlert((ServerIdAlert) a);
         }
+        else if (a instanceof ServerConnectionAlert) {
+            for(final AlertListener ls: listeners) ls.onServerConnectionAlert((ServerConnectionAlert)a);
+        }
         else {
             log.debug("alert {}", a);
         }
@@ -296,7 +299,7 @@ public class ED2KService extends Service {
     }
 
     public String getCurrentServerId() {
-        return session.getCurrentServerId();
+        return session.getConnectedServerId();
     }
 
     /**

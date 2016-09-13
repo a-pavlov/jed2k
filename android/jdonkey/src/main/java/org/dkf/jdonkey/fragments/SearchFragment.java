@@ -56,7 +56,6 @@ public final class SearchFragment extends AbstractFragment implements
         AlertListener {
     private static final Logger LOG = LoggerFactory.getLogger(SearchFragment.class);
     private SearchResultListAdapter adapter;
-    //private List<Slide> slides;
 
     private SearchInputView searchInput;
     private ProgressBar deepSearchProgress;
@@ -97,14 +96,6 @@ public final class SearchFragment extends AbstractFragment implements
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setupAdapter();
-
-        /*if (slides != null) {
-            promotions.setSlides(slides);
-        } else {
-            new LoadSlidesTask(this).execute();
-        }
-        */
-
         setRetainInstance(true);
     }
 
@@ -512,6 +503,11 @@ public final class SearchFragment extends AbstractFragment implements
                 searchCompleted(alert);
             }
         });
+    }
+
+    @Override
+    public void onServerConnectionAlert(ServerConnectionAlert alert) {
+
     }
 
     @Override

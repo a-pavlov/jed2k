@@ -16,6 +16,8 @@ public interface AlertListener {
      */
     void onSearchResult(final SearchResultAlert alert);
 
+    void onServerConnectionAlert(final ServerConnectionAlert alert);
+
     /**
      *
      * @param alert server message
