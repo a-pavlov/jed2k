@@ -23,7 +23,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.util.Hex;
@@ -176,6 +175,7 @@ public class ConfigurationManager {
             value.put(buffer);
             byte data[] = new byte[buffer.capacity()];
             buffer.flip();
+            log.info("set serializable {}", buffer.limit());
             buffer.get(data);
             setByteArray(key, data);
         } catch(JED2KException e) {

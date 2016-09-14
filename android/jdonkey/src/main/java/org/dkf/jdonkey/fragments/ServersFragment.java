@@ -2,7 +2,6 @@ package org.dkf.jdonkey.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -22,7 +21,10 @@ import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.util.ServerUtils;
 import org.dkf.jdonkey.util.UIUtils;
-import org.dkf.jdonkey.views.*;
+import org.dkf.jdonkey.views.AbstractFragment;
+import org.dkf.jdonkey.views.AbstractListAdapter;
+import org.dkf.jdonkey.views.MenuAction;
+import org.dkf.jdonkey.views.MenuAdapter;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -37,15 +39,26 @@ import java.util.List;
 /**
  * Created by ap197_000 on 07.09.2016.
  */
-public class ServersFragment extends AbstractFragment implements MainFragment, AlertListener, AbstractDialog.OnDialogClickListener {
+public class ServersFragment extends AbstractFragment implements MainFragment, AlertListener {
     private final Logger log = LoggerFactory.getLogger(ServersFragment.class);
     private ListView list;
     private ServersAdapter adapter;
+    private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
 
     public ServersFragment() {
         super(R.layout.fragment_servers);
-        registerPreferenceChangeListener();
-        //Engine.instance().setListener(this);
+        prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (key.equals(Constants.PREF_KEY_SERVERS_LIST)) {
+                    setupAdapter();
+                    invalidateServersState();
+                }
+            }
+        };
+
+        ConfigurationManager.instance().registerOnPreferenceChange(prefListener);
     }
 
     @Override
@@ -58,13 +71,12 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private void setupAdapter() {
         if (adapter == null) {
             adapter = new ServersAdapter(getActivity());
-            ServerMet sm = new ServerMet();
-            ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
-            log.info("servers count {}", sm.getServers().size());
-            adapter.clear();
-            adapter.addServers(sm.getServers());
         }
 
+        ServerMet sm = new ServerMet();
+        ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+        adapter.clear();
+        adapter.addServers(sm.getServers());
         list.setAdapter(adapter);
     }
 
@@ -72,26 +84,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     protected void initComponents(final View rootView) {
         list = (ListView)findView(rootView, R.id.servers_list);
         list.setVisibility(View.VISIBLE);
-        /*list.setOnItemClickListener(new AbstractAdapter.OnItemClickAdapter<ServerEntry>() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, AbstractAdapter<ServerEntry> adapter, int position, long id) {
-                log.info("selected server {}", adapter.getItem(position).description);
-                ServerEntry se = adapter.getItem(position);
-
-                try {
-                    ConnectServerDialog dlg = new ConnectServerDialog(se.getIdentifier());
-                    dlg.initializeServerAttributes(se.getIdentifier(), se.ip, se.port);
-                    dlg.show(getFragmentManager());
-                } catch (IllegalStateException e) {
-                    // android.app.FragmentManagerImpl.checkStateLoss:1323 -> java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
-                    // just start the download then if the dialog crapped out.
-                    onDialogClick(NewTransferDialog.TAG, Dialog.BUTTON_POSITIVE);
-                }
-            }
-
-        });
-        */
-
     }
 
     @Override
@@ -104,19 +96,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     @Override
     public void onPause() {
         super.onPause();
-        log.info("remove servers listener");
         Engine.instance().removeListener(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        log.info("remove servers fragment listener");
-        Engine.instance().removeListener(this);
+         Engine.instance().removeListener(this);
     }
 
     private void invalidateServersState() {
-        log.info("invalidate server parameters");
         final String connectedServerId = Engine.instance().getCurrentServerId();
         boolean needRefresh = adapter.process(new ServerEntryProcessor() {
             @Override
@@ -207,7 +196,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     @Override
     public void onServerMessage(final ServerMessageAlert alert) {
-        log.info("server conn closed {}", alert.msg);
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -246,35 +234,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         });
     }
 
-    @Override
-    public void onDialogClick(String tag, int which) {
-        log.info("on dialog clicked {}", tag);
-        if (which == Dialog.BUTTON_POSITIVE) {
-            ServerEntry se = adapter.getItem(tag);
-            if (se != null) {
-                if (se.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
-                    se.connStatus = ServerEntry.ConnectionStatus.CONNECTING;
-                    adapter.notifyDataSetChanged();
-                    Engine.instance().connectTo(se.getIdentifier(), se.ip, se.port);
-                } else {
-                    boolean needRefresh = ((ServersAdapter) adapter).process(new ServerEntryProcessor() {
-                        @Override
-                        public boolean process(final ServerEntry e) {
-                            boolean res = (e.connStatus != ServerEntry.ConnectionStatus.DISCONNECTED);
-                            e.connStatus = ServerEntry.ConnectionStatus.DISCONNECTED;
-                            return res;
-                        }
-                    });
-
-                    Engine.instance().disconnectFrom();
-                    if (needRefresh) {
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        }
-    }
-
 
     @Override
     public View getHeader(Activity activity) {
@@ -298,21 +257,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     @Override
     public void onShow() {
 
-    }
-
-    private void registerPreferenceChangeListener() {
-        SharedPreferences.OnSharedPreferenceChangeListener preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                log.info("changed {}", key);
-                if (key.equals(Constants.PREF_KEY_SERVERS_LIST)) {
-                    log.info("server list changed");
-                }
-            }
-        };
-
-        ConfigurationManager.instance().registerOnPreferenceChange(preferenceListener);
     }
 
     private static final class ServerEntry {
