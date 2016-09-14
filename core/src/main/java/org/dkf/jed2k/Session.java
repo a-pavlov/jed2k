@@ -1,9 +1,6 @@
 package org.dkf.jed2k;
 
-import org.dkf.jed2k.alert.Alert;
-import org.dkf.jed2k.alert.ListenAlert;
-import org.dkf.jed2k.alert.ServerConnectionAlert;
-import org.dkf.jed2k.alert.TransferRemovedAlert;
+import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -42,6 +39,8 @@ public class Session extends Thread {
     BufferPool bufferPool = null;
     private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
     private AtomicBoolean finished = new AtomicBoolean(false);
+    private boolean aborted = false;
+
 
     // from last established server connection
     int clientId    = 0;
@@ -172,7 +171,7 @@ public class Session extends Thread {
             selector = Selector.open();
             listen();
 
-            while(!isInterrupted()) {
+            while(!aborted && !interrupted()) {
                 int channelCount = selector.select(1000);
                 Time.currentCachedTime = Time.currentTimeHiRes();
                 on_tick(ErrorCode.NO_ERROR, channelCount);
@@ -582,5 +581,34 @@ public class Session extends Thread {
      */
     public final boolean isFinished() {
         return finished.get();
+    }
+
+    /**
+     * stop main session cycle
+     * guarantees all previous commands were completed
+     */
+    public void abort() {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                aborted = true;
+            }
+        });
+    }
+
+    /**
+     * save resume data on all transfers needs to save resume data
+     */
+    public void saveResumeData() {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                for(final Transfer t: transfers.values()) {
+                    if (t.isNeedSaveResumeData()) {
+                        pushAlert(new TransferResumeDataAlert(t.hash(), t.resumeData()));
+                    }
+                }
+            }
+        });
     }
 }

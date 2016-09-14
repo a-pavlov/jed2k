@@ -575,4 +575,8 @@ public class Transfer {
 
         return res;
     }
+
+    boolean isNeedSaveResumeData() {
+        return needSaveResumeData;
+    }
 }

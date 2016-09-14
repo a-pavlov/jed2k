@@ -177,9 +177,10 @@ public class Conn {
             String[] parts = command.split("\\s+");
 
             if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
-                s.interrupt();
+                s.abort();
                 try {
                     s.join();
+                    log.info("session finished");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
