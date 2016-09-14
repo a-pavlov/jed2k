@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import org.dkf.jdonkey.adapters.menu.ServerDisconnectAction;
 import org.dkf.jdonkey.adapters.menu.ServerRemoveAction;
 import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
+import org.dkf.jdonkey.util.ServerUtils;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.*;
 import org.dkf.jed2k.Utils;
@@ -42,6 +44,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     public ServersFragment() {
         super(R.layout.fragment_servers);
+        registerPreferenceChangeListener();
         //Engine.instance().setListener(this);
     }
 
@@ -297,6 +300,21 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     }
 
+    private void registerPreferenceChangeListener() {
+        SharedPreferences.OnSharedPreferenceChangeListener preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                log.info("changed {}", key);
+                if (key.equals(Constants.PREF_KEY_SERVERS_LIST)) {
+                    log.info("server list changed");
+                }
+            }
+        };
+
+        ConfigurationManager.instance().registerOnPreferenceChange(preferenceListener);
+    }
+
     private static final class ServerEntry {
         public enum ConnectionStatus {
             CONNECTED,
@@ -331,10 +349,9 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         public ConnectionStatus connStatus = ConnectionStatus.DISCONNECTED;
 
 
+        // must be compatible with global server identifier notation!
         public final String getIdentifier() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(Integer.toString(rand)).append(ip).append(Integer.toString(port));
-            return sb.toString();
+            return ServerUtils.getIdentifier(name, ip, port);
         }
 
         @Override

@@ -70,6 +70,7 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
 
                 @Override
                 public void remove() {
+                    throw new RuntimeException("Remove not implemented for empty container");
                 }
             };
 

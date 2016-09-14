@@ -2,9 +2,15 @@ package org.dkf.jdonkey.adapters.menu;
 
 import android.content.Context;
 import org.dkf.jdonkey.R;
+import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.Constants;
+import org.dkf.jdonkey.util.ServerUtils;
 import org.dkf.jdonkey.views.MenuAction;
+import org.dkf.jed2k.protocol.server.ServerMet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
 
 /**
  * Created by ap197_000 on 13.09.2016.
@@ -20,6 +26,23 @@ public class ServerRemoveAction extends MenuAction {
 
     @Override
     protected void onClick(Context context) {
-        log.info("remove server action");
+        ServerMet sm = new ServerMet();
+        ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+        if (sm != null) {
+            Iterator<ServerMet.ServerMetEntry> iter = sm.getServers().iterator();
+            while(iter.hasNext()) {
+                ServerMet.ServerMetEntry entry = iter.next();
+                if (ServerUtils.getIdentifier(entry).compareTo(serverId) == 0) {
+                    log.info("remove key {}", ServerUtils.getIdentifier(entry));
+                    iter.remove();
+                    ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+                    break;
+                }
+            }
+        }
+        else {
+            log.warn("Server list is empty in configurations");
+        }
+
     }
 }

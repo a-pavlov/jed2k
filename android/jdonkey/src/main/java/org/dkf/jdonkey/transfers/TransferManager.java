@@ -85,7 +85,6 @@ public final class TransferManager {
         registerPreferencesChangeListener();
         CM = ConfigurationManager.instance();
         this.downloadsToReview = 0;
-        loadTorrents();
     }
 
     /**
@@ -162,128 +161,10 @@ public final class TransferManager {
         downloadsToReview = 0;
     }
 
-    public void loadTorrents() {
-        /*
-        bittorrentDownloads.clear();
-
-        BTEngine engine = BTEngine.getInstance();
-
-        engine.setListener(new BTEngineAdapter() {
-            @Override
-            public void downloadAdded(BTEngine engine, BTDownload dl) {
-                String name = dl.getName();
-                if (name != null && name.contains("fetch_magnet:")) {
-                    return;
-                }
-
-                File savePath = dl.getSavePath();
-                if (savePath != null && savePath.toString().contains("fetch_magnet/")) {
-                    return;
-                }
-
-                bittorrentDownloads.add(new UIBittorrentDownload(TransferManager.this, dl));
-            }
-
-            @Override
-            public void downloadUpdate(BTEngine engine, BTDownload dl) {
-                try {
-                    int count = bittorrentDownloads.size();
-                    for (int i = 0; i < count; i++) {
-                        if (i < bittorrentDownloads.size()) {
-                            BittorrentDownload download = bittorrentDownloads.get(i);
-                            if (download instanceof UIBittorrentDownload) {
-                                UIBittorrentDownload bt = (UIBittorrentDownload) download;
-                                if (bt.getInfoHash().equals(dl.getInfoHash())) {
-                                    bt.updateUI(dl);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                } catch (Throwable e) {
-                    LOG.error("Error updating bittorrent download", e);
-                }
-            }
-        });
-
-        engine.restoreDownloads();
-        */
-    }
-
     public boolean remove(Transfer transfer) {
         return false;
     }
 
-    public void pauseTorrents() {
-    }
-
-    public Transfer downloadTorrent(String uri) {
-        //return downloadTorrent(uri, null);
-        return null;
-    }
-
-    /*
-    public BittorrentDownload downloadTorrent(String uri, TorrentFetcherListener fetcherListener) {
-        String url = uri.trim();
-        try {
-            if (url.contains("urn%3Abtih%3A")) {
-                //fixes issue #129: over-encoded url coming from intent
-                url = url.replace("urn%3Abtih%3A", "urn:btih:");
-            }
-
-            if (isAlreadyDownloadingTorrentByUri(url)) {
-                return null;
-            }
-
-            Uri u = Uri.parse(url);
-
-            if (!u.getScheme().equalsIgnoreCase("file") &&
-                !u.getScheme().equalsIgnoreCase("http") &&
-                !u.getScheme().equalsIgnoreCase("https") &&
-                !u.getScheme().equalsIgnoreCase("magnet")) {
-                LOG.warn("Invalid URI scheme: " + u.toString());
-                return new InvalidBittorrentDownload(R.string.torrent_scheme_download_not_supported);
-            }
-
-            BittorrentDownload download = null;
-
-            if (fetcherListener == null) {
-                if (u.getScheme().equalsIgnoreCase("file")) {
-                    BTEngine.getInstance().download(new File(u.getPath()), null);
-                } else if (u.getScheme().equalsIgnoreCase("http") || u.getScheme().equalsIgnoreCase("https") || u.getScheme().equalsIgnoreCase("magnet")) {
-                    download = new TorrentFetcherDownload(this, new TorrentUrlInfo(u.toString()));
-                    bittorrentDownloads.add(download);
-                }
-            } else {
-                if (u.getScheme().equalsIgnoreCase("file")) {
-                    fetcherListener.onTorrentInfoFetched(FileUtils.readFileToByteArray(new File(u.getPath())), null);
-                } else if (u.getScheme().equalsIgnoreCase("http") || u.getScheme().equalsIgnoreCase("https") || u.getScheme().equalsIgnoreCase("magnet")) {
-                    // this executes the listener method when it fetches the bytes.
-                    new TorrentFetcherDownload(this, new TorrentUrlInfo(u.toString()), fetcherListener);
-                }
-                return null;
-            }
-
-            return download;
-        } catch (Throwable e) {
-            LOG.warn("Error creating download from uri: " + url);
-            return new InvalidBittorrentDownload(R.string.torrent_scheme_download_not_supported);
-        }
-    }
-*/
-    /*
-    private static Transfer createBittorrentDownload(TransferManager manager, TorrentSearchResult sr) {
-        if (sr instanceof TorrentCrawledSearchResult) {
-            BTEngine.getInstance().download((TorrentCrawledSearchResult) sr, null);
-        } else if (sr instanceof ScrapedTorrentFileSearchResult) {
-            return new TorrentFetcherDownload(manager, new TorrentSearchResultInfo(sr, sr.getReferrerUrl()));
-        } else if (sr.getTorrentUrl() != null) {
-            return new TorrentFetcherDownload(manager, new TorrentSearchResultInfo(sr));
-        }
-
-        return null;
-    }
-    */
 
     private Transfer newBittorrentDownload(SharedFileEntry sr) {
         /*try {
