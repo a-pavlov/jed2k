@@ -46,4 +46,17 @@ public class ContainerHolderTest {
         assertTrue(c1.iterator().hasNext());
         assertEquals(10, c1.iterator().next().intValue());
     }
+
+    @Test
+    public void testContainerRemoveItems() {
+        Container<UInt16, NetworkIdentifier> c = Container.makeShort(NetworkIdentifier.class);
+        c.remove(null);
+        assertTrue(c.isEmpty());
+        c.add(new NetworkIdentifier(10, 20));
+        c.add(new NetworkIdentifier(30, 50));
+        assertEquals(2, c.size());
+        c.remove(new NetworkIdentifier(10, 20));
+        assertEquals(1, c.size());
+        assertEquals(c.get(0), new NetworkIdentifier(30, 50));
+    }
 }

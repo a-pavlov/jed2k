@@ -92,6 +92,12 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
         return holder().get(i);
     }
 
+    public void remove(E e) {
+        if (collection != null) {
+            collection.remove(e);
+        }
+    }
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         n.get(src);

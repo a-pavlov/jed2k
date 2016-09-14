@@ -72,6 +72,11 @@ public class ED2KServiceTest {
             }
 
             @Override
+            public void onServerConnectionAlert(ServerConnectionAlert alert) {
+
+            }
+
+            @Override
             public void onServerMessage(ServerMessageAlert alert) {
 
             }
