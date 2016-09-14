@@ -107,8 +107,8 @@ public class PiecePicker extends BlocksEnumerator {
      * @return true if new piece in download queue
      */
     public boolean chooseNextPiece() {
-        // start from last piece
-        int roundRobin = pieceStatus.length - 1;
+        // start from first piece due to slow operation of writing data into end of file!
+        int roundRobin = 0;
         for(int i = 0; i < pieceStatus.length; ++i) {
             if (roundRobin == pieceStatus.length) roundRobin = 0;
             int current = roundRobin;

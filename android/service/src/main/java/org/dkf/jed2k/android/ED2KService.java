@@ -260,6 +260,11 @@ public class ED2KService extends Service {
                 }
             });
 
+            if (files == null) {
+                log.info("have no resume data files");
+                return null;
+            }
+
             for(final File f: files) {
                 long fileSize = f.length();
                 if (fileSize > Constants.BLOCK_SIZE_INT) {
@@ -473,7 +478,7 @@ public class ED2KService extends Service {
         return handle;
     }
 
-    List<TransferHandle> getTransfers() {
+    public List<TransferHandle> getTransfers() {
         return session.getTransfers();
     }
 }

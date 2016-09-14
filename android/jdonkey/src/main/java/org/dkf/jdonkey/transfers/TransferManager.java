@@ -99,6 +99,9 @@ public final class TransferManager {
     }
 
     public List<Transfer> getTransfers() {
+        return Engine.instance().getTransfers();
+        /*List<Transfer> tran = new ArrayList<>();
+        Engine.
         if (transfers.isEmpty()) {
             for (int i = 0; i < 10; ++i) {
                 transfers.add(new MockTransfer());
@@ -106,6 +109,7 @@ public final class TransferManager {
         }
 
         return transfers;
+        */
     }
 
     public Transfer download(final Hash hash, long size, final String fileName) {

@@ -15,6 +15,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by inkpot on 15.07.2016.
  * executes write data into file on disk
@@ -24,7 +27,7 @@ public class PieceManager extends BlocksEnumerator {
     private RandomAccessFile file;
     private FileChannel channel;
     private LinkedList<BlockManager> blockMgrs = new LinkedList<BlockManager>();
-    private Logger log = LoggerFactory.getLogger(PieceManager.class);
+    private static final Logger log = LoggerFactory.getLogger(PieceManager.class);
 
     public PieceManager(String filepath, int pieceCount, int blocksInLastPiece) {
         super(pieceCount, blocksInLastPiece);
@@ -73,12 +76,14 @@ public class PieceManager extends BlocksEnumerator {
 
         // TODO - add error handling here with correct buffer return to requester
         try {
+            log.debug("write block {} started", b);
             // stage 1 - write block to disk, possibly error occurred
             // buffer must have remaining data
             assert(buffer.hasRemaining());
             channel.position(bytesOffset);
             while(buffer.hasRemaining()) channel.write(buffer);
             buffer.rewind();
+            log.debug("write block {} finished", b);
         }
         catch(IOException e) {
             throw new JED2KException(ErrorCode.IO_EXCEPTION);

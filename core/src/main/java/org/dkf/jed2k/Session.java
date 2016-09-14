@@ -161,6 +161,7 @@ public class Session extends Thread {
         }
 
         connectNewPeers();
+        log.info(bufferPool.toString());
     }
 
     @Override

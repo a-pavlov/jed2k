@@ -173,7 +173,6 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        LOG.info("options item selected {}", item);
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
@@ -248,10 +247,12 @@ public class SettingsActivity extends PreferenceActivity {
                 p.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        LOG.info("listener setup storage path {}", newValue.toString());
                         StoragePreference.updateStorageOptionSummary(SettingsActivity.this, newValue.toString());
                         return true;
                     }
                 });
+                LOG.info("update storage option {}", ConfigurationManager.instance().getStoragePath());
                 StoragePreference.updateStorageOptionSummary(this, ConfigurationManager.instance().getStoragePath());
             }
         } else {

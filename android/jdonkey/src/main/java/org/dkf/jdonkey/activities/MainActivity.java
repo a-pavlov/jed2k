@@ -578,12 +578,11 @@ public class MainActivity extends AbstractActivity implements
 
     private void onLastDialogButtonPositive() {
         //Offers.showInterstitial(this, false, true);
-        LOG.info("dialog positive");
         finish();
     }
 
     private void onShutdownDialogButtonPositive() {
-        LOG.info("dialog negative");
+        finish();
         //Offers.showInterstitial(this, true, false);
     }
 

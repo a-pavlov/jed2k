@@ -9,6 +9,7 @@ import java.util.LinkedList;
 public class BufferPool {
     private int maxBuffersCount = 0;
     private int allocatedBuffersCount = 0;
+    private int maxAllocatedCount = 0;
     LinkedList<ByteBuffer>  freeBuffers = new LinkedList<ByteBuffer>();
     LinkedList<Long> bufferReleaseTimes = new LinkedList<Long>();
 
@@ -27,7 +28,10 @@ public class BufferPool {
             b = ByteBuffer.allocate((int) Constants.BLOCK_SIZE);
         }
 
-        if (b != null) allocatedBuffersCount++;
+        if (b != null) {
+            allocatedBuffersCount++;
+            maxAllocatedCount = Math.max(maxAllocatedCount, allocatedBuffersCount);
+        }
         return b;
     }
 
@@ -92,6 +96,6 @@ public class BufferPool {
 
     @Override
     public String toString() {
-        return "buffer pool max{" + maxBuffersCount + "} allocated {" + allocatedBuffersCount + "} free {" + freeBuffers.size() + "}";
+        return "buffer pool max{" + maxBuffersCount + "} allocated/maxallocated {" + allocatedBuffersCount + "/" + maxAllocatedCount + "} free {" + freeBuffers.size() + "}";
     }
 }

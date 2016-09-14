@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.util.Hex;
@@ -244,6 +245,7 @@ public class ConfigurationManager {
     }
 
     public void setStoragePath(String path) {
+        log.info("set storage path {}", path);
         if (path != null && path.length() > 0) { // minor verifications
             setString(Constants.PREF_KEY_STORAGE_PATH, path);
         }

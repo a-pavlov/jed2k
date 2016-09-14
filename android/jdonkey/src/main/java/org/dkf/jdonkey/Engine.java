@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.util.Log;
 import org.dkf.jdonkey.transfers.ED2KTransfer;
 import org.dkf.jdonkey.transfers.Transfer;
+import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.android.ED2KService;
@@ -36,7 +37,9 @@ import org.dkf.jed2k.util.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -238,6 +241,19 @@ public final class Engine implements AlertListener {
         }
 
         return null;
+    }
+
+    public List<Transfer> getTransfers() {
+        List<Transfer> res = new ArrayList<>();
+
+        if (service != null) {
+            List<TransferHandle> handles = service.getTransfers();
+            for (final TransferHandle h : handles) {
+                if (h.isValid()) res.add(new ED2KTransfer(h));
+            }
+        }
+
+        return res;
     }
 
     public ExecutorService getThreadPool() {
