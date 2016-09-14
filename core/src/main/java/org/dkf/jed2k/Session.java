@@ -139,18 +139,18 @@ public class Session extends Thread {
         long tickIntervalMs = Time.currentTime() - lastTick;
         if (tickIntervalMs >= 1000) {
             lastTick = Time.currentTime();
-            secondTick(Time.currentTime());
+            secondTick(Time.currentTime(), tickIntervalMs);
         }
     }
 
-    public void secondTick(long currentSessionTime) {
+    public void secondTick(long currentSessionTime, long tickIntervalMS) {
         for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
             Hash key = entry.getKey();
-            entry.getValue().secondTick(currentSessionTime);
+            entry.getValue().secondTick(tickIntervalMS);
         }
 
         // second tick on server connection
-        if (serverConection != null) serverConection.secondTick(currentSessionTime);
+        if (serverConection != null) serverConection.secondTick(tickIntervalMS);
 
         // TODO - run second tick on peer connections
         // execute user's commands
@@ -161,7 +161,7 @@ public class Session extends Thread {
         }
 
         connectNewPeers();
-        log.info(bufferPool.toString());
+        log.trace(bufferPool.toString());
     }
 
     @Override

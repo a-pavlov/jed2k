@@ -31,4 +31,25 @@ public class TransferStatus {
     public long eta                 = 0;
     public BitField pieces;
     public int numPieces            = 0;
+
+    @Override
+    public String toString() {
+        return "TransferStatus{" +
+                "paused=" + paused +
+                ", progress=" + progress +
+                ", progressPPM=" + progressPPM +
+                ", downloadPayload=" + downloadPayload +
+                ", downloadProtocol=" + downloadProtocol +
+                ", downloadRate=" + downloadRate +
+                ", downloadPayloadRate=" + downloadPayloadRate +
+                ", upload=" + upload +
+                ", uploadRate=" + uploadRate +
+                ", numPeers=" + numPeers +
+                ", totalDone=" + totalDone +
+                ", totalWanted=" + totalWanted +
+                ", eta=" + eta +
+                ", pieces=" + pieces +
+                ", numPieces=" + numPieces +
+                '}';
+    }
 }

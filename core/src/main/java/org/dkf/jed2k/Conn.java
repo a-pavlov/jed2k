@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,6 +38,23 @@ public class Conn {
     private static Set<TransferHandle> handles = new HashSet<>();
     private static Path incomingDirectory;
     private static Path resumeDataDirectory;
+
+    private static String report(final Session s) {
+        StringBuilder sb = new StringBuilder();
+        List<TransferHandle> handles = s.getTransfers();
+        sb.append("Transfers: \n");
+        for(final TransferHandle h: handles) {
+            sb.append(h.getHash().toString()).append("{").append(h.getSize()).append("}");
+            TransferStatus status = h.getStatus();
+            sb.append("\n").append(status).append("\n");
+            List<PeerInfo> peers = h.getPeersInfo();
+            for(final PeerInfo pi: peers) {
+                sb.append("    ").append(pi).append("\n");
+            }
+        }
+
+        return sb.toString();
+    }
 
     private static void printGlobalSearchResult() {
         if (globalSearchRes == null) return;
@@ -112,7 +130,7 @@ public class Conn {
         startSettings.maxConnectionsPerSecond = 10;
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
-        startSettings.serverPingTimeout = 10;
+        startSettings.serverPingTimeout = 0;
 
         LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
         String sp = System.getProperty("session.peers");
@@ -345,6 +363,9 @@ public class Conn {
                         buff.clear();
                     }
                 }
+            }
+            else if (parts[0].compareTo("report") == 0) {
+                System.out.println(report(s));
             }
         }
 

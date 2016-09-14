@@ -577,14 +577,14 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    void secondTick(long currentSessionTime) {
+    void secondTick(long tickIntervalMS) {
         if (isDisconnecting()) return;
 
         // calculate statistics
-        super.secondTick(currentSessionTime);
+        super.secondTick(tickIntervalMS);
 
         // check timeout on connection
-        if (currentSessionTime - lastReceive > session.settings.peerConnectionTimeout*1000) {
+        if (Time.currentTime() - lastReceive > session.settings.peerConnectionTimeout*1000) {
             close(ErrorCode.CONNECTION_TIMEOUT);
         }
     }

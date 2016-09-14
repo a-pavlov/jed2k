@@ -279,21 +279,22 @@ public class Transfer {
         return policy.connectOnePeer(sessionTime);
     }
 
-	void secondTick(long currentSessionTime) {
-        if (nextTimeForSourcesRequest < currentSessionTime && !isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
+	void secondTick(long tickIntervalMS) {
+        if (nextTimeForSourcesRequest < Time.currentTime() && !isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
             log.debug("Request peers {}", hash);
             session.sendSourcesRequest(hash, size);
-            nextTimeForSourcesRequest = currentSessionTime + 1000*60;   // one request per second
+            nextTimeForSourcesRequest = Time.currentTime() + 1000*60;   // one request per second
         }
-
-        stat.secondTick(currentSessionTime);
 
         Iterator<PeerConnection> itr = connections.iterator();
         while(itr.hasNext()) {
             PeerConnection c = itr.next();
-            c.secondTick(currentSessionTime);
+            stat.add(c.statistics());
+            c.secondTick(tickIntervalMS);
             if (c.isDisconnecting()) itr.remove();
         }
+
+        stat.secondTick(tickIntervalMS);
 
         speedMon.addSample(stat.downloadRate());
 

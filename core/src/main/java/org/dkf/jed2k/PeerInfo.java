@@ -18,4 +18,21 @@ public class PeerInfo {
     public int version;
     public int modVersion;
     public String strModVersion;
+
+    @Override
+    public String toString() {
+        return "PeerInfo{" +
+                "downloadSpeed=" + downloadSpeed +
+                ", payloadDownloadSpeed=" + payloadDownloadSpeed +
+                ", downloadPayload=" + downloadPayload +
+                ", downloadProtocol=" + downloadProtocol +
+                ", remotePieces=" + remotePieces +
+                ", failCount=" + failCount +
+                ", endpoint=" + endpoint +
+                ", modName='" + modName + '\'' +
+                ", version=" + version +
+                ", modVersion=" + modVersion +
+                ", strModVersion='" + strModVersion + '\'' +
+                '}';
+    }
 }
