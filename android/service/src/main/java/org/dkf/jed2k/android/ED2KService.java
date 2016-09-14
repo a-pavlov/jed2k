@@ -7,15 +7,13 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
-import org.dkf.jed2k.R;
-import org.dkf.jed2k.Session;
-import org.dkf.jed2k.Settings;
-import org.dkf.jed2k.TransferHandle;
+import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
@@ -23,6 +21,8 @@ import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,6 +64,8 @@ public class ED2KService extends Service {
 
     private ScheduledFuture scheduledFuture;
 
+    private ResumeDataLoader rdLoader = new ResumeDataLoader();
+
     /**
      * trivial listener
      */
@@ -98,19 +100,19 @@ public class ED2KService extends Service {
 
     @Override
     public void onCreate() {
-        Log.v("ED2KService", "onCreate");
-        log.debug("ed2k service create");
+        log.info("ED2K service creating....");
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         settings.listenPort = 5000;
         session = new Session(settings);
         session.start();
         alertsLoop();
+        rdLoader.execute();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.v("ED2KService", "onStartCommand");
+        log.info("ED2K service start command");
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
         if (intent == null) {
@@ -128,33 +130,31 @@ public class ED2KService extends Service {
             }
         }
 
-        log.info("ed2k service started by this intent: {} flags {} startId {}", intent, flags, startId);
+        log.info("ED2K service started by this intent: {} flags {} startId {}", intent, flags, startId);
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        Log.v("ED2KService", "destroy");
-        log.debug("ED2K service onDestroy");
-
-        // stop alerts processing
-        scheduledExecutorService.shutdown();
+        log.info("ED2K service destructing...");
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
         if (session != null) {
-            Log.v("ED2KService", "stop session");
-            // stop session
-            session.interrupt();
+            session.abort();
             try {
                 session.join();
-                Log.v("ED2KService", "session finished");
+                log.info("ED2K service session aborted");
             } catch (InterruptedException e) {
                 log.error("wait session interrupted error {}", e);
             }
         } else {
             log.debug("session is not exist yet");
         }
+
+        // stop alerts processing
+        // need additional code to guarantee all alerts were processed
+        scheduledExecutorService.shutdown();
     }
 
     synchronized public void addListener(AlertListener listener) {
@@ -170,9 +170,8 @@ public class ED2KService extends Service {
     }
 
     synchronized public void processAlert(Alert a) {
-        Log.v("ED2KService", "service alive");
+        log.debug("ED2KService service alive");
         if (a instanceof ListenAlert) {
-            Log.v("ED2KService", "listen");
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
         } else if (a instanceof SearchResultAlert) {
             for(final AlertListener ls: listeners)  ls.onSearchResult((SearchResultAlert)a);
@@ -198,6 +197,34 @@ public class ED2KService extends Service {
         else if (a instanceof TransferRemovedAlert) {
             localHashes.remove(((TransferAddedAlert) a).hash);
         }
+        else if (a instanceof TransferResumeDataAlert) {
+            final TransferResumeDataAlert alert = (TransferResumeDataAlert)a;
+            FileOutputStream stream = null;
+            try {
+                stream = openFileOutput("rd_" + alert.hash.toString(), MODE_PRIVATE);
+                ByteBuffer bb = ByteBuffer.allocate(alert.trd.bytesCount());
+                alert.trd.put(bb);
+                bb.flip();
+                stream.write(bb.array(), 0, bb.limit());
+            } catch(FileNotFoundException e) {
+                log.error("save resume data {} failed {}", alert.hash, e);
+            } catch(IOException e) {
+                log.error("save resume data write {} failed {}", alert.hash, e);
+            }
+            catch(JED2KException e) {
+                log.error("save resume data serialization {} failed {}", alert.hash, e);
+            }
+            finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch(IOException e) {
+                        // just ignore
+                        log.error("save resume data close stream failed {}", e);
+                    }
+                }
+            }
+        }
         else {
             log.debug("alert {}", a);
         }
@@ -216,6 +243,65 @@ public class ED2KService extends Service {
                 }
             }
         },  100, 2000, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * scan files directory of program and attempt to load each resume data files
+     */
+    private class ResumeDataLoader extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            File fd = getFilesDir();
+            File[] files = fd.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    return (pathname.getName().startsWith("rd_"));
+                }
+            });
+
+            for(final File f: files) {
+                long fileSize = f.length();
+                if (fileSize > Constants.BLOCK_SIZE_INT) {
+                    log.warn("resume data file {} has too large size {}, skip it", f.getName(), fileSize);
+                    continue;
+                }
+
+                ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
+                FileInputStream istream = null;
+                try {
+                    istream = openFileInput(f.getName());
+                    istream.read(buffer.array(), 0, buffer.capacity());
+                    buffer.flip();
+                    AddTransferParams atp = new AddTransferParams();
+                    atp.get(buffer);
+                    if (session != null) {
+                        session.addTransfer(atp);
+                    }
+                }
+                catch(FileNotFoundException e) {
+                    log.error("load resume data file not found {} error {}", f.getName(), e);
+                }
+                catch(IOException e) {
+                    log.error("load resume data {} i/o error {}", f.getName(), e);
+                }
+                catch(JED2KException e) {
+                    log.error("load resume data {} serialization error {}", f.getName(), e);
+                }
+                finally {
+                    if (istream != null) {
+                        try {
+                            istream.close();
+                        } catch(Exception e) {
+                            log.error("load resume data {} close stream error {}", f.getName(), e);
+                        }
+                    }
+                }
+
+            }
+
+            return null;
+        }
     }
 
     private void buildNotification(final String fileName, final String fileHash, Bitmap artImage) {
@@ -344,7 +430,7 @@ public class ED2KService extends Service {
         try {
             session.search(SearchRequest.makeRequest(minSize, maxSize, sourcesCount, completeSourcesCount, fileType, fileExtension, codec, mediaLength, mediaBitrate, phrase));
         } catch(JED2KException e) {
-            Log.e("ED2KService", "Error on search request " + e.toString());
+            log.error("search request error {}", e);
         }
     }
 

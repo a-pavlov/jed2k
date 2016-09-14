@@ -18,8 +18,10 @@ public class Optional<Data extends Serializable> implements Serializable {
     }
 
     public void setData(Data d) {
-        data = d;
-        d.getClass();
+        if (d != null) {
+            data = d;
+            d.getClass();
+        }
     }
 
     public final boolean haveData() {
@@ -60,5 +62,38 @@ public class Optional<Data extends Serializable> implements Serializable {
     @Override
     public int bytesCount() {
         return 1 + ((data != null)?data.bytesCount():0);
+    }
+
+    /*@Override
+    public boolean equals(Object o) {
+        if (o instanceof Optional) {
+            final Optional<?> opt = (Optional<?>)o;
+            if (haveData() && opt.haveData()) {
+                return getData().equals(opt.getData());
+            }
+
+            if (!haveData() && !opt.haveData()) return true;
+        }
+
+        return false;
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Optional<?> optional = (Optional<?>) o;
+
+        if (data != null ? !data.equals(optional.data) : optional.data != null) return false;
+        return !(clazz != null ? !clazz.equals(optional.clazz) : optional.clazz != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = data != null ? data.hashCode() : 0;
+        result = 31 * result + (clazz != null ? clazz.hashCode() : 0);
+        return result;
     }
 }

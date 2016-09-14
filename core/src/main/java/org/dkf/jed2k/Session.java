@@ -605,7 +605,13 @@ public class Session extends Thread {
             public void run() {
                 for(final Transfer t: transfers.values()) {
                     if (t.isNeedSaveResumeData()) {
-                        pushAlert(new TransferResumeDataAlert(t.hash(), t.resumeData()));
+                        try {
+                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFilepath(), t.isPaused());
+                            atp.resumeData.setData(t.resumeData());
+                            pushAlert(new TransferResumeDataAlert(t.hash(), atp));
+                        } catch(JED2KException e) {
+                            log.error("prepare resume data for {} failed {}", t.hash(), e);
+                        }
                     }
                 }
             }

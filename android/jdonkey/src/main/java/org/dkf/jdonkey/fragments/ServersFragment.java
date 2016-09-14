@@ -355,7 +355,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
         @Override
         protected void populateView(View view, ServerEntry item) {
-            log.info("populate servers view");
             ImageView icon = findView(view, R.id.view_preference_servers_list_item_icon);
             TextView label = findView(view, R.id.view_preference_servers_list_item_label);
             TextView description = findView(view, R.id.view_preference_servers_list_item_description);
@@ -375,7 +374,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
                     icon.setAlpha(0.4f);
                     break;
                 case CONNECTING:
-                    log.info("connecting......");
                     AlphaAnimation animation1 = new AlphaAnimation(0.5f, 1.0f);
                     animation1.setDuration(300);
                     animation1.setStartOffset(100);
