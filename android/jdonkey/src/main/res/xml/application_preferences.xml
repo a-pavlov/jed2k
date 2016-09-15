@@ -119,12 +119,6 @@
     </PreferenceScreen>
 
     <Preference
-            android:key="jdonkey.prefs.offers.buy_no_ads"
-            android:summary="@string/remove_ads_description"
-            android:title="@string/remove_ads">
-    </Preference>
-
-    <Preference
             android:key="jdonkey.prefs.show_about"
             android:title="@string/about">
         <intent

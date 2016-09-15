@@ -24,6 +24,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import org.dkf.jdonkey.core.ConfigurationManager;
+import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.transfers.ED2KTransfer;
 import org.dkf.jdonkey.transfers.Transfer;
 import org.dkf.jed2k.TransferHandle;
@@ -233,6 +235,12 @@ public final class Engine implements AlertListener {
 
                     log.info("bind {} pending listeners", pendingListeners.size());
                     pendingListeners.clear();
+
+                    // sync properties here
+                    setListenPort((int) ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
+                    setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
+                    setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
+                    configureServices();
 
                     //if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CORE_CONNECTED)) {
                     //    startServices();

@@ -62,7 +62,6 @@ public class SettingsActivity extends PreferenceActivity {
     private static final boolean INTERNAL_BUILD = true;
     private static String currentPreferenceKey = null;
     private boolean finishOnBack = false;
-    private long removeAdsPurchaseTime = 0;
 
     @Override
     protected void onResume() {
@@ -117,7 +116,6 @@ public class SettingsActivity extends PreferenceActivity {
         setupStorageOption();
         setupOtherOptions();
         setupTransferOptions();
-        setupStore(removeAdsPurchaseTime);
     }
 
     private void setupTransferOptions() {
@@ -204,7 +202,6 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void updateConnectSwitch() {
-        LOG.info("setup connect switch");
         SwitchPreference preference = (SwitchPreference) findPreference("jdonkey.prefs.internal.connect_disconnect");
         if (preference != null) {
             final OnPreferenceChangeListener onPreferenceChangeListener = preference.getOnPreferenceChangeListener();
@@ -226,7 +223,6 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void connectSwitchImOnIt(SwitchPreference preference) {
-        LOG.info("connectSwitchImOnIt");
         final OnPreferenceChangeListener onPreferenceChangeListener = preference.getOnPreferenceChangeListener();
         preference.setOnPreferenceChangeListener(null);
         preference.setEnabled(false);
@@ -285,39 +281,6 @@ public class SettingsActivity extends PreferenceActivity {
                 category.removePreference(p);
             }
         }
-    }
-
-    private void setupStore(long purchaseTimestamp) {
-        /*
-        Preference p = findPreference("frostwire.prefs.offers.buy_no_ads");
-        if (p != null && !Constants.IS_GOOGLE_PLAY_DISTRIBUTION) {
-            PreferenceScreen s = getPreferenceScreen();
-            s.removePreference(p);
-        } else if (p != null) {
-            final PlayStore playStore = PlayStore.getInstance();
-            playStore.refresh();
-            final Collection<Product> purchasedProducts = Products.listEnabled(playStore, Products.DISABLE_ADS_FEATURE);
-            if (purchaseTimestamp == 0 && purchasedProducts != null && purchasedProducts.size() > 0) {
-                initRemoveAdsSummaryWithPurchaseInfo(p, purchasedProducts);
-                //otherwise, a BuyActivity intent has been configured on application_preferences.xml
-            } else if (purchaseTimestamp > 0 &&
-                    (System.currentTimeMillis()-purchaseTimestamp) < 30000) {
-                p.setSummary(getString(R.string.processing_payment)+"...");
-                p.setOnPreferenceClickListener(null);
-            } else {
-                p.setSummary(R.string.remove_ads_description);
-                p.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        PlayStore.getInstance().endAsync();
-                        Intent intent = new Intent(SettingsActivity.this, BuyActivity.class);
-                        startActivityForResult(intent, BuyActivity.PURCHASE_SUCCESSFUL_RESULT_CODE);
-                        return true;
-                    }
-                });
-            }
-        }
-        */
     }
 
     @Override
@@ -434,6 +397,7 @@ public class SettingsActivity extends PreferenceActivity {
             dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
+                    LOG.info("on click cancel");
                     dialog.dismiss();
                     if (finishOnBack) {
                         finish();
@@ -449,6 +413,7 @@ public class SettingsActivity extends PreferenceActivity {
                 OnClickListener dismissDialogClickListener = new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        LOG.info("on click back");
                         if (finishOnBack) {
                             finish();
                             return;
@@ -462,13 +427,18 @@ public class SettingsActivity extends PreferenceActivity {
                     ViewGroup containerParent = (ViewGroup) homeBtnContainer.getParent();
 
                     if (containerParent instanceof LinearLayout) {
+                        LOG.info("set to linear parent");
                         containerParent.setOnClickListener(dismissDialogClickListener);
                     } else {
+                        LOG.info("set to frame parent");
                         ((FrameLayout) homeBtnContainer).setOnClickListener(dismissDialogClickListener);
                     }
                 } else {
+                    LOG.info("set to btn");
                     homeButton.setOnClickListener(dismissDialogClickListener);
                 }
+
+                homeButton.setOnClickListener(dismissDialogClickListener);
             }
         }
     }

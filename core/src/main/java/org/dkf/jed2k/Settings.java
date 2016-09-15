@@ -26,4 +26,29 @@ public class Settings {
      * send ping message to server every serverPingTimeout seconds
      */
     public long serverPingTimeout = 0;
+
+    @Override
+    public String toString() {
+        return "Settings{" +
+                "userAgent=" + userAgent +
+                ", modName='" + modName + '\'' +
+                ", clientName='" + clientName + '\'' +
+                ", listenPort=" + listenPort +
+                ", udpPort=" + udpPort +
+                ", version=" + version +
+                ", modMajor=" + modMajor +
+                ", modMinor=" + modMinor +
+                ", modBuild=" + modBuild +
+                ", maxFailCount=" + maxFailCount +
+                ", maxPeerListSize=" + maxPeerListSize +
+                ", minPeerReconnectTime=" + minPeerReconnectTime +
+                ", peerConnectionTimeout=" + peerConnectionTimeout +
+                ", sessionConnectionsLimit=" + sessionConnectionsLimit +
+                ", bufferPoolSize=" + bufferPoolSize +
+                ", maxConnectionsPerSecond=" + maxConnectionsPerSecond +
+                ", compressionVersion=" + compressionVersion +
+                ", serverSearchTimeout=" + serverSearchTimeout +
+                ", serverPingTimeout=" + serverPingTimeout +
+                '}';
+    }
 }
