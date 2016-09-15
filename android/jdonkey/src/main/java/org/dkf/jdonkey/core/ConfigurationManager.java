@@ -73,8 +73,6 @@ public class ConfigurationManager {
         initPreferences();
     }
 
-
-
     public String getString(String key) {
         return preferences.getString(key, null);
     }

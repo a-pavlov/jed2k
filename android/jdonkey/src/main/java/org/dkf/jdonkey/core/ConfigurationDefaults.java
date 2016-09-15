@@ -87,7 +87,8 @@ final class ConfigurationDefaults {
 
 
         defaultValues.put(Constants.PREF_KEY_NICKNAME, "Nickname");
-        defaultValues.put(Constants.PREF_KEY_LISTEN_PORT, 30000L);
+        defaultValues.put(Constants.PREF_KEY_LISTEN_PORT, 30000l);
+        defaultValues.put(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS, 100l);
         defaultValues.put(Constants.PREF_KEY_CONN_SERVER_ON_START, false);
         defaultValues.put(Constants.PREF_KEY_SHOW_SERVER_MSG, true);
 

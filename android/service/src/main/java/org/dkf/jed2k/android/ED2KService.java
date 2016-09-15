@@ -48,7 +48,7 @@ public class ED2KService extends Service {
     private Set<Hash> localHashes = new HashSet<>();
 
     /**
-     * dedicated thread executor for scan session's alerts
+     * dedicated thread executor for scan session's alerts and some other actions like resume data loading
      */
     ScheduledExecutorService scheduledExecutorService;
 
@@ -490,17 +490,6 @@ public class ED2KService extends Service {
         if (session != null) session.searchMore();
     }
 
-    /**
-     * setup session preferences
-     * @param settings new session config
-     */
-    public void configureSession(final Settings settings) {
-        if (session != null) {
-            this.settings = settings;
-            session.configureSession(settings);
-        }
-    }
-
     public void startServices() {
         startSession();
     }
@@ -534,5 +523,23 @@ public class ED2KService extends Service {
         }
 
         return new ArrayList<TransferHandle>();
+    }
+
+    public void configureSession() {
+        if (session != null) {
+            session.configureSession(settings);
+        }
+    }
+
+    public void setNickname(final String name) {
+        settings.clientName = name;
+    }
+
+    public void setListenPort(int port) {
+        settings.listenPort = port;
+    }
+
+    public void setMaxPeerListSize(int maxSize) {
+        settings.maxPeerListSize = maxSize;
     }
 }

@@ -5,9 +5,9 @@ package org.dkf.jed2k.alert;
  */
 public class ListenAlert extends Alert {
     public final String details;
-    public short port;
+    public int port;
 
-    public ListenAlert(final String det, short port) {
+    public ListenAlert(final String det, int port) {
         this.details = det;
         this.port = port;
     }

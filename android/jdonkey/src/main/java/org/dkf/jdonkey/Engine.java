@@ -286,4 +286,12 @@ public final class Engine implements AlertListener {
     public ExecutorService getThreadPool() {
         return threadPool;
     }
+
+    public void setNickname(final String name) { if (service != null) service.setNickname(name); }
+    public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
+    public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
+
+    public void configureServices() {
+        if (service != null) service.configureSession();
+    }
 }

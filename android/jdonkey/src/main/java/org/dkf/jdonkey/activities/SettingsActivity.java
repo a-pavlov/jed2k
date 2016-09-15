@@ -112,6 +112,8 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void setupComponents() {
         setupConnectSwitch();
+        setupNickname();
+        setupListenPort();
         setupStorageOption();
         setupOtherOptions();
         setupTransferOptions();
@@ -119,8 +121,22 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void setupTransferOptions() {
-        setupMaxDownloads();
         setupMaxTotalConnections();
+    }
+
+    private void setupNickname() {
+        EditTextPreference nickPreference = (EditTextPreference)findPreference(Constants.PREF_KEY_NICKNAME);
+        if (nickPreference != null) {
+            nickPreference.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    LOG.info("new nick {}", (String)newValue);
+                    Engine.instance().setNickname((String)newValue);
+                    Engine.instance().configureServices();
+                    return true;
+                }
+            });
+        }
     }
 
     private void setupMaxTotalConnections() {
@@ -130,19 +146,23 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     LOG.info("explicit setup total connections to {}", (int)newValue);
+                    Engine.instance().setMaxPeersCount((int)newValue);
+                    Engine.instance().configureServices();
                     return true;
                 }
             });
         }
     }
 
-    private void setupMaxDownloads() {
-        NumberPickerPreference pickerPref = (NumberPickerPreference) findPreference(Constants.PREF_KEY_TRANSFER_MAX_DOWNLOADS);
+    private void setupListenPort() {
+        NumberPickerPreference pickerPref = (NumberPickerPreference) findPreference(Constants.PREF_KEY_LISTEN_PORT);
         if (pickerPref != null) {
             pickerPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    LOG.info("explicit set max downloads {}", (int)newValue);
+                    LOG.info("explicit set listen port {}", (int)newValue);
+                    Engine.instance().setListenPort((int)newValue);
+                    Engine.instance().configureServices();
                     return true;
                 }
             });
@@ -328,6 +348,18 @@ public class SettingsActivity extends PreferenceActivity {
     private void connect() {
         final Activity context = this;
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                LOG.info("listen port {}", ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
+                Engine.instance().setListenPort((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
+                Engine.instance().setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
+                Engine.instance().setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
+                LOG.info("configuration {} max conn {} port {}"
+                        , ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME)
+                        , (int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS)
+                        , (int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
+            }
+
             @Override
             protected Void doInBackground(Void... params) {
                 Engine.instance().startServices();

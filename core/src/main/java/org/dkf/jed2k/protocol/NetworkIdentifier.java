@@ -108,8 +108,8 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
         ip = i;
     }
 
-    public void setPort(short p) {
-        port = p;
+    public void setPort(int p) {
+        port = (short)p;
     }
 
     public int getIP() { return ip; }

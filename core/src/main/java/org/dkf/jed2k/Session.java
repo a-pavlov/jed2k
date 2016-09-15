@@ -567,7 +567,7 @@ public class Session extends Thread {
 
     public Hash getUserAgent() { return settings.userAgent; }
     public int getClientId() { return clientId; }
-    public short getListenPort() { return settings.listenPort; }
+    public int getListenPort() { return settings.listenPort; }
     public String getClientName() { return settings.clientName; }
     public String getModName() { return settings.modName; }
     public int getAppVersion() { return settings.version; }
