@@ -578,10 +578,12 @@ public class MainActivity extends AbstractActivity implements
 
     private void onLastDialogButtonPositive() {
         //Offers.showInterstitial(this, false, true);
+        Engine.instance().shutdown();
         finish();
     }
 
     private void onShutdownDialogButtonPositive() {
+        Engine.instance().shutdown();
         finish();
         //Offers.showInterstitial(this, true, false);
     }

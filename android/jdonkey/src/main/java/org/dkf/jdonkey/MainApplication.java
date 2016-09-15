@@ -59,8 +59,6 @@ public class MainApplication extends Application {
 
             Platforms.set(new AndroidPlatform(this));
 
-            setupBTEngine();
-
             NetworkManager.create(this);
             Librarian.create(this);
             Engine.create(this);
@@ -106,33 +104,6 @@ public class MainApplication extends Application {
             HttpResponseCache.install(this);
         } catch (IOException e) {
             LOG.error("Unable to install global http cache", e);
-        }
-        */
-    }
-
-    private void setupBTEngine() {
-        /*
-        SystemPaths paths = Platforms.get().systemPaths();
-
-        BTContext ctx = new BTContext();
-        ctx.homeDir = paths.libtorrent();
-        ctx.torrentsDir = paths.torrents();
-        ctx.dataDir = paths.data();
-        ctx.interfaces = "0.0.0.0:0,[::]:0";
-        ctx.retries = 0;
-        ctx.optimizeMemory = true;
-
-        BTEngine.ctx = ctx;
-        BTEngine.getInstance().start();
-
-        boolean enable_dht = ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_NETWORK_ENABLE_DHT);
-        Dht dht = new Dht(BTEngine.getInstance().getSession());
-        if (!enable_dht) {
-            dht.stop();
-        } else {
-            // just make sure it's started otherwise.
-            // (we could be coming back from a crash on an unstable state)
-            //dht.start();
         }
         */
     }
