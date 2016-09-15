@@ -51,8 +51,8 @@ public class StatChannel {
 		return this;
 	}
 
-	void secondTick(long currentSessionTime) {
-		long sample = secondCounter * 1000 / currentSessionTime;
+	void secondTick(long timeIntervalMS) {
+		long sample = (secondCounter * 1000) / timeIntervalMS;
 	    assert(sample >= 0);
 	    samples.push(sample);
 	    samples.removeLast();
@@ -61,7 +61,7 @@ public class StatChannel {
 	    	sum += l;
 	    }
 	    assert(samples.size() == 5);
-	    average5Sec = (sum + 5) / 5;
+	    average5Sec = sum / 5;
 	    //m_5_sec_average = size_type(m_5_sec_average) * 4 / 5 + sample / 5;
 	    average30Sec = average30Sec * 29 / 30 + sample / 30;
 	    secondCounter = 0;

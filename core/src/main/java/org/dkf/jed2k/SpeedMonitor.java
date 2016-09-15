@@ -5,6 +5,7 @@ package org.dkf.jed2k;
  */
 public class SpeedMonitor {
     public static long INVALID_SPEED = -1;
+    public static long INVALID_ETA = -1;
     private long speedSamples[];
     private int roundRobin = 0;
     private int totalSamples = 0;

@@ -279,7 +279,7 @@ public class Transfer {
         return policy.connectOnePeer(sessionTime);
     }
 
-	void secondTick(long tickIntervalMS) {
+	void secondTick(final Statistics accumulator, long tickIntervalMS) {
         if (nextTimeForSourcesRequest < Time.currentTime() && !isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
             log.debug("Request peers {}", hash);
             session.sendSourcesRequest(hash, size);
@@ -294,6 +294,7 @@ public class Transfer {
             if (c.isDisconnecting()) itr.remove();
         }
 
+        accumulator.add(stat);
         stat.secondTick(tickIntervalMS);
 
         speedMon.addSample(stat.downloadRate());
@@ -554,7 +555,11 @@ public class Transfer {
 
             long averageSpeed = speedMon.averageSpeed();
             if (averageSpeed != SpeedMonitor.INVALID_SPEED) {
-                status.eta = (status.totalWanted - status.totalDone) / averageSpeed;
+                if (averageSpeed == 0) {
+                    status.eta = SpeedMonitor.INVALID_ETA;
+                } else {
+                    status.eta = (status.totalWanted - status.totalDone) / averageSpeed;
+                }
             }
         }
         else {

@@ -30,8 +30,16 @@ public class Statistics {
 		return this;
 	}
 
-	void secondTick(long currentSessionTime) {
-		for(int i = 0; i < channels.length; ++i) channels[i].secondTick(currentSessionTime);
+	public void secondTick(long timeIntervalMS) {
+		for(final StatChannel sc: channels) {
+			sc.secondTick(timeIntervalMS);
+		}
+	}
+
+	void clear() {
+		for(final StatChannel sc: channels) {
+			sc.clear();
+		}
 	}
 
 	public void receiveBytes(long protocolBytes, long payloadBytes) {

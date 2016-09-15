@@ -35,7 +35,7 @@ public class PeerConnectionTest {
         Session session = Mockito.mock(Session.class);
         when(session.getUserAgent()).thenReturn(s.userAgent);
         when(session.getClientId()).thenReturn(100500);
-        when(session.getListenPort()).thenReturn((short)4661);
+        when(session.getListenPort()).thenReturn(4661);
         when(session.getClientName()).thenReturn("long client name here"); // TODO - add limits checking later
         when(session.getModName()).thenReturn("long mod name");
         when(session.getAppVersion()).thenReturn(s.version);

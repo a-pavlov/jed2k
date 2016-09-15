@@ -40,6 +40,7 @@ public class Session extends Thread {
     private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
     private AtomicBoolean finished = new AtomicBoolean(false);
     private boolean aborted = false;
+    private Statistics accumulator = new Statistics();
 
 
     // from last established server connection
@@ -146,7 +147,7 @@ public class Session extends Thread {
     public void secondTick(long currentSessionTime, long tickIntervalMS) {
         for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
             Hash key = entry.getKey();
-            entry.getValue().secondTick(tickIntervalMS);
+            entry.getValue().secondTick(accumulator, tickIntervalMS);
         }
 
         // second tick on server connection
@@ -160,6 +161,7 @@ public class Session extends Thread {
             r = commands.poll();
         }
 
+        accumulator.secondTick(tickIntervalMS);
         connectNewPeers();
         log.trace(bufferPool.toString());
     }

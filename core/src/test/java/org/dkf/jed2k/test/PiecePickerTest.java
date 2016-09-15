@@ -24,11 +24,11 @@ public class PiecePickerTest {
         assertEquals(2, pp.numPieces());
         assertEquals(12, rq.size());
         for(int i = 0; i < 10; ++i) {
-            assertThat(rq.get(i), is(new PieceBlock(1, i)));
+            assertThat(rq.get(i), is(new PieceBlock(0, i)));
         }
 
-        assertThat(rq.get(10), is(new PieceBlock(0, 0)));
-        assertThat(rq.get(11), is(new PieceBlock(0, 1)));
+        assertThat(rq.get(10), is(new PieceBlock(0, 10)));
+        assertThat(rq.get(11), is(new PieceBlock(0, 11)));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class PiecePickerTest {
         }
 
         assertEquals(4, pp.numPieces());
-        assertEquals(1, pp.numHave());
+        assertEquals(0, pp.numHave());
         rq.clear();
         pp.pickPieces(rq, Constants.BLOCKS_PER_PIECE*3);
         assertEquals(Constants.BLOCKS_PER_PIECE*3, rq.size());
