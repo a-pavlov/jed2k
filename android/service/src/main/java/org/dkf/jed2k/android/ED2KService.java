@@ -165,6 +165,7 @@ public class ED2KService extends Service {
         if (session != null) {
             log.info("stopping session....");
             stoppingInProgress = true;
+            session.saveResumeData();
             session.abort();
 
             try {
@@ -176,6 +177,15 @@ public class ED2KService extends Service {
                 try {
                     scheduledExecutorService.shutdown();
                     scheduledExecutorService.awaitTermination(4, TimeUnit.SECONDS);
+
+                    // catch all remain events and process save resume data
+                    Alert a = session.popAlert();
+                    while(a != null) {
+                        if (a instanceof TransferResumeDataAlert) {
+                            saveResumeData((TransferResumeDataAlert)a);
+                        }
+                        a = session.popAlert();
+                    }
                 } catch(InterruptedException e) {
                     log.error("alert loop await interrupted {}", e);
                 }
@@ -217,6 +227,36 @@ public class ED2KService extends Service {
         return localHashes.contains(h);
     }
 
+    private void saveResumeData(final TransferResumeDataAlert a) {
+        final TransferResumeDataAlert alert = (TransferResumeDataAlert)a;
+        FileOutputStream stream = null;
+        try {
+            stream = openFileOutput("rd_" + alert.hash.toString(), MODE_PRIVATE);
+            ByteBuffer bb = ByteBuffer.allocate(alert.trd.bytesCount());
+            alert.trd.put(bb);
+            bb.flip();
+            stream.write(bb.array(), 0, bb.limit());
+            log.info("saved resume data {} size {}", alert.hash.toString(), alert.trd.bytesCount());
+        } catch(FileNotFoundException e) {
+            log.error("save resume data {} failed {}", alert.hash, e);
+        } catch(IOException e) {
+            log.error("save resume data write {} failed {}", alert.hash, e);
+        }
+        catch(JED2KException e) {
+            log.error("save resume data serialization {} failed {}", alert.hash, e);
+        }
+        finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch(IOException e) {
+                    // just ignore
+                    log.error("save resume data close stream failed {}", e);
+                }
+            }
+        }
+    }
+
     synchronized public void processAlert(Alert a) {
         log.debug("ED2KService service alive");
         if (a instanceof ListenAlert) {
@@ -247,32 +287,7 @@ public class ED2KService extends Service {
             localHashes.remove(((TransferAddedAlert) a).hash);
         }
         else if (a instanceof TransferResumeDataAlert) {
-            final TransferResumeDataAlert alert = (TransferResumeDataAlert)a;
-            FileOutputStream stream = null;
-            try {
-                stream = openFileOutput("rd_" + alert.hash.toString(), MODE_PRIVATE);
-                ByteBuffer bb = ByteBuffer.allocate(alert.trd.bytesCount());
-                alert.trd.put(bb);
-                bb.flip();
-                stream.write(bb.array(), 0, bb.limit());
-            } catch(FileNotFoundException e) {
-                log.error("save resume data {} failed {}", alert.hash, e);
-            } catch(IOException e) {
-                log.error("save resume data write {} failed {}", alert.hash, e);
-            }
-            catch(JED2KException e) {
-                log.error("save resume data serialization {} failed {}", alert.hash, e);
-            }
-            finally {
-                if (stream != null) {
-                    try {
-                        stream.close();
-                    } catch(IOException e) {
-                        // just ignore
-                        log.error("save resume data close stream failed {}", e);
-                    }
-                }
-            }
+            saveResumeData((TransferResumeDataAlert)a);
         }
         else {
             log.debug("alert {}", a);
@@ -322,13 +337,24 @@ public class ED2KService extends Service {
                     ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
                     FileInputStream istream = null;
                     try {
+                        log.info("load resume data {} size {}", f.getName(), fileSize);
+                        if (session == null) {
+                            log.info("session null");
+                        } else {
+                            log.info("session not null");
+                        }
                         istream = openFileInput(f.getName());
                         istream.read(buffer.array(), 0, buffer.capacity());
-                        buffer.flip();
+                        // do not flip buffer!
                         AddTransferParams atp = new AddTransferParams();
                         atp.get(buffer);
                         if (session != null) {
-                            session.addTransfer(atp);
+                            TransferHandle handle = session.addTransfer(atp);
+                            if (handle.isValid()) {
+                                log.info("transfer {} is valid", handle.getHash());
+                            } else {
+                                log.info("transfer invalid");
+                            }
                         }
                     }
                     catch(FileNotFoundException e) {
@@ -338,7 +364,7 @@ public class ED2KService extends Service {
                         log.error("load resume data {} i/o error {}", f.getName(), e);
                     }
                     catch(JED2KException e) {
-                        log.error("load resume data {} serialization error {}", f.getName(), e);
+                        log.error("load resume data {} add transfer error {}", f.getName(), e);
                     }
                     finally {
                         if (istream != null) {
@@ -520,7 +546,10 @@ public class ED2KService extends Service {
 
     public List<TransferHandle> getTransfers() {
         if (session != null) {
+            log.info("session transfers size {}", session.getTransfers().size());
             return session.getTransfers();
+        } else {
+            log.info("session is null on get transfers");
         }
 
         return new ArrayList<TransferHandle>();
@@ -542,5 +571,13 @@ public class ED2KService extends Service {
 
     public void setMaxPeerListSize(int maxSize) {
         settings.maxPeerListSize = maxSize;
+    }
+
+    public Pair<Long, Long> getDownloadUploadRate() {
+        if (session != null) {
+            return session.getDownloadUploadRate();
+        }
+
+        return Pair.make(0l, 0l);
     }
 }

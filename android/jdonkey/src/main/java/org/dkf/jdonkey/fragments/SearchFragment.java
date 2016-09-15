@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,7 +71,6 @@ public final class SearchFragment extends AbstractFragment implements
     private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(6);
 
     private boolean awaitingResults = false;
-    Handler ensureEndOfSearch = new Handler();
 
     public SearchFragment() {
         super(R.layout.fragment_search);
@@ -243,13 +241,6 @@ public final class SearchFragment extends AbstractFragment implements
         warnServerNotConnected(getView());
         if (!Engine.instance().getCurrentServerId().isEmpty()) {
             awaitingResults = true;
-            ensureEndOfSearch.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    cancelSearch();
-                }
-            }, 15000);
-
             adapter.clear();
             adapter.setFileType(mediaTypeId);
             fileTypeCounter.clear();
@@ -264,13 +255,6 @@ public final class SearchFragment extends AbstractFragment implements
     public void performSearchMore() {
         if (!Engine.instance().getCurrentServerId().isEmpty()) {
             awaitingResults = true;
-            ensureEndOfSearch.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    cancelSearch();
-                }
-            }, 15000);
-
             adapter.clear();
             adapter.setFileType(0);
             refreshFileTypeCounters(false);
@@ -281,6 +265,7 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void cancelSearch() {
+        LOG.info("cancel search wait res {}", awaitingResults?"YES":"NO");
         if (awaitingResults) {
             awaitingResults = false;
             adapter.clear();

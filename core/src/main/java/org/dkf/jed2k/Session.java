@@ -461,7 +461,7 @@ public class Session extends Thread {
     public final synchronized List<TransferHandle> getTransfers() {
         LinkedList<TransferHandle> handles = new LinkedList<TransferHandle>();
         for(final Transfer t: transfers.values()) {
-            if (!t.isAborted()) handles.add(new TransferHandle(this, t));
+            /*if (!t.isAborted())*/ handles.add(new TransferHandle(this, t));
         }
 
         return handles;
@@ -619,5 +619,11 @@ public class Session extends Thread {
                 }
             }
         });
+    }
+
+    synchronized  public Pair<Long, Long> getDownloadUploadRate() {
+        long dr = accumulator.downloadRate() + accumulator.downloadPayloadRate();
+        long ur = accumulator.uploadRate() + accumulator.uploadPayloadRate();
+        return Pair.make(dr, ur);
     }
 }

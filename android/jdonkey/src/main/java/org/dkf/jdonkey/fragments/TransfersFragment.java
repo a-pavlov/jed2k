@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.activities.SettingsActivity;
 import org.dkf.jdonkey.adapters.TransferListAdapter;
@@ -40,6 +41,7 @@ import org.dkf.jdonkey.util.SystemUtils;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractDialog.OnDialogClickListener;
 import org.dkf.jdonkey.views.*;
+import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.util.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,8 +145,9 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         }
 
         //  format strings
-        String sDown = UIUtils.rate2speed(TransferManager.instance().getDownloadsBandwidth() / 1024);
-        String sUp = UIUtils.rate2speed(TransferManager.instance().getUploadsBandwidth() / 1024);
+        Pair<Long, Long> dub = Engine.instance().getDownloadUploadBandwidth();
+        String sDown = UIUtils.rate2speed(dub.left / 1024);
+        String sUp = UIUtils.rate2speed(dub.right / 1024);
 
         // number of uploads (seeding) and downloads
         int downloads = TransferManager.instance().getActiveDownloads();

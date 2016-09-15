@@ -28,6 +28,7 @@ import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.transfers.ED2KTransfer;
 import org.dkf.jdonkey.transfers.Transfer;
+import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -301,5 +302,10 @@ public final class Engine implements AlertListener {
 
     public void configureServices() {
         if (service != null) service.configureSession();
+    }
+
+    public Pair<Long, Long> getDownloadUploadBandwidth() {
+        if (service != null) return service.getDownloadUploadRate();
+        return Pair.make(0l, 0l);
     }
 }

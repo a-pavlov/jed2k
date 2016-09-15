@@ -400,6 +400,7 @@ public class Transfer {
         // async release file
         setState(TransferStatus.TransferState.FINISHED);
         aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
+        needSaveResumeData = true;
         session.pushAlert(new TransferFinishedAlert(hash()));
     }
 

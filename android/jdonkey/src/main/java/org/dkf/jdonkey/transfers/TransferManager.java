@@ -120,7 +120,8 @@ public final class TransferManager {
     public int getActiveDownloads() {
         int count = 0;
 
-        for (final Transfer t: transfers) {
+        List<Transfer> tr = Engine.instance().getTransfers();
+        for (final Transfer t: tr) {
             if (!t.isComplete() && t.isDownloading()) {
                 count++;
             }
@@ -137,7 +138,7 @@ public final class TransferManager {
     public long getDownloadsBandwidth() {
         long res = 0;
 
-        for(final Transfer t: transfers) {
+        for(final Transfer t: Engine.instance().getTransfers()) {
             res += t.getDownloadSpeed();
         }
 
