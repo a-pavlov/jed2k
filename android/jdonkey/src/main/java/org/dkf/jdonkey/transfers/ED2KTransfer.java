@@ -32,11 +32,11 @@ public class ED2KTransfer implements Transfer {
     }
 
     public String getName() {
-        return "";
+        return handle.getHash().toString();
     }
 
     public String getDisplayName() {
-        return getName();
+        return handle.getFilepath();
     }
 
     public String getFilePath() {

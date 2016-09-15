@@ -222,6 +222,7 @@ public class ED2KService extends Service {
         if (a instanceof ListenAlert) {
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
         } else if (a instanceof SearchResultAlert) {
+            log.info("search result received");
             for(final AlertListener ls: listeners)  ls.onSearchResult((SearchResultAlert)a);
         }
         else if (a instanceof ServerMessageAlert) {

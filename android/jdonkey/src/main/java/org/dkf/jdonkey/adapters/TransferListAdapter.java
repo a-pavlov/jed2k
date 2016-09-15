@@ -44,25 +44,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.ref.WeakReference;
 import java.util.*;
 
-//import com.frostwire.android.gui.Librarian;
-/*
-import com.frostwire.android.gui.adapters.menu.*;
-import com.frostwire.android.gui.services.Engine;
-import com.frostwire.android.gui.transfers.UIBittorrentDownload;
-import com.frostwire.android.gui.util.UIUtils;
-import com.frostwire.android.gui.views.ClickAdapter;
-import com.frostwire.android.gui.views.MenuAction;
-import com.frostwire.android.gui.views.MenuAdapter;
-import com.frostwire.android.gui.views.MenuBuilder;
-
-import com.frostwire.bittorrent.BTDownloadItem;
-import com.frostwire.bittorrent.MagnetUriBuilder;
-import com.frostwire.bittorrent.PaymentOptions;
-import com.frostwire.util.Logger;
-import com.frostwire.search.WebSearchPerformer;
-import com.frostwire.transfers.*;
-*/
-
 /**
  * @author gubatron
  * @author aldenml
@@ -135,8 +116,6 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
     public int getChildrenCount(int groupPosition) {
         try {
             final Transfer transfer = list.get(groupPosition);
-            LOG.info("children count on position " + groupPosition + " total " + getGroupCount());
-            LOG.info("children count " + transfer.getItems().size());
             return transfer.getItems().size();
         } catch (IndexOutOfBoundsException e) {
             LOG.info("jdonkey", "out of bound in children count");
@@ -352,7 +331,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
 
         ImageButton buttonPlay = findView(view, R.id.view_transfer_list_item_button_play);
 
-        seeds.setText(context.get().getString(R.string.seeds_n, ""));
+        seeds.setText(context.get().getString(R.string.seeds_n, formatPeers(download)));
         peers.setText(context.get().getString(R.string.peers_n, formatPeers(download)));
         seeds.setVisibility(View.VISIBLE);
         peers.setVisibility(View.VISIBLE);

@@ -102,7 +102,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        subscription = TimerService.subscribe(this, 20);
+        subscription = TimerService.subscribe(this, UI_UPDATE_INTERVAL_IN_SECS);
     }
 
     @Override
