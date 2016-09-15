@@ -37,6 +37,7 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.StoragePicker;
 import org.dkf.jdonkey.core.AndroidPlatform;
@@ -183,6 +184,7 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void updateConnectSwitch() {
+        LOG.info("setup connect switch");
         SwitchPreference preference = (SwitchPreference) findPreference("jdonkey.prefs.internal.connect_disconnect");
         if (preference != null) {
             final OnPreferenceChangeListener onPreferenceChangeListener = preference.getOnPreferenceChangeListener();
@@ -190,7 +192,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             preference.setSummary(R.string.ed2k_network_summary);
             preference.setEnabled(true);
-            /*
+
             if (Engine.instance().isStarted()) {
                 preference.setChecked(true);
             } else if (Engine.instance().isStarting() || Engine.instance().isStopping()) {
@@ -198,12 +200,13 @@ public class SettingsActivity extends PreferenceActivity {
             } else if (Engine.instance().isStopped() || Engine.instance().isDisconnected()) {
                 preference.setChecked(false);
             }
-            */
+
             preference.setOnPreferenceChangeListener(onPreferenceChangeListener);
         }
     }
 
     private void connectSwitchImOnIt(SwitchPreference preference) {
+        LOG.info("connectSwitchImOnIt");
         final OnPreferenceChangeListener onPreferenceChangeListener = preference.getOnPreferenceChangeListener();
         preference.setOnPreferenceChangeListener(null);
         preference.setEnabled(false);
@@ -218,11 +221,12 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final boolean newStatus = ((Boolean) newValue).booleanValue();
-                    //if (Engine.instance().isStarted() && !newStatus) {
-                    //    disconnect();
-                    //} else if (newStatus && (Engine.instance().isStopped() || Engine.instance().isDisconnected())) {
-                    //    connect();
-                    //}
+                    LOG.info("setup connect switch listener {}", newStatus?"ON":"OFF");
+                    if (Engine.instance().isStarted() && !newStatus) {
+                        disconnect();
+                    } else if (newStatus && (Engine.instance().isStopped() || Engine.instance().isDisconnected())) {
+                        connect();
+                    }
                     return true;
                 }
             });
@@ -307,20 +311,18 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        /*if (requestCode == StoragePicker.SELECT_FOLDER_REQUEST_CODE) {
+       if (requestCode == StoragePicker.SELECT_FOLDER_REQUEST_CODE) {
             StoragePreference.onDocumentTreeActivityResult(this, requestCode, resultCode, data);
-        } else if (requestCode == BuyActivity.PURCHASE_SUCCESSFUL_RESULT_CODE &&
+        }/* else if (requestCode == BuyActivity.PURCHASE_SUCCESSFUL_RESULT_CODE &&
                 data != null &&
                 data.hasExtra(BuyActivity.EXTRA_KEY_PURCHASE_TIMESTAMP)) {
             // We (onActivityResult) are invoked before onResume()
             removeAdsPurchaseTime = data.getLongExtra(BuyActivity.EXTRA_KEY_PURCHASE_TIMESTAMP, 0);
             LOG.info("onActivityResult: User just purchased something. removeAdsPurchaseTime="+removeAdsPurchaseTime);
-        }
+        }*/
         else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-        */
     }
 
     private void connect() {
@@ -328,8 +330,7 @@ public class SettingsActivity extends PreferenceActivity {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
-                //Engine.instance().startServices();
+                Engine.instance().startServices();
 
                 context.runOnUiThread(new Runnable() {
                     @Override
@@ -357,7 +358,7 @@ public class SettingsActivity extends PreferenceActivity {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                //Engine.instance().stopServices(true);
+                Engine.instance().stopServices(true);
                 return null;
             }
 

@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -23,10 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -54,7 +50,7 @@ public class ED2KService extends Service {
     /**
      * dedicated thread executor for scan session's alerts
      */
-    ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    ScheduledExecutorService scheduledExecutorService;
 
     private final String NOTIFICATION_INTENT_OPEN = "org.dkf.jed2k.android.INTENT_OPEN";
 
@@ -64,7 +60,8 @@ public class ED2KService extends Service {
 
     private ScheduledFuture scheduledFuture;
 
-    private ResumeDataLoader rdLoader = new ResumeDataLoader();
+    private boolean startingInProgress = false;
+    private boolean stoppingInProgress = false;
 
     /**
      * trivial listener
@@ -104,10 +101,6 @@ public class ED2KService extends Service {
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         settings.listenPort = 5000;
-        session = new Session(settings);
-        session.start();
-        alertsLoop();
-        rdLoader.execute();
     }
 
     @Override
@@ -154,7 +147,62 @@ public class ED2KService extends Service {
 
         // stop alerts processing
         // need additional code to guarantee all alerts were processed
-        scheduledExecutorService.shutdown();
+        if (scheduledExecutorService != null) scheduledExecutorService.shutdown();
+    }
+
+    void startSession() {
+        if (session != null) return;
+        log.info("starting session....");
+        startingInProgress = true;
+        session = new Session(settings);
+        session.start();
+        startBackgroundOperations();
+        startingInProgress = false;
+        log.info("session started!");
+    }
+
+    void stopSession() {
+        if (session != null) {
+            log.info("stopping session....");
+            stoppingInProgress = true;
+            session.abort();
+
+            try {
+                session.join();
+            } catch (InterruptedException e) {
+
+            } finally {
+
+                try {
+                    scheduledExecutorService.shutdown();
+                    scheduledExecutorService.awaitTermination(4, TimeUnit.SECONDS);
+                } catch(InterruptedException e) {
+                    log.error("alert loop await interrupted {}", e);
+                }
+
+                session = null;
+                scheduledExecutorService = null;
+            }
+
+            stoppingInProgress = false;
+            log.info("session stopped!");
+        }
+    }
+
+    public boolean isStarting() {
+        return startingInProgress;
+    }
+
+    public boolean isStopping() {
+        return stoppingInProgress;
+    }
+
+    public boolean isStarted() {
+        return session != null && !isStarting() && !isStopping();
+    }
+
+    public boolean isStopped() {
+        return session == null && !isStarting() && !isStopping();
     }
 
     synchronized public void addListener(AlertListener listener) {
@@ -230,10 +278,11 @@ public class ED2KService extends Service {
         }
     }
 
-    private void alertsLoop() {
-        Log.d("ED2KService", "alertsLoop");
+    private void startBackgroundOperations() {
         assert(session != null);
-        scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+        assert(scheduledExecutorService == null);
+        scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 Alert a = session.popAlert();
@@ -243,70 +292,66 @@ public class ED2KService extends Service {
                 }
             }
         },  100, 2000, TimeUnit.MILLISECONDS);
-    }
 
-    /**
-     * scan files directory of program and attempt to load each resume data files
-     */
-    private class ResumeDataLoader extends AsyncTask<Void, Void, Void> {
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            File fd = getFilesDir();
-            File[] files = fd.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return (pathname.getName().startsWith("rd_"));
-                }
-            });
-
-            if (files == null) {
-                log.info("have no resume data files");
-                return null;
-            }
-
-            for(final File f: files) {
-                long fileSize = f.length();
-                if (fileSize > Constants.BLOCK_SIZE_INT) {
-                    log.warn("resume data file {} has too large size {}, skip it", f.getName(), fileSize);
-                    continue;
-                }
-
-                ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
-                FileInputStream istream = null;
-                try {
-                    istream = openFileInput(f.getName());
-                    istream.read(buffer.array(), 0, buffer.capacity());
-                    buffer.flip();
-                    AddTransferParams atp = new AddTransferParams();
-                    atp.get(buffer);
-                    if (session != null) {
-                        session.addTransfer(atp);
+        scheduledExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                log.info("load resume data");
+                File fd = getFilesDir();
+                File[] files = fd.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File pathname) {
+                        return (pathname.getName().startsWith("rd_"));
                     }
+                });
+
+                if (files == null) {
+                    log.info("have no resume data files");
+                    return;
                 }
-                catch(FileNotFoundException e) {
-                    log.error("load resume data file not found {} error {}", f.getName(), e);
-                }
-                catch(IOException e) {
-                    log.error("load resume data {} i/o error {}", f.getName(), e);
-                }
-                catch(JED2KException e) {
-                    log.error("load resume data {} serialization error {}", f.getName(), e);
-                }
-                finally {
-                    if (istream != null) {
-                        try {
-                            istream.close();
-                        } catch(Exception e) {
-                            log.error("load resume data {} close stream error {}", f.getName(), e);
+
+                for(final File f: files) {
+                    long fileSize = f.length();
+                    if (fileSize > Constants.BLOCK_SIZE_INT) {
+                        log.warn("resume data file {} has too large size {}, skip it", f.getName(), fileSize);
+                        continue;
+                    }
+
+                    ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
+                    FileInputStream istream = null;
+                    try {
+                        istream = openFileInput(f.getName());
+                        istream.read(buffer.array(), 0, buffer.capacity());
+                        buffer.flip();
+                        AddTransferParams atp = new AddTransferParams();
+                        atp.get(buffer);
+                        if (session != null) {
+                            session.addTransfer(atp);
                         }
                     }
+                    catch(FileNotFoundException e) {
+                        log.error("load resume data file not found {} error {}", f.getName(), e);
+                    }
+                    catch(IOException e) {
+                        log.error("load resume data {} i/o error {}", f.getName(), e);
+                    }
+                    catch(JED2KException e) {
+                        log.error("load resume data {} serialization error {}", f.getName(), e);
+                    }
+                    finally {
+                        if (istream != null) {
+                            try {
+                                istream.close();
+                            } catch(Exception e) {
+                                log.error("load resume data {} close stream error {}", f.getName(), e);
+                            }
+                        }
+                    }
+
                 }
-
             }
-
-            return null;
-        }
+        });
     }
 
     private void buildNotification(final String fileName, final String fileHash, Bitmap artImage) {
@@ -394,17 +439,16 @@ public class ED2KService extends Service {
     }
 
     public void connectoServer(final String serverId, final String host, final int port) {
-        Log.i("server connection", "Connect to " + host);
-        session.connectoTo(serverId, host, port);
+        if (session != null) session.connectoTo(serverId, host, port);
     }
 
     public void disconnectServer() {
-        Log.i("server connection", "disconnect from");
-        session.disconnectFrom();
+         if (session != null) session.disconnectFrom();
     }
 
     public String getCurrentServerId() {
-        return session.getConnectedServerId();
+        if (session != null) return session.getConnectedServerId();
+        return "";
     }
 
     /**
@@ -430,7 +474,7 @@ public class ED2KService extends Service {
                             int mediaLength,
                             int mediaBitrate,
                             final String phrase) {
-        assert(session != null);
+        if (session == null) return;
 
         try {
             session.search(SearchRequest.makeRequest(minSize, maxSize, sourcesCount, completeSourcesCount, fileType, fileExtension, codec, mediaLength, mediaBitrate, phrase));
@@ -443,7 +487,7 @@ public class ED2KService extends Service {
      * search more results, run only if search result has flag more results
      */
     public void searchMore() {
-        session.searchMore();
+        if (session != null) session.searchMore();
     }
 
     /**
@@ -451,16 +495,18 @@ public class ED2KService extends Service {
      * @param settings new session config
      */
     public void configureSession(final Settings settings) {
-        this.settings = settings;
-        session.configureSession(settings);
+        if (session != null) {
+            this.settings = settings;
+            session.configureSession(settings);
+        }
     }
 
     public void startServices() {
-
+        startSession();
     }
 
     public void stopServices() {
-
+        stopSession();
     }
 
     public void shutdown(){
@@ -469,16 +515,24 @@ public class ED2KService extends Service {
     }
 
     public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
-        Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
-        TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
-        if (handle.isValid()) {
-            Log.i("ED2KService", "handle is valid");
+        if(session != null) {
+            Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
+            TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
+            if (handle.isValid()) {
+                Log.i("ED2KService", "handle is valid");
+            }
+
+            return handle;
         }
 
-        return handle;
+        return null;
     }
 
     public List<TransferHandle> getTransfers() {
-        return session.getTransfers();
+        if (session != null) {
+            return session.getTransfers();
+        }
+
+        return new ArrayList<TransferHandle>();
     }
 }

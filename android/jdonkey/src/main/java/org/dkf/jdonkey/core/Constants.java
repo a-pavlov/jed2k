@@ -46,6 +46,7 @@ public final class Constants {
     public static final String JED2K_VERSION_STRING = BuildConfig.VERSION_NAME;
 
     // preference keys
+    public static final String PREF_KEY_CORE_CONNECTED = "jdonkey.prefs.internal.connect_disconnect";
     static final String PREF_KEY_CORE_UUID = "jdonkey.prefs.core.uuid";
     public static final String PREF_KEY_CORE_LAST_SEEN_VERSION = "jdonkey.prefs.core.last_seen_version";
 

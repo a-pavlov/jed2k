@@ -365,8 +365,8 @@
     <string name="seeding_wifi_settings_explanation">Seed only when using a Wi-Fi connection. Avoid extra charges from your carrier.</string>
     <string name="intent_text">FrostWire is a peer-to-peer program for sharing authorized files only. Installing and using the program does not constitute a license for obtaining or distributing unauthorized content.</string>
     <string name="accept_intent">I will not use FrostWire for copyright infringement</string>
-    <string name="toast_on_disconnect">Disconnected from BitTorrent. All BitTorrent transfers have stopped.</string>
-    <string name="toast_on_connect">BitTorrent core started.</string>
+    <string name="toast_on_disconnect">JED2K session stopped. All transfers have stopped.</string>
+    <string name="toast_on_connect">JED2K session started.</string>
     <string name="seeds">Seeds</string>
     <string name="seeds_n">Seeds: %s</string>
     <string name="peers_n">Peers: %s</string>

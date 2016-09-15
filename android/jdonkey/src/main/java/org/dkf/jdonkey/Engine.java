@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.util.Log;
 import org.dkf.jdonkey.transfers.ED2KTransfer;
 import org.dkf.jdonkey.transfers.Transfer;
 import org.dkf.jed2k.TransferHandle;
@@ -47,7 +46,7 @@ import java.util.concurrent.ExecutorService;
  * @author aldenml
  */
 public final class Engine implements AlertListener {
-    private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
+    private static final Logger log = LoggerFactory.getLogger(Engine.class);
     private ED2KService service;
     private ServiceConnection connection;
     private Context context;
@@ -122,6 +121,22 @@ public final class Engine implements AlertListener {
         }
     }
 
+    public boolean isStopping() {
+        return service != null? service.isStopping():false;
+    }
+
+    public boolean isStarting() {
+        return service != null?service.isStarting():false;
+    }
+
+    public boolean isStopped() {
+        return service != null ? service.isStopped():true;
+    }
+
+    public boolean isStarted() {
+        return service != null? service.isStarted():false;
+    }
+
     public boolean isDisconnected() {
         return false;
     }
@@ -162,7 +177,7 @@ public final class Engine implements AlertListener {
             try {
                 service.connectoServer(serverId, host, port);
             } catch(Exception e) {
-                Log.e("server connection", e.toString());
+                log.error("server connection failed {}", e);
                 return false;
             }
         }
@@ -197,19 +212,26 @@ public final class Engine implements AlertListener {
         i.setClass(context, ED2KService.class);
         context.startService(i);
         context.bindService(i, connection = new ServiceConnection() {
-            public void onServiceDisconnected(ComponentName name) {
 
+            public void onServiceDisconnected(ComponentName name) {
+                log.info("service disconnected {}", name);
+                Engine.this.service = null;
             }
 
             public void onServiceConnected(ComponentName name, IBinder service) {
                 if (service instanceof ED2KService.ED2KServiceBinder) {
-                    LOG.info("Service connected");
+                    log.info("service connected {}", name);
                     Engine.this.service = ((ED2KService.ED2KServiceBinder) service).getService();
                     for(final AlertListener ls: pendingListeners) {
                         Engine.this.service.addListener(ls);
                     }
-                    LOG.info("bind {} pending listeners", pendingListeners.size());
+
+                    log.info("bind {} pending listeners", pendingListeners.size());
                     pendingListeners.clear();
+
+                    //if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CORE_CONNECTED)) {
+                    //    startServices();
+                    //}
                     //registerStatusReceiver(context);
                 } else {
                     throw new IllegalArgumentException("IBinder on service connected class is not instance of ED2KService.ED2KServiceBinder");
@@ -237,7 +259,7 @@ public final class Engine implements AlertListener {
         try {
             if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
         } catch(JED2KException e) {
-            LOG.error("add transfer error {}", e);
+            log.error("add transfer error {}", e);
         }
 
         return null;
