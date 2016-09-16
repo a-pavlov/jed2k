@@ -237,12 +237,11 @@ public final class SearchFragment extends AbstractFragment implements
         searchInput.setFileTypeCountersVisible(fileTypeCountersVisible);
     }
 
-    private void performSearch(String query, int mediaTypeId) {
+    private void performSearch(String query) {
         warnServerNotConnected(getView());
         if (!Engine.instance().getCurrentServerId().isEmpty()) {
             awaitingResults = true;
             adapter.clear();
-            adapter.setFileType(mediaTypeId);
             fileTypeCounter.clear();
             refreshFileTypeCounters(false);
             currentQuery = query;
@@ -266,7 +265,6 @@ public final class SearchFragment extends AbstractFragment implements
         if (!Engine.instance().getCurrentServerId().isEmpty()) {
             awaitingResults = true;
             adapter.clear();
-            adapter.setFileType(0);
             refreshFileTypeCounters(false);
             Engine.instance().performSearchMore();
             searchProgress.setProgressEnabled(true);
@@ -298,8 +296,7 @@ public final class SearchFragment extends AbstractFragment implements
             }
         }
 
-        // TODO - fix it!
-        adapter.setFileType(0);
+        adapter.setFileType(ConfigurationManager.instance().getLastMediaTypeFilter());
 
         refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
@@ -494,7 +491,7 @@ public final class SearchFragment extends AbstractFragment implements
         }
 
         public void onSearch(View v, String query, int mediaTypeId) {
-            fragment.performSearch(query, mediaTypeId);
+            fragment.performSearch(query);
         }
 
         public void onMediaTypeSelected(View view, int mediaTypeId) {
