@@ -460,8 +460,8 @@
     <string name="transfers_context_menu_clear_finished">Clear all finished transfers</string>
     <string name="transfers_context_menu_stop_delete_data">Stop and delete data</string>
     <string name="transfers_context_menu_copy_infohash_copied">Infohash copied to clipboard</string>
-    <string name="transfers_context_menu_copy_magnet_copied">Magnet copied to clipboard</string>
-    <string name="transfers_context_menu_copy_magnet">Copy Magnet</string>
+    <string name="transfers_context_menu_copy_link_copied">Link copied to clipboard</string>
+    <string name="transfers_context_menu_copy_link">Copy link</string>
     <string name="transfers_context_menu_copy_infohash">Copy InfoHash</string>
     <string name="transfers_context_menu_pause_stop_all_transfers">Pause/Stop all transfers</string>
     <string name="transfers_context_resume_all_torrent_transfers">Resume all torrent transfers</string>

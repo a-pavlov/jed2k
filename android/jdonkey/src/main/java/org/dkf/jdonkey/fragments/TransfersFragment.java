@@ -326,17 +326,19 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
     @Override
     public void onDialogClick(String tag, int which) {
-        /*
+
         if (tag.equals(TRANSFERS_DIALOG_ID)) {
             switch (which) {
                 case CLEAR_MENU_DIALOG_ID:
-                    TransferManager.instance().clearComplete();
+                    //TransferManager.instance().clearComplete();
+                    LOG.info("clear menu duialog");
                     break;
                 case PAUSE_MENU_DIALOG_ID:
-                    TransferManager.instance().stopHttpTransfers();
-                    TransferManager.instance().pauseTorrents();
+                    LOG.info("pause menu dialo");
                     break;
                 case RESUME_MENU_DIALOG_ID:
+                    LOG.info("resume menu dialog");
+                    /*
                     boolean bittorrentDisconnected = false; //TransferManager.instance().isBittorrentDisconnected();
                     if (bittorrentDisconnected) {
                         UIUtils.showLongMessage(getActivity(), R.string.cant_resume_torrent_transfers);
@@ -347,11 +349,11 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                             UIUtils.showShortMessage(getActivity(), R.string.please_check_connection_status_before_resuming_download);
                         }
                     }
+                    */
                     break;
             }
             setupAdapter();
         }
-        */
     }
 
     private void showContextMenu() {
@@ -360,43 +362,36 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         MenuDialog.MenuItem resume = new MenuDialog.MenuItem(RESUME_MENU_DIALOG_ID, R.string.transfers_context_resume_all_torrent_transfers, R.drawable.contextmenu_icon_play);
 
         List<MenuDialog.MenuItem> dlgActions = new ArrayList<>();
-/*
         TransferManager tm = TransferManager.instance();
-        boolean bittorrentDisconnected = false; //tm.isBittorrentDisconnected();
+        boolean stopped = Engine.instance().isStopped();
         final List<Transfer> transfers = tm.getTransfers();
 
         if (transfers != null && transfers.size() > 0) {
+
+
+
             if (someTransfersComplete(transfers)) {
                 dlgActions.add(clear);
             }
 
-            if (!bittorrentDisconnected) {
-                if (someTransfersActive(transfers)) {
-                    dlgActions.add(pause);
-                }
+            if (someTransfersActive(transfers)) {
+                dlgActions.add(pause);
             }
 
-            //let's show it even if bittorrent is disconnected
-            //user should get a message telling them to check why they can't resume.
-            //Preferences > Connectivity is disconnected.
             if (someTransfersInactive(transfers)) {
                 dlgActions.add(resume);
             }
         }
-*/
+
         if (dlgActions.size() > 0) {
             MenuDialog dlg = MenuDialog.newInstance(TRANSFERS_DIALOG_ID, dlgActions);
             dlg.show(getFragmentManager());
         }
     }
-/*
+
     private boolean someTransfersInactive(List<Transfer> transfers) {
         for (Transfer t : transfers) {
-                //BittorrentDownload bt = (BittorrentDownload) t;
-                //if (!bt.isDownloading() && !bt.isSeeding()) {
-                //    return true;
-                //}
-            return true;
+            if (!t.isDownloading() && !t.isComplete()) return true;
         }
 
         return false;
@@ -413,17 +408,12 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     }
 
     private boolean someTransfersActive(List<Transfer> transfers) {
-        //for (Transfer t : transfers) {
-            return true;
-            //BittorrentDownload bt = (BittorrentDownload) t;
-            //if (bt.isDownloading() || bt.isSeeding()) {
-            //    return true;
-            //}
-        //}
-
-       // return false;
+        for (Transfer t : transfers) {
+            if (t.isDownloading()) return true;
+        }
+        return false;
     }
-*/
+
     private void startTransferFromURL() {
 
         String url = addTransferUrlTextView.getText();

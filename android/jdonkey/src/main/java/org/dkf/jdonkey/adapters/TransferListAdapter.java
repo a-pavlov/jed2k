@@ -25,6 +25,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
+import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.adapters.menu.*;
 import org.dkf.jdonkey.core.ConfigurationManager;
@@ -244,7 +245,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
             } else {
                 boolean wifiIsUp = NetworkManager.instance().isDataWIFIUp();
                 boolean bittorrentOnMobileData = ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_NETWORK_USE_MOBILE_DATA);
-                boolean bittorrentOff = false; //Engine.instance().isStopped() || Engine.instance().isDisconnected();
+                boolean bittorrentOff = Engine.instance().isStopped();
 
                 if (wifiIsUp || bittorrentOnMobileData) {
                     if (!download.isComplete() && !bittorrentOff) {
@@ -258,8 +259,8 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
 
         items.add(new CopyToClipboardMenuAction(context.get(),
                 R.drawable.contextmenu_icon_magnet,
-                R.string.transfers_context_menu_copy_magnet,
-                R.string.transfers_context_menu_copy_magnet_copied, ""));
+                R.string.transfers_context_menu_copy_link,
+                R.string.transfers_context_menu_copy_link_copied, download.toLink()));
 
         if (download.isComplete()) {
             // Remove Torrent and Data action.
@@ -409,7 +410,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
 
     private void updatePlayButtonVisibility(PeerInfo item, ImageButton buttonPlay) {
         //if (item.isComplete()) {
-            buttonPlay.setVisibility(View.VISIBLE);
+            buttonPlay.setVisibility(View.GONE);
         /*} else {
             if (item instanceof BTDownloadItem) {
                 buttonPlay.setVisibility(previewFile((BTDownloadItem) item) != null ? View.VISIBLE : View.GONE);

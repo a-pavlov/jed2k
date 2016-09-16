@@ -555,6 +555,10 @@ public class ED2KService extends Service {
         return new ArrayList<TransferHandle>();
     }
 
+    public void removeTransfer(Hash h, boolean removeFile) {
+        if (session != null) session.removeTransfer(h, removeFile);
+    }
+
     public void configureSession() {
         if (session != null) {
             session.configureSession(settings);

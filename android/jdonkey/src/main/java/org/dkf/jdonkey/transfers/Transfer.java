@@ -31,6 +31,8 @@ import java.util.List;
 public interface Transfer {
 
 
+    public String getHash();
+
     public String getName();
 
     public String getDisplayName();
@@ -75,4 +77,6 @@ public interface Transfer {
     public void pause();
 
     public void resume();
+
+    public String toLink();
 }

@@ -3,6 +3,7 @@ package org.dkf.jed2k.test;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.junit.Test;
 
@@ -68,5 +69,10 @@ public class UtilsTest {
         assertFalse(Utils.isLowId(Utils.packToNetworkByteOrder(InetAddress.getByName("213.127.10.1").getAddress())));
         assertTrue(Utils.isLowId(Utils.packToNetworkByteOrder(InetAddress.getByName("1.0.0.0").getAddress())));
         assertTrue(Utils.isLowId(Utils.packToNetworkByteOrder(InetAddress.getByName("0.0.0.0").getAddress())));
+    }
+
+    @Test
+    public void testLinksGeneration() {
+        assertEquals("ed2k://|file|some_file|100|31D6CFE0D16AE931B73C59D7E0C089C0|/", Utils.formatLink("some_file", 100l, Hash.TERMINAL));
     }
 }

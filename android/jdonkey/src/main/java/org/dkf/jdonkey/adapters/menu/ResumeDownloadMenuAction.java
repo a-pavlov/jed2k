@@ -41,7 +41,7 @@ public final class ResumeDownloadMenuAction extends MenuAction {
 
     @Override
     protected void onClick(Context context) {
-        boolean isDisconnected = Engine.instance().isDisconnected();
+        boolean isDisconnected = Engine.instance().isStopped();
         if (isDisconnected) {
             UIUtils.showLongMessage(context, R.string.cant_resume_torrent_transfers);
         } else {

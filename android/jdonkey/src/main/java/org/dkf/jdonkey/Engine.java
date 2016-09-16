@@ -140,10 +140,6 @@ public final class Engine implements AlertListener {
         return service != null? service.isStarted():false;
     }
 
-    public boolean isDisconnected() {
-        return false;
-    }
-
     public void shutdown() {
         if (service != null) {
             if (connection != null) {
@@ -300,6 +296,10 @@ public final class Engine implements AlertListener {
         }
 
         return res;
+    }
+
+    public void removeTransfer(Hash h, boolean removeFile) {
+        if (service != null) service.removeTransfer(h, removeFile);
     }
 
     public ExecutorService getThreadPool() {

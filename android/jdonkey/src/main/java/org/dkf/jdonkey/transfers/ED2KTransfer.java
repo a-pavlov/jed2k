@@ -1,8 +1,10 @@
 package org.dkf.jdonkey.transfers;
 
+import org.dkf.jdonkey.Engine;
 import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.TransferStatus;
+import org.dkf.jed2k.Utils;
 
 import java.util.Date;
 import java.util.List;
@@ -29,6 +31,10 @@ public class ED2KTransfer implements Transfer {
     public ED2KTransfer(final TransferHandle handle) {
         this.handle = handle;
         cachedStatus = null;
+    }
+
+    public String getHash() {
+        return handle.getHash().toString();
     }
 
     public String getName() {
@@ -102,7 +108,7 @@ public class ED2KTransfer implements Transfer {
     }
 
     public void remove() {
-        // dispatch call to handle here
+        Engine.instance().removeTransfer(handle.getHash(), true);
     }
 
     public List<PeerInfo> getItems() {
@@ -122,5 +128,10 @@ public class ED2KTransfer implements Transfer {
     @Override
     public void resume() {
         handle.resume();
+    }
+
+    @Override
+    public String toLink() {
+        return Utils.formatLink(handle.getFilepath(), handle.getSize(), handle.getHash());
     }
 }

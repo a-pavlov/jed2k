@@ -214,7 +214,7 @@ public class SettingsActivity extends PreferenceActivity {
                 preference.setChecked(true);
             } else if (Engine.instance().isStarting() || Engine.instance().isStopping()) {
                 connectSwitchImOnIt(preference);
-            } else if (Engine.instance().isStopped() || Engine.instance().isDisconnected()) {
+            } else if (Engine.instance().isStopped()) {
                 preference.setChecked(false);
             }
 
@@ -240,7 +240,7 @@ public class SettingsActivity extends PreferenceActivity {
                     LOG.info("setup connect switch listener {}", newStatus?"ON":"OFF");
                     if (Engine.instance().isStarted() && !newStatus) {
                         disconnect();
-                    } else if (newStatus && (Engine.instance().isStopped() || Engine.instance().isDisconnected())) {
+                    } else if (newStatus && (Engine.instance().isStopped())) {
                         connect();
                     }
                     return true;

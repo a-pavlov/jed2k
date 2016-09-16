@@ -39,26 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-/*
-import com.frostwire.android.R;
-import com.frostwire.android.core.ConfigurationManager;
-import com.frostwire.android.core.Constants;
-import com.frostwire.android.gui.NetworkManager;
-import com.frostwire.android.gui.services.Engine;
-import com.frostwire.bittorrent.BTDownload;
-import com.frostwire.bittorrent.BTEngine;
-import com.frostwire.bittorrent.BTEngineAdapter;
-import com.frostwire.util.Logger;
-import com.frostwire.search.HttpSearchResult;
-import com.frostwire.search.ScrapedTorrentFileSearchResult;
-import com.frostwire.search.SearchResult;
-import com.frostwire.search.soundcloud.SoundcloudSearchResult;
-import com.frostwire.search.torrent.TorrentCrawledSearchResult;
-import com.frostwire.search.torrent.TorrentSearchResult;
-import com.frostwire.search.youtube.YouTubeCrawledSearchResult;
-import com.frostwire.transfers.*;
-*/
-
 /**
  * @author gubatron
  * @author aldenml
@@ -280,6 +260,11 @@ public final class TransferManager {
         }
 
         @Override
+        public String getHash() {
+            return "";
+        }
+
+        @Override
         public String getName() { return name; }
 
         @Override
@@ -367,6 +352,11 @@ public final class TransferManager {
         @Override
         public void resume() {
 
+        }
+
+        @Override
+        public String toLink() {
+            return "";
         }
     }
 }

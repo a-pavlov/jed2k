@@ -190,4 +190,13 @@ public final class Utils {
         l &= 0xFFFFFFFFL;
         return l < (long)Constants.HIGHEST_LOWID_ED2K;
     }
+
+    public static String formatLink(final String fileName, long fileSize, final Hash hash) {
+        StringBuilder sb = new StringBuilder();
+        return sb.append("ed2k://|file|")
+                .append(fileName).append("|")
+                .append(fileSize).append("|")
+                .append(hash.toString())
+                .append("|/").toString();
+    }
 }
