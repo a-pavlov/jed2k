@@ -38,7 +38,7 @@ public class SessionTest {
         assertEquals(1, session.getTransfers().size());
         assertEquals(handle, handle2);
         assertEquals(1000L, handle2.getSize());
-        assertEquals("xxx", handle2.getFilepath());
+        assertEquals("xxx", handle2.getFilePath().getName());
         assertTrue(handle2.getPeersInfo().isEmpty());
         session.removeTransfer(handle.getHash(), true);
         session.abort();

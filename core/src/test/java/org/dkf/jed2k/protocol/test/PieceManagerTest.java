@@ -51,7 +51,7 @@ public class PieceManagerTest {
     @Test
     public void testSequentialWritingBuffers() throws IOException, JED2KException {
         File tempFile = testFolder.newFile("file.txt");
-        PieceManager pm = new PieceManager(tempFile.getAbsolutePath(), 1, Constants.BLOCKS_PER_PIECE);
+        PieceManager pm = new PieceManager(tempFile, 1, Constants.BLOCKS_PER_PIECE);
         for(int i = 0; i < Constants.BLOCKS_PER_PIECE; ++i) {
             buffer.position(i*(int)Constants.BLOCK_SIZE);
             ByteBuffer localBuffer = buffer.slice();

@@ -609,7 +609,7 @@ public class Session extends Thread {
                 for(final Transfer t: transfers.values()) {
                     if (t.isNeedSaveResumeData()) {
                         try {
-                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFilepath(), t.isPaused());
+                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFilePath().getAbsolutePath(), t.isPaused());
                             atp.resumeData.setData(t.resumeData());
                             pushAlert(new TransferResumeDataAlert(t.hash(), atp));
                         } catch(JED2KException e) {

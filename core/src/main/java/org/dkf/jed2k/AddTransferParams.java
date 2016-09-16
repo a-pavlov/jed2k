@@ -20,11 +20,11 @@ public class AddTransferParams implements Serializable {
 
     }
 
-    public AddTransferParams(final Hash h, long createTime, long size, final String filepath, final boolean paused) throws JED2KException {
+    public AddTransferParams(final Hash h, long createTime, long size, final String filePath, final boolean paused) throws JED2KException {
         hash.assign(h);
         this.size.assign(size);
         this.createTime.assign(createTime);
-        this.filepath.assignString(filepath);
+        this.filepath.assignString(filePath);
         this.paused.assign(paused?1:0);
     }
 

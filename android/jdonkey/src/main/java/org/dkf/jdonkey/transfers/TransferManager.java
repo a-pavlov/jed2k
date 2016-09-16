@@ -81,15 +81,19 @@ public final class TransferManager {
     public List<Transfer> getTransfers() {
         return Engine.instance().getTransfers();
         /*List<Transfer> tran = new ArrayList<>();
-        Engine.
         if (transfers.isEmpty()) {
             for (int i = 0; i < 10; ++i) {
                 transfers.add(new MockTransfer());
+            }
+        } else {
+            for(Transfer t: transfers) {
+                ((MockTransfer)t).shuffle();
             }
         }
 
         return transfers;
         */
+
     }
 
     public Transfer download(final Hash hash, long size, final String fileName) {
@@ -245,17 +249,21 @@ public final class TransferManager {
         private boolean paused = rnd.nextBoolean();
         private int totalPees = rnd.nextInt(20);
 
+        PeerInfo generatePeer() {
+            PeerInfo pi = new PeerInfo();
+            pi.endpoint = new NetworkIdentifier(rnd.nextInt(), (short)rnd.nextInt(30000));
+            pi.modName = "mod";
+            pi.modVersion = rnd.nextInt(22);
+            pi.strModVersion = Integer.toString(rnd.nextInt(33));
+            pi.downloadPayload = rnd.nextInt(555656);
+            pi.downloadSpeed = rnd.nextInt(30000);
+            return pi;
+        }
+
         public MockTransfer() {
-            int count = rnd.nextInt(6);
+            int count = rnd.nextInt(20);
             for(int i = 0; i < count; ++i) {
-                PeerInfo pi = new PeerInfo();
-                pi.endpoint = new NetworkIdentifier(rnd.nextInt(), (short)rnd.nextInt(30000));
-                pi.modName = "mod";
-                pi.modVersion = rnd.nextInt(22);
-                pi.strModVersion = Integer.toString(rnd.nextInt(33));
-                pi.downloadPayload = rnd.nextInt(555656);
-                pi.downloadSpeed = rnd.nextInt(30000);
-                info.add(pi);
+                info.add(generatePeer());
             }
         }
 
@@ -357,6 +365,16 @@ public final class TransferManager {
         @Override
         public String toLink() {
             return "";
+        }
+
+        void shuffle() {
+            boolean remove = rnd.nextBoolean();
+            if (remove && !info.isEmpty()) {
+                int item = rnd.nextInt(info.size());
+                info.remove(item);
+            } else {
+                info.add(generatePeer());
+            }
         }
     }
 }

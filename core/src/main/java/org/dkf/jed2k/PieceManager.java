@@ -15,23 +15,20 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Created by inkpot on 15.07.2016.
  * executes write data into file on disk
  */
 public class PieceManager extends BlocksEnumerator {
-    private String filepath;
+    private File filePath;
     private RandomAccessFile file;
     private FileChannel channel;
     private LinkedList<BlockManager> blockMgrs = new LinkedList<BlockManager>();
     private static final Logger log = LoggerFactory.getLogger(PieceManager.class);
 
-    public PieceManager(String filepath, int pieceCount, int blocksInLastPiece) {
+    public PieceManager(File filePath, int pieceCount, int blocksInLastPiece) {
         super(pieceCount, blocksInLastPiece);
-        this.filepath = filepath;
+        this.filePath = filePath;
     }
 
     /**
@@ -40,7 +37,7 @@ public class PieceManager extends BlocksEnumerator {
     private void open() throws JED2KException {
         if (file == null) {
             try {
-                file = new RandomAccessFile(filepath, "rw");
+                file = new RandomAccessFile(filePath.getAbsolutePath(), "rw");
                 channel = file.getChannel();
             }
             catch(FileNotFoundException e) {
@@ -166,11 +163,10 @@ public class PieceManager extends BlocksEnumerator {
     public void deleteFile() throws JED2KException {
         assert file == null;
         assert channel == null;
-        File f = new File(filepath);
-        f.delete();
+        filePath.delete();
     }
 
-    final String getFilepath() {
-        return filepath;
+    final File getFilePath() {
+        return filePath;
     }
 }

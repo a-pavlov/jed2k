@@ -18,6 +18,7 @@ public class ED2KTransfer implements Transfer {
 
     private final TransferHandle handle;
     private TransferStatus cachedStatus;
+    private List<PeerInfo> cachedItems;
 
     /**
      * cache status in first call to avoid resources wasting
@@ -31,6 +32,7 @@ public class ED2KTransfer implements Transfer {
     public ED2KTransfer(final TransferHandle handle) {
         this.handle = handle;
         cachedStatus = null;
+        cachedItems = handle.getPeersInfo();
     }
 
     public String getHash() {
@@ -42,11 +44,11 @@ public class ED2KTransfer implements Transfer {
     }
 
     public String getDisplayName() {
-        return handle.getFilepath();
+        return handle.getFilePath().getName();
     }
 
     public String getFilePath() {
-        return handle.getFilepath();
+        return handle.getFilePath().getParent();
     }
 
 
@@ -112,7 +114,7 @@ public class ED2KTransfer implements Transfer {
     }
 
     public List<PeerInfo> getItems() {
-        return handle.getPeersInfo();
+        return cachedItems;
     }
 
     @Override
@@ -132,6 +134,6 @@ public class ED2KTransfer implements Transfer {
 
     @Override
     public String toLink() {
-        return Utils.formatLink(handle.getFilepath(), handle.getSize(), handle.getHash());
+        return Utils.formatLink(handle.getFilePath().getName(), handle.getSize(), handle.getHash());
     }
 }

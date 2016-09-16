@@ -3,6 +3,7 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.TransferResumeData;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,11 +67,11 @@ public class TransferHandle implements Comparable<TransferHandle> {
         return 0;
     }
 
-    public final String getFilepath() {
+    public final File getFilePath() {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                return t.getFilepath();
+                return t.getFilePath();
             }
         }
 

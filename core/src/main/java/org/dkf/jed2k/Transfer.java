@@ -12,6 +12,7 @@ import org.dkf.jed2k.protocol.TransferResumeData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -107,7 +108,7 @@ public class Transfer {
         // create piece picker always now
         picker = new PiecePicker(numPieces, blocksInLastPiece);
         policy = new Policy(this);
-        pm = new PieceManager(atp.filepath.asString(), numPieces, blocksInLastPiece);
+        pm = new PieceManager(new File(atp.filepath.asString()), numPieces, blocksInLastPiece);
 
         if (atp.resumeData.haveData()) {
             restore(atp.resumeData.getData());
@@ -480,8 +481,8 @@ public class Transfer {
         return trd;
     }
 
-    public String getFilepath() {
-        return pm.getFilepath();
+    public File getFilePath() {
+        return pm.getFilePath();
     }
 
     void setState(final TransferStatus.TransferState state) {
