@@ -21,10 +21,7 @@ import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.util.ServerUtils;
 import org.dkf.jdonkey.util.UIUtils;
-import org.dkf.jdonkey.views.AbstractFragment;
-import org.dkf.jdonkey.views.AbstractListAdapter;
-import org.dkf.jdonkey.views.MenuAction;
-import org.dkf.jdonkey.views.MenuAdapter;
+import org.dkf.jdonkey.views.*;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -44,6 +41,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private ListView list;
     private ServersAdapter adapter;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
+    private RichNotification serviceStopped;
 
     public ServersFragment() {
         super(R.layout.fragment_servers);
@@ -84,6 +82,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     protected void initComponents(final View rootView) {
         list = (ListView)findView(rootView, R.id.servers_list);
         list.setVisibility(View.VISIBLE);
+        serviceStopped = (RichNotification)findView(rootView, R.id.fragment_servers_service_stopped_notification);
     }
 
     @Override
@@ -103,6 +102,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     public void onDestroy() {
         super.onDestroy();
          Engine.instance().removeListener(this);
+    }
+
+    private void warnServiceStopped(View v) {
+        if (Engine.instance().isStopped()) {
+            log.info("service is stopped");
+            serviceStopped.setVisibility(View.VISIBLE);
+        } else {
+            log.info("service available");
+            serviceStopped.setVisibility(View.GONE);
+        }
     }
 
     private void invalidateServersState() {
@@ -256,7 +265,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     @Override
     public void onShow() {
-
+        warnServiceStopped(getView());
     }
 
     private static final class ServerEntry {
@@ -395,14 +404,17 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         @Override
         protected MenuAdapter getMenuAdapter(View view) {
             List<MenuAction> items = new ArrayList<>();
-            ServerEntry entry = (ServerEntry)view.getTag();
-            items.add(new ServerRemoveAction(view.getContext(), entry.ip, entry.getIdentifier()));
-            if (entry.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
-                items.add(new ServerConnectAction(view.getContext(), entry.ip, entry.port, entry.getIdentifier()));
-            } else {
-                items.add(new ServerDisconnectAction(view.getContext(), entry.ip, entry.port, entry.getIdentifier()));
+            if (Engine.instance().isStarted()) {
+                ServerEntry entry = (ServerEntry) view.getTag();
+                items.add(new ServerRemoveAction(view.getContext(), entry.ip, entry.getIdentifier()));
+                if (entry.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
+                    items.add(new ServerConnectAction(view.getContext(), entry.ip, entry.port, entry.getIdentifier()));
+                } else {
+                    items.add(new ServerDisconnectAction(view.getContext(), entry.ip, entry.port, entry.getIdentifier()));
+                }
             }
 
+            if (items.isEmpty()) return null;
             return new MenuAdapter(view.getContext(), R.string.sever_menu_title, items);
         }
     }

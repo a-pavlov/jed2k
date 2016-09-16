@@ -656,6 +656,8 @@
     <string name="show_server_messages_summary">Show messages from server</string>
     <string name="show_server_messages">Server msg</string>
 
+    <string name="service_stopped">ED2K service stopped</string>
+    <string name="service_stopped_details">Please go to preferences and start ED2K service</string>
     <string name="server_not_connected">Not connected to server</string>
     <string name="server_not_connected_det">Before search connect to server please</string>
     <string name="confirm_server_connect">Confirm connect</string>
