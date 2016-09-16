@@ -74,10 +74,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="number"
-            android:ems="10"
             android:id="@+id/view_search_parameter_sources"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/search_params_sources"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:paddingLeft="8dp"
+            android:paddingRight="38dp"/>
+
+        <TextView
+            android:id="@+id/search_params_complete_sources"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_complete_sources"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/view_search_parameter_sources"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/view_search_parameter_complete_sources"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_complete_sources"
             android:background="@android:color/transparent"
             android:textColor="@android:color/black"
             android:singleLine="true"

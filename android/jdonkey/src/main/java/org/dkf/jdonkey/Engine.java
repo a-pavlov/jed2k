@@ -254,9 +254,19 @@ public final class Engine implements AlertListener {
         }, Context.BIND_AUTO_CREATE);
     }
 
-    public void performSearch(final String query) {
+    public void performSearch(
+            long minSize,
+            long maxSize,
+            int sourcesCount,
+            int completeSourcesCount,
+            final String fileType,
+            final String fileExtension,
+            final String codec,
+            int mediaLength,
+            int mediaBitrate,
+            final String query) {
         if (service != null) {
-            service.startSearch(0,0,0,0,"","","",0,0,query);
+            service.startSearch(minSize,maxSize,sourcesCount,completeSourcesCount,fileType,fileExtension,codec,mediaLength,mediaBitrate,query);
         }
     }
 

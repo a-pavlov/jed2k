@@ -246,7 +246,17 @@ public final class SearchFragment extends AbstractFragment implements
             fileTypeCounter.clear();
             refreshFileTypeCounters(false);
             currentQuery = query;
-            Engine.instance().performSearch(query);
+            Engine.instance().performSearch(
+                      searchParametersView.getMinSize()*1024*1024
+                    , searchParametersView.getMaxSize()*1024*1024
+                    , searchParametersView.getSourcesCount()
+                    , searchParametersView.getCompleteSources()
+                    , searchParametersView.getChecked()
+                    , ""
+                    , ""
+                    , 0
+                    , 0
+                    , query);
             searchProgress.setProgressEnabled(true);
             showSearchView(getView());
         }

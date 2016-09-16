@@ -665,7 +665,8 @@
 
     <string name="search_parameter_min_size">Min size, Mb</string>
     <string name="search_parameter_max_size">Max size, Mb</string>
-    <string name="search_parameter_sources">Sources count</string>
+    <string name="search_parameter_sources">Sources</string>
+    <string name="search_parameter_complete_sources">Complete sources</string>
     <string name="search_paramter_zero">0</string>
     <string name="search_item_source_server">Server</string>
     <string name="search_item_sources">Sources %1$d</string>
