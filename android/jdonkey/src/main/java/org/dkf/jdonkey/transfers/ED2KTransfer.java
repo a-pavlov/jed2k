@@ -63,7 +63,7 @@ public class ED2KTransfer implements Transfer {
     }
 
     public long getDownloadSpeed() {
-        return getStatus().downloadPayloadRate + getStatus().downloadRate;
+        return getStatus().downloadRate;
     }
 
     public long getUploadSpeed() {
