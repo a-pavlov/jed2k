@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -16,10 +17,12 @@ import static org.junit.Assert.*;
 public class PiecePickerTest {
 
     Peer peer;
+    Peer peer2;
 
     @Before
     public void setUp() {
         peer = new Peer(new NetworkIdentifier(100, 3444));
+        peer2 = new Peer(new NetworkIdentifier(222, 55456));
     }
 
     @Test
@@ -200,5 +203,49 @@ public class PiecePickerTest {
         for(int i = 0; i != Constants.REQUEST_QUEUE_SIZE; ++i) {
             assertEquals(tempReq.get(i), newR.get(i));
         }
+    }
+
+    @Test
+    public void testTrivialEndGame() {
+        PiecePicker pp = new PiecePicker(1, 20);
+        LinkedList<PieceBlock> rq = new LinkedList<>();
+        pp.pickPieces(rq, 19, peer, PeerConnection.PeerSpeed.SLOW);
+        assertEquals(19, rq.size());
+        LinkedList<PieceBlock> rq2 = new LinkedList<>();
+        // end game took first free block and re-request first 3 already requested
+        pp.pickPieces(rq2, Constants.REQUEST_QUEUE_SIZE + 1, peer2, PeerConnection.PeerSpeed.MEDIUM);
+        assertEquals(4, rq2.size());
+        assertEquals(new PieceBlock(0, 19), rq2.get(0));
+        for (int i = 0; i < 3; ++i) {
+            assertEquals(new PieceBlock(0, i), rq2.get(i+1));
+        }
+
+        rq2.clear();
+
+        pp.pickPieces(rq2, Constants.REQUEST_QUEUE_SIZE, peer2, PeerConnection.PeerSpeed.MEDIUM);
+        assertEquals(3, rq2.size());
+        for (int i = 3; i < 6; ++i) {
+            assertEquals(new PieceBlock(0, i), rq2.get(i - 3));
+        }
+
+        // slow request returns nothing
+        Peer peer3 = new Peer(new NetworkIdentifier(29990, 5678));
+        List<PieceBlock> rq3 = new LinkedList<>();
+        pp.pickPieces(rq3, Constants.REQUEST_QUEUE_SIZE, peer3, PeerConnection.PeerSpeed.SLOW);
+        assertTrue(rq3.isEmpty());
+
+        // fast requested abort download, but blocks still downloading by slow peer1
+        for(PieceBlock pb: rq2) {
+            pp.abortDownload(pb, peer2);
+        }
+
+        pp.pickPieces(rq3, Constants.REQUEST_QUEUE_SIZE, peer3, PeerConnection.PeerSpeed.SLOW);
+        assertTrue(rq3.isEmpty());
+
+        // we have one free block after this operation and it will be requested by new slow peer
+        pp.abortDownload(new PieceBlock(0, 19), peer2);
+        pp.pickPieces(rq3, Constants.REQUEST_QUEUE_SIZE, peer3, PeerConnection.PeerSpeed.SLOW);
+        assertEquals(1, rq3.size());
+        assertEquals(new PieceBlock(0, 19), rq3.get(0));
     }
 }
