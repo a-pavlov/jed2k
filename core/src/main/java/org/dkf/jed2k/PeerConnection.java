@@ -85,7 +85,7 @@ public class PeerConnection extends Connection {
     /**
      * peer connection speed over transfer's average speed
      */
-    enum PeerSpeed {
+    public enum PeerSpeed {
         SLOW,
         MEDIUM,
         FAST
@@ -997,13 +997,11 @@ public class PeerConnection extends Connection {
         if (transfer == null || !transfer.hasPicker() || transferringData || !downloadQueue.isEmpty()) return;
         LinkedList<PieceBlock> blocks = new LinkedList<PieceBlock>();
         PiecePicker picker = transfer.getPicker();
-        picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE);
+        picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE, getPeer(), speed());
         RequestParts64 reqp = new RequestParts64(transfer.hash());
 
         while(!blocks.isEmpty() && downloadQueue.size() < Constants.REQUEST_QUEUE_SIZE) {
             PieceBlock b = blocks.poll();
-            // mark block as downloading
-            transfer.getPicker().markAsDownloading(b); // ?
             downloadQueue.add(new PendingBlock(b, transfer.size()));
             assert !reqp.isFool();
             reqp.append(b.range(transfer.size()));
@@ -1024,7 +1022,7 @@ public class PeerConnection extends Connection {
             PiecePicker picker = transfer.getPicker();
             while(!downloadQueue.isEmpty()) {
                 PendingBlock pb = downloadQueue.poll();
-                picker.abortDownload(pb.block);
+                picker.abortDownload(pb.block, getPeer());
                 if (pb.buffer != null) {
                     pb.buffer.clear();
                     session.bufferPool.deallocate(pb.buffer, Time.currentTime());

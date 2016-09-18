@@ -422,7 +422,7 @@ public class Transfer {
             picker.markAsFinished(b);
             needSaveResumeData = true;
         } else {
-            picker.abortDownload(b);
+            picker.abortDownload(b, null);  // state of block must be writing!
             session.pushAlert(new TransferDiskIOError(hash, ec));
             pause();
         }
