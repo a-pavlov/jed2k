@@ -862,14 +862,20 @@ public class PeerConnection extends Connection {
                     //assert(pb.buffer.remaining() == pb.dataSize);
 
                     boolean wasFinished = transfer.getPicker().isPieceFinished(recvReq.piece);
-                    transfer.getPicker().markAsWriting(pb.block);
+                    boolean wasDownloading = transfer.getPicker().markAsWriting(pb.block);
                     downloadQueue.remove(pb);
-                    // add write task to executor and add future to transfer
-                    transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
 
-                    // run async hash calculation
-                    if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
-                        transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
+                    // was downloading means block was in downdloading or none state
+                    // possibly block was already written in end game mode and/or finished
+                    // in that case no need to re-write block to disk and request hash
+                    if (!wasDownloading) {
+                        // add write task to executor and add future to transfer
+                        transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
+
+                        // run async hash calculation
+                        if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
+                            transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
+                        }
                     }
 
                     // write block to disk here
