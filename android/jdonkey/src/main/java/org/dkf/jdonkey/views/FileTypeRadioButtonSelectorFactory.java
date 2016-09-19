@@ -144,13 +144,9 @@ public final class FileTypeRadioButtonSelectorFactory {
                     selectorOnDrawableId = R.drawable.browse_peer_picture_icon_selector_on;
                     selectorOffDrawableId = R.drawable.browse_peer_picture_icon_selector_off;
                     break;
-                case Constants.FILE_TYPE_RINGTONES:
-                    selectorOnDrawableId = R.drawable.browse_peer_ringtone_icon_selector_on;
-                    selectorOffDrawableId = R.drawable.browse_peer_ringtone_icon_selector_off;
-                    break;
                 case Constants.FILE_TYPE_TORRENTS:
-                    selectorOnDrawableId = R.drawable.browse_peer_torrent_icon_selector_on;
-                    selectorOffDrawableId = R.drawable.browse_peer_torrent_icon_selector_off;
+                    selectorOnDrawableId = R.drawable.browse_peer_link_icon_selector_on;
+                    selectorOffDrawableId = R.drawable.browse_peer_link_icon_selector_off;
                     break;
                 case Constants.FILE_TYPE_VIDEOS:
                     selectorOnDrawableId = R.drawable.browse_peer_video_icon_selector_on;
@@ -161,12 +157,12 @@ public final class FileTypeRadioButtonSelectorFactory {
                     selectorOffDrawableId = R.drawable.browse_peer_archive_icon_selector_off;
                     break;
                 case Constants.FILE_TYPE_CD_IMAGE:
-                    selectorOnDrawableId = R.drawable.browse_peer_document_icon_selector_on;
-                    selectorOffDrawableId = R.drawable.browse_peer_document_icon_selector_off;
+                    selectorOnDrawableId = R.drawable.browse_peer_cd_image_icon_selector_on;
+                    selectorOffDrawableId = R.drawable.browse_peer_cd_image_icon_selector_off;
                     break;
                 case Constants.FILE_TYPE_OTHERS:
-                    selectorOnDrawableId = R.drawable.browse_peer_document_icon_selector_on;
-                    selectorOffDrawableId = R.drawable.browse_peer_document_icon_selector_off;
+                    selectorOnDrawableId = R.drawable.browse_peer_other_icon_selector_on;
+                    selectorOffDrawableId = R.drawable.browse_peer_other_icon_selector_off;
                     break;
             }
         }

@@ -330,16 +330,17 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             TextView description = findView(view, R.id.view_preference_servers_list_item_description);
             TextView details = findView(view, R.id.view_server_details);
             TextView userId = findView(view, R.id.view_server_user_id);
-            icon.setImageResource(R.drawable.server/* : R.drawable.sd_card_notification_dark_bg*/);
             label.setText(item.name + " [" + item.ip + ":" + Integer.toString(item.port) + "]");
             description.setText(item.description);
 
             switch(item.connStatus) {
                 case CONNECTED:
+                    icon.setImageResource(R.drawable.ic_flash_on_black_24dp);
                     icon.clearAnimation();
                     icon.setAlpha(1.0f);
                     break;
                 case DISCONNECTED:
+                    icon.setImageResource(R.drawable.ic_flash_off_black_24dp);
                     icon.clearAnimation();
                     icon.setAlpha(0.4f);
                     break;
