@@ -146,6 +146,7 @@ public class Transfer {
         }
 
         for(final PieceBlock b: rd.downloadedBlocks) {
+            picker.downloadPiece(b.pieceIndex);
             ByteBuffer buffer = session.allocatePoolBuffer();
             if (buffer == null) {
                 log.warn("{} have no enough buffers to restore transfer {} ",
@@ -437,7 +438,7 @@ public class Transfer {
         assert(hash != null);
 
         if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
-            log.debug("restore piece due to expected hash {} is not equal with calculated {}",
+            log.error("restore piece due to expected hash {} is not equal with calculated {}",
                     hashSet.get(pieceIndex), hash);
             picker.restorePiece(pieceIndex);
         }

@@ -114,6 +114,23 @@ public class PiecePicker extends BlocksEnumerator {
     }
 
     /**
+     * move piece to download queue directly
+     * uses in load fast resume data process to explicitly set download order members
+     * @param pieceIndex piece index
+     */
+    public void downloadPiece(int pieceIndex) {
+        assert pieceIndex < pieceStatus.length;
+        assert pieceStatus[pieceIndex] != PieceState.HAVE.value;
+        if (pieceStatus[pieceIndex] == PieceState.NONE.value) {
+            downloadingPieces.add(new DownloadingPiece(pieceIndex, blocksInPiece(pieceIndex)));
+            pieceStatus[pieceIndex] = PieceState.DOWNLOADING.value;
+        }
+
+        DownloadingPiece dp = getDownloadingPiece(pieceIndex);
+        assert dp != null;
+    }
+
+    /**
      * choose next piece and add it to download queue
      * @return true if new piece in download queue
      */
