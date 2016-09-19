@@ -45,6 +45,12 @@ public class TransferTest {
         doNothing().when(t).asyncRestoreBlock(any(PieceBlock.class), any(ByteBuffer.class));
         assertTrue(t.getPicker().havePiece(0));
         assertTrue(t.getPicker().havePiece(2));
+        t.getPicker().markAsFinished(new PieceBlock(1, 0));
+        t.getPicker().markAsFinished(new PieceBlock(1, 22));
+        t.getPicker().markAsFinished(new PieceBlock(1, 33));
+        assertTrue(t.getPicker().isBlockDownloaded(new PieceBlock(1, 0)));
+        assertTrue(t.getPicker().isBlockDownloaded(new PieceBlock(1, 22)));
+        assertTrue(t.getPicker().isBlockDownloaded(new PieceBlock(1, 33)));
     }
 
     @Test
