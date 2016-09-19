@@ -311,6 +311,7 @@ public class PiecePickerTest {
         private LinkedList<PieceBlock> blocks = new LinkedList<>();
         private final Peer peer = new Peer(new NetworkIdentifier(rnd.nextInt(), rnd.nextInt(30000)));
         private final PieceManager mgr;
+        private int counter = 0;
 
         public Downloader(final PiecePicker picker, PeerConnection.PeerSpeed speed, PieceManager mgr) {
             this.picker = picker;
@@ -327,7 +328,8 @@ public class PiecePickerTest {
             PieceBlock block = blocks.poll();
             if (block != null) {
                 log.trace("write {}", block);
-                if (picker.markAsWriting(block)) mgr.write(block);
+                if (counter % 5 == 0) picker.abortDownload(block, peer);
+                else if (picker.markAsWriting(block)) mgr.write(block);
             }
         }
 
@@ -335,6 +337,7 @@ public class PiecePickerTest {
             if (speed == PeerConnection.PeerSpeed.FAST ||
                     speed == PeerConnection.PeerSpeed.MEDIUM && index % 2 == 0 ||
                     speed == PeerConnection.PeerSpeed.SLOW && index % 3 == 0) {
+                ++counter;
                 doWork();
             }
         }
