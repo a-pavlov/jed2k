@@ -25,15 +25,6 @@
     android:baselineAligned="false"
     android:orientation="horizontal" >
 
-    <org.dkf.jdonkey.views.SearchThumbnailImageView
-        android:id="@+id/view_bittorrent_search_result_list_item_filetype_icon"
-        android:layout_width="52dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center|center_vertical"
-        android:layout_marginLeft="3dp"
-        android:contentDescription="@null"
-         />
-
     <ImageView
         android:id="@+id/view_bittorrent_search_result_list_item_download_icon"
         android:layout_width="wrap_content"
