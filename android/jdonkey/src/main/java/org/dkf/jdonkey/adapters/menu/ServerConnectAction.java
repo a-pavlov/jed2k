@@ -17,7 +17,7 @@ public class ServerConnectAction extends MenuAction {
     private final String serverId;
 
     public ServerConnectAction(Context context, final String host, int port, final String serverId) {
-        super(context, R.drawable.contextmenu_icon_play, R.string.server_connect_action, host);
+        super(context, R.drawable.ic_power_settings_new_black_24dp, R.string.server_connect_action, host);
         this.host = host;
         this.port = port;
         this.serverId = serverId;
