@@ -6,23 +6,29 @@ import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class PiecePickerTest {
 
+    private final Logger log = LoggerFactory.getLogger(PiecePickerTest.class);
     Peer peer;
     Peer peer2;
+    Random rnd;
 
     @Before
     public void setUp() {
         peer = new Peer(new NetworkIdentifier(100, 3444));
         peer2 = new Peer(new NetworkIdentifier(222, 55456));
+        rnd = new Random();
     }
 
     @Test
@@ -247,5 +253,119 @@ public class PiecePickerTest {
         pp.pickPieces(rq3, Constants.REQUEST_QUEUE_SIZE, peer3, PeerConnection.PeerSpeed.SLOW);
         assertEquals(1, rq3.size());
         assertEquals(new PieceBlock(0, 19), rq3.get(0));
+    }
+
+    private class PieceManager {
+        final PiecePicker picker;
+        List<PieceBlock> writeOrder = new LinkedList<>();
+
+
+        public PieceManager(final PiecePicker picker) {
+            this.picker = picker;
+        }
+
+        void write(PieceBlock block) {
+            writeOrder.add(block);
+        }
+
+        private int getFinished() {
+            int finishedIndex = -1;
+            for (DownloadingPiece dp : picker.getDownloadingQueue()) {
+                if (dp.getBlocksCount() == dp.getFinishedBlocksCount()) {
+                    finishedIndex = dp.getPieceIndex();
+                    break;
+                }
+            }
+
+            return finishedIndex;
+        }
+
+        void process(int index) {
+            int failIteration = rnd.nextInt(10);
+
+            int iteration = 0;
+            for(final PieceBlock b: writeOrder) {
+                if (iteration == failIteration) {
+                    log.trace("abort {}", b);
+                    picker.abortDownload(b, null);
+                } else {
+                    log.trace("finish {}", b);
+                    picker.markAsFinished(b);
+                    int finishedPiece = getFinished();
+                    while(finishedPiece != -1) {
+                        picker.weHave(finishedPiece);
+                        finishedPiece = getFinished();
+                    }
+                }
+
+                ++iteration;
+            }
+
+            writeOrder.clear();
+        }
+    }
+
+    private class Downloader {
+        final PiecePicker picker;
+        PeerConnection.PeerSpeed speed;
+        private LinkedList<PieceBlock> blocks = new LinkedList<>();
+        private final Peer peer = new Peer(new NetworkIdentifier(rnd.nextInt(), rnd.nextInt(30000)));
+        private final PieceManager mgr;
+
+        public Downloader(final PiecePicker picker, PeerConnection.PeerSpeed speed, PieceManager mgr) {
+            this.picker = picker;
+            this.speed = speed;
+            this.mgr = mgr;
+        }
+
+        private void doWork() {
+            if (blocks.isEmpty()) {
+                picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE, peer, speed);
+                return;
+            }
+
+            PieceBlock block = blocks.poll();
+            if (block != null) {
+                log.trace("write {}", block);
+                if (picker.markAsWriting(block)) mgr.write(block);
+            }
+        }
+
+        void process(int index) {
+            if (speed == PeerConnection.PeerSpeed.FAST ||
+                    speed == PeerConnection.PeerSpeed.MEDIUM && index % 2 == 0 ||
+                    speed == PeerConnection.PeerSpeed.SLOW && index % 3 == 0) {
+                doWork();
+            }
+        }
+    }
+
+    @Test
+    public void testFullCycle() {
+        PiecePicker picker = new PiecePicker(40, 33);
+        List<Downloader> downloaders = new LinkedList<>();
+        PieceManager manager = new PieceManager(picker);
+        downloaders.add(new Downloader(picker, PeerConnection.PeerSpeed.SLOW, manager));
+        downloaders.add(new Downloader(picker, PeerConnection.PeerSpeed.SLOW, manager));
+        downloaders.add(new Downloader(picker, PeerConnection.PeerSpeed.SLOW, manager));
+        downloaders.add(new Downloader(picker, PeerConnection.PeerSpeed.MEDIUM, manager));
+        downloaders.add(new Downloader(picker, PeerConnection.PeerSpeed.MEDIUM, manager));
+        downloaders.add(new Downloader(picker, PeerConnection.PeerSpeed.FAST, manager));
+        downloaders.add(new Downloader(picker, PeerConnection.PeerSpeed.FAST, manager));
+        assertEquals(0, picker.numHave());
+        assertEquals(40, picker.totalPieces());
+
+        int iterator = 0;
+        while(true) {
+            for(final Downloader d: downloaders) {
+                d.process(iterator);
+            }
+
+            manager.process(iterator);
+            ++iterator;
+
+            if (iterator % 100 == 0) log.info(picker.toString());
+            if (picker.numHave() == picker.totalPieces()) break;
+        }
     }
 }

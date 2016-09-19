@@ -74,7 +74,6 @@ public class PiecePicker extends BlocksEnumerator {
      * for unit tests only!
      * @param b
      * @param peer
-     * @param speed
      * @return
      */
     public boolean markAsDownloading(PieceBlock b, Peer peer) {
@@ -281,5 +280,25 @@ public class PiecePicker extends BlocksEnumerator {
 
     public List<DownloadingPiece> getDownloadingQueue() {
         return downloadingPieces;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for(int i = 0; i != pieceStatus.length; ++i) {
+            if (pieceStatus[i] == PieceState.NONE.value) sb.append("0");
+            else if (pieceStatus[i] == PieceState.DOWNLOADING.value) sb.append("+");
+            else if (pieceStatus[i] == PieceState.HAVE.value) sb.append("1");
+            else sb.append("?");
+        }
+
+        sb.append("]");
+        sb.append("\n");
+        for(DownloadingPiece dp: downloadingPieces) {
+            sb.append(dp).append("\n");
+        }
+
+        return sb.toString();
     }
 }

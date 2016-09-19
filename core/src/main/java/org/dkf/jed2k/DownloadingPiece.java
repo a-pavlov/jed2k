@@ -31,15 +31,18 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
         public final boolean isFree() { return state == BlockState.STATE_NONE; }
 
         public void request(Peer p, PeerConnection.PeerSpeed speed) {
+            // definitely can't request finished or writing blocks
             assert state != BlockState.STATE_FINISHED;
             assert state != BlockState.STATE_WRITING;
             ++downloadersCount;
+            assert downloadersCount <= 2;
             lastDownloader = p;
             state = BlockState.STATE_REQUESTED;
             this.speed = speed;
         }
 
         public void write() {
+            // block can be requested already or none in case it was already requested and rejected before
             assert state == BlockState.STATE_REQUESTED || state == BlockState.STATE_NONE;
             downloadersCount = 0;
             lastDownloader = null;
@@ -53,6 +56,7 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
         public void abort(Peer p) {
             assert state != BlockState.STATE_NONE;
             assert state == BlockState.STATE_WRITING || p != null;
+            assert downloadersCount >= 0;
 
             if (downloadersCount > 0) downloadersCount--;
             if (lastDownloader != null && lastDownloader == p) lastDownloader = null;
@@ -76,6 +80,18 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
 
         public BlockState getState() {
             return state;
+        }
+
+        @Override
+        public String toString() {
+            switch (state) {
+                case STATE_NONE: return "n";
+                case STATE_REQUESTED: return "r";
+                case STATE_WRITING: return "w";
+                case STATE_FINISHED: return "f";
+            }
+
+            return "?";
         }
     }
 
@@ -187,6 +203,10 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
         return res;
     }
 
+    public int getPieceIndex() {
+        return pieceIndex;
+    }
+
     @Override
     public Iterator<DownloadingPiece.Block> iterator() {
         Iterator<DownloadingPiece.Block> it = new Iterator<DownloadingPiece.Block>() {
@@ -210,5 +230,16 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
         };
 
         return it;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for(Block b: blocks) {
+            sb.append(b);
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }
