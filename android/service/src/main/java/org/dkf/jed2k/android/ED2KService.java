@@ -282,6 +282,8 @@ public class ED2KService extends Service {
         }
         else if (a instanceof TransferAddedAlert) {
             localHashes.add(((TransferAddedAlert) a).hash);
+            log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
+            session.saveResumeData();
         }
         else if (a instanceof TransferRemovedAlert) {
             localHashes.remove(((TransferAddedAlert) a).hash);
@@ -289,8 +291,12 @@ public class ED2KService extends Service {
         else if (a instanceof TransferResumeDataAlert) {
             saveResumeData((TransferResumeDataAlert)a);
         }
+        else if (a instanceof TransferFinishedAlert) {
+            log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
+            session.saveResumeData();
+        }
         else {
-            log.debug("alert {}", a);
+            log.info("alert {}", a);
         }
     }
 
@@ -546,7 +552,6 @@ public class ED2KService extends Service {
 
     public List<TransferHandle> getTransfers() {
         if (session != null) {
-            log.info("session transfers size {}", session.getTransfers().size());
             return session.getTransfers();
         } else {
             log.info("session is null on get transfers");

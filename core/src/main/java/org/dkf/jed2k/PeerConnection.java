@@ -235,7 +235,7 @@ public class PeerConnection extends Connection {
             try {
                 onReceiveData();
             } catch(JED2KException e) {
-                log.error("error on read in transfer data mode {}", e);
+                log.error("error on read in transfer data mode {}", e.toString());
                 close(e.getErrorCode());
             }
         } else {
@@ -734,7 +734,7 @@ public class PeerConnection extends Connection {
      * @throws JED2KException
      */
     void receiveData(final PeerRequest r, final boolean compressed) throws JED2KException {
-        log.debug("receive data: {}", r);
+        //log.debug("{} receive data: {}", getEndpoint(), r);
         transferringData = true;
         recvReq = r;
         recvPos = 0;
@@ -745,7 +745,7 @@ public class PeerConnection extends Connection {
         PendingBlock pb = getDownloading(b);
 
         if (pb == null) {
-            log.warn("have no correspond block for request {}, skip data", r);
+            log.warn("{} have no correspond block for request {}, skip data", getEndpoint(), r);
             skipData();
             return;
         }
@@ -758,7 +758,7 @@ public class PeerConnection extends Connection {
          * throw exception will lead of close connection with no memory error
          */
         if (pb.buffer == null) {
-            log.warn("can not allocate buffer for block {} current request {}", b, r);
+            log.warn("{} can not allocate buffer for block {} current request {}", getEndpoint(), b, r);
             throw new JED2KException(ErrorCode.NO_MEMORY);
         }
 
@@ -775,7 +775,7 @@ public class PeerConnection extends Connection {
      * hope it is not a problem when peer receives new request in the middle of sending data
      */
     void skipData() throws JED2KException {
-        log.debug("skipData {} bytes", (int)recvReq.length - recvPos);
+        log.debug("{} skipData {} bytes", getEndpoint(), (int)recvReq.length - recvPos);
         ByteBuffer buffer = session.allocateSkipDataBufer();
         buffer.clear();
         buffer.limit((int)recvReq.length - recvPos);
@@ -784,7 +784,7 @@ public class PeerConnection extends Connection {
             int n = socket.read(buffer);
             if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
             recvPos += n;
-            log.trace("recvpos {} recvlen {}", recvPos, recvReq);
+            log.trace("{} recvpos {} recvlen {}", getEndpoint(), recvPos, recvReq);
             statistics().receiveBytes(0, n);
             if (n != 0) lastReceive = Time.currentTime();
 
@@ -820,7 +820,7 @@ public class PeerConnection extends Connection {
          * if we have no it skip data
          */
         if (pb == null) {
-            log.warn("request {} has not correspond block in downloading queue, skip data", recvReq);
+            log.warn("{} request {} has not correspond block in downloading queue, skip data", getEndpoint(), recvReq);
             skipData();
             return;
         }
@@ -833,7 +833,7 @@ public class PeerConnection extends Connection {
          * if block already was downloaded(depends on piece picker politics) - skip data
          */
         if (transfer.getPicker().isBlockDownloaded(blockFinished)) {
-            log.warn("request {} references to downloaded block {}, remove pending block and skip data", recvReq, blockFinished);
+            log.warn("{} request {} references to downloaded block {}, remove pending block and skip data", getEndpoint(), recvReq, blockFinished);
             downloadQueue.remove(pb);
             skipData();
             return;
@@ -849,13 +849,19 @@ public class PeerConnection extends Connection {
             statistics().receiveBytes(0, n);
 
             if (pb.buffer.remaining() == 0) {
-                log.trace("received {} bytes, buffer is full, turn off transferring data", recvPos);
+                log.trace("{} received {} bytes for block {}, buffer is full, turn off transferring data"
+                        , getEndpoint()
+                        , pb.block
+                        , recvPos);
                 assert recvPos == recvReq.length;
                 // turn off data transfer mode
                 transferringData = false;
 
                 if (completeBlock(pb)) {
-                    log.debug("block {} completed, dataSize {}", pb.block, pb.dataSize);
+                    log.debug("{} block {} completed, dataSize {}"
+                            , getEndpoint()
+                            , pb.block
+                            , pb.dataSize);
                     // set position to zero - start reading from begin of buffer
 
                     assert pb.buffer.hasRemaining();
@@ -868,7 +874,7 @@ public class PeerConnection extends Connection {
                     // was downloading means block was in downdloading or none state
                     // possibly block was already written in end game mode and/or finished
                     // in that case no need to re-write block to disk and request hash
-                    if (!wasDownloading) {
+                    if (wasDownloading) {
                         // add write task to executor and add future to transfer
                         transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
 
@@ -876,6 +882,10 @@ public class PeerConnection extends Connection {
                         if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
                             transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
                         }
+                    } else {
+                        log.warn("{} block {} wasn't downloading, do not write"
+                            , getEndpoint()
+                            , pb.block);
                     }
 
                     // write block to disk here
@@ -1085,5 +1095,26 @@ public class PeerConnection extends Connection {
         i.endpoint = getEndpoint();
         i.strModVersion = remotePeerInfo.modVersion;
         return i;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getEndpoint()).append(" ").append(getPeer()!=null?getPeer().toString():"null");
+        switch(speed()) {
+            case SLOW:
+                sb.append(" SLOW ");
+                break;
+            case MEDIUM:
+                sb.append(" MEDIUM ");
+                break;
+            case FAST:
+                sb.append(" FAST ");
+                break;
+            default:
+                sb.append(" ? ");
+                break;
+        }
+        return sb.toString();
     }
 }

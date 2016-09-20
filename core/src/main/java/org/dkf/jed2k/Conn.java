@@ -20,10 +20,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -165,6 +162,14 @@ public class Conn {
                         if (a instanceof SearchResultAlert) {
                             SearchResult sr = ((SearchResultAlert)a).results;
                             globalSearchRes = sr;
+                            globalSearchRes.files.sort(new Comparator<SharedFileEntry>() {
+                                @Override
+                                public int compare(SharedFileEntry o1, SharedFileEntry o2) {
+                                    if (o1.getSources() < o2.getSources()) return -1;
+                                    if (o1.getSources() > o2.getSources()) return 1;
+                                    return 0;
+                                }
+                            });
                             printGlobalSearchResult();
                         }
                         else if (a instanceof ServerMessageAlert) {

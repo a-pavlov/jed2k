@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public abstract class Connection implements Dispatcher {
-    private final Logger log = LoggerFactory.getLogger(ServerConnection.class);
+    private final Logger log = LoggerFactory.getLogger(Connection.class);
 
     /**
      * NIO infrastructure

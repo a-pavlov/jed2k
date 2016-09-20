@@ -3,6 +3,8 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -11,6 +13,7 @@ import java.util.*;
  * extends AbstractCollection for unit testing purposes
  */
 public class Policy extends AbstractCollection<Peer> {
+    private final Logger log = LoggerFactory.getLogger(Policy.class);
     private int roundRobin = 0;
     private ArrayList<Peer> peers = new ArrayList<Peer>();
     private Transfer transfer = null;
@@ -191,7 +194,7 @@ public class Policy extends AbstractCollection<Peer> {
             if (pe.nextConnection != 0 && pe.nextConnection < sessionTime) continue;
             // TODO - use min reconnect time parameter here
             // 10 seconds timeout for each fail
-            if (pe.lastConnected != 0 && sessionTime - pe.lastConnected < (pe.failCount + 1)*10*1000) continue;
+            if (pe.lastConnected != 0 && (sessionTime < pe.lastConnected + (pe.failCount + 1)*10*1000)) continue;
             candidate = current;
         }
 
@@ -217,6 +220,7 @@ public class Policy extends AbstractCollection<Peer> {
     }
 
     public void conectionClosed(PeerConnection c, long sessionTime) {
+        log.debug("close connection {}", c);
         Peer p = c.getPeer();
         if (p == null) return;
         p.setConnection(null);
@@ -279,6 +283,17 @@ public class Policy extends AbstractCollection<Peer> {
         assert(p != null);
         p.setConnection(c);
         c.setPeer(p);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("policy transfer: ").append(transfer!=null?transfer.hash().toString():"?").append(" peers: ");
+        for(final Peer p: peers) {
+            sb.append(p.toString());
+        }
+
+        return sb.toString();
     }
 }
 

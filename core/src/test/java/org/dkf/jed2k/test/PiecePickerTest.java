@@ -92,6 +92,35 @@ public class PiecePickerTest {
     }
 
     @Test
+    public void testSmallFile() {
+        PiecePicker picker = new PiecePicker(1, 4);
+        assertEquals(0, picker.numHave());
+        assertEquals(1, picker.totalPieces());
+        List<PieceBlock> rq = new LinkedList<>();
+        Peer peer = new Peer(new NetworkIdentifier(111, 555));
+        picker.pickPieces(rq, Constants.REQUEST_QUEUE_SIZE, peer, PeerConnection.PeerSpeed.SLOW);
+        assertEquals(Constants.REQUEST_QUEUE_SIZE, rq.size());
+        for(final PieceBlock b: rq) {
+            assertTrue(picker.markAsWriting(b));
+        }
+
+        for(final PieceBlock b: rq) {
+            picker.markAsFinished(b);
+        }
+        rq.clear();
+
+
+        picker.pickPieces(rq, Constants.REQUEST_QUEUE_SIZE, peer, PeerConnection.PeerSpeed.SLOW);
+        assertEquals(1, rq.size());
+        assertEquals(1, picker.numDowloadingPieces());
+        assertFalse(picker.isPieceFinished(0));
+        assertTrue(picker.markAsWriting(rq.get(0)));
+        picker.markAsFinished(rq.get(0));
+        picker.weHave(0);
+        assertEquals(picker.totalPieces(), picker.numHave());
+    }
+
+    @Test
     public void testTrivialFullCycle() {
         PiecePicker pp = new PiecePicker(5, 14);
         LinkedList<PieceBlock> req = new LinkedList<PieceBlock>();

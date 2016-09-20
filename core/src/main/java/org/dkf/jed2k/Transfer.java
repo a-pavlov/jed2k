@@ -114,6 +114,10 @@ public class Transfer {
             restore(atp.resumeData.getData());
         } else {
             setState(TransferStatus.TransferState.DOWNLOADING);
+            /**
+             * on start new transfer we need to save resume data to avoid transfer lost if session will interrupted
+             */
+            needSaveResumeData = true;
         }
 
         session.pushAlert(new TransferAddedAlert(this.hash));
@@ -385,7 +389,7 @@ public class Transfer {
 
     void piecePassed(int pieceIndex) {
         boolean was_finished = (numPieces == numHave());
-        log.debug("piece passed, was finsihed: {}", was_finished?"true":"false");
+        log.debug("piece passed, was finished: {}", was_finished?"true":"false");
         weHave(pieceIndex);
         if (!was_finished && isFinished()) {
             finished();
@@ -579,7 +583,8 @@ public class Transfer {
     public final List<PeerInfo> getPeersInfo() {
         List<PeerInfo> res = new ArrayList<>();
         for(final PeerConnection c: connections) {
-            res.add(c.getInfo());
+            // add peers only active peers
+            if (c.statistics().downloadPayloadRate() > 0) res.add(c.getInfo());
         }
 
         return res;
