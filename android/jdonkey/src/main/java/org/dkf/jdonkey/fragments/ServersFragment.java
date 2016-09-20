@@ -90,6 +90,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         super.onResume();
         Engine.instance().setListener(this);
         invalidateServersState();
+        warnServiceStopped(getView());
     }
 
     @Override
@@ -101,7 +102,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     @Override
     public void onDestroy() {
         super.onDestroy();
-         Engine.instance().removeListener(this);
+        Engine.instance().removeListener(this);
     }
 
     private void warnServiceStopped(View v) {

@@ -22,11 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ED2KService extends Service {
@@ -45,7 +45,7 @@ public class ED2KService extends Service {
      */
     private Session session;
 
-    private Set<Hash> localHashes = new HashSet<>();
+    private Map<Hash, Integer> localHashes = new ConcurrentHashMap<>();
 
     /**
      * dedicated thread executor for scan session's alerts and some other actions like resume data loading
@@ -223,8 +223,16 @@ public class ED2KService extends Service {
         listeners.remove(listener);
     }
 
-    public synchronized boolean containsHash(final Hash h) {
-        return localHashes.contains(h);
+    public boolean containsHash(final Hash h) {
+        return localHashes.containsKey(h);
+    }
+
+    /**
+     * remove resume data file for transfer
+     * @param hash transfer's hash
+     */
+    private void removeResumeDataFile(final Hash hash) {
+        deleteFile("rd_" + hash.toString());
     }
 
     private void saveResumeData(final TransferResumeDataAlert a) {
@@ -281,12 +289,13 @@ public class ED2KService extends Service {
             for(final AlertListener ls: listeners) ls.onServerConnectionAlert((ServerConnectionAlert)a);
         }
         else if (a instanceof TransferAddedAlert) {
-            localHashes.add(((TransferAddedAlert) a).hash);
+            localHashes.put(((TransferAddedAlert) a).hash, 0);
             log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
             session.saveResumeData();
         }
         else if (a instanceof TransferRemovedAlert) {
             localHashes.remove(((TransferAddedAlert) a).hash);
+            removeResumeDataFile(((TransferAddedAlert) a).hash);
         }
         else if (a instanceof TransferResumeDataAlert) {
             saveResumeData((TransferResumeDataAlert)a);
@@ -315,6 +324,13 @@ public class ED2KService extends Service {
             }
         },  100, 2000, TimeUnit.MILLISECONDS);
 
+        // save resume data every 200 seconds
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                session.saveResumeData();
+            }
+        }, 60, 200, TimeUnit.SECONDS);
 
         scheduledExecutorService.submit(new Runnable() {
             @Override
@@ -560,8 +576,10 @@ public class ED2KService extends Service {
         return new ArrayList<TransferHandle>();
     }
 
-    public void removeTransfer(Hash h, boolean removeFile) {
-        if (session != null) session.removeTransfer(h, removeFile);
+    public void removeTransfer(final Hash h, final boolean removeFile) {
+        if (session != null) {
+            session.removeTransfer(h, removeFile);
+        }
     }
 
     public void configureSession() {

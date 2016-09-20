@@ -158,7 +158,9 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     @Override
     protected void onItemClicked(View v) {
         SharedFileEntry sr = (SharedFileEntry) v.getTag();
-        searchResultClicked(sr);
+        if (!Engine.instance().hasTransfer(sr.hash)) {
+            searchResultClicked(sr);
+        }
     }
 
     abstract protected void searchResultClicked(SharedFileEntry sr);
