@@ -22,11 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ED2KService extends Service {
@@ -45,7 +45,7 @@ public class ED2KService extends Service {
      */
     private Session session;
 
-    private Map<Hash, Integer> localHashes = new ConcurrentHashMap<>();
+    private Map<Hash, Integer> localHashes = Collections.synchronizedMap(new HashMap<Hash, Integer>());
 
     /**
      * dedicated thread executor for scan session's alerts and some other actions like resume data loading
@@ -265,8 +265,8 @@ public class ED2KService extends Service {
         }
     }
 
-    synchronized public void processAlert(Alert a) {
-        log.debug("ED2KService service alive");
+    public void processAlert(Alert a) {
+        log.info("ED2KService service alive {}", a);
         if (a instanceof ListenAlert) {
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
         } else if (a instanceof SearchResultAlert) {
@@ -294,8 +294,11 @@ public class ED2KService extends Service {
             session.saveResumeData();
         }
         else if (a instanceof TransferRemovedAlert) {
-            localHashes.remove(((TransferAddedAlert) a).hash);
-            removeResumeDataFile(((TransferAddedAlert) a).hash);
+            log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
+            localHashes.remove(((TransferRemovedAlert) a).hash);
+            log.info("hashes cleared");
+            removeResumeDataFile(((TransferRemovedAlert) a).hash);
+            log.info("transfer removed completed");
         }
         else if (a instanceof TransferResumeDataAlert) {
             saveResumeData((TransferResumeDataAlert)a);

@@ -109,12 +109,13 @@ public abstract class Connection implements Dispatcher {
             onConnect();
             lastReceive = Time.currentTime();
         } catch(IOException e) {
-            log.error(e.getMessage());
+            log.error("{} onConnectable {}",getEndpoint(), e.getMessage());
             close(ErrorCode.IO_EXCEPTION);
         } catch(JED2KException e) {
-            log.error(e.getMessage());
+            log.error("{} onConnectable {}", getEndpoint(), e.getMessage());
             close(e.getErrorCode());
         } catch(Exception e) {
+            log.error("{} onConnectable {}", getEndpoint(), e.getMessage());
             close(ErrorCode.NOT_CONNECTED);
         }
     }
@@ -274,20 +275,20 @@ public abstract class Connection implements Dispatcher {
         try {
             socket.connect(address);
         } catch(IOException e) {
-           log.error(e.getMessage());
+           log.error("{} connect error {}", getEndpoint(), e.getMessage());
            close(ErrorCode.IO_EXCEPTION);
         }
     }
 
     void close(BaseErrorCode ec) {
-        log.debug("{} close connection {}", getEndpoint(), ec);
+        log.info("{} close connection {}", getEndpoint(), ec);
         try {
             socket.close();
         } catch(IOException e) {
-            log.error(e.getMessage());
+            log.error("{} socket i/o exception {}, ", getEndpoint(), e.getMessage());
         }
         catch(Exception e) {
-            log.error(e.getMessage());
+            log.error("{} socket exception {}", getEndpoint(), e.getMessage());
         }
         finally {
             key.cancel();

@@ -571,6 +571,8 @@ public class PeerConnection extends Connection {
             transfer.removePeerConnection(this);
             abortAllRequests();
             transfer = null;
+        } else {
+            log.info("peer connection has no transfer");
         }
 
         session.closeConnection(this);

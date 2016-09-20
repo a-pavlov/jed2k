@@ -213,5 +213,7 @@ public class HashTest{
         m.put(Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5"), 1);
         Hash h = Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5");
         assertTrue(m.containsKey(h));
+        m.remove(h);
+        assertTrue(m.isEmpty());
     }
 }

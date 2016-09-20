@@ -220,7 +220,7 @@ public class Policy extends AbstractCollection<Peer> {
     }
 
     public void conectionClosed(PeerConnection c, long sessionTime) {
-        log.debug("close connection {}", c);
+        log.info("close connection {}", c);
         Peer p = c.getPeer();
         if (p == null) return;
         p.setConnection(null);
