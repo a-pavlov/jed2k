@@ -526,6 +526,7 @@ public class ED2KService extends Service {
     }
 
     public void shutdown(){
+        stopServices();
         stopForeground(true);
         stopSelf(-1);
     }

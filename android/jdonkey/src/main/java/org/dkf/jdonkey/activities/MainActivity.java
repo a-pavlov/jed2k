@@ -578,7 +578,7 @@ public class MainActivity extends AbstractActivity implements
 
     private void onLastDialogButtonPositive() {
         //Offers.showInterstitial(this, false, true);
-        Engine.instance().shutdown();
+        //Engine.instance().shutdown();
         finish();
     }
 
@@ -776,8 +776,6 @@ public class MainActivity extends AbstractActivity implements
                 return servers;
             case R.id.menu_main_search:
                 return search;
-            //case R.id.menu_main_library:
-            //    return library;
             case R.id.menu_main_transfers:
                 return transfers;
             default:

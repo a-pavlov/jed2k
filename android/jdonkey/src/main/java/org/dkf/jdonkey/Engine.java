@@ -157,12 +157,8 @@ public final class Engine implements AlertListener {
             }
             */
 
-            if (service.isStopping() || service.isStopped()) {
-                log.info("shutdown stopped service");
-                service.shutdown();
-            } else {
-                log.info("service still alive due to started session exists");
-            }
+            log.info("shutdown stopped service");
+            service.shutdown();
         }
     }
 

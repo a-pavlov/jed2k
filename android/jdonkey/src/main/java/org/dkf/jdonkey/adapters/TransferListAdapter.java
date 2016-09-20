@@ -258,7 +258,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
         items.add(new CancelMenuAction(context.get(), download, !download.isComplete()));
 
         items.add(new CopyToClipboardMenuAction(context.get(),
-                R.drawable.contextmenu_icon_magnet,
+                R.drawable.ic_insert_link_black_18dp,
                 R.string.transfers_context_menu_copy_link,
                 R.string.transfers_context_menu_copy_link_copied, download.toLink()));
 
@@ -386,12 +386,12 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
     }
 
     private void populatePeerItem(View view, PeerInfo item) {
-        ImageView icon = findView(view, R.id.view_transfer_item_list_item_icon);
+        //ImageView icon = findView(view, R.id.view_transfer_item_list_item_icon);
         TextView title = findView(view, R.id.view_transfer_item_list_item_title);
         TextView summary = findView(view, R.id.view_transfer_item_list_item_summary);
         TextView totalBytes = findView(view, R.id.view_transfer_item_list_item_total_bytes);
         TextView speed = findView(view, R.id.view_transfer_item_list_item_speed);
-        ImageButton buttonPlay = findView(view, R.id.view_transfer_item_list_item_button_play);
+        //ImageButton buttonPlay = findView(view, R.id.view_transfer_item_list_item_button_play);
 
         //icon.setImageResource(MediaType.getFileTypeIconId(FilenameUtils.getExtension(item.getFilePath().getAbsolutePath())));
         title.setText(item.endpoint.toString());
@@ -403,9 +403,9 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
         totalBytes.setText(strTotalBytes);
         speed.setText(strSpeed);
         summary.setText(strSummary);
-        buttonPlay.setTag(item);
-        updatePlayButtonVisibility(item, buttonPlay);
-        buttonPlay.setOnClickListener(playOnClickListener);
+        //buttonPlay.setTag(item);
+        //updatePlayButtonVisibility(item, buttonPlay);
+        //buttonPlay.setOnClickListener(playOnClickListener);
     }
 
     private void updatePlayButtonVisibility(PeerInfo item, ImageButton buttonPlay) {
