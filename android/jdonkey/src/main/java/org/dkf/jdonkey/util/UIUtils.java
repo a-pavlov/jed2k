@@ -253,8 +253,6 @@ public final class UIUtils {
                 return resources.getString(R.string.documents);
             case Constants.FILE_TYPE_PICTURES:
                 return resources.getString(R.string.pictures);
-            case Constants.FILE_TYPE_RINGTONES:
-                return resources.getString(R.string.ringtones);
             case Constants.FILE_TYPE_VIDEOS:
                 return resources.getString(R.string.video);
             case Constants.FILE_TYPE_TORRENTS:

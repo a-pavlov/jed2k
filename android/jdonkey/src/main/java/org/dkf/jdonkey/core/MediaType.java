@@ -114,20 +114,20 @@ public class MediaType implements Serializable {
     /**
      * Type for 'torrents'
      */
-    public static final MediaType TYPE_TORRENTS = new MediaType(Constants.FILE_TYPE_TORRENTS, SCHEMA_TORRENTS, TORRENTS_STRING_RESOURCE_ID, new String[] { "torrent" });
+    public static final MediaType TYPE_TORRENTS = new MediaType(Constants.FILE_TYPE_TORRENTS, SCHEMA_TORRENTS, TORRENTS_STRING_RESOURCE_ID, new String[] { "torrent", "emulecollection" });
 
     /**
      * All media types.
      */
     private static final MediaType[] ALL_MEDIA_TYPES = new MediaType[] {
-            TYPE_ARCHIVE,
             TYPE_CD_IMAGE,
             TYPE_AUDIO,
             TYPE_DOCUMENTS,
             TYPE_PICTURES,
             TYPE_TORRENTS,
             TYPE_VIDEO,
-            TYPE_APPLICATIONS};
+            TYPE_APPLICATIONS,
+            TYPE_ARCHIVE};
 
     private final int id;
 

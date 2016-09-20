@@ -17,7 +17,7 @@ public class ServerDisconnectAction extends MenuAction {
     private String serverId;
 
     public ServerDisconnectAction(Context context, final String host, int port, final String serverId) {
-        super(context, R.drawable.contextmenu_icon_stop, R.string.server_disconnect_action, host);
+        super(context, R.drawable.ic_power_settings_new_black_24dp, R.string.server_disconnect_action, host);
         this.host = host;
         this.port = port;
         this.serverId = serverId;

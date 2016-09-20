@@ -22,7 +22,6 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ImageView;
 import android.widget.TextView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.Engine;
@@ -32,7 +31,10 @@ import org.dkf.jdonkey.adapters.menu.SearchMoreAction;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.MediaType;
 import org.dkf.jdonkey.util.UIUtils;
-import org.dkf.jdonkey.views.*;
+import org.dkf.jdonkey.views.AbstractListAdapter;
+import org.dkf.jdonkey.views.ClickAdapter;
+import org.dkf.jdonkey.views.MenuAction;
+import org.dkf.jdonkey.views.MenuAdapter;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.dkf.jed2k.util.Ref;
@@ -105,8 +107,8 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     }
 
     private void populateFilePart(View view, final SharedFileEntry entry) {
-        ImageView fileTypeIcon = findView(view, R.id.view_bittorrent_search_result_list_item_filetype_icon);
-        fileTypeIcon.setImageResource(getFileTypeIconId());
+        //ImageView fileTypeIcon = findView(view, R.id.view_bittorrent_search_result_list_item_filetype_icon);
+        //fileTypeIcon.setImageResource(getFileTypeIconId());
 
         TextView adIndicator = findView(view, R.id.view_bittorrent_search_result_list_item_ad_indicator);
         adIndicator.setVisibility(View.GONE);
@@ -140,18 +142,18 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     }
 
     private void populateThumbnail(View view, SharedFileEntry sr) {
-        SearchThumbnailImageView fileTypeIcon = findView(view, R.id.view_bittorrent_search_result_list_item_filetype_icon);
+        //SearchThumbnailImageView fileTypeIcon = findView(view, R.id.view_bittorrent_search_result_list_item_filetype_icon);
         //if (sr.getThumbnailUrl() != null) {
         //    thumbLoader.load(Uri.parse(sr.getThumbnailUrl()), fileTypeIcon, 96, 96, getFileTypeIconId());
         //}
 
-        fileTypeIcon.setOnClickListener(previewClickListener);
+        //fileTypeIcon.setOnClickListener(previewClickListener);
         //if (isAudio(sr) || sr instanceof YouTubePackageSearchResult) {
         //    fileTypeIcon.setTag(sr);
         //    fileTypeIcon.setOverlayState(MediaPlaybackOverlay.MediaPlaybackState.PREVIEW);
         //} else {
-            fileTypeIcon.setTag(null);
-            fileTypeIcon.setOverlayState(MediaPlaybackOverlay.MediaPlaybackState.NONE);
+        //    fileTypeIcon.setTag(null);
+        //    fileTypeIcon.setOverlayState(MediaPlaybackOverlay.MediaPlaybackState.NONE);
         //}
     }
 
@@ -184,7 +186,8 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     }
 
     private boolean accept(SharedFileEntry sr, MediaType mt) {
-        return mt != null && mt.getId() == fileType;
+        return (mt != null && mt.getId() == fileType) ||
+                (mt == null && fileType == Constants.FILE_TYPE_OTHERS);
     }
 
     private int getFileTypeIconId() {

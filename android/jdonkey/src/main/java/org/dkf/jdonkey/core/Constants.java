@@ -116,7 +116,6 @@ public final class Constants {
     public static final byte FILE_TYPE_VIDEOS = 0x02;
     public static final byte FILE_TYPE_DOCUMENTS = 0x03;
     public static final byte FILE_TYPE_APPLICATIONS = 0x04;
-    public static final byte FILE_TYPE_RINGTONES = 0x05;
     public static final byte FILE_TYPE_TORRENTS = 0x06;
     public static final byte FILE_TYPE_ARCHIVE = 0x7;
     public static final byte FILE_TYPE_CD_IMAGE = 0x8;
