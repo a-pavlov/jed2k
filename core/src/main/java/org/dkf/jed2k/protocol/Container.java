@@ -4,9 +4,7 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
-import java.util.AbstractCollection;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Created by inkpot on 01.07.2016.
@@ -145,5 +143,11 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
         }
 
         return sz;
+    }
+
+    public void sort(final Comparator<E> cmp) {
+        if (collection != null) {
+            Collections.sort(collection, cmp);
+        }
     }
 }

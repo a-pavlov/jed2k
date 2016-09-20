@@ -69,6 +69,10 @@ public class Peer implements Comparable<Peer> {
 
     @Override
     public String toString() {
-        return "peer: conn " + (connection!=null?connection.toString():"null") + (connectable?"connectable":"notconn") + " fail count {" + failCount + "}";
+        return "peer: " + endpoint + " "
+                + (hasConnection()?"connected ":"not connected ")
+                + (connectable?"connectable":"notconnectable")
+                + " fail count {" + failCount + "}"
+                + " last connected: " + lastConnected;
     }
 }

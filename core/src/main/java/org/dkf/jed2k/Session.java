@@ -622,8 +622,8 @@ public class Session extends Thread {
     }
 
     synchronized  public Pair<Long, Long> getDownloadUploadRate() {
-        long dr = accumulator.downloadRate() + accumulator.downloadPayloadRate();
-        long ur = accumulator.uploadRate() + accumulator.uploadPayloadRate();
+        long dr = accumulator.downloadRate();
+        long ur = accumulator.uploadRate();
         return Pair.make(dr, ur);
     }
 }

@@ -6,6 +6,11 @@ import java.util.*;
 
 public class PiecePicker extends BlocksEnumerator {
 
+    /**
+     * maximum count of downloading pieces at the moment to activate end game mode on piece picker
+     */
+    public static final int END_GAME_DP_LIMIT = 4;
+
     private enum PieceState {
         NONE((byte)0),
         DOWNLOADING((byte)1),
@@ -65,12 +70,18 @@ public class PiecePicker extends BlocksEnumerator {
     }
 
 
-    public boolean markAsDownloading(PieceBlock b) {
+    /**
+     * for unit tests only!
+     * @param b
+     * @param peer
+     * @return
+     */
+    public boolean markAsDownloading(PieceBlock b, Peer peer) {
         assert(b.pieceBlock < blocksInPiece(b.pieceIndex));
         DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
 
         if (dp != null) {
-            dp.requestBlock(b.pieceBlock);
+            dp.requestBlock(b.pieceBlock, peer, PeerConnection.PeerSpeed.SLOW);
             return true;
         }
 
@@ -80,18 +91,18 @@ public class PiecePicker extends BlocksEnumerator {
     public boolean markAsWriting(PieceBlock b) {
         assert(b.pieceBlock < blocksInPiece(b.pieceIndex));
         DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
+
         if (dp != null) {
-            dp.writeBlock(b.pieceBlock);
-            return true;
+            return dp.writeBlock(b.pieceBlock);
         }
 
         return false;
     }
 
-    public void abortDownload(PieceBlock b) {
+    public void abortDownload(PieceBlock b, Peer peer) {
         DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
         if (dp != null) {
-            dp.abortDownloading(b.pieceBlock);
+            dp.abortDownloading(b.pieceBlock, peer);
         }
     }
 
@@ -100,6 +111,23 @@ public class PiecePicker extends BlocksEnumerator {
         DownloadingPiece dp = getDownloadingPiece(b.pieceIndex);
         if (dp != null) return dp.isDownloaded(b.pieceBlock);
         return false;
+    }
+
+    /**
+     * move piece to download queue directly
+     * uses in load fast resume data process to explicitly set download order members
+     * @param pieceIndex piece index
+     */
+    public void downloadPiece(int pieceIndex) {
+        assert pieceIndex < pieceStatus.length;
+        assert pieceStatus[pieceIndex] != PieceState.HAVE.value;
+        if (pieceStatus[pieceIndex] == PieceState.NONE.value) {
+            downloadingPieces.add(new DownloadingPiece(pieceIndex, blocksInPiece(pieceIndex)));
+            pieceStatus[pieceIndex] = PieceState.DOWNLOADING.value;
+        }
+
+        DownloadingPiece dp = getDownloadingPiece(pieceIndex);
+        assert dp != null;
     }
 
     /**
@@ -127,24 +155,41 @@ public class PiecePicker extends BlocksEnumerator {
 
     /**
      *
-     * @param rq - request queue
-     * @param orderLength - prefer blocks count for request
+     * @param rq - container for requested blocks
+     * @param orderLength - length of request
+     * @param peer - Policy peer connection info
+     * @param speed - speed of requester
+     * @param endGame - can we take already downloading blocks
      */
-    public void pickPieces(Collection<PieceBlock> rq, int orderLength) {
-        Iterator<DownloadingPiece> itr = downloadingPieces.iterator();
-        while(itr.hasNext()) {
-            DownloadingPiece dp = itr.next();
-            for(int i = 0; i < dp.blockState.length; ++i) {
-                if (dp.blockState[i] == DownloadingPiece.BlockState.STATE_NONE) {
-                    rq.add(new PieceBlock(dp.pieceIndex, i));
-                    dp.blockState[i] = DownloadingPiece.BlockState.STATE_REQUESTED;
-                    if (rq.size() == orderLength) return;
-                }
-            }
+    private int addDownloadingBlocks(Collection<PieceBlock> rq, int orderLength, final Peer peer, PeerConnection.PeerSpeed speed,
+                                      boolean endGame) {
+        int res = 0;
+        for(final DownloadingPiece dp: downloadingPieces) {
+            res += dp.pickBlocks(rq, orderLength - res, peer, speed, endGame);
+            assert res <= orderLength;
+            if (res == orderLength) break;
         }
 
-        if (rq.size() < orderLength && chooseNextPiece()) {
-            pickPieces(rq, orderLength);
+        return res;
+    }
+
+    /**
+     *
+     * @param rq - request queue
+     * @param orderLength - prefer blocks count for request
+     * @param peer - PeerConnection's Peer information from policy
+     * @param speed - PeerConnection's speed
+     */
+    public void pickPieces(Collection<PieceBlock> rq, int orderLength, final Peer peer, PeerConnection.PeerSpeed speed) {
+        int numRequested = addDownloadingBlocks(rq, orderLength, peer, speed, false);
+
+        // for medium and fast peers in end game more re-request blocks from already downloading pieces
+        if (speed != PeerConnection.PeerSpeed.SLOW && numRequested < orderLength && isEndGame()) {
+            numRequested += addDownloadingBlocks(rq, orderLength - numRequested, peer, speed, true);
+        }
+
+        if (numRequested < orderLength && chooseNextPiece()) {
+            pickPieces(rq, orderLength - numRequested, peer, speed);
         }
     }
 
@@ -173,6 +218,10 @@ public class PiecePicker extends BlocksEnumerator {
         return res;
     }
 
+    public final int totalPieces() {
+        return pieceStatus.length;
+    }
+
     /**
      *
      * @return total pieces
@@ -187,6 +236,11 @@ public class PiecePicker extends BlocksEnumerator {
      */
     public final int numDowloadingPieces() { return downloadingPieces.size(); }
 
+
+    public final boolean isEndGame() {
+        return totalPieces() - numHave() - numDowloadingPieces() == 0 ||
+                numDowloadingPieces() > END_GAME_DP_LIMIT;
+    }
 
     /**
      * mark piece as "we have" - piece flushed to disk and hash value verified
@@ -221,7 +275,7 @@ public class PiecePicker extends BlocksEnumerator {
         if (pieceStatus[pieceIndex] == PieceState.HAVE.value) return true;
         DownloadingPiece dp = getDownloadingPiece(pieceIndex);
         assert(dp != null);
-        return dp.getBlocksCount() == (dp.finishedCount() + dp.writingCount());
+        return dp.getBlocksCount() == (dp.getFinishedBlocksCount() + dp.getWritingBlocksCount());
     }
 
     /**
@@ -243,5 +297,25 @@ public class PiecePicker extends BlocksEnumerator {
 
     public List<DownloadingPiece> getDownloadingQueue() {
         return downloadingPieces;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for(int i = 0; i != pieceStatus.length; ++i) {
+            if (pieceStatus[i] == PieceState.NONE.value) sb.append("0");
+            else if (pieceStatus[i] == PieceState.DOWNLOADING.value) sb.append("+");
+            else if (pieceStatus[i] == PieceState.HAVE.value) sb.append("1");
+            else sb.append("?");
+        }
+
+        sb.append("]");
+        sb.append("\n");
+        for(DownloadingPiece dp: downloadingPieces) {
+            sb.append(dp).append("\n");
+        }
+
+        return sb.toString();
     }
 }

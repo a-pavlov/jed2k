@@ -45,7 +45,7 @@ public class ED2KService extends Service {
      */
     private Session session;
 
-    private Set<Hash> localHashes = new HashSet<>();
+    private Map<Hash, Integer> localHashes = Collections.synchronizedMap(new HashMap<Hash, Integer>());
 
     /**
      * dedicated thread executor for scan session's alerts and some other actions like resume data loading
@@ -223,8 +223,16 @@ public class ED2KService extends Service {
         listeners.remove(listener);
     }
 
-    public synchronized boolean containsHash(final Hash h) {
-        return localHashes.contains(h);
+    public boolean containsHash(final Hash h) {
+        return localHashes.containsKey(h);
+    }
+
+    /**
+     * remove resume data file for transfer
+     * @param hash transfer's hash
+     */
+    private void removeResumeDataFile(final Hash hash) {
+        deleteFile("rd_" + hash.toString());
     }
 
     private void saveResumeData(final TransferResumeDataAlert a) {
@@ -257,8 +265,8 @@ public class ED2KService extends Service {
         }
     }
 
-    synchronized public void processAlert(Alert a) {
-        log.debug("ED2KService service alive");
+    public void processAlert(Alert a) {
+        log.info("ED2KService service alive {}", a);
         if (a instanceof ListenAlert) {
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
         } else if (a instanceof SearchResultAlert) {
@@ -281,16 +289,26 @@ public class ED2KService extends Service {
             for(final AlertListener ls: listeners) ls.onServerConnectionAlert((ServerConnectionAlert)a);
         }
         else if (a instanceof TransferAddedAlert) {
-            localHashes.add(((TransferAddedAlert) a).hash);
+            localHashes.put(((TransferAddedAlert) a).hash, 0);
+            log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
+            session.saveResumeData();
         }
         else if (a instanceof TransferRemovedAlert) {
-            localHashes.remove(((TransferAddedAlert) a).hash);
+            log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
+            localHashes.remove(((TransferRemovedAlert) a).hash);
+            log.info("hashes cleared");
+            removeResumeDataFile(((TransferRemovedAlert) a).hash);
+            log.info("transfer removed completed");
         }
         else if (a instanceof TransferResumeDataAlert) {
             saveResumeData((TransferResumeDataAlert)a);
         }
+        else if (a instanceof TransferFinishedAlert) {
+            log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
+            session.saveResumeData();
+        }
         else {
-            log.debug("alert {}", a);
+            log.info("alert {}", a);
         }
     }
 
@@ -309,6 +327,13 @@ public class ED2KService extends Service {
             }
         },  100, 2000, TimeUnit.MILLISECONDS);
 
+        // save resume data every 200 seconds
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                session.saveResumeData();
+            }
+        }, 60, 200, TimeUnit.SECONDS);
 
         scheduledExecutorService.submit(new Runnable() {
             @Override
@@ -547,7 +572,6 @@ public class ED2KService extends Service {
 
     public List<TransferHandle> getTransfers() {
         if (session != null) {
-            log.info("session transfers size {}", session.getTransfers().size());
             return session.getTransfers();
         } else {
             log.info("session is null on get transfers");
@@ -556,8 +580,10 @@ public class ED2KService extends Service {
         return new ArrayList<TransferHandle>();
     }
 
-    public void removeTransfer(Hash h, boolean removeFile) {
-        if (session != null) session.removeTransfer(h, removeFile);
+    public void removeTransfer(final Hash h, final boolean removeFile) {
+        if (session != null) {
+            session.removeTransfer(h, removeFile);
+        }
     }
 
     public void configureSession() {

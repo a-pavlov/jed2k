@@ -125,6 +125,12 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        Engine.instance().removeListener(this);
+    }
+
+    @Override
     public void onDestroy() {
         Engine.instance().removeListener(this);
         super.onDestroy();

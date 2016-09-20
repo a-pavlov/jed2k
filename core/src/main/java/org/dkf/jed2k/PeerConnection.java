@@ -85,7 +85,7 @@ public class PeerConnection extends Connection {
     /**
      * peer connection speed over transfer's average speed
      */
-    enum PeerSpeed {
+    public enum PeerSpeed {
         SLOW,
         MEDIUM,
         FAST
@@ -235,7 +235,7 @@ public class PeerConnection extends Connection {
             try {
                 onReceiveData();
             } catch(JED2KException e) {
-                log.error("error on read in transfer data mode {}", e);
+                log.error("error on read in transfer data mode {}", e.toString());
                 close(e.getErrorCode());
             }
         } else {
@@ -571,6 +571,8 @@ public class PeerConnection extends Connection {
             transfer.removePeerConnection(this);
             abortAllRequests();
             transfer = null;
+        } else {
+            log.info("peer connection has no transfer");
         }
 
         session.closeConnection(this);
@@ -734,7 +736,7 @@ public class PeerConnection extends Connection {
      * @throws JED2KException
      */
     void receiveData(final PeerRequest r, final boolean compressed) throws JED2KException {
-        log.debug("receive data: {}", r);
+        //log.debug("{} receive data: {}", getEndpoint(), r);
         transferringData = true;
         recvReq = r;
         recvPos = 0;
@@ -745,7 +747,7 @@ public class PeerConnection extends Connection {
         PendingBlock pb = getDownloading(b);
 
         if (pb == null) {
-            log.warn("have no correspond block for request {}, skip data", r);
+            log.warn("{} have no correspond block for request {}, skip data", getEndpoint(), r);
             skipData();
             return;
         }
@@ -758,7 +760,7 @@ public class PeerConnection extends Connection {
          * throw exception will lead of close connection with no memory error
          */
         if (pb.buffer == null) {
-            log.warn("can not allocate buffer for block {} current request {}", b, r);
+            log.warn("{} can not allocate buffer for block {} current request {}", getEndpoint(), b, r);
             throw new JED2KException(ErrorCode.NO_MEMORY);
         }
 
@@ -775,7 +777,7 @@ public class PeerConnection extends Connection {
      * hope it is not a problem when peer receives new request in the middle of sending data
      */
     void skipData() throws JED2KException {
-        log.debug("skipData {} bytes", (int)recvReq.length - recvPos);
+        log.debug("{} skipData {} bytes", getEndpoint(), (int)recvReq.length - recvPos);
         ByteBuffer buffer = session.allocateSkipDataBufer();
         buffer.clear();
         buffer.limit((int)recvReq.length - recvPos);
@@ -784,7 +786,7 @@ public class PeerConnection extends Connection {
             int n = socket.read(buffer);
             if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
             recvPos += n;
-            log.trace("recvpos {} recvlen {}", recvPos, recvReq);
+            log.trace("{} recvpos {} recvlen {}", getEndpoint(), recvPos, recvReq);
             statistics().receiveBytes(0, n);
             if (n != 0) lastReceive = Time.currentTime();
 
@@ -820,7 +822,7 @@ public class PeerConnection extends Connection {
          * if we have no it skip data
          */
         if (pb == null) {
-            log.warn("request {} has not correspond block in downloading queue, skip data", recvReq);
+            log.warn("{} request {} has not correspond block in downloading queue, skip data", getEndpoint(), recvReq);
             skipData();
             return;
         }
@@ -833,7 +835,7 @@ public class PeerConnection extends Connection {
          * if block already was downloaded(depends on piece picker politics) - skip data
          */
         if (transfer.getPicker().isBlockDownloaded(blockFinished)) {
-            log.warn("request {} references to downloaded block {}, remove pending block and skip data", recvReq, blockFinished);
+            log.warn("{} request {} references to downloaded block {}, remove pending block and skip data", getEndpoint(), recvReq, blockFinished);
             downloadQueue.remove(pb);
             skipData();
             return;
@@ -849,27 +851,43 @@ public class PeerConnection extends Connection {
             statistics().receiveBytes(0, n);
 
             if (pb.buffer.remaining() == 0) {
-                log.trace("received {} bytes, buffer is full, turn off transferring data", recvPos);
+                log.trace("{} received {} bytes for block {}, buffer is full, turn off transferring data"
+                        , getEndpoint()
+                        , pb.block
+                        , recvPos);
                 assert recvPos == recvReq.length;
                 // turn off data transfer mode
                 transferringData = false;
 
                 if (completeBlock(pb)) {
-                    log.debug("block {} completed, dataSize {}", pb.block, pb.dataSize);
+                    log.debug("{} block {} completed, dataSize {}"
+                            , getEndpoint()
+                            , pb.block
+                            , pb.dataSize);
                     // set position to zero - start reading from begin of buffer
 
                     assert pb.buffer.hasRemaining();
                     //assert(pb.buffer.remaining() == pb.dataSize);
 
                     boolean wasFinished = transfer.getPicker().isPieceFinished(recvReq.piece);
-                    transfer.getPicker().markAsWriting(pb.block);
+                    boolean wasDownloading = transfer.getPicker().markAsWriting(pb.block);
                     downloadQueue.remove(pb);
-                    // add write task to executor and add future to transfer
-                    transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
 
-                    // run async hash calculation
-                    if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
-                        transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
+                    // was downloading means block was in downdloading or none state
+                    // possibly block was already written in end game mode and/or finished
+                    // in that case no need to re-write block to disk and request hash
+                    if (wasDownloading) {
+                        // add write task to executor and add future to transfer
+                        transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
+
+                        // run async hash calculation
+                        if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
+                            transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
+                        }
+                    } else {
+                        log.warn("{} block {} wasn't downloading, do not write"
+                            , getEndpoint()
+                            , pb.block);
                     }
 
                     // write block to disk here
@@ -997,13 +1015,11 @@ public class PeerConnection extends Connection {
         if (transfer == null || !transfer.hasPicker() || transferringData || !downloadQueue.isEmpty()) return;
         LinkedList<PieceBlock> blocks = new LinkedList<PieceBlock>();
         PiecePicker picker = transfer.getPicker();
-        picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE);
+        picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE, getPeer(), speed());
         RequestParts64 reqp = new RequestParts64(transfer.hash());
 
         while(!blocks.isEmpty() && downloadQueue.size() < Constants.REQUEST_QUEUE_SIZE) {
             PieceBlock b = blocks.poll();
-            // mark block as downloading
-            transfer.getPicker().markAsDownloading(b); // ?
             downloadQueue.add(new PendingBlock(b, transfer.size()));
             assert !reqp.isFool();
             reqp.append(b.range(transfer.size()));
@@ -1024,7 +1040,7 @@ public class PeerConnection extends Connection {
             PiecePicker picker = transfer.getPicker();
             while(!downloadQueue.isEmpty()) {
                 PendingBlock pb = downloadQueue.poll();
-                picker.abortDownload(pb.block);
+                picker.abortDownload(pb.block, getPeer());
                 if (pb.buffer != null) {
                     pb.buffer.clear();
                     session.bufferPool.deallocate(pb.buffer, Time.currentTime());
@@ -1081,5 +1097,26 @@ public class PeerConnection extends Connection {
         i.endpoint = getEndpoint();
         i.strModVersion = remotePeerInfo.modVersion;
         return i;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getEndpoint()).append(" ").append(getPeer()!=null?getPeer().toString():"null");
+        switch(speed()) {
+            case SLOW:
+                sb.append(" SLOW ");
+                break;
+            case MEDIUM:
+                sb.append(" MEDIUM ");
+                break;
+            case FAST:
+                sb.append(" FAST ");
+                break;
+            default:
+                sb.append(" ? ");
+                break;
+        }
+        return sb.toString();
     }
 }

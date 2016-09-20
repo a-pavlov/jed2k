@@ -114,6 +114,10 @@ public class Transfer {
             restore(atp.resumeData.getData());
         } else {
             setState(TransferStatus.TransferState.DOWNLOADING);
+            /**
+             * on start new transfer we need to save resume data to avoid transfer lost if session will interrupted
+             */
+            needSaveResumeData = true;
         }
 
         session.pushAlert(new TransferAddedAlert(this.hash));
@@ -146,6 +150,7 @@ public class Transfer {
         }
 
         for(final PieceBlock b: rd.downloadedBlocks) {
+            picker.downloadPiece(b.pieceIndex);
             ByteBuffer buffer = session.allocatePoolBuffer();
             if (buffer == null) {
                 log.warn("{} have no enough buffers to restore transfer {} ",
@@ -384,7 +389,7 @@ public class Transfer {
 
     void piecePassed(int pieceIndex) {
         boolean was_finished = (numPieces == numHave());
-        log.debug("piece passed, was finsihed: {}", was_finished?"true":"false");
+        log.debug("piece passed, was finished: {}", was_finished?"true":"false");
         weHave(pieceIndex);
         if (!was_finished && isFinished()) {
             finished();
@@ -422,7 +427,7 @@ public class Transfer {
             picker.markAsFinished(b);
             needSaveResumeData = true;
         } else {
-            picker.abortDownload(b);
+            picker.abortDownload(b, null);  // state of block must be writing!
             session.pushAlert(new TransferDiskIOError(hash, ec));
             pause();
         }
@@ -437,7 +442,7 @@ public class Transfer {
         assert(hash != null);
 
         if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
-            log.debug("restore piece due to expected hash {} is not equal with calculated {}",
+            log.error("restore piece due to expected hash {} is not equal with calculated {}",
                     hashSet.get(pieceIndex), hash);
             picker.restorePiece(pieceIndex);
         }
@@ -578,7 +583,8 @@ public class Transfer {
     public final List<PeerInfo> getPeersInfo() {
         List<PeerInfo> res = new ArrayList<>();
         for(final PeerConnection c: connections) {
-            res.add(c.getInfo());
+            // add peers only active peers
+            if (c.statistics().downloadPayloadRate() > 0) res.add(c.getInfo());
         }
 
         return res;

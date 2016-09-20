@@ -15,6 +15,8 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -203,5 +205,15 @@ public class HashTest{
 
             assertEquals(p.right, Hash.fromHashSet(part_hashset));
         }
+    }
+
+    @Test
+    public void testHashInMap() {
+        Map<Hash, Integer> m = new ConcurrentHashMap<>();
+        m.put(Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5"), 1);
+        Hash h = Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5");
+        assertTrue(m.containsKey(h));
+        m.remove(h);
+        assertTrue(m.isEmpty());
     }
 }

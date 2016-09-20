@@ -267,7 +267,7 @@ public final class Engine implements AlertListener {
     }
 
     public boolean hasTransfer(final Hash h) {
-        if (service != null) service.containsHash(h);
+        if (service != null) return service.containsHash(h);
         return false;
     }
 
