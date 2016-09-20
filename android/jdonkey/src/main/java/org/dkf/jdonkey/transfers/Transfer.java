@@ -30,6 +30,13 @@ import java.util.List;
  */
 public interface Transfer {
 
+    public enum State {
+        PAUSED,
+        COMPLETED,
+        STALLED,
+        DOWNLOADING,
+        NONE
+    }
 
     public String getHash();
 
@@ -79,4 +86,6 @@ public interface Transfer {
     public void resume();
 
     public String toLink();
+
+    public State getState();
 }

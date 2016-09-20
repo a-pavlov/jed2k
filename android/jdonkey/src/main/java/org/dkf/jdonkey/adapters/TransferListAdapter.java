@@ -328,27 +328,42 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
         TextView size = findView(view, R.id.view_transfer_list_item_size);
 
         TextView seeds = findView(view, R.id.view_transfer_list_item_seeds);
-        TextView peers = findView(view, R.id.view_transfer_list_item_peers);
+        //TextView hash = findView(view, R.id.view_transfer_list_item_hash);
+        //hash.setText(download.getHash());
 
-        ImageButton buttonPlay = findView(view, R.id.view_transfer_list_item_button_play);
+        //ImageButton buttonPlay = findView(view, R.id.view_transfer_list_item_button_play);
 
         seeds.setText(context.get().getString(R.string.seeds_n, formatPeers(download)));
-        peers.setText(context.get().getString(R.string.peers_n, formatPeers(download)));
+        //peers.setText(context.get().getString(R.string.peers_n, formatPeers(download)));
         seeds.setVisibility(View.VISIBLE);
-        peers.setVisibility(View.VISIBLE);
+        //peers.setVisibility(View.VISIBLE);
 
 
         title.setText(download.getDisplayName());
         setProgress(progress, download.getProgress());
         title.setCompoundDrawables(null, null, null, null);
 
-        final String downloadStatus = ""; //TRANSFER_STATE_STRING_MAP.get(download.getState());
-        status.setText(downloadStatus);
-
         if (NetworkManager.instance().isInternetDown()) {
-            status.setText(downloadStatus + " (" + view.getResources().getText(R.string.check_internet_connection) + ")");
+            status.setText(R.string.check_internet_connection);
             seeds.setText("");
-            peers.setText("");
+        } else {
+            switch (download.getState()) {
+                case PAUSED:
+                    status.setText(R.string.transfer_state_paused);
+                    break;
+                case COMPLETED:
+                    status.setText(R.string.transfer_state_completed);
+                    break;
+                case DOWNLOADING:
+                    status.setText(R.string.transfer_state_downloading);
+                    break;
+                case STALLED:
+                    status.setText(R.string.transfer_state_stalled);
+                    break;
+                default:
+                    status.setText("");
+                    break;
+            }
         }
 
         speed.setText(UIUtils.getBytesInHuman(download.getDownloadSpeed()) + "/s");

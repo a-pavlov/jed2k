@@ -367,6 +367,11 @@ public final class TransferManager {
             return "";
         }
 
+        @Override
+        public State getState() {
+            return State.NONE;
+        }
+
         void shuffle() {
             boolean remove = rnd.nextBoolean();
             if (remove && !info.isEmpty()) {

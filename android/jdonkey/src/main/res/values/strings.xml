@@ -679,4 +679,9 @@
     <string name="server_remove_action">Remove %1$s</string>
     <string name="server_connect_action">Connect to %1$s</string>
     <string name="server_disconnect_action">Disconnect from %1$s</string>
+
+    <string name="transfer_state_paused">Paused</string>
+    <string name="transfer_state_completed">Completed</string>
+    <string name="transfer_state_stalled">Waiting sources</string>
+    <string name="transfer_state_downloading">Downloading</string>
 </resources>

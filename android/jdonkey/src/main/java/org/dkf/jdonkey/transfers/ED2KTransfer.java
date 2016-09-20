@@ -136,4 +136,18 @@ public class ED2KTransfer implements Transfer {
     public String toLink() {
         return Utils.formatLink(handle.getFilePath().getName(), handle.getSize(), handle.getHash());
     }
+
+    @Override
+    public State getState() {
+        if (isPaused()) return State.PAUSED;
+
+        if (isDownloading()) {
+            if (getItems().isEmpty()) return State.STALLED;
+            return State.DOWNLOADING;
+        }
+
+        if (isComplete()) return State.COMPLETED;
+
+        return State.NONE;
+    }
 }

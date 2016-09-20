@@ -104,21 +104,20 @@
                 android:layout_height="match_parent"
                 android:foregroundGravity="right"
                 android:gravity="right">
-
+<!--
                 <TextView
-                    android:id="@+id/view_transfer_list_item_peers"
+                    android:id="@+id/view_transfer_list_item_hash"
                     style="@style/TransfersList.Item.Status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dummy_peers"
                     android:layout_marginRight="4dp" />
-
                 <TextView
                     style="@style/TransfersList.Item.Status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="-" />
-
+                    android:text=":" />
+                    -->
                 <TextView
                     android:id="@+id/view_transfer_list_item_seeds"
                     style="@style/TransfersList.Item.Status"
@@ -156,7 +155,7 @@
         </LinearLayout>
 
     </LinearLayout>
-
+<!---
     <ImageButton
         android:id="@+id/view_transfer_list_item_button_play"
         android:layout_width="wrap_content"
@@ -166,5 +165,5 @@
         android:contentDescription="@null"
         android:scaleType="fitCenter"
         android:src="@drawable/browse_peer_play_icon" />
-
+-->
 </LinearLayout>
