@@ -450,9 +450,11 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                     if (text != null && !text.isEmpty()) {
                         if (text.startsWith("ed2k")) {
                             addTransferUrlTextView.setText(text.trim());
-                            //TransferManager.instance().downloadTorrent(text.trim(),
-                            //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
-                            UIUtils.showLongMessage(getActivity(), R.string.magnet_url_added);
+                            if (Engine.instance().startDownload(text) != null) {
+                                //TransferManager.instance().downloadTorrent(text.trim(),
+                                //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
+                                UIUtils.showLongMessage(getActivity(), R.string.magnet_url_added);
+                            }
                             clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
                             toggleAddTransferControls();
                         }

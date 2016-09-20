@@ -28,6 +28,7 @@ import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.transfers.ED2KTransfer;
 import org.dkf.jdonkey.transfers.Transfer;
+import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.alert.*;
@@ -276,6 +277,19 @@ public final class Engine implements AlertListener {
             if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
         } catch(JED2KException e) {
             log.error("add transfer error {}", e);
+        }
+
+        return null;
+    }
+
+    public Transfer startDownload(final String slink) {
+        try {
+            if (service != null) {
+                EMuleLink link = EMuleLink.fromString(slink);
+                return new ED2KTransfer(service.addTransfer(link.hash, link.size, link.filepath));
+            }
+        } catch(JED2KException e) {
+            log.error("load link error {}", e);
         }
 
         return null;
