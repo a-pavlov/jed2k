@@ -372,6 +372,15 @@ public class Conn {
             else if (parts[0].compareTo("report") == 0) {
                 System.out.println(report(s));
             }
+            else if (parts[0].compareTo("resumetran") == 0 && parts.length == 2) {
+                Hash hash = Hash.fromString(parts[1]);
+                TransferHandle handle = s.findTransfer(hash);
+                if (handle.isValid()) {
+                    handle.resume();
+                } else {
+                    log.warn("transfer {} is not exists", hash);
+                }
+            }
         }
 
         for(TransferHandle handle: handles) {
