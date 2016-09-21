@@ -94,6 +94,16 @@ public final class Engine implements AlertListener {
 
     }
 
+    @Override
+    public void onTransferPaused(TransferPausedAlert alert) {
+
+    }
+
+    @Override
+    public void onTransferResumed(TransferResumedAlert alert) {
+
+    }
+
     public synchronized static void create(Application context) {
         if (instance != null) {
             return;

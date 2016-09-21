@@ -244,6 +244,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         });
     }
 
+    @Override
+    public void onTransferPaused(TransferPausedAlert alert) {
+        // do nothing not interested in transfer's state
+    }
+
+    @Override
+    public void onTransferResumed(TransferResumedAlert alert) {
+        // do nothing not interested in transfer's state
+    }
+
 
     @Override
     public View getHeader(Activity activity) {

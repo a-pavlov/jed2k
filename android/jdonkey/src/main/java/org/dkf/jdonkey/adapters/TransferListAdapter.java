@@ -226,7 +226,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
         String title = download.getDisplayName();
 
         //If it's a torrent download with a single file, we should be able to open it.
-        if (download.isComplete() && download.getItems().size() > 0) {
+        if (download.isComplete()) {
             //TransferItem transferItem = download.getItems().get(0);
             String path = download.getFilePath();
             String mimeType = UIUtils.getMimeType(path);

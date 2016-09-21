@@ -48,7 +48,7 @@ public class ED2KTransfer implements Transfer {
     }
 
     public String getFilePath() {
-        return handle.getFilePath().getParent();
+        return handle.getFilePath().getAbsolutePath();
     }
 
 
@@ -59,8 +59,6 @@ public class ED2KTransfer implements Transfer {
     public Date getCreated() {
         return new Date(handle.getCreateTime());
     }
-
-    //public TransferState getState();
 
     public long getBytesReceived() {
         return getStatus().downloadPayload + getStatus().downloadProtocol;

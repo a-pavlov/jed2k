@@ -41,4 +41,11 @@ public interface AlertListener {
      * @param alert server connection closed with reason in code field
      */
     void onServerConnectionClosed(final ServerConectionClosed alert);
+
+    /**
+     *  handle actual pause/resume on transfer
+     * @param alert pause/resume alert for transfer
+     */
+    void onTransferPaused(final TransferPausedAlert alert);
+    void onTransferResumed(final TransferResumedAlert alert);
 }

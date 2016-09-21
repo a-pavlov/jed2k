@@ -487,6 +487,16 @@ public final class SearchFragment extends AbstractFragment implements
 
     }
 
+    @Override
+    public void onTransferPaused(TransferPausedAlert alert) {
+
+    }
+
+    @Override
+    public void onTransferResumed(TransferResumedAlert alert) {
+
+    }
+
     private static class SearchInputOnSearchListener implements SearchInputView.OnSearchListener {
         private final LinearLayout parentView;
         private final SearchFragment fragment;

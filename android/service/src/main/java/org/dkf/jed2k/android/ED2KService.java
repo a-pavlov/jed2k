@@ -288,6 +288,12 @@ public class ED2KService extends Service {
         else if (a instanceof ServerConnectionAlert) {
             for(final AlertListener ls: listeners) ls.onServerConnectionAlert((ServerConnectionAlert)a);
         }
+        else if (a instanceof TransferResumedAlert) {
+            for(final AlertListener ls: listeners) ls.onTransferResumed((TransferResumedAlert) a);
+        }
+        else if (a instanceof TransferPausedAlert) {
+            for(final AlertListener ls: listeners) ls.onTransferPaused((TransferPausedAlert) a);
+        }
         else if (a instanceof TransferAddedAlert) {
             localHashes.put(((TransferAddedAlert) a).hash, 0);
             log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
@@ -296,9 +302,7 @@ public class ED2KService extends Service {
         else if (a instanceof TransferRemovedAlert) {
             log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
             localHashes.remove(((TransferRemovedAlert) a).hash);
-            log.info("hashes cleared");
             removeResumeDataFile(((TransferRemovedAlert) a).hash);
-            log.info("transfer removed completed");
         }
         else if (a instanceof TransferResumeDataAlert) {
             saveResumeData((TransferResumeDataAlert)a);
