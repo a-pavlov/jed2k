@@ -414,7 +414,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
         String templateSpeed = view.getResources().getString(R.string.peer_speed);
         String strTotalBytes = String.format(templateTotalBytes, UIUtils.getBytesInHuman(item.downloadPayload + item.downloadProtocol));
         String strSpeed = String.format(templateSpeed, UIUtils.rate2speed(item.downloadSpeed / 1024));
-        String strSummary = String.format("[%s] %s", item.strModVersion, item.modName);
+        String strSummary = String.format("[%s] %s", item.strModVersion != null?item.strModVersion:"", item.modName);
         totalBytes.setText(strTotalBytes);
         speed.setText(strSpeed);
         summary.setText(strSummary);
