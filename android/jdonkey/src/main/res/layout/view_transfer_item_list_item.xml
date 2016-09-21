@@ -32,7 +32,6 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/body_background_gray_light"
         android:gravity="center|center_horizontal"
         android:paddingBottom="10dp"
         android:paddingLeft="10dp"

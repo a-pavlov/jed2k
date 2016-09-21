@@ -117,6 +117,8 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
         title.setText(entry.getFileName());
         if (Engine.instance().hasTransfer(entry.hash)) {
             title.setTextColor(ContextCompat.getColor(view.getContext(), R.color.warning_red));
+        } else {
+            title.setTextColor(ContextCompat.getColor(view.getContext(), R.color.app_text_primary));
         }
 
         TextView fileSize = findView(view, R.id.view_bittorrent_search_result_list_item_file_size);

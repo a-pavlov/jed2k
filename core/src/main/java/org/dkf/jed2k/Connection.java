@@ -284,13 +284,15 @@ public abstract class Connection implements Dispatcher {
         log.info("{} close connection {}", getEndpoint(), ec);
         try {
             socket.close();
-        } catch(IOException e) {
+        }
+        catch(IOException e) {
             log.error("{} socket i/o exception {}, ", getEndpoint(), e.getMessage());
         }
         catch(Exception e) {
             log.error("{} socket exception {}", getEndpoint(), e.getMessage());
         }
         finally {
+            log.info("cancel key");
             key.cancel();
             disconnecting = true;
             onDisconnect(ec);

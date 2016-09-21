@@ -567,6 +567,7 @@ public class PeerConnection extends Connection {
         if (ec != ErrorCode.NO_ERROR) failed = true;
 
         if (transfer != null) {
+            log.info("disconnect peer from transfer");
             transfer.addStats(statistics());
             transfer.removePeerConnection(this);
             abortAllRequests();

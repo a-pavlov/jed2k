@@ -22,7 +22,7 @@ public class Policy extends AbstractCollection<Peer> {
         transfer = t;
     }
 
-    public boolean isConnectCandidate(Peer pe) {
+    public boolean isConnectCandidate(final Peer pe) {
         assert(pe != null);
         // TODO - use fail count parameter here
         if (pe.hasConnection() || !pe.isConnectable() || pe.failCount > 10) return false;
@@ -171,7 +171,7 @@ public class Policy extends AbstractCollection<Peer> {
         if (roundRobin >= peers.size()) roundRobin = 0;
         for(int iteration = 0; iteration < Math.min(peers.size(), 300); ++iteration) {
             if (roundRobin >= peers.size()) roundRobin = 0;
-            Peer pe = peers.get(iteration);
+            Peer pe = peers.get(roundRobin);
             assert(pe != null);
             int current = roundRobin;
 
@@ -211,7 +211,9 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean connectOnePeer(long sessionTime) throws JED2KException {
         Peer peerInfo = findConnectCandidate(sessionTime);
         if (peerInfo != null) {
-            assert(peerInfo.isConnectable());
+            log.info("connect peer {}", peerInfo);
+            assert isConnectCandidate(peerInfo);
+            assert peerInfo.isConnectable();
             transfer.connectoToPeer(peerInfo);
             return peerInfo.hasConnection();
         }
