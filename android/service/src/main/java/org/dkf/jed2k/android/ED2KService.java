@@ -100,7 +100,7 @@ public class ED2KService extends Service {
         log.info("ED2K service creating....");
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        settings.listenPort = 5000;
+        settings.serverPingTimeout = 20;
     }
 
     @Override
