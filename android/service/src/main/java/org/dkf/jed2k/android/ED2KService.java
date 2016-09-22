@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -34,6 +35,8 @@ public class ED2KService extends Service {
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
 
     private Binder binder;
+
+    Handler notificationHandler = new Handler();
 
     /**
      * session settings, currently with default parameters
@@ -271,7 +274,7 @@ public class ED2KService extends Service {
         }
     }
 
-    public void processAlert(Alert a) {
+    public void processAlert(final Alert a) {
         log.info("ED2KService service alive {}", a);
         if (a instanceof ListenAlert) {
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
@@ -304,6 +307,13 @@ public class ED2KService extends Service {
             localHashes.put(((TransferAddedAlert) a).hash, 0);
             log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
             session.saveResumeData();
+            notificationHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    log.info("notification");
+                    buildNotification(((TransferAddedAlert) a).hash.toString(), "xxx", null);
+                }
+            });
         }
         else if (a instanceof TransferRemovedAlert) {
             log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
@@ -454,7 +464,7 @@ public class ED2KService extends Service {
          * set small notification texts and image
          */
         if (artImage == null)
-            artImage = BitmapFactory.decodeResource(getResources(), R.drawable.default_art);
+            artImage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 
         mNotificationTemplate.setTextViewText(R.id.notification_line_one, fileName);
         mNotificationTemplate.setTextViewText(R.id.notification_line_two, fileHash);
