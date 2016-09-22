@@ -104,6 +104,11 @@ public final class Engine implements AlertListener {
 
     }
 
+    @Override
+    public void onTransferIOError(TransferDiskIOErrorAlert alert) {
+
+    }
+
     public synchronized static void create(Application context) {
         if (instance != null) {
             return;

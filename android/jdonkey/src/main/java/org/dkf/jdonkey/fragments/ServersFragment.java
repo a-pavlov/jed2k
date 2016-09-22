@@ -254,6 +254,11 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         // do nothing not interested in transfer's state
     }
 
+    @Override
+    public void onTransferIOError(TransferDiskIOErrorAlert alert) {
+        // do nothing not interested in transfer's state
+    }
+
 
     @Override
     public View getHeader(Activity activity) {

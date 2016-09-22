@@ -428,7 +428,7 @@ public class Transfer {
             needSaveResumeData = true;
         } else {
             picker.abortDownload(b, null);  // state of block must be writing!
-            session.pushAlert(new TransferDiskIOError(hash, ec));
+            session.pushAlert(new TransferDiskIOErrorAlert(hash, ec));
             pause();
         }
 

@@ -6,10 +6,10 @@ import org.dkf.jed2k.protocol.Hash;
 /**
  * Created by inkpot on 18.08.2016.
  */
-public class TransferDiskIOError extends TransferAlert {
+public class TransferDiskIOErrorAlert extends TransferAlert {
     public final BaseErrorCode ec;
 
-    public TransferDiskIOError(final Hash h, final BaseErrorCode ec) {
+    public TransferDiskIOErrorAlert(final Hash h, final BaseErrorCode ec) {
         super(h);
         this.ec = ec;
     }

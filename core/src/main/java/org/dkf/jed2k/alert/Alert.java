@@ -1,6 +1,14 @@
 package org.dkf.jed2k.alert;
 
+import org.dkf.jed2k.Time;
+
 public abstract class Alert {
+    private long creationTime;
+
+    public Alert() {
+        creationTime = Time.currentTime();
+    }
+
     public static enum Severity {
         Debug,
         Info,
@@ -33,4 +41,8 @@ public abstract class Alert {
 
     public abstract Severity severity();
     public abstract int category();
+
+    public long getCreationTime() {
+        return creationTime;
+    }
 }

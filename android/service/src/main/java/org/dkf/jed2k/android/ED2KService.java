@@ -48,6 +48,12 @@ public class ED2KService extends Service {
     private Map<Hash, Integer> localHashes = Collections.synchronizedMap(new HashMap<Hash, Integer>());
 
     /**
+     * this map contains last time when i/o error occurred on transfer
+     * uses to avoid multiple notifications about i/o errors
+     */
+    private Map<Hash, Long> transfersIOErrorsOrder = new HashMap<>();
+
+    /**
      * dedicated thread executor for scan session's alerts and some other actions like resume data loading
      */
     ScheduledExecutorService scheduledExecutorService;
@@ -310,6 +316,20 @@ public class ED2KService extends Service {
         else if (a instanceof TransferFinishedAlert) {
             log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
             session.saveResumeData();
+        }
+        else if (a instanceof TransferDiskIOErrorAlert) {
+            TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert)a;
+            long lastIOErrorTime = 0;
+            if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
+                lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);
+            }
+
+            transfersIOErrorsOrder.put(errorAlert.hash, errorAlert.getCreationTime());
+
+            // dispatch alert if no i/o errors on this transfer in last 10 seconds
+            if (errorAlert.getCreationTime() - lastIOErrorTime > 10*1000) {
+                for(final AlertListener ls: listeners) ls.onTransferIOError(errorAlert);
+            }
         }
         else {
             log.info("alert {}", a);
