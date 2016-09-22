@@ -149,7 +149,6 @@ public class CancelMenuAction extends MenuAction {
                 @Override
                 public void run() {
                     transfer.remove();
-                    UIUtils.broadcastAction(dlg.getContext(), Constants.ACTION_FILE_ADDED_OR_REMOVED);
                 }
             };
 

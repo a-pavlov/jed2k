@@ -89,7 +89,6 @@ public final class Constants {
     public static final String PREF_KEY_STORAGE_PATH = "jdonkey.prefs.storage.path";
 
     public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jdonkey.ACTION_REQUEST_SHUTDOWN";
-    public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jdonkey.ACTION_SHOW_TRANSFERS";
     public static final String ACTION_SHOW_VPN_STATUS_PROTECTED = "org.dkf.jdonkey.ACTION_SHOW_VPN_STATUS_PROTECTED";
     public static final String ACTION_SHOW_VPN_STATUS_UNPROTECTED = "org.dkf.jdonkey.ACTION_SHOW_VPN_STATUS_UNPROTECTED";
     public static final String ACTION_START_TRANSFER_FROM_PREVIEW = "org.dkf.jdonkey.ACTION_START_TRANSFER_FROM_PREVIEW";
@@ -100,8 +99,6 @@ public final class Constants {
     public static final String ACTION_SETTINGS_SELECT_STORAGE = "org.dkf.jdonkey.ACTION_SETTINGS_SELECT_STORAGE";
     public static final String ACTION_SETTINGS_OPEN_TORRENT_SETTINGS = "org.dkf.jdonkey.ACTION_SETTINGS_OPEN_TORRENT_SETTINGS";
     public static final String ACTION_NOTIFY_SDCARD_MOUNTED = "org.dkf.jdonkey.ACTION_NOTIFY_SDCARD_MOUNTED";
-    public static final String ACTION_FILE_ADDED_OR_REMOVED = "org.dkf.jdonkey.ACTION_FILE_ADDED_OR_REMOVED";
-    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jdonkey.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
     public static final String EXTRA_DOWNLOAD_COMPLETE_PATH = "org.dkf.jdonkey.EXTRA_DOWNLOAD_COMPLETE_PATH";
     public static final String EXTRA_REFRESH_FILE_TYPE = "org.dkf.jdonkey.EXTRA_REFRESH_FILE_TYPE";
     public static final String EXTRA_FINISH_MAIN_ACTIVITY = "org.dkf.jdonkey.EXTRA_FINISH_MAIN_ACTIVITY";

@@ -14,6 +14,7 @@
     android:layout_alignParentLeft="true"
     android:scaleType="fitXY"/>
 
+  <!--
   <LinearLayout
     android:id="@+id/notification_expanded_buttons"
     android:layout_width="0dp"
@@ -26,7 +27,6 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:showDividers="middle">
-
     <ImageView
       android:id="@+id/notification_expanded_play"
       android:layout_width="0dp"
@@ -37,8 +37,9 @@
       android:src="@drawable/btn_playback_pause"
       android:scaleType="fitCenter"/>
 
-  </LinearLayout>
 
+  </LinearLayout>
+-->
   <ImageView
     android:layout_width="wrap_content"
     android:layout_height="1dp"

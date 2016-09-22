@@ -58,6 +58,7 @@ import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractActivity;
 import org.dkf.jdonkey.views.AbstractDialog;
 import org.dkf.jdonkey.views.preference.StoragePreference;
+import org.dkf.jed2k.android.ED2KService;
 import org.dkf.jed2k.util.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -268,27 +269,26 @@ public class MainActivity extends AbstractActivity implements
         String action = intent.getAction();
 
         if (action != null) {
-            if (action.equals(Constants.ACTION_SHOW_TRANSFERS)) {
+            if (action.equals(ED2KService.ACTION_SHOW_TRANSFERS)) {
                 intent.setAction(null);
                 controller.showTransfers(TransferStatus.ALL);
-            } else if (action.equals(Intent.ACTION_VIEW)) {
+            }/* else if (action.equals(Intent.ACTION_VIEW)) {
                 openTorrentUrl(intent);
             } else if (action.equals(Constants.ACTION_START_TRANSFER_FROM_PREVIEW)) {
-                /*if (Ref.alive(NewTransferDialog.srRef)) {
+                if (Ref.alive(NewTransferDialog.srRef)) {
                     SearchFragment.startDownload(this, NewTransferDialog.srRef.get(), getString(R.string.download_added_to_queue));
                     UXStats.instance().log(UXAction.DOWNLOAD_CLOUD_FILE_FROM_PREVIEW);
                 }
-                */
-            } else if (action.equals(Constants.ACTION_REQUEST_SHUTDOWN)) {
+
+            } else */if (action.equals(Constants.ACTION_REQUEST_SHUTDOWN)) {
                 LOG.info("onNewIntent", "shutdown");
                 showShutdownDialog();
                 finish();
             }
         }
 
-        if (intent.hasExtra(Constants.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION)) {
+        if (intent.hasExtra(ED2KService.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION)) {
             controller.showTransfers(TransferStatus.COMPLETED);
-            //TransferManager.instance().clearDownloadsToReview();
 
             try {
                 ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancel(Constants.NOTIFICATION_DOWNLOAD_TRANSFER_FINISHED);
@@ -317,7 +317,7 @@ public class MainActivity extends AbstractActivity implements
 
             //Show me the transfer tab
             Intent i = new Intent(this, MainActivity.class);
-            i.setAction(Constants.ACTION_SHOW_TRANSFERS);
+            i.setAction(ED2KService.ACTION_SHOW_TRANSFERS);
             i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
 

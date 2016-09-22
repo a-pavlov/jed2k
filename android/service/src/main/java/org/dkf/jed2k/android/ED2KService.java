@@ -34,6 +34,9 @@ public class ED2KService extends Service {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
 
+    public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jdonkey.android.ACTION_SHOW_TRANSFERS";
+    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jdonkey.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
+
     private Binder binder;
 
     Handler notificationHandler = new Handler();
@@ -60,10 +63,6 @@ public class ED2KService extends Service {
      * dedicated thread executor for scan session's alerts and some other actions like resume data loading
      */
     ScheduledExecutorService scheduledExecutorService;
-
-    private final String NOTIFICATION_INTENT_OPEN = "org.dkf.jed2k.android.INTENT_OPEN";
-
-    private final String NOTIFICATION_INTENT_CLOSE = "org.dkf.jed2k.android.INTENT_CLOSE";
 
     private AtomicBoolean listening = new AtomicBoolean(false);
 
@@ -121,9 +120,9 @@ public class ED2KService extends Service {
             return 0;
         }
 
+        /*
         String action = intent.getAction();
         if (action != null ) {
-
             if (action.equals(NOTIFICATION_INTENT_CLOSE)) {
                 if (mNotificationManager != null)
                     mNotificationManager.cancel(NOTIFICATION_ID);
@@ -131,7 +130,7 @@ public class ED2KService extends Service {
 
             }
         }
-
+*/
         log.info("ED2K service started by this intent: {} flags {} startId {}", intent, flags, startId);
         return START_STICKY;
     }
@@ -244,6 +243,14 @@ public class ED2KService extends Service {
         deleteFile("rd_" + hash.toString());
     }
 
+    private void createTransferNotification(final String title, final String extra, final Hash hash) {
+        TransferHandle handle = session.findTransfer(hash);
+        if (handle.isValid()) {
+            log.info("notiication {}", handle.getFilePath().getAbsolutePath());
+            buildNotification(title, handle.getFilePath().getName(), extra);
+        }
+    }
+
     private void saveResumeData(final TransferResumeDataAlert a) {
         final TransferResumeDataAlert alert = (TransferResumeDataAlert)a;
         FileOutputStream stream = null;
@@ -307,13 +314,6 @@ public class ED2KService extends Service {
             localHashes.put(((TransferAddedAlert) a).hash, 0);
             log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
             session.saveResumeData();
-            notificationHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    log.info("notification");
-                    buildNotification(((TransferAddedAlert) a).hash.toString(), "xxx", null);
-                }
-            });
         }
         else if (a instanceof TransferRemovedAlert) {
             log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
@@ -326,6 +326,12 @@ public class ED2KService extends Service {
         else if (a instanceof TransferFinishedAlert) {
             log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
             session.saveResumeData();
+            notificationHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    createTransferNotification(getResources().getString(R.string.transfer_finished), EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION, ((TransferFinishedAlert) a).hash);
+                }
+            });
         }
         else if (a instanceof TransferDiskIOErrorAlert) {
             TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert)a;
@@ -339,6 +345,12 @@ public class ED2KService extends Service {
             // dispatch alert if no i/o errors on this transfer in last 10 seconds
             if (errorAlert.getCreationTime() - lastIOErrorTime > 10*1000) {
                 for(final AlertListener ls: listeners) ls.onTransferIOError(errorAlert);
+                notificationHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        createTransferNotification(getResources().getString(R.string.transfer_io_error), "", ((TransferDiskIOErrorAlert) a).hash);
+                    }
+                });
             }
         }
         else {
@@ -440,42 +452,33 @@ public class ED2KService extends Service {
         });
     }
 
-    private void buildNotification(final String fileName, final String fileHash, Bitmap artImage) {
-        /**
-         * Intents
-         */
-        Intent intentOpen = new Intent(NOTIFICATION_INTENT_OPEN);
-        Intent intentClose = new Intent(NOTIFICATION_INTENT_CLOSE);
+    private void buildNotification(final String title, final String summary, final String extra) {
+        Intent intentShowTransfers = new Intent(ACTION_SHOW_TRANSFERS);
+        if (!extra.isEmpty()) intentShowTransfers.putExtra(extra, true);
 
         /**
          * Pending intents
          */
-        PendingIntent openPending = PendingIntent.getService(this, 0, intentOpen, 0);
-        PendingIntent closePending = PendingIntent.getService(this, 0, intentClose, 0);
+        PendingIntent openPending = PendingIntent.getActivity(getApplicationContext(), 0, intentShowTransfers, 0);
 
         /**
          * Remote view for normal view
          */
 
+        Bitmap art = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+
         RemoteViews mNotificationTemplate = new RemoteViews(this.getPackageName(), R.layout.notification);
         Notification.Builder notificationBuilder = new Notification.Builder(this);
 
-        /**
-         * set small notification texts and image
-         */
-        if (artImage == null)
-            artImage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-
-        mNotificationTemplate.setTextViewText(R.id.notification_line_one, fileName);
-        mNotificationTemplate.setTextViewText(R.id.notification_line_two, fileHash);
-        mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.btn_playback_pause /* : R.drawable.btn_playback_play*/);
-        mNotificationTemplate.setImageViewBitmap(R.id.notification_image, artImage);
+        mNotificationTemplate.setTextViewText(R.id.notification_line_one, title);
+        mNotificationTemplate.setTextViewText(R.id.notification_line_two, summary);
+        //mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.btn_playback_pause /* : R.drawable.btn_playback_play*/);
+        mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
 
         /**
          * OnClickPending intent for collapsed notification
          */
         mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
-        mNotificationTemplate.setOnClickPendingIntent(R.id.notification_play, closePending);
 
         /**
          * Create notification instance
@@ -487,36 +490,25 @@ public class ED2KService extends Service {
                 .setContent(mNotificationTemplate)
                 .setUsesChronometer(true)
                 .build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        //notification.flags = Notification.FLAG_ONGOING_EVENT;
 
-        /**
-         * Expanded notification
-         */
+/*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
             RemoteViews mExpandedView = new RemoteViews(this.getPackageName(), R.layout.notification_expanded);
 
-            mExpandedView.setTextViewText(R.id.notification_line_one, fileName);
-            mExpandedView.setTextViewText(R.id.notification_line_two, fileHash);
-            mExpandedView.setImageViewResource(R.id.notification_expanded_play, R.drawable.btn_playback_pause/* : R.drawable.btn_playback_play*/);
-            mExpandedView.setImageViewBitmap(R.id.notification_image, artImage);
+            mExpandedView.setTextViewText(R.id.notification_line_one, title);
+            mExpandedView.setTextViewText(R.id.notification_line_two, summary);
+            mExpandedView.setImageViewResource(R.id.notification_expanded_play, R.drawable.btn_playback_pause : R.drawable.btn_playback_play);
+            mExpandedView.setImageViewBitmap(R.id.notification_image, );
 
             mExpandedView.setOnClickPendingIntent(R.id.notification_collapse, openPending);
             mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, closePending);
             notification.bigContentView = mExpandedView;
         }
-
+*/
         if (mNotificationManager != null)
             mNotificationManager.notify(NOTIFICATION_ID, notification);
-    }
-
-    public void updateNotification(final String fileName, final String fileHash, int smallImage, int artImage) {
-        updateNotification(fileName, fileHash, smallImage, BitmapFactory.decodeResource(getResources(), artImage));
-    }
-
-    public void updateNotification(final String fileName, final String fileHash, int smallImage, Bitmap artImage) {
-        this.smallImage = smallImage;
-        buildNotification(fileName, fileHash, artImage);
     }
 
     // only for testing

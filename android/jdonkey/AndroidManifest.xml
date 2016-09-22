@@ -32,6 +32,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="org.dkf.jdonkey.android.ACTION_SHOW_TRANSFERS" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
 
         <activity android:name=".activities.AboutActivity"

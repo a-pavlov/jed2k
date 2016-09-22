@@ -40,6 +40,7 @@ import org.dkf.jdonkey.activities.MainActivity;
 import org.dkf.jdonkey.core.ConfigurationManager;
 import org.dkf.jdonkey.core.Constants;
 import org.dkf.jdonkey.core.MimeDetector;
+import org.dkf.jed2k.android.ED2KService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -322,12 +323,11 @@ public final class UIUtils {
     public static void showTransfersOnDownloadStart(Context context) {
         if (ConfigurationManager.instance().showTransfersOnDownloadStart() && context != null) {
             Intent i = new Intent(context, MainActivity.class);
-            i.setAction(Constants.ACTION_SHOW_TRANSFERS);
+            i.setAction(ED2KService.ACTION_SHOW_TRANSFERS);
             i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             context.startActivity(i);
         }
     }
-
 
     public static void showKeyboard(Context context, View view) {
         view.requestFocus();
