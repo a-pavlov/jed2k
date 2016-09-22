@@ -179,8 +179,7 @@ public class SearchInputView extends LinearLayout {
 
     private void updateHint(int fileType) {
         final String searchFiles = getContext().getString(R.string.search_label) + " " + getContext().getString(R.string.files);
-        final String orEnterYTorSCUrl = getContext().getString(R.string.or_enter_url);
-        textInput.setHint(searchFiles + " " + orEnterYTorSCUrl);
+        textInput.setHint(searchFiles);
     }
 
     private RadioButton initRadioButton(int viewId, final byte fileType) {

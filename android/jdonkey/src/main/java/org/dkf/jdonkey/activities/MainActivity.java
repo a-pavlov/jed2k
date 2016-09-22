@@ -72,31 +72,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-//import com.andrew.apollo.IApolloService;
-//import com.andrew.apollo.utils.MusicUtils;
-//import com.andrew.apollo.utils.MusicUtils.ServiceToken;
-//import com.frostwire.android.gui.SoftwareUpdater;
-//import com.frostwire.android.gui.SoftwareUpdater.ConfigurationUpdateListener;
-//import com.frostwire.android.gui.dialogs.HandpickedTorrentDownloadDialogOnFetch;
-//import com.frostwire.android.gui.fragments.BrowsePeerFragment;
-/*
-import com.frostwire.android.gui.transfers.TransferManager;
-import com.frostwire.android.gui.util.DangerousPermissionsChecker;
-import com.frostwire.android.gui.util.UIUtils;
-import com.frostwire.android.gui.views.*;
-import com.frostwire.android.gui.views.AbstractDialog.OnDialogClickListener;
-import com.frostwire.android.gui.views.preference.StoragePreference;
-import com.frostwire.android.offers.Offers;
-import com.frostwire.android.offers.PlayStore;
-import com.frostwire.android.offers.Products;
-import com.frostwire.platform.Platforms;
-import com.frostwire.util.Logger;
-*/
-//import com.frostwire.util.StringUtils;
-//import com.frostwire.uxstats.UXAction;
-//import com.frostwire.uxstats.UXStats;
-
-
 /**
  * @author gubatron
  * @author aldenml
@@ -121,13 +96,9 @@ public class MainActivity extends AbstractActivity implements
     private ListView listMenu;
     private SearchFragment search;
     private ServersFragment servers;
-    //private BrowsePeerFragment library;
     private TransfersFragment transfers;
     private Fragment currentFragment;
     private final Stack<Integer> fragmentsStack;
-    //private PlayerMenuItemView playerItem;
-    //private AdMenuItemView menuRemoveAdsItem;
-    //private TimerSubscription playerSubscription;
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
 
