@@ -255,18 +255,12 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
             }
         }
 
-        items.add(new CancelMenuAction(context.get(), download, !download.isComplete()));
-
         items.add(new CopyToClipboardMenuAction(context.get(),
-                R.drawable.ic_insert_link_black_18dp,
+                R.drawable.ic_insert_link_black_24dp,
                 R.string.transfers_context_menu_copy_link,
                 R.string.transfers_context_menu_copy_link_copied, download.toLink()));
 
-        if (download.isComplete()) {
-            // Remove Torrent and Data action.
-            items.add(new CancelMenuAction(context.get(), download, true, true));
-        }
-
+        items.add(new CancelMenuAction(context.get(), download, true, true));
         return title;
     }
 

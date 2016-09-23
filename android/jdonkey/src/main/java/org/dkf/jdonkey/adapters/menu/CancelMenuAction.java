@@ -52,7 +52,7 @@ public class CancelMenuAction extends MenuAction {
     }
 
     public CancelMenuAction(Context context, Transfer transfer, boolean deleteTorrent, boolean deleteData) {
-        super(context, R.drawable.contextmenu_icon_stop_transfer, R.string.remove_torrent_and_data);
+        super(context, R.drawable.ic_delete_forever_black_24dp, R.string.remove_torrent_and_data);
         this.transfer = transfer;
         this.deleteTorrent = deleteTorrent;
         this.deleteData = deleteData;
