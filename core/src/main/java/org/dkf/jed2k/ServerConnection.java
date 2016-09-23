@@ -88,7 +88,7 @@ public class ServerConnection extends Connection {
 
     @Override
     public void onServerIdChange(IdChange value) throws JED2KException {
-        log.info("server id changed to {}", value);
+        log.debug("server id changed to {}", value);
         session.clientId = value.clientId;
         session.tcpFlags = value.tcpFlags;
         session.auxPort = value.auxPort;
@@ -121,7 +121,7 @@ public class ServerConnection extends Connection {
 
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
-        log.info("search result: " + value);
+        log.trace("search result: " + value);
         session.pushAlert(new SearchResultAlert(value));
     }
 

@@ -211,7 +211,7 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean connectOnePeer(long sessionTime) throws JED2KException {
         Peer peerInfo = findConnectCandidate(sessionTime);
         if (peerInfo != null) {
-            log.info("connect peer {}", peerInfo);
+            log.debug("connect peer {}", peerInfo);
             assert isConnectCandidate(peerInfo);
             assert peerInfo.isConnectable();
             transfer.connectoToPeer(peerInfo);
@@ -222,7 +222,6 @@ public class Policy extends AbstractCollection<Peer> {
     }
 
     public void conectionClosed(PeerConnection c, long sessionTime) {
-        log.info("close connection {}", c);
         Peer p = c.getPeer();
         if (p == null) return;
         p.setConnection(null);

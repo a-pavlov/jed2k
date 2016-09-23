@@ -400,7 +400,6 @@ public class Transfer {
      * call this method when transfer becomes "finished" to finalize downloading
      */
     void finished() {
-        log.info("transfer {} finished", hash);
         disconnectAll(ErrorCode.TRANSFER_FINISHED);
         // policy will know transfer is finished automatically via call isFinished on transfer
         // async release file

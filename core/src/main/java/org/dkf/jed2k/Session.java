@@ -116,7 +116,7 @@ public class Session extends Thread {
                         incomingConnection();
                     } else if (key.isConnectable()) {
                         // a connection was established with a remote server/peer.
-                        log.info("Key is connectable");
+                        //log.trace("Key is connectable");
                         ((Connection)key.attachment()).onConnectable();
                     } else if (key.isReadable()) {
                         // a channel is ready for reading

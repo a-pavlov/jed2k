@@ -102,7 +102,6 @@ public class HashTest{
                 }
 
                 part_hashset.add(Hash.fromBytes(hasher.digest()));
-                //log.info(i + ": " + p.left.intValue() + " = " + part_hashset.peekFirst().toString());
             }
 
             assertEquals(pieces.intValue(), part_hashset.size());
@@ -194,7 +193,6 @@ public class HashTest{
                 }
 
                 part_hashset.add(Hash.fromBytes(hasher.digest()));
-                //log.info("bb " + i + ": " + p.left.intValue() + " = " + part_hashset.peekFirst().toString());
             }
 
             assertEquals(pieces.intValue(), part_hashset.size());

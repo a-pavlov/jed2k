@@ -281,7 +281,7 @@ public abstract class Connection implements Dispatcher {
     }
 
     void close(BaseErrorCode ec) {
-        log.info("{} close connection {}", getEndpoint(), ec);
+        log.debug("{} close connection {}", getEndpoint(), ec);
         try {
             socket.close();
         }
@@ -292,7 +292,6 @@ public abstract class Connection implements Dispatcher {
             log.error("{} socket exception {}", getEndpoint(), e.getMessage());
         }
         finally {
-            log.info("cancel key");
             key.cancel();
             disconnecting = true;
             onDisconnect(ec);

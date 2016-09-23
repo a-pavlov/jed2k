@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -28,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ED2KService extends Service {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
@@ -39,6 +37,9 @@ public class ED2KService extends Service {
 
     private Binder binder;
 
+    /**
+     * run notifications in ui thread
+     */
     Handler notificationHandler = new Handler();
 
     /**
@@ -51,6 +52,9 @@ public class ED2KService extends Service {
      */
     private Session session;
 
+    /**
+     * cached hashes of transfers to provide informaion about hashes we have
+     */
     private Map<Hash, Integer> localHashes = Collections.synchronizedMap(new HashMap<Hash, Integer>());
 
     /**
@@ -64,8 +68,9 @@ public class ED2KService extends Service {
      */
     ScheduledExecutorService scheduledExecutorService;
 
-    private AtomicBoolean listening = new AtomicBoolean(false);
-
+    /**
+     * scheduled task which scan session's alerts container and produce result for listeners
+     */
     private ScheduledFuture scheduledFuture;
 
     private boolean startingInProgress = false;
@@ -113,24 +118,12 @@ public class ED2KService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        log.info("ED2K service start command");
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
         if (intent == null) {
             return 0;
         }
 
-        /*
-        String action = intent.getAction();
-        if (action != null ) {
-            if (action.equals(NOTIFICATION_INTENT_CLOSE)) {
-                if (mNotificationManager != null)
-                    mNotificationManager.cancel(NOTIFICATION_ID);
-            } else if (action.equals(NOTIFICATION_INTENT_OPEN)) {
-
-            }
-        }
-*/
         log.info("ED2K service started by this intent: {} flags {} startId {}", intent, flags, startId);
         return START_STICKY;
     }
@@ -282,7 +275,6 @@ public class ED2KService extends Service {
     }
 
     public void processAlert(final Alert a) {
-        log.info("ED2KService service alive {}", a);
         if (a instanceof ListenAlert) {
             for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
         } else if (a instanceof SearchResultAlert) {
@@ -354,7 +346,7 @@ public class ED2KService extends Service {
             }
         }
         else {
-            log.info("alert {}", a);
+            log.debug("received unhandled alert {}", a);
         }
     }
 
@@ -509,11 +501,6 @@ public class ED2KService extends Service {
 */
         if (mNotificationManager != null)
             mNotificationManager.notify(NOTIFICATION_ID, notification);
-    }
-
-    // only for testing
-    public final boolean isListening() {
-        return listening.get();
     }
 
     public void connectoServer(final String serverId, final String host, final int port) {
