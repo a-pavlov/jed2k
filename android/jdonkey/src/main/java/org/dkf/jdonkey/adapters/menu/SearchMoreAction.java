@@ -16,7 +16,7 @@ public class SearchMoreAction extends MenuAction {
     final SearchFragment fragment;
 
     public SearchMoreAction(Context context, final SearchFragment fragment) {
-        super(context, R.drawable.contextmenu_icon_play, R.string.search_more_action);
+        super(context, R.drawable.ic_search_black_24dp, R.string.search_more_action);
         this.fragment = fragment;
     }
 
