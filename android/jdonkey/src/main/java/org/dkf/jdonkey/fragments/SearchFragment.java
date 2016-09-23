@@ -27,6 +27,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
@@ -63,6 +66,7 @@ public final class SearchFragment extends AbstractFragment implements
     private RichNotification serverConnectionWarning;
     private SearchParametersView searchParametersView;
     private SearchProgressView searchProgress;
+    private AdView adRect;
     ButtonSearchParametersListener buttonSearchParametersListener;
     private ListView list;
     private String currentQuery;
@@ -185,6 +189,41 @@ public final class SearchFragment extends AbstractFragment implements
             @Override
             public void onSwipeRight() {
                 switchToThe(false);
+            }
+        });
+
+        adRect = (AdView)findView(view, R.id.adViewRect);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("9e0d331c").build();
+        adRect.loadAd(adRequest);
+        adRect.setVisibility(View.GONE);
+        adRect.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+            }
+
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+            }
+
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                LOG.info("ad loaded");
+                if (adapter == null || adapter.isEmpty()) {
+                    adRect.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -311,9 +350,15 @@ public final class SearchFragment extends AbstractFragment implements
 
     private void showSearchView(View view) {
         if (awaitingResults) {
+            adRect.setVisibility(View.GONE);
             switchView(view, R.id.fragment_search_search_progress);
         } else {
             switchView(view, R.id.fragment_search_list);
+            if (adapter != null && adapter.isEmpty()) {
+                adRect.setVisibility(View.VISIBLE);
+            } else {
+                adRect.setVisibility(View.GONE);
+            }
         }
     }
 

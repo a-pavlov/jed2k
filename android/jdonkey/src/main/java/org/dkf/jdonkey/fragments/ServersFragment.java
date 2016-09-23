@@ -7,11 +7,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
 import org.dkf.jdonkey.adapters.menu.ServerConnectAction;
@@ -103,6 +106,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     public void onDestroy() {
         super.onDestroy();
         Engine.instance().removeListener(this);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("9e0d331c").build();
+        mAdView.loadAd(adRequest);
+        return rootView;
     }
 
     private void warnServiceStopped(View v) {

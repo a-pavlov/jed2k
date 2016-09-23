@@ -36,6 +36,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import com.google.android.gms.ads.MobileAds;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jdonkey.Engine;
 import org.dkf.jdonkey.R;
@@ -417,6 +418,7 @@ public class MainActivity extends AbstractActivity implements
         }
 
         checkExternalStoragePermissionsOrBindMusicService();
+        MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
     }
 
     private void checkExternalStoragePermissionsOrBindMusicService() {

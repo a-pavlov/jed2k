@@ -684,4 +684,7 @@
     <string name="transfer_state_completed">Completed</string>
     <string name="transfer_state_stalled">Waiting sources</string>
     <string name="transfer_state_downloading">Downloading</string>
+
+    <string name="banner_ad_1_id">ca-app-pub-1671474838801728/5264974290</string>
+    <string name="interstitioal_ad_1_id">ca-app-pub-1671474838801728/6741707493</string>
 </resources>

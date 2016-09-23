@@ -46,6 +46,10 @@
                   android:label="@string/activity_preferences_name"
                   android:theme="@style/Preferences"/>
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
     </application>
 
 </manifest>
