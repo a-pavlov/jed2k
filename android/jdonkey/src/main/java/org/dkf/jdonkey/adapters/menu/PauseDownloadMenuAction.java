@@ -33,7 +33,7 @@ public final class PauseDownloadMenuAction extends MenuAction {
     private final Transfer download;
 
     public PauseDownloadMenuAction(Context context, Transfer download) {
-        super(context, R.drawable.contextmenu_icon_pause_transfer, R.string.pause_torrent_menu_action);
+        super(context, R.drawable.ic_pause_circle_outline_black_24dp, R.string.pause_torrent_menu_action);
         this.download = download;
     }
 

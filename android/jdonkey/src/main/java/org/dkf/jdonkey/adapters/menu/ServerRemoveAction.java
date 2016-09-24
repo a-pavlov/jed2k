@@ -20,7 +20,7 @@ public class ServerRemoveAction extends MenuAction {
     private final String serverId;
 
     public ServerRemoveAction(Context context, final String host, final String serverId) {
-        super(context, R.drawable.contextmenu_icon_remove_transfer, R.string.server_remove_action, host);
+        super(context, R.drawable.ic_delete_forever_black_24dp, R.string.server_remove_action, host);
         this.serverId = serverId;
     }
 

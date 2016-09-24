@@ -173,7 +173,6 @@ public final class Engine implements AlertListener {
             }
             */
 
-            log.info("shutdown stopped service");
             service.shutdown();
         }
     }

@@ -220,7 +220,7 @@
     <string name="search_more_action">Search more</string>
 
     <string name="cancel_delete_menu_action">Stop and Delete Data</string>
-    <string name="remove_torrent_and_data">Remove Torrent and Data</string>
+    <string name="remove_torrent_and_data">Remove transfer and file</string>
     <string name="wanna_download_question">Want to download?</string>
     <string name="summary_files_shared">Sharing %s files locally</string>
     <string name="media_type_all_types">All Types</string>

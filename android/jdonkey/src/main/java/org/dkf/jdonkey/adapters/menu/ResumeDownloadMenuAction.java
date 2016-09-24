@@ -35,7 +35,7 @@ public final class ResumeDownloadMenuAction extends MenuAction {
     private final Transfer download;
 
     public ResumeDownloadMenuAction(Context context, Transfer download, int stringId) {
-        super(context, R.drawable.contextmenu_icon_play_transfer, stringId);
+        super(context, R.drawable.ic_play_circle_outline_black_24dp, stringId);
         this.download = download;
     }
 

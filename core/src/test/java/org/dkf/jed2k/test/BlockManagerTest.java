@@ -54,7 +54,6 @@ public class BlockManagerTest {
             buffer.position(i*(int)Constants.BLOCK_SIZE);
             ByteBuffer localBuffer = buffer.slice();
             localBuffer.limit((int)Constants.BLOCK_SIZE);
-            //log.info("Bf: " + localBuffer);
             LinkedList<ByteBuffer> res = bm.registerBlock(i, localBuffer);
             assertFalse(res.isEmpty());
             assertEquals(1, res.size());
