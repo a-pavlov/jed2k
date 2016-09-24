@@ -43,7 +43,6 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:id="@+id/imageView"
         android:background="@color/basic_gray_dark" />
 
     <LinearLayout
@@ -68,7 +67,6 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:id="@+id/imageView1"
         android:background="@color/basic_gray_dark" />
 
     <ListView
