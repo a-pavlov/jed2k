@@ -63,7 +63,8 @@
         <CheckBoxPreference
             android:key="jdonkey.prefs.connect_server_on_start"
             android:summary="@string/connect_on_start_server_summary"
-            android:title="@string/connect_on_start_server"/>
+            android:title="@string/connect_on_start_server"
+            android:enabled="false"/>
 
         <CheckBoxPreference
             android:key="jdonkey.prefs.show_servers_messages"
@@ -79,7 +80,8 @@
         <CheckBoxPreference
                 android:key="jdonkey.prefs.network.use_mobile_data"
                 android:summary="@string/use_mobile_data_summary"
-                android:title="@string/use_mobile_data"/>
+                android:title="@string/use_mobile_data"
+                android:enabled="false"/>
 
         <org.dkf.jdonkey.views.preference.NumberPickerPreference
                 android:key="jdonkey.prefs.transfer.max_downloads"
@@ -99,13 +101,16 @@
 
         <CheckBoxPreference
             android:key="jdonkey.prefs.gui.show_transfers_on_download_start"
-            android:title="@string/show_transfers_on_download_start"/>
+            android:title="@string/show_transfers_on_download_start"
+            android:enabled="false"/>
         <CheckBoxPreference
             android:key="jdonkey.prefs.gui.show_new_transfer_dialog"
-            android:title="@string/show_new_transfer_dialog"/>
+            android:title="@string/show_new_transfer_dialog"
+            android:enabled="false"/>
         <CheckBoxPreference
             android:key="jdonkey.prefs.gui.vibrate_on_finished_download"
-            android:title="@string/vibrate_on_finished_download"/>
+            android:title="@string/vibrate_on_finished_download"
+            android:enabled="false"/>
     </PreferenceScreen>
 
     <PreferenceScreen
@@ -115,7 +120,8 @@
         <CheckBoxPreference
                 android:key="jdonkey.prefs.gui.enable_permanent_status_notification"
                 android:title="@string/notify_jdonkey_is_running"
-                android:summary="@string/notify_jdonkey_is_running_summary"/>
+                android:summary="@string/notify_jdonkey_is_running_summary"
+                android:enabled="false"/>
     </PreferenceScreen>
 
     <Preference

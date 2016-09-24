@@ -19,7 +19,6 @@ package org.dkf.jdonkey.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -61,23 +60,15 @@ public class AboutFragment extends Fragment implements MainFragment {
         title.setText("JDonkey " + " v" + Constants.JED2K_VERSION_STRING);
 
         final TextView buildNumber = (TextView) view.findViewById(R.id.fragment_about_build_number);
-        buildNumber.setText("\nBuild " + BuildConfig.VERSION_CODE + " - sdk level " + Build.VERSION.SDK_INT);
+        buildNumber.setText("\nBuild " + BuildConfig.VERSION_CODE + " - SDK level " + Build.VERSION.SDK_INT);
 
         final TextView content = (TextView) view.findViewById(R.id.fragment_about_content);
         content.setText(Html.fromHtml(getAboutText()));
         content.setMovementMethod(LinkMovementMethod.getInstance());
 
         final ImageButton githubButton = (ImageButton) view.findViewById(R.id.fragment_github_button);
-        final ImageButton muleButton = (ImageButton)view.findViewById(R.id.fragment_mule_button);
 
         githubButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UIUtils.openURL(v.getContext(), "http://github.com/a-pavlov/jed2k");
-            }
-        });
-
-        muleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 UIUtils.openURL(v.getContext(), "http://github.com/a-pavlov/jed2k");
