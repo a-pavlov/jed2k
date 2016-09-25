@@ -326,6 +326,7 @@ public class ED2KService extends Service {
         }
         else if (a instanceof TransferDiskIOErrorAlert) {
             TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert)a;
+            log.error("disk i/o error: {}", errorAlert.ec);
             long lastIOErrorTime = 0;
             if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
                 lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);

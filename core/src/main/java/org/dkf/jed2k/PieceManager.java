@@ -41,9 +41,11 @@ public class PieceManager extends BlocksEnumerator {
                 channel = file.getChannel();
             }
             catch(FileNotFoundException e) {
+                log.error("create random access file {}: file not found exception", filePath.getAbsolutePath());
                 throw new JED2KException(ErrorCode.FILE_NOT_FOUND);
             }
             catch(SecurityException e) {
+                log.error("create random access file {}: security exception", filePath.getAbsolutePath());
                 throw new JED2KException(ErrorCode.SECURITY_EXCEPTION);
             }
         }
