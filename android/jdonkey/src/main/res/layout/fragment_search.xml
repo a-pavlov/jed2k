@@ -58,8 +58,7 @@
     />
 
     <LinearLayout
-            android:id="@+id/fragment_search_adview_layout"
-            android:layout_width="match_parent"
+        android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/black"
             android:orientation="horizontal">

@@ -239,7 +239,6 @@ public class ED2KService extends Service {
     private void createTransferNotification(final String title, final String extra, final Hash hash) {
         TransferHandle handle = session.findTransfer(hash);
         if (handle.isValid()) {
-            log.info("notiication {}", handle.getFilePath().getAbsolutePath());
             buildNotification(title, handle.getFilePath().getName(), extra);
         }
     }
@@ -327,6 +326,7 @@ public class ED2KService extends Service {
         }
         else if (a instanceof TransferDiskIOErrorAlert) {
             TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert)a;
+            log.error("disk i/o error: {}", errorAlert.ec);
             long lastIOErrorTime = 0;
             if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
                 lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);
@@ -586,8 +586,6 @@ public class ED2KService extends Service {
     public List<TransferHandle> getTransfers() {
         if (session != null) {
             return session.getTransfers();
-        } else {
-            log.info("session is null on get transfers");
         }
 
         return new ArrayList<TransferHandle>();

@@ -105,6 +105,7 @@ public class Transfer {
         session = s;
         log.debug("created transfer {} dataSize {}", this.hash, this.size);
 
+        pause = (atp.paused.byteValue() != 0);
         // create piece picker always now
         picker = new PiecePicker(numPieces, blocksInLastPiece);
         policy = new Policy(this);

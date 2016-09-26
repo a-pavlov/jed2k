@@ -22,8 +22,6 @@
     <item name="abstract_list_adapter_holder_tag_id" type="id"/>
 
     <!-- BuyActivity Product Card keys for attaching products to cards with setTag(key, Object) -->
-    <item name="inapp_product_tag_id" type="id"/>
-    <item name="subs_product_tag_id" type="id"/>
 
     <!-- main menu items -->
     <item name="menu_main_servers" type="id"/>

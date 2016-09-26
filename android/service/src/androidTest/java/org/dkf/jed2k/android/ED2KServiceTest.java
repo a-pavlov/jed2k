@@ -95,6 +95,21 @@ public class ED2KServiceTest {
             public void onServerConnectionClosed(ServerConectionClosed alert) {
 
             }
+
+            @Override
+            public void onTransferPaused(TransferPausedAlert alert) {
+
+            }
+
+            @Override
+            public void onTransferResumed(TransferResumedAlert alert) {
+
+            }
+
+            @Override
+            public void onTransferIOError(TransferDiskIOErrorAlert alert) {
+
+            }
         });
 
         Thread.sleep(2000);

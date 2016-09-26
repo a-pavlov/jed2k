@@ -250,12 +250,6 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    private void startMagnetDownload(String magnet) {
-        UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
-        //TransferManager.instance().downloadTorrent(magnet,
-        //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
-    }
-
     private void setupAdapter() {
         if (adapter == null) {
             adapter = new SearchResultListAdapter(getActivity()) {
@@ -411,70 +405,6 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    // takes user to Google Play store so it can rate the app.
-    ///private ClickAdapter<SearchFragment> createOnRateClickAdapter(final RichNotification ratingReminder, final ConfigurationManager CM) {
-     //   return new OnRateClickAdapter(SearchFragment.this, ratingReminder, CM);
-    //}
-
-    // opens default email client and pre-fills email to support@frostwire.com
-    // with some information about the app and environment.
-    //private ClickAdapter<SearchFragment> createOnFeedbackClickAdapter(final RichNotification ratingReminder, final ConfigurationManager CM) {
-    //    return new OnFeedbackClickAdapter(SearchFragment.this, ratingReminder, CM);
-    //}
-/*
-    private void startPromotionDownload(Slide slide) {
-        SearchResult sr;
-
-        switch (slide.method) {
-            case Slide.DOWNLOAD_METHOD_TORRENT:
-                sr = new TorrentPromotionSearchResult(slide);
-                break;
-            case Slide.DOWNLOAD_METHOD_HTTP:
-                sr = new HttpSlideSearchResult(slide);
-                break;
-            default:
-                sr = null;
-                break;
-        }
-        if (sr == null) {
-            //check if there is a URL available to open a web browser.
-            if (slide.clickURL != null) {
-                Intent i = new Intent("android.intent.action.VIEW", Uri.parse(slide.clickURL));
-                try {
-                    getActivity().startActivity(i);
-                } catch (Throwable t) {
-                    // some devices incredibly may have no apps to handle this intent.
-                }
-            }
-
-            return;
-        }
-
-        String stringDownloadingPromo;
-
-        try {
-            stringDownloadingPromo = getString(R.string.downloading_promotion, sr.getDisplayName());
-        } catch (Throwable e) {
-            stringDownloadingPromo = getString(R.string.azureus_manager_item_downloading);
-        }
-
-        startTransfer(sr, stringDownloadingPromo);
-    }
-
-    private void uxLogAction(SearchResult sr) {
-        UXStats.instance().log(UXAction.SEARCH_RESULT_CLICKED);
-
-        if (sr instanceof HttpSearchResult) {
-            UXStats.instance().log(UXAction.DOWNLOAD_CLOUD_FILE);
-        } else if (sr instanceof TorrentSearchResult) {
-            if (sr instanceof TorrentCrawledSearchResult) {
-                UXStats.instance().log(UXAction.DOWNLOAD_PARTIAL_TORRENT_FILE);
-            } else {
-                UXStats.instance().log(UXAction.DOWNLOAD_FULL_TORRENT_FILE);
-            }
-        }
-    }
-*/
     @Override
     public String getCurrentQuery() {
         return currentQuery;

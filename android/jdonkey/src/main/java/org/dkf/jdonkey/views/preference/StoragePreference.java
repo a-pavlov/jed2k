@@ -43,13 +43,12 @@ import org.dkf.jdonkey.util.SystemUtils;
 import org.dkf.jdonkey.util.UIUtils;
 import org.dkf.jdonkey.views.AbstractAdapter;
 import org.dkf.jdonkey.views.AbstractAdapter.OnItemClickAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author gubatron
@@ -151,7 +150,7 @@ public class StoragePreference extends DialogPreference {
 
     public static void updateStorageOptionSummary(PreferenceActivity activity, String newPath) {
         // intentional repetition of preference value here
-        String lollipopKey = "frostwire.prefs.storage.path_asf";
+        String lollipopKey = "jdonkey.prefs.storage.path_asf";
         if (AndroidPlatform.saf()) {
             final Preference p = activity.findPreference(lollipopKey);
             if (p != null) {
