@@ -102,7 +102,7 @@ final class ConfigurationDefaults {
             sm.addServer(ServerMet.ServerMetEntry.create("77.120.115.66", 5041, "eMule Security No4", "www.emule-security.org"));
             sm.addServer(ServerMet.ServerMetEntry.create("85.204.50.116", 4232, "!! www.Sharing-Devils.to No.3 !!", "www.Sharing-Devils.to"));
             sm.addServer(ServerMet.ServerMetEntry.create("222.40.142.3", 40072, "emule lover server No.1", null));
-            sm.addServer(ServerMet.ServerMetEntry.create("emule.is74.ru", 4661, "IS74", "IS 74 emule server"));
+            //sm.addServer(ServerMet.ServerMetEntry.create("emule.is74.ru", 4661, "IS74", "IS 74 emule server"));
             defaultValues.put(Constants.PREF_KEY_SERVERS_LIST, sm);
         } catch(JED2KException e) {
             // wtf?
