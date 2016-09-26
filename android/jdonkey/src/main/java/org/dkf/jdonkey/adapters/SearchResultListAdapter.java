@@ -63,14 +63,11 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
 
     private int fileType;
 
-    //private ImageLoader thumbLoader;
-
     protected SearchResultListAdapter(Context context) {
         super(context, R.layout.view_bittorrent_search_result_list_item);
         this.linkListener = new OnLinkClickListener();
         this.previewClickListener = new PreviewClickListener(context, this);
         this.fileType = NO_FILE_TYPE;
-        //this.thumbLoader = ImageLoader.getInstance(context);
     }
 
     public int getFileType() {
@@ -96,7 +93,6 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     protected void populateView(View view, final SharedFileEntry entry) {
         maybeMarkTitleOpened(view, entry);
         populateFilePart(view, entry);
-        //populateThumbnail(view, sr);
     }
 
     private void maybeMarkTitleOpened(View view, SharedFileEntry sr) {
@@ -107,9 +103,6 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     }
 
     private void populateFilePart(View view, final SharedFileEntry entry) {
-        //ImageView fileTypeIcon = findView(view, R.id.view_bittorrent_search_result_list_item_filetype_icon);
-        //fileTypeIcon.setImageResource(getFileTypeIconId());
-
         TextView adIndicator = findView(view, R.id.view_bittorrent_search_result_list_item_ad_indicator);
         adIndicator.setVisibility(View.GONE);
 
@@ -136,27 +129,6 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
         seeds.setText(String.format(strSeeds, entry.getSources()));
         TextView sourceLink = findView(view, R.id.view_bittorrent_search_result_list_item_text_source);
         sourceLink.setText(R.string.search_item_source_server);
-
-        //sourceLink.setText(entry.hash.toString()); // TODO: ask for design
-        //sourceLink.setTag(entry.getFileName());
-        //sourceLink.setPaintFlags(sourceLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        //sourceLink.setOnClickListener(linkListener);
-    }
-
-    private void populateThumbnail(View view, SharedFileEntry sr) {
-        //SearchThumbnailImageView fileTypeIcon = findView(view, R.id.view_bittorrent_search_result_list_item_filetype_icon);
-        //if (sr.getThumbnailUrl() != null) {
-        //    thumbLoader.load(Uri.parse(sr.getThumbnailUrl()), fileTypeIcon, 96, 96, getFileTypeIconId());
-        //}
-
-        //fileTypeIcon.setOnClickListener(previewClickListener);
-        //if (isAudio(sr) || sr instanceof YouTubePackageSearchResult) {
-        //    fileTypeIcon.setTag(sr);
-        //    fileTypeIcon.setOverlayState(MediaPlaybackOverlay.MediaPlaybackState.PREVIEW);
-        //} else {
-        //    fileTypeIcon.setTag(null);
-        //    fileTypeIcon.setOverlayState(MediaPlaybackOverlay.MediaPlaybackState.NONE);
-        //}
     }
 
     @Override

@@ -39,7 +39,6 @@
         android:paddingTop="15dp" >
 
         <ImageView
-            android:id="@+id/view_transfer_item_list_item_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center|center_horizontal"
