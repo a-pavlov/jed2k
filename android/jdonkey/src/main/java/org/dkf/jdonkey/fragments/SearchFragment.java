@@ -143,6 +143,7 @@ public final class SearchFragment extends AbstractFragment implements
     @Override
     public void onShow() {
         warnServerNotConnected(getView());
+        adapter.notifyDataSetChanged();
     }
 
     @Override
