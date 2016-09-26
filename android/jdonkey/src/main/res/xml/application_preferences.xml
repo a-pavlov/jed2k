@@ -21,16 +21,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:jdonkey="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:key="jdonkey.prefs.general">
-        <SwitchPreference android:key="jdonkey.prefs.internal.connect_disconnect"
+    <PreferenceCategory android:key="jmule.prefs.general">
+        <SwitchPreference android:key="jmule.prefs.internal.connect_disconnect"
                           android:summary="@string/ed2k_network_summary"
                           android:title="@string/ed2k"/>
-        <org.dkf.jdonkey.views.preference.StoragePreference
-                android:key="jdonkey.prefs.storage.path"
+        <org.dkf.jmule.views.preference.StoragePreference
+                android:key="jmule.prefs.storage.path"
                 android:summary="@string/storage_preference_summary"
                 android:title="@string/storage_preference_title"/>
         <Preference
-                android:key="jdonkey.prefs.storage.path_asf"
+                android:key="jmule.prefs.storage.path_asf"
                 android:summary="@string/storage_preference_summary"
                 android:title="@string/storage_preference_title">
             <intent android:action="android.intent.action.OPEN_DOCUMENT_TREE"/>
@@ -41,13 +41,13 @@
         android:key="@string/common_settings">
 
         <EditTextPreference
-            android:key="jdonkey.prefs.nickname"
+            android:key="jmule.prefs.nickname"
             android:summary="@string/how_other_users_will_see_you"
             android:title="@string/nickname">
         </EditTextPreference>
 
-        <org.dkf.jdonkey.views.preference.NumberPickerPreference
-            android:key="jdonkey.prefs.listen_port"
+        <org.dkf.jmule.views.preference.NumberPickerPreference
+            android:key="jmule.prefs.listen_port"
             android:summary="@string/listen_port_summary"
             android:title="@string/listen_port"
             jdonkey:picker_defaultValue="30000"
@@ -56,43 +56,43 @@
     </PreferenceCategory>
 
     <PreferenceScreen
-        android:key="jdonkey.prefs.servers.preference_category"
+        android:key="jmule.prefs.servers.preference_category"
         android:title="@string/servers_settings"
         android:persistent="false">
 
         <CheckBoxPreference
-            android:key="jdonkey.prefs.connect_server_on_start"
+            android:key="jmule.prefs.connect_server_on_start"
             android:summary="@string/connect_on_start_server_summary"
             android:title="@string/connect_on_start_server"
             android:enabled="false"/>
 
         <CheckBoxPreference
-            android:key="jdonkey.prefs.show_servers_messages"
+            android:key="jmule.prefs.show_servers_messages"
             android:summary="@string/show_server_messages_summary"
             android:title="@string/show_server_messages" />
     </PreferenceScreen>
 
     <PreferenceScreen
-            android:key="jdonkey.prefs.transfer.preference_category"
+            android:key="jmule.prefs.transfer.preference_category"
             android:title="@string/transfers_settings"
             android:persistent="false">
 
         <CheckBoxPreference
-                android:key="jdonkey.prefs.network.use_mobile_data"
+                android:key="jmule.prefs.network.use_mobile_data"
                 android:summary="@string/use_mobile_data_summary"
                 android:title="@string/use_mobile_data"
                 android:enabled="false"/>
 
-        <org.dkf.jdonkey.views.preference.NumberPickerPreference
-                android:key="jdonkey.prefs.transfer.max_downloads"
+        <org.dkf.jmule.views.preference.NumberPickerPreference
+                android:key="jmule.prefs.transfer.max_downloads"
                 android:summary="@string/transfers_max_downloads_summary"
                 android:title="@string/transfers_max_downloads"
                 jdonkey:picker_defaultValue="4"
                 jdonkey:picker_endRange="10"
                 jdonkey:picker_startRange="1"/>
 
-        <org.dkf.jdonkey.views.preference.NumberPickerPreference
-                android:key="jdonkey.prefs.transfer.max_total_connections"
+        <org.dkf.jmule.views.preference.NumberPickerPreference
+                android:key="jmule.prefs.transfer.max_total_connections"
                 android:summary="@string/transfers_max_total_connections_summary"
                 android:title="@string/transfers_max_total_connections"
                 jdonkey:picker_defaultValue="200"
@@ -100,37 +100,37 @@
                 jdonkey:picker_startRange="10"/>
 
         <CheckBoxPreference
-            android:key="jdonkey.prefs.gui.show_transfers_on_download_start"
+            android:key="jmule.prefs.gui.show_transfers_on_download_start"
             android:title="@string/show_transfers_on_download_start"
             android:enabled="false"/>
         <CheckBoxPreference
-            android:key="jdonkey.prefs.gui.show_new_transfer_dialog"
+            android:key="jmule.prefs.gui.show_new_transfer_dialog"
             android:title="@string/show_new_transfer_dialog"
             android:enabled="false"/>
         <CheckBoxPreference
-            android:key="jdonkey.prefs.gui.vibrate_on_finished_download"
+            android:key="jmule.prefs.gui.vibrate_on_finished_download"
             android:title="@string/vibrate_on_finished_download"
             android:enabled="false"/>
     </PreferenceScreen>
 
     <PreferenceScreen
-            android:key="jdonkey.prefs.other.preference_category"
+            android:key="jmule.prefs.other.preference_category"
             android:title="@string/other_settings"
             android:persistent="false">
         <CheckBoxPreference
-                android:key="jdonkey.prefs.gui.enable_permanent_status_notification"
+                android:key="jmule.prefs.gui.enable_permanent_status_notification"
                 android:title="@string/notify_jdonkey_is_running"
                 android:summary="@string/notify_jdonkey_is_running_summary"
                 android:enabled="false"/>
     </PreferenceScreen>
 
     <Preference
-            android:key="jdonkey.prefs.show_about"
+            android:key="jmule.prefs.show_about"
             android:title="@string/about">
         <intent
                 android:action="android.intent.action.VIEW"
-                android:targetPackage="org.dkf.jdonkey"
-                android:targetClass="org.dkf.jdonkey.activities.AboutActivity"/>
+                android:targetPackage="org.dkf.jmule"
+                android:targetClass="org.dkf.jmule.activities.AboutActivity"/>
     </Preference>
 
 </PreferenceScreen>

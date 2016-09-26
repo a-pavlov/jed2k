@@ -38,8 +38,8 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "org.dkf.jdonkey"
-        minSdkVersion 9
+        applicationId "org.dkf.jmule"
+        minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
         versionName "0.1"
