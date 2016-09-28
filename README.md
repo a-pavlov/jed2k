@@ -3,6 +3,7 @@
 [![Logo](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/mule_common.png)](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/mule_common.png)
 
 Application for Android platform to work in ED2K(eDonkey2000) networks. Based on ED2K library - see description below.
+In GUI part used source code and design from [FrostWire](https://github.com/frostwire/frostwire) project for Android.
 
 ## Links
 
