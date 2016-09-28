@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Created by Angel Leon (@gubatron), Alden Torres (aldenml)
+ * Copyright (c) 2011-2016, FrostWire(R). All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:jdonkey="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:key="jmule.prefs.general">
+        <SwitchPreference android:key="jmule.prefs.internal.connect_disconnect"
+                          android:summary="@string/ed2k_network_summary"
+                          android:title="@string/ed2k"/>
+        <org.dkf.jmule.views.preference.StoragePreference
+                android:key="jmule.prefs.storage.path"
+                android:summary="@string/storage_preference_summary"
+                android:title="@string/storage_preference_title"/>
+        <Preference
+                android:key="jmule.prefs.storage.path_asf"
+                android:summary="@string/storage_preference_summary"
+                android:title="@string/storage_preference_title">
+            <intent android:action="android.intent.action.OPEN_DOCUMENT_TREE"/>
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="@string/common_settings">
+
+        <EditTextPreference
+            android:key="jmule.prefs.nickname"
+            android:summary="@string/how_other_users_will_see_you"
+            android:title="@string/nickname">
+        </EditTextPreference>
+
+        <org.dkf.jmule.views.preference.NumberPickerPreference
+            android:key="jmule.prefs.listen_port"
+            android:summary="@string/listen_port_summary"
+            android:title="@string/listen_port"
+            jdonkey:picker_defaultValue="30000"
+            jdonkey:picker_endRange="99999"
+            jdonkey:picker_startRange="1000"/>
+    </PreferenceCategory>
+
+    <PreferenceScreen
+        android:key="jmule.prefs.servers.preference_category"
+        android:title="@string/servers_settings"
+        android:persistent="false">
+
+        <CheckBoxPreference
+            android:key="jmule.prefs.connect_server_on_start"
+            android:summary="@string/connect_on_start_server_summary"
+            android:title="@string/connect_on_start_server"
+            android:enabled="false"/>
+
+        <CheckBoxPreference
+            android:key="jmule.prefs.show_servers_messages"
+            android:summary="@string/show_server_messages_summary"
+            android:title="@string/show_server_messages" />
+    </PreferenceScreen>
+
+    <PreferenceScreen
+            android:key="jmule.prefs.transfer.preference_category"
+            android:title="@string/transfers_settings"
+            android:persistent="false">
+
+        <CheckBoxPreference
+                android:key="jmule.prefs.network.use_mobile_data"
+                android:summary="@string/use_mobile_data_summary"
+                android:title="@string/use_mobile_data"
+                android:enabled="false"/>
+
+        <org.dkf.jmule.views.preference.NumberPickerPreference
+                android:key="jmule.prefs.transfer.max_downloads"
+                android:summary="@string/transfers_max_downloads_summary"
+                android:title="@string/transfers_max_downloads"
+                jdonkey:picker_defaultValue="4"
+                jdonkey:picker_endRange="10"
+                jdonkey:picker_startRange="1"/>
+
+        <org.dkf.jmule.views.preference.NumberPickerPreference
+                android:key="jmule.prefs.transfer.max_total_connections"
+                android:summary="@string/transfers_max_total_connections_summary"
+                android:title="@string/transfers_max_total_connections"
+                jdonkey:picker_defaultValue="200"
+                jdonkey:picker_endRange="200"
+                jdonkey:picker_startRange="10"/>
+
+        <CheckBoxPreference
+            android:key="jmule.prefs.gui.show_transfers_on_download_start"
+            android:title="@string/show_transfers_on_download_start"
+            android:enabled="false"/>
+        <CheckBoxPreference
+            android:key="jmule.prefs.gui.show_new_transfer_dialog"
+            android:title="@string/show_new_transfer_dialog"
+            android:enabled="false"/>
+        <CheckBoxPreference
+            android:key="jmule.prefs.gui.vibrate_on_finished_download"
+            android:title="@string/vibrate_on_finished_download"
+            android:enabled="false"/>
+    </PreferenceScreen>
+
+    <PreferenceScreen
+            android:key="jmule.prefs.other.preference_category"
+            android:title="@string/other_settings"
+            android:persistent="false">
+        <CheckBoxPreference
+                android:key="jmule.prefs.gui.enable_permanent_status_notification"
+                android:title="@string/notify_jdonkey_is_running"
+                android:summary="@string/notify_jdonkey_is_running_summary"
+                android:enabled="false"/>
+    </PreferenceScreen>
+
+    <Preference
+            android:key="jmule.prefs.show_about"
+            android:title="@string/about">
+        <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.dkf.jmule"
+                android:targetClass="org.dkf.jmule.activities.AboutActivity"/>
+    </Preference>
+
+</PreferenceScreen>

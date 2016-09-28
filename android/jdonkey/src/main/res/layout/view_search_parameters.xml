@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="1"
+              android:background="@drawable/clearable_edittext_background">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/search_params_min_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_min_size"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:id="@+id/view_search_parameter_min_size"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_min_size"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:paddingLeft="8dp"
+            android:paddingRight="38dp"/>
+
+        <TextView
+            android:id="@+id/search_params_max_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_max_size"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/view_search_parameter_min_size"
+            />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:id="@+id/view_search_parameter_max_size"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_max_size"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:paddingLeft="8dp"
+            android:paddingRight="38dp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/search_params_sources"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_sources"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:id="@+id/view_search_parameter_sources"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_sources"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:paddingLeft="8dp"
+            android:paddingRight="38dp"/>
+
+        <TextView
+            android:id="@+id/search_params_complete_sources"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_parameter_complete_sources"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/view_search_parameter_sources"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/view_search_parameter_complete_sources"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_params_complete_sources"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:paddingLeft="8dp"
+            android:paddingRight="38dp"/>
+    </RelativeLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <RadioGroup
+        android:id="@+id/view_search_parameter_file_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/search_parameter_type_any"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_all_types"/>
+
+        <RadioButton
+            android:id="@+id/search_parameter_type_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_audio"/>
+
+        <RadioButton
+            android:id="@+id/search_parameter_type_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_video"/>
+
+        <RadioButton
+            android:id="@+id/search_parameter_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_images"/>
+
+        <RadioButton
+            android:id="@+id/search_parameter_type_archive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_archives"/>
+
+        <RadioButton
+            android:id="@+id/search_parameter_type_document"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_documents"/>
+
+        <RadioButton
+            android:id="@+id/search_parameter_type_cd_images"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_cd_images"/>
+
+        <RadioButton
+            android:id="@+id/search_parameter_type_application"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_type_applications"/>
+
+    </RadioGroup>
+    </HorizontalScrollView>
+
+</LinearLayout>
