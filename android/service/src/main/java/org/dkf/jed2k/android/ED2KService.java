@@ -32,8 +32,8 @@ public class ED2KService extends Service {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
 
-    public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jdonkey.android.ACTION_SHOW_TRANSFERS";
-    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jdonkey.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
+    public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jmule.android.ACTION_SHOW_TRANSFERS";
+    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
 
     private Binder binder;
 

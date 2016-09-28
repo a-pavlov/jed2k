@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<org.dkf.jdonkey.views.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+<org.dkf.jmule.views.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="wrap_content" >
 
     <ImageView
         android:id="@+id/slidemenu_listitem_icon"
@@ -47,4 +47,4 @@
         android:layout_below="@id/slidemenu_listitem_icon"
         android:background="@color/app_menu_item_line" />
 
-</org.dkf.jdonkey.views.CheckableRelativeLayout>
+</org.dkf.jmule.views.CheckableRelativeLayout>
