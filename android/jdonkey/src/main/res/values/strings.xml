@@ -93,12 +93,12 @@
     <string name="dummy_action" translatable="false">[Action]</string>
     <string name="dummy_content_description" translatable="false">[dummy description]</string>
     <string name="toast_on_disconnect">JED2K session stopped. All transfers have stopped.</string>
-    <string name="toast_on_connect">JED2K session started.</string>
+    <string name="toast_on_connect">ED2K session started.</string>
     <string name="seeds_n">Seeds: %s</string>
     <string name="size_unknown">size unknown</string>
     <string name="storage_preference_title">Select Storage Location</string>
     <string name="storage_preference_summary">The default storage location where files will be saved.</string>
-    <string name="ed2k">ED2K</string>
+    <string name="ed2k" translatable="false">ED2K</string>
     <string name="ed2k_network_summary">Connection status</string>
     <string name="retry_search">Retry</string>
     <string name="no_results_feedback">No results were found.</string>
@@ -120,32 +120,32 @@
     <string name="cant_resume_torrent_transfers">Cannot resume torrent transfers. Check status of "Settings" > "BitTorrent Connection Status"</string>
     <string name="confirm_download">Confirm Download</string>
     <string name="saving_to_sd_card">Saving to SD card.</string>
-    <string name="android_will_erase_files_if_frostwire_is_uninstalled">Android will erase downloaded files if FrostWire is uninstalled.</string>
+    <string name="android_will_erase_files_if_frostwire_is_uninstalled">Android will erase downloaded files if Mule on Android is uninstalled.</string>
     <string name="saving_to_internal_memory">Saving to Internal Memory</string>
     <string name="saving_to_internal_memory_description">You also have an SD card (%1$s free)</string>
     <string name="device_storage">Device\'s Storage</string>
     <string name="sdcard_storage">SD\'s Storage</string>
-    <string name="storage_setting_warning">WARNING: All files saved by FrostWire onto the SD card will be deleted BY ANDROID, not FrostWire, if you uninstall the app.</string>
+    <string name="storage_setting_warning">WARNING: All files saved by Mule on Android onto the SD card will be deleted BY ANDROID, not Mule on Android, if you uninstall the app.</string>
     <string name="storage_setting_confirm_dialog_title">SD CARD</string>
-    <string name="storage_setting_confirm_dialog_text">I understand that all files downloaded to the SD Card by FrostWire will be deleted BY ANDROID the moment the FrostWire application is uninstalled from this device and I will not hold FrostWire LLC liable for any files lost.</string>
+    <string name="storage_setting_confirm_dialog_text">I understand that all files downloaded to the SD Card by Mule on Android will be deleted BY ANDROID the moment the Mule on Android application is uninstalled from this device and I will not hold Mule on Android LLC liable for any files lost.</string>
     <string name="available">available</string>
     <string name="finishing">Finishing</string>
     <string name="app_shutdown_dlg_title">Shutdown</string>
     <string name="app_shutdown_dlg_message">This will shutdown all transfers and background services. Are you sure?</string>
     <string name="dummy_build" translatable="false">[build number]</string>
     <string name="try_other_keywords">Try fewer/different keywords</string>
-    <string name="try_frostwire_plus_for_more_results">Try FrostWire Plus for more results</string>
+    <string name="try_frostwire_plus_for_more_results">Try Mule on Android for more results</string>
     <string name="your_installation_is_complete">Your installation is complete.</string>
     <string name="thank_you">Thank you!</string>
     <string name="keep_in_touch">Keep in touch!</string>
     <string name="why_we_need_storage_permissions">Why we need storage permissions.</string>
-    <string name="why_we_need_storage_permissions_summary">FrostWire is a file browser and downloader app, therefore it needs to be able to access your disk.\n\nWithout your permissions FrostWire cannot work.\n\nWant to try again?</string>
+    <string name="why_we_need_storage_permissions_summary">Mule on Android is a file downloader app, therefore it needs to be able to access your disk.\n\nWithout your permissions Mule on Android cannot work.\n\nWant to try again?</string>
     <string name="request_again">Request Again</string>
     <string name="notify_jdonkey_is_running">Notify if Mule on Android is running</string>
     <string name="notify_jdonkey_is_running_summary">Show a permanent Android notification with status of transfers</string>
     <string name="storage_picker_treeuri_null">No storage path was selected</string>
     <string name="storage_picker_treeuri_not_directory">The selected path is not a directory</string>
-    <string name="storage_picker_treeuri_cant_write">FrostWire can\'t write on the selected storage path</string>
+    <string name="storage_picker_treeuri_cant_write">Mule on Android can\'t write on the selected storage path</string>
     <string name="storage_picker_treeuri_error">Unexpected error picking storage path</string>
     <string name="selected">selected</string>
     <string name="check_internet_connection">Check Internet connection</string>
@@ -163,7 +163,6 @@
     <string name="user_id">User ID</string>
 
     <string name="servers_settings">Servers settings</string>
-    <string name="server_connect">Connect to server %1$s</string>
     <string name="servers">Servers</string>
     <string name="connect_on_start_server">Reconnect</string>
     <string name="connect_on_start_server_summary">Connect to server on start</string>
@@ -174,10 +173,6 @@
     <string name="service_stopped_details">Please go to preferences and start ED2K service</string>
     <string name="server_not_connected">Not connected to server</string>
     <string name="server_not_connected_det">Before search connect to server please</string>
-    <string name="confirm_server_connect">Confirm connect</string>
-    <string name="confirm_server_disconnect">Confirm disconnect</string>
-    <string name="server_disconnect_connect">Close previous connection and connect to %1$s</string>
-    <string name="server_disconnect">Disconnect from server %1$s</string>
 
     <string name="search_parameter_min_size">Min size, Mb</string>
     <string name="search_parameter_max_size">Max size, Mb</string>

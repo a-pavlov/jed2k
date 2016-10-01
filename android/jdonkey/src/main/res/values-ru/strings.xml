@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * Created by Angel Leon (@gubatron), Alden Torres (aldenml)
+ * Copyright (c) 2011-2016, FrostWire(R). All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<resources>
+    <string name="activity_preferences_name">Настройки</string>
+    <string name="exit">Выйти</string>
+    <string name="search_label">Поиск</string>
+    <string name="audio">Аудио</string>
+    <string name="video">Видео</string>
+    <string name="applications">Приложения</string>
+    <string name="pictures">Изображения</string>
+    <string name="documents">Документы</string>
+    <string name="about">О приложении</string>
+    <string name="settings">Настройки</string>
+    <string name="files">файлов</string>
+    <string name="are_you_sure_you_wanna_leave">Вы уверены, что хотите вернуться к экрану заставки?</string>
+    <string name="unknown">Неизвестный</string>
+    <string name="open">Открыть</string>
+    <string name="nickname">Псевдоним</string>
+    <string name="how_other_users_will_see_you">Как Вас будут видеть другие пользователи</string>
+    <string name="other_settings">Другие настройки</string>
+    <string name="vibrate_on_finished_download">Вибрировать при завершении загрузки</string>
+    <string name="use_mobile_data">Использовать 3G/LTE</string>
+    <string name="use_mobile_data_summary">За излишние данные может взиматься плата. Используйте внимательно.</string>
+    <string name="cant_open_file">Извините, не знаем, чем открыть этот файл.</string>
+    <string name="download_added_to_queue">1 файл будет загружен</string>
+    <string name="open_menu_action">Открыть %s</string>
+    <string name="cancel_menu_action">Остановить передачу</string>
+    <string name="cancel_delete_menu_action">Остановить и удалить файлы</string>
+    <string name="media_type_all_types">Все типы</string>
+    <string name="media_type_documents">Книги/Документы</string>
+    <string name="media_type_applications">Приложения</string>
+    <string name="media_type_audio">Аудио</string>
+    <string name="media_type_video">Видео</string>
+    <string name="media_type_images">Изображения</string>
+    <string name="media_type_torrents">Торренты</string>
+    <string name="search">Поиск</string>
+    <string name="transfers">Загрузки</string>
+    <string name="yes_no_cancel_transfer_question">Вы уверены, что хотите остановить и удалить из списка это скачивание (Данные не будут удалены)?</string>
+    <string name="yes_no_cancel_delete_transfer_question">Вы уверены, что хотите отменить это скачивание (Скаченная информация будет удалена)?</string>
+    <string name="cancel_transfer">Отменить передачу</string>
+    <string name="pause_torrent_menu_action">Пауза</string>
+    <string name="resume_torrent_menu_action">Возобновить</string>
+    <string name="clear_complete">Удалить завершенные</string>
+    <string name="im_on_it">Я в...</string>
+    <string name="show_transfers_on_download_start">Показывать передачи данных при старте скачивания</string>
+    <string name="dialog_new_transfer_text_text">Вы уверены, что хотите скачать %1$s (%2$s)</string>
+    <string name="dialog_new_transfer_check_text">Спрашивать каждый раз</string>
+    <string name="show_new_transfer_dialog">Показывать окно новой передачи данных</string>
+    <string name="toast_on_disconnect">ED2K сессия остановлена. Все закачки были остановлены.</string>
+    <string name="toast_on_connect">Ядро ED2K запущено.</string>
+    <string name="seeds_n">Сиды: %s</string>
+    <string name="size_unknown">размер не известен</string>
+    <string name="storage_preference_title">Выбор места хранения</string>
+    <string name="storage_preference_summary">Место хранения по умолчанию, где будут сохранены файлы.</string>
+    <string name="retry_search">Повторить поиск</string>
+    <string name="no_results_feedback">Ничего не найдено.\n\nПроверьте интернет соединение или\nпопробуйте другие ключевые слова.</string>
+    <string name="transfers_select_all">все</string>
+    <string name="transfers_select_downloading">загружаемые</string>
+    <string name="transfers_select_completed">завершённые</string>
+    <string name="transfers_context_menu_clear_finished">Очистить список завершённых передач</string>
+    <string name="transfers_context_menu_pause_stop_all_transfers">Приостановить/Остановить все передачи</string>
+    <string name="transfers_context_resume_all_torrent_transfers">Возобновить все раздачи</string>
+    <string name="drawer_open">Показать панель навигацию</string>
+    <string name="drawer_close">Закрыть панель навигации</string>
+    <string name="please_check_connection_status_before_resuming_download">Пожалуйста, проверьте ваше интернет-соединение, прежде чем возобновить.</string>
+    <string name="add_transfer_label">Вставьте magnet или торрент ссылку</string>
+    <string name="please_enter_valid_url">Пожалуйста, введите правильный URL</string>
+    <string name="magnet_url_added">Cсылка добавлена для передачи. (лучше всего работают через Wi-Fi)</string>
+    <string name="torrent_url_added">ED2K ссылка добавлена для передачи.</string>
+    <string name="cant_resume_torrent_transfers">Не удается возобновить торрент-передачу, проверьте статус сети в "Настройки" > "Связь"</string>
+    <string name="confirm_download">Подтвердите загрузку</string>
+    <string name="saving_to_sd_card">Сохранение на SD-карту.</string>
+    <string name="android_will_erase_files_if_frostwire_is_uninstalled">Android сотрёт загруженные файлы, если они были удалены из Ослика.</string>
+    <string name="saving_to_internal_memory">Сохранение во внутреннюю память</string>
+    <string name="saving_to_internal_memory_description">У вас также есть SD-карта (%1$s доступно)</string>
+    <string name="device_storage">Места на устройстве</string>
+    <string name="sdcard_storage">Места на SD-карте</string>
+    <string name="storage_setting_warning">Внимание: Все файлы загруженные через Ослик на SD-карту, будут удалены ANDROID\'ом, если вы удалите Ослик.</string>
+    <string name="storage_setting_confirm_dialog_title">SD-КАРТА</string>
+    <string name="storage_setting_confirm_dialog_text">Я понимаю, что все файлы, загруженные через Ослика на SD-карту, будет удалены ANDROID\'ом. Приложение Ослик, будет удалено с вашего устройства. Мы напоминаем, что Ослик не несёт ответственности за любые потерянные файлы.</string>
+    <string name="available">доступно</string>
+    <string name="app_shutdown_dlg_title">Выключение</string>
+    <string name="app_shutdown_dlg_message">Будет завершена работа всех загрузок и фоновых служб. Вы уверены?</string>
+    <string name="try_other_keywords">Попробуйте другие ключевые слова</string>
+    <string name="remove_torrent_and_data">Удалить трансфер и данные</string>
+    <string name="try_frostwire_plus_for_more_results">Попробуйте Mule on Android с большим количеством результатов</string>
+    <string name="your_installation_is_complete">Установка завершена.</string>
+    <string name="thank_you">Спасибо!</string>
+    <string name="keep_in_touch">Оставайся на связи!</string>
+    <string name="why_we_need_storage_permissions">Зачем нам нужен доступ для хранения данных.</string>
+    <string name="why_we_need_storage_permissions_summary">Ослика для Андроида является загрузчиком, поэтому он должен получить возможность сохранять файлы на диск.\n\nБез предоставленных прав Ослик не может работать.\n\nХотите попробовать снова?</string>
+    <string name="request_again">Повторить запрос</string>
+    <string name="app_name">Ослик для Андроида</string>
+    <string name="cancel">Отмена</string>
+    <string name="check_internet_connection">Проверьте интернет</string>
+    <string name="common_settings">Общие настройки</string>
+    <string name="connect_on_start_server">Соединение с сервером</string>
+    <string name="connect_on_start_server_summary">Соединяться с сервером при старте</string>
+    <string name="ed2k_network_summary">Статус соединения</string>
+    <string name="files_count">Файлов</string>
+    <string name="finishing">Завершение</string>
+    <string name="listen_port">Входящий порт</string>
+    <string name="listen_port_summary">Порт для входящих соединений</string>
+    <string name="minimize_application">Свернуть Ослик для Андроида</string>
+    <string name="notify_jdonkey_is_running">Уведомлять если Ослик запущен</string>
+    <string name="notify_jdonkey_is_running_summary">Показывать постоянное уведомление если Ослик запущен</string>
+    <string name="peer_speed">Скорость %1$s</string>
+    <string name="peer_total_bytes_download">Всего скачано %1$s</string>
+    <string name="sd_permission_no_accessible_path">Путь на SD карте более не доступен. Нажмите Ok для выбора.</string>
+    <string name="search_item_source_server">Сервер</string>
+    <string name="search_item_sources">Источники %1$d</string>
+    <string name="search_more_action">Искать больше</string>
+    <string name="search_parameter_complete_sources">Полных источников</string>
+    <string name="search_parameter_max_size">Макс разм, Мб</string>
+    <string name="search_parameter_min_size">Мин разм, Мб</string>
+    <string name="search_parameter_sources">Источников</string>
+    <string name="select_all">Выделить все</string>
+    <string name="selected">выделенный</string>
+    <string name="server_connect_action">Соединить с %1$s</string>
+    <string name="server_disconnect_action">Отсоединить от %1$s</string>
+    <string name="server_not_connected">Нет соединения с сервером</string>
+    <string name="server_not_connected_det">Для поиска установите соединение с сервером</string>
+    <string name="server_remove_action">Удалить %1$s</string>
+    <string name="servers">Серверы</string>
+    <string name="servers_settings">Настройки серверов</string>
+    <string name="service_stopped">ED2K сервис остановлен</string>
+    <string name="service_stopped_details">ED2K сервис не включен. Включите его в настройках программы</string>
+    <string name="sever_menu_title">Операции с серверами</string>
+    <string name="show_server_messages">Сообщения</string>
+    <string name="show_server_messages_summary">Показывать сообщения серверов</string>
+    <string name="storage_picker_treeuri_null">Путь сохранения не выбран</string>
+    <string name="storage_picker_treeuri_not_directory">Указанный путь не директория</string>
+    <string name="storage_picker_treeuri_error">Ошибка проверки пути</string>
+    <string name="storage_picker_treeuri_cant_write">Ослик не может записать в выбранную директорию</string>
+    <string name="transfer_state_completed">Завершен</string>
+    <string name="transfer_state_downloading">Загружается</string>
+    <string name="transfer_state_paused">Пауза</string>
+    <string name="transfer_state_stalled">Ожидает источников</string>
+    <string name="transfers_context_menu_copy_link">Копировать ссылку</string>
+    <string name="transfers_context_menu_copy_link_copied">Ссылка скопирована в буфер обмена</string>
+    <string name="transfers_max_downloads">Трансферов</string>
+    <string name="transfers_max_downloads_summary">Максимальное количество одновременных закачек</string>
+    <string name="transfers_max_total_connections">Соединений</string>
+    <string name="transfers_max_total_connections_summary">Максимальное количество соединений</string>
+    <string name="transfers_settings">Настройки трансферов</string>
+    <string name="user_id">Id пользователя</string>
+    <string name="users_count">Пользователей</string>
+
+    <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
+</resources>
