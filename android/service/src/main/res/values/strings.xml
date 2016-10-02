@@ -13,4 +13,7 @@
     <string name="media_type_cd_images">CD Images</string>
     <string name="transfer_finished">Download completed</string>
     <string name="transfer_io_error">I/O error</string>
+    <string name="jed2k_is_running">ED2K service is running</string>
+    <string name="dummy_downloads_indicator" translatable="false">0 @ 0 KB/s</string>
+    <string name="dummy_uploads_indicator" translatable="false">0 @ 0 KB/s</string>
 </resources>
