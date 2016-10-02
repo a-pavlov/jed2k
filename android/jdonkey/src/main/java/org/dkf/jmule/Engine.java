@@ -95,6 +95,16 @@ public final class Engine implements AlertListener {
     }
 
     @Override
+    public void onTransferAdded(TransferAddedAlert alert) {
+
+    }
+
+    @Override
+    public void onTransferRemoved(TransferRemovedAlert alert) {
+
+    }
+
+    @Override
     public void onTransferPaused(TransferPausedAlert alert) {
 
     }

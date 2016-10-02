@@ -417,6 +417,26 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     @Override
+    public void onTransferAdded(TransferAddedAlert alert) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @Override
+    public void onTransferRemoved(TransferRemovedAlert alert) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @Override
     public void onTransferPaused(TransferPausedAlert alert) {
 
     }

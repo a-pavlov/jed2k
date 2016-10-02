@@ -43,6 +43,12 @@ public interface AlertListener {
     void onServerConnectionClosed(final ServerConectionClosed alert);
 
     /**
+     * handle add
+     * @param alert
+     */
+    void onTransferAdded(final TransferAddedAlert alert);
+    void onTransferRemoved(final TransferRemovedAlert alert);
+    /**
      *  handle actual pause/resume on transfer
      * @param alert pause/resume alert for transfer
      */

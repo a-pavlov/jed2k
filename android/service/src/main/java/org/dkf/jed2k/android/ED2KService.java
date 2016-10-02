@@ -247,8 +247,7 @@ public class ED2KService extends Service {
         }
     }
 
-    private void saveResumeData(final TransferResumeDataAlert a) {
-        final TransferResumeDataAlert alert = (TransferResumeDataAlert)a;
+    private void saveResumeData(final TransferResumeDataAlert alert) {
         FileOutputStream stream = null;
         try {
             stream = openFileOutput("rd_" + alert.hash.toString(), MODE_PRIVATE);
@@ -265,6 +264,12 @@ public class ED2KService extends Service {
         catch(JED2KException e) {
             log.error("save resume data serialization {} failed {}", alert.hash, e);
         }
+        catch(Exception e) {
+            log.error("save resume data common error {}", e);
+        }
+        catch(Throwable e) {
+            log.error("save resume data throw error {}", e);
+        }
         finally {
             if (stream != null) {
                 try {
@@ -278,79 +283,73 @@ public class ED2KService extends Service {
     }
 
     public void processAlert(final Alert a) {
-        if (a instanceof ListenAlert) {
-            for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
-        } else if (a instanceof SearchResultAlert) {
-            log.info("search result received");
-            for(final AlertListener ls: listeners)  ls.onSearchResult((SearchResultAlert)a);
-        }
-        else if (a instanceof ServerMessageAlert) {
-            for(final AlertListener ls: listeners) ls.onServerMessage((ServerMessageAlert)a);
-        }
-        else if (a instanceof ServerStatusAlert) {
-            for(final AlertListener ls: listeners) ls.onServerStatus((ServerStatusAlert)a);
-        }
-        else if (a instanceof ServerConectionClosed) {
-            for(final AlertListener ls: listeners) ls.onServerConnectionClosed((ServerConectionClosed)a);
-        }
-        else if (a instanceof ServerIdAlert) {
-            for(final AlertListener ls: listeners) ls.onServerIdAlert((ServerIdAlert) a);
-        }
-        else if (a instanceof ServerConnectionAlert) {
-            for(final AlertListener ls: listeners) ls.onServerConnectionAlert((ServerConnectionAlert)a);
-        }
-        else if (a instanceof TransferResumedAlert) {
-            for(final AlertListener ls: listeners) ls.onTransferResumed((TransferResumedAlert) a);
-        }
-        else if (a instanceof TransferPausedAlert) {
-            for(final AlertListener ls: listeners) ls.onTransferPaused((TransferPausedAlert) a);
-        }
-        else if (a instanceof TransferAddedAlert) {
-            localHashes.put(((TransferAddedAlert) a).hash, 0);
-            log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
-            session.saveResumeData();
-        }
-        else if (a instanceof TransferRemovedAlert) {
-            log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
-            localHashes.remove(((TransferRemovedAlert) a).hash);
-            removeResumeDataFile(((TransferRemovedAlert) a).hash);
-        }
-        else if (a instanceof TransferResumeDataAlert) {
-            saveResumeData((TransferResumeDataAlert)a);
-        }
-        else if (a instanceof TransferFinishedAlert) {
-            log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
-            session.saveResumeData();
-            notificationHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    createTransferNotification(getResources().getString(R.string.transfer_finished), EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION, ((TransferFinishedAlert) a).hash);
-                }
-            });
-        }
-        else if (a instanceof TransferDiskIOErrorAlert) {
-            TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert)a;
-            log.error("disk i/o error: {}", errorAlert.ec);
-            long lastIOErrorTime = 0;
-            if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
-                lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);
-            }
-
-            transfersIOErrorsOrder.put(errorAlert.hash, errorAlert.getCreationTime());
-
-            // dispatch alert if no i/o errors on this transfer in last 10 seconds
-            if (errorAlert.getCreationTime() - lastIOErrorTime > 10*1000) {
-                for(final AlertListener ls: listeners) ls.onTransferIOError(errorAlert);
+        try {
+            if (a instanceof ListenAlert) {
+                for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
+            } else if (a instanceof SearchResultAlert) {
+                log.info("search result received");
+                for (final AlertListener ls : listeners) ls.onSearchResult((SearchResultAlert) a);
+            } else if (a instanceof ServerMessageAlert) {
+                for (final AlertListener ls : listeners) ls.onServerMessage((ServerMessageAlert) a);
+            } else if (a instanceof ServerStatusAlert) {
+                for (final AlertListener ls : listeners) ls.onServerStatus((ServerStatusAlert) a);
+            } else if (a instanceof ServerConectionClosed) {
+                for (final AlertListener ls : listeners) ls.onServerConnectionClosed((ServerConectionClosed) a);
+            } else if (a instanceof ServerIdAlert) {
+                for (final AlertListener ls : listeners) ls.onServerIdAlert((ServerIdAlert) a);
+            } else if (a instanceof ServerConnectionAlert) {
+                for (final AlertListener ls : listeners) ls.onServerConnectionAlert((ServerConnectionAlert) a);
+            } else if (a instanceof TransferResumedAlert) {
+                for (final AlertListener ls : listeners) ls.onTransferResumed((TransferResumedAlert) a);
+            } else if (a instanceof TransferPausedAlert) {
+                for (final AlertListener ls : listeners) ls.onTransferPaused((TransferPausedAlert) a);
+            } else if (a instanceof TransferAddedAlert) {
+                localHashes.put(((TransferAddedAlert) a).hash, 0);
+                log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
+                session.saveResumeData();
+                for (final AlertListener ls : listeners) ls.onTransferAdded((TransferAddedAlert) a);
+            } else if (a instanceof TransferRemovedAlert) {
+                log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
+                localHashes.remove(((TransferRemovedAlert) a).hash);
+                removeResumeDataFile(((TransferRemovedAlert) a).hash);
+                for (final AlertListener ls : listeners) ls.onTransferRemoved((TransferRemovedAlert) a);
+            } else if (a instanceof TransferResumeDataAlert) {
+                saveResumeData((TransferResumeDataAlert) a);
+            } else if (a instanceof TransferFinishedAlert) {
+                log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
+                session.saveResumeData();
                 notificationHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        createTransferNotification(getResources().getString(R.string.transfer_io_error), "", ((TransferDiskIOErrorAlert) a).hash);
+                        createTransferNotification(getResources().getString(R.string.transfer_finished), EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION, ((TransferFinishedAlert) a).hash);
                     }
                 });
+            } else if (a instanceof TransferDiskIOErrorAlert) {
+                TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert) a;
+                log.error("disk i/o error: {}", errorAlert.ec);
+                long lastIOErrorTime = 0;
+                if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
+                    lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);
+                }
+
+                transfersIOErrorsOrder.put(errorAlert.hash, errorAlert.getCreationTime());
+
+                // dispatch alert if no i/o errors on this transfer in last 10 seconds
+                if (errorAlert.getCreationTime() - lastIOErrorTime > 10 * 1000) {
+                    for (final AlertListener ls : listeners) ls.onTransferIOError(errorAlert);
+                    notificationHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            createTransferNotification(getResources().getString(R.string.transfer_io_error), "", ((TransferDiskIOErrorAlert) a).hash);
+                        }
+                    });
+                }
+            } else {
+                log.debug("received unhandled alert {}", a);
             }
         }
-        else {
-            log.debug("received unhandled alert {}", a);
+        catch(Exception e) {
+            log.error("processing alert {} error {}", a, e);
         }
     }
 

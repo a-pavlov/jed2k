@@ -245,6 +245,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     }
 
     @Override
+    public void onTransferAdded(TransferAddedAlert alert) {
+
+    }
+
+    @Override
+    public void onTransferRemoved(TransferRemovedAlert alert) {
+
+    }
+
+    @Override
     public void onTransferPaused(TransferPausedAlert alert) {
         // do nothing not interested in transfer's state
     }
