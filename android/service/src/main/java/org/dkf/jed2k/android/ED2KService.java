@@ -35,7 +35,11 @@ public class ED2KService extends Service {
     public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jmule.android.ACTION_SHOW_TRANSFERS";
     public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
 
+    private final static long[] VENEZUELAN_VIBE = buildVenezuelanVibe();
+
     private Binder binder;
+
+    private boolean vibrateOnDownloadCompleted = false;
 
     /**
      * run notifications in ui thread
@@ -482,6 +486,8 @@ public class ED2KService extends Service {
                 .setContent(mNotificationTemplate)
                 .setUsesChronometer(true)
                 .build();
+
+        notification.vibrate = vibrateOnDownloadCompleted?VENEZUELAN_VIBE:null;
         //notification.flags = Notification.FLAG_ONGOING_EVENT;
 
 /*
@@ -607,6 +613,10 @@ public class ED2KService extends Service {
         settings.clientName = name;
     }
 
+    public void setVibrateOnDownloadCompleted(boolean vibrate) {
+        this.vibrateOnDownloadCompleted = vibrate;
+    }
+
     public void setListenPort(int port) {
         settings.listenPort = port;
     }
@@ -621,5 +631,16 @@ public class ED2KService extends Service {
         }
 
         return Pair.make(0l, 0l);
+    }
+
+    private static long[] buildVenezuelanVibe() {
+
+        long shortVibration = 80;
+        long mediumVibration = 100;
+        long shortPause = 100;
+        long mediumPause = 150;
+        long longPause = 180;
+
+        return new long[]{0, shortVibration, longPause, shortVibration, shortPause, shortVibration, shortPause, shortVibration, mediumPause, mediumVibration};
     }
 }

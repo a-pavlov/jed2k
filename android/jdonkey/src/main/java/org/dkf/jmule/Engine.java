@@ -248,6 +248,7 @@ public final class Engine implements AlertListener {
                     setListenPort((int) ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
                     setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
                     setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
+                    setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
                     configureServices();
 
                     //if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CORE_CONNECTED)) {
@@ -331,6 +332,7 @@ public final class Engine implements AlertListener {
     }
 
     public void setNickname(final String name) { if (service != null) service.setNickname(name); }
+    public void setVibrateOnDownloadCompleted(boolean vibrate) { if (service != null) service.setVibrateOnDownloadCompleted(vibrate); }
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
 

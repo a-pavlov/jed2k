@@ -169,6 +169,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void setupOtherOptions() {
         setupPermanentStatusNotificationOption();
+        setupVibrateOnDownloadCompletedOption();
     }
 
     private void setupPermanentStatusNotificationOption() {
@@ -184,6 +185,20 @@ public class SettingsActivity extends PreferenceActivity {
                             notificationService.cancel(ED2KService.ED2K_STATUS_NOTIFICATION);
                         }
                     }
+                    return true;
+                }
+            });
+        }
+    }
+
+
+    private void setupVibrateOnDownloadCompletedOption() {
+        final CheckBoxPreference vibrateOnDownloadCompleted = (CheckBoxPreference) findPreference(Constants.PREF_KEY_GUI_VIBRATE_ON_FINISHED_DOWNLOAD);
+        if (vibrateOnDownloadCompleted != null) {
+            vibrateOnDownloadCompleted.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().setVibrateOnDownloadCompleted((boolean) newValue);
                     return true;
                 }
             });
@@ -317,6 +332,7 @@ public class SettingsActivity extends PreferenceActivity {
                 Engine.instance().setListenPort((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
                 Engine.instance().setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
                 Engine.instance().setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
+
                 LOG.info("configuration {} max conn {} port {}"
                         , ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME)
                         , (int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS)

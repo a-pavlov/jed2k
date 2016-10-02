@@ -102,15 +102,15 @@
         <CheckBoxPreference
             android:key="jmule.prefs.gui.show_transfers_on_download_start"
             android:title="@string/show_transfers_on_download_start"
-            android:enabled="false"/>
+            android:enabled="true"/>
         <CheckBoxPreference
             android:key="jmule.prefs.gui.show_new_transfer_dialog"
             android:title="@string/show_new_transfer_dialog"
-            android:enabled="false"/>
+            android:enabled="true"/>
         <CheckBoxPreference
             android:key="jmule.prefs.gui.vibrate_on_finished_download"
             android:title="@string/vibrate_on_finished_download"
-            android:enabled="false"/>
+            android:enabled="true"/>
     </PreferenceScreen>
 
     <PreferenceScreen
