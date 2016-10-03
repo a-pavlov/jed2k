@@ -113,7 +113,7 @@
     <string name="check_internet_connection">Проверьте интернет</string>
     <string name="common_settings">Общие настройки</string>
     <string name="connect_on_start_server">Соединение с сервером</string>
-    <string name="connect_on_start_server_summary">Соединяться с сервером при старте</string>
+    <string name="connect_on_start_server_summary">Восстановить последнее соединение с сервером при старте</string>
     <string name="ed2k_network_summary">Статус соединения</string>
     <string name="files_count">Файлов</string>
     <string name="finishing">Завершение</string>

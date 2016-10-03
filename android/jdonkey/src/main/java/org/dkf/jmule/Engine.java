@@ -141,6 +141,14 @@ public final class Engine implements AlertListener {
     public void startServices() {
         if (service != null) {
             service.startServices();
+            log.info("last server {}", ConfigurationManager.instance().getLastServerConnectionId());
+            if (ConfigurationManager.instance().connectoToServerOnRestart() && !ConfigurationManager.instance().getLastServerConnectionId().isEmpty()) {
+                log.info("connect to last server {}", ConfigurationManager.instance().getLastServerConnectionId());
+                connectTo(
+                        ConfigurationManager.instance().getLastServerConnectionId(),
+                        ConfigurationManager.instance().getLastServerConnectionHost(),
+                        ConfigurationManager.instance().getLastServerConnectionPort());
+            }
         }
     }
 
@@ -200,6 +208,7 @@ public final class Engine implements AlertListener {
     public boolean connectTo(final String serverId, final String host, int port) {
         if (service != null) {
             try {
+                ConfigurationManager.instance().setLastServerConnection(serverId, host, port);
                 service.connectoServer(serverId, host, port);
             } catch(Exception e) {
                 log.error("server connection failed {}", e);
@@ -260,7 +269,6 @@ public final class Engine implements AlertListener {
                     setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
                     setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
                     configureServices();
-
                     //if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CORE_CONNECTED)) {
                     //    startServices();
                     //}

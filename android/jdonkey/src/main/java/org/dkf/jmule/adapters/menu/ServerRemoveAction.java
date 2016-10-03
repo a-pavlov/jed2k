@@ -2,6 +2,7 @@ package org.dkf.jmule.adapters.menu;
 
 import android.content.Context;
 import org.dkf.jed2k.protocol.server.ServerMet;
+import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.core.Constants;
@@ -29,6 +30,7 @@ public class ServerRemoveAction extends MenuAction {
         ServerMet sm = new ServerMet();
         ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
         if (sm != null) {
+            Engine.instance().disconnectFrom(); // try to disconnect in any case
             Iterator<ServerMet.ServerMetEntry> iter = sm.getServers().iterator();
             while(iter.hasNext()) {
                 ServerMet.ServerMetEntry entry = iter.next();

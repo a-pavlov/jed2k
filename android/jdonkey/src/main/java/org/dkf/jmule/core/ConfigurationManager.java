@@ -249,6 +249,28 @@ public class ConfigurationManager {
         }
     }
 
+    public boolean connectoToServerOnRestart() {
+        return getBoolean(Constants.PREF_KEY_CONN_SERVER_ON_START);
+    }
+
+    public void setLastServerConnection(final String id, final String host, int port) {
+        setString(Constants.PREF_KEY_SERVER_ID, id);
+        setString(Constants.PREF_KEY_SERVER_HOST, host);
+        setInt(Constants.PREF_KEY_SERVER_PORT, port);
+    }
+
+    public String getLastServerConnectionId() {
+        return getString(Constants.PREF_KEY_SERVER_ID);
+    }
+
+    public String getLastServerConnectionHost() {
+        return getString(Constants.PREF_KEY_SERVER_HOST);
+    }
+
+    public int getLastServerConnectionPort() {
+        return getInt(Constants.PREF_KEY_SERVER_PORT);
+    }
+
     private void initPreferences() {
         for (Entry<String, Object> entry : defaults.getDefaultValues().entrySet()) {
             String key = entry.getKey();

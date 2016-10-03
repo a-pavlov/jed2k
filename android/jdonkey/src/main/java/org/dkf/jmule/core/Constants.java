@@ -52,6 +52,10 @@ public final class Constants {
 
     public static final String PREF_KEY_NETWORK_MAX_CONCURRENT_UPLOADS = "jmule.prefs.network.max_concurrent_uploads";
 
+    public static final String PREF_KEY_SERVER_ID = "jmule.prefs.server.id";
+    public static final String PREF_KEY_SERVER_HOST = "jmule.prefs.server.host";
+    public static final String PREF_KEY_SERVER_PORT = "jmule.prefs.server.port";
+
     public static final String PREF_KEY_SEARCH_COUNT_DOWNLOAD_FOR_TORRENT_DEEP_SCAN = "jmule.prefs.search.count_download_for_torrent_deep_scan";
     public static final String PREF_KEY_SEARCH_COUNT_ROUNDS_FOR_TORRENT_DEEP_SCAN = "jmule.prefs.search.count_rounds_for_torrent_deep_scan";
     public static final String PREF_KEY_SEARCH_INTERVAL_MS_FOR_TORRENT_DEEP_SCAN = "jmule.prefs.search.interval_ms_for_torrent_deep_scan";

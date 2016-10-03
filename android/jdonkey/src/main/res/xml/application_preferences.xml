@@ -64,7 +64,7 @@
             android:key="jmule.prefs.connect_server_on_start"
             android:summary="@string/connect_on_start_server_summary"
             android:title="@string/connect_on_start_server"
-            android:enabled="false"/>
+            android:enabled="true"/>
 
         <CheckBoxPreference
             android:key="jmule.prefs.show_servers_messages"
