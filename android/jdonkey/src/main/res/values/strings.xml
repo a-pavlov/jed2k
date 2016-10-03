@@ -92,7 +92,7 @@
     <string name="show_new_transfer_dialog">Show New Transfer dialog</string>
     <string name="dummy_action" translatable="false">[Action]</string>
     <string name="dummy_content_description" translatable="false">[dummy description]</string>
-    <string name="toast_on_disconnect">JED2K session stopped. All transfers have stopped.</string>
+    <string name="toast_on_disconnect">ED2K session stopped. All transfers have stopped.</string>
     <string name="toast_on_connect">ED2K session started.</string>
     <string name="seeds_n">Seeds: %s</string>
     <string name="size_unknown">size unknown</string>
