@@ -73,33 +73,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dummy_downloads_indicator" />
-
-            <!-- comma in unicode -->
-            <TextView
-                style="@style/TransfersNotificationSub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingRight="8dp"
-                android:text="\u002C" />
-
-            <!-- upward arrow in unicode -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
-                android:text="\u2191"
-                android:textColor="@color/app_dark_grey_text"
-                android:textSize="14sp" />
-
-            <!-- uploads @ upload rate -->
-            <TextView
-                android:id="@+id/view_permanent_status_text_uploads"
-                style="@style/TransfersNotificationSub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingRight="8dp"
-                android:text="@string/dummy_uploads_indicator" />
-
         </LinearLayout>
     </LinearLayout>
 

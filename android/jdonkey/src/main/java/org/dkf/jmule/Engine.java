@@ -268,6 +268,7 @@ public final class Engine implements AlertListener {
                     setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
                     setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
                     setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
+                    setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
                     configureServices();
                     //if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CORE_CONNECTED)) {
                     //    startServices();
@@ -361,5 +362,9 @@ public final class Engine implements AlertListener {
     public Pair<Long, Long> getDownloadUploadBandwidth() {
         if (service != null) return service.getDownloadUploadRate();
         return Pair.make(0l, 0l);
+    }
+
+    public void setPermanentNotification(boolean v) {
+        if (service != null) service.setPermanentNotification(v);
     }
 }

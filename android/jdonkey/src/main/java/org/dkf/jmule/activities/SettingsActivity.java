@@ -179,6 +179,7 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final boolean notificationEnabled = (boolean) newValue;
+                    Engine.instance().setPermanentNotification(notificationEnabled);
                     if (!notificationEnabled) {
                         NotificationManager notificationService = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                         if (notificationService != null) {

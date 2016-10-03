@@ -35,6 +35,7 @@
 
             <intent-filter>
                 <action android:name="org.dkf.jmule.android.ACTION_SHOW_TRANSFERS" />
+                <action android:name="org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN" />
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>

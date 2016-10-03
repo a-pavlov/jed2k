@@ -121,7 +121,7 @@
                 android:key="jmule.prefs.gui.enable_permanent_status_notification"
                 android:title="@string/notify_jdonkey_is_running"
                 android:summary="@string/notify_jdonkey_is_running_summary"
-                android:enabled="false"/>
+                android:enabled="true"/>
     </PreferenceScreen>
 
     <Preference

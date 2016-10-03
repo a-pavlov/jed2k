@@ -92,7 +92,6 @@ public final class Constants {
 
     public static final String PREF_KEY_STORAGE_PATH = "jmule.prefs.storage.path";
 
-    public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jmule.ACTION_REQUEST_SHUTDOWN";
     public static final String ACTION_SHOW_VPN_STATUS_PROTECTED = "org.dkf.jmule.ACTION_SHOW_VPN_STATUS_PROTECTED";
     public static final String ACTION_SHOW_VPN_STATUS_UNPROTECTED = "org.dkf.jmule.ACTION_SHOW_VPN_STATUS_UNPROTECTED";
     public static final String ACTION_START_TRANSFER_FROM_PREVIEW = "org.dkf.jmule.ACTION_START_TRANSFER_FROM_PREVIEW";

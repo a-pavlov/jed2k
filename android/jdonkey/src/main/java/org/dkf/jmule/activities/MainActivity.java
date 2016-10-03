@@ -243,18 +243,9 @@ public class MainActivity extends AbstractActivity implements
             if (action.equals(ED2KService.ACTION_SHOW_TRANSFERS)) {
                 intent.setAction(null);
                 controller.showTransfers(TransferStatus.ALL);
-            }/* else if (action.equals(Intent.ACTION_VIEW)) {
-                openTorrentUrl(intent);
-            } else if (action.equals(Constants.ACTION_START_TRANSFER_FROM_PREVIEW)) {
-                if (Ref.alive(NewTransferDialog.srRef)) {
-                    SearchFragment.startDownload(this, NewTransferDialog.srRef.get(), getString(R.string.download_added_to_queue));
-                    UXStats.instance().log(UXAction.DOWNLOAD_CLOUD_FILE_FROM_PREVIEW);
-                }
-
-            } else */if (action.equals(Constants.ACTION_REQUEST_SHUTDOWN)) {
+            } else if (action.equals(ED2KService.ACTION_REQUEST_SHUTDOWN)) {
                 LOG.info("onNewIntent", "shutdown");
                 showShutdownDialog();
-                finish();
             }
         }
 
