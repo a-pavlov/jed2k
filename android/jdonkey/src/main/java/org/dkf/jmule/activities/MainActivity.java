@@ -81,7 +81,7 @@ public class MainActivity extends AbstractActivity implements
         ServiceConnection,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MainActivity.class);
+    private static final Logger log = LoggerFactory.getLogger(MainActivity.class);
     private static final String FRAGMENTS_STACK_KEY = "fragments_stack";
     private static final String CURRENT_FRAGMENT_KEY = "current_fragment";
     private static final String LAST_BACK_DIALOG_ID = "last_back_dialog";
@@ -244,7 +244,6 @@ public class MainActivity extends AbstractActivity implements
                 intent.setAction(null);
                 controller.showTransfers(TransferStatus.ALL);
             } else if (action.equals(ED2KService.ACTION_REQUEST_SHUTDOWN)) {
-                LOG.info("onNewIntent", "shutdown");
                 showShutdownDialog();
             }
         }
@@ -262,11 +261,9 @@ public class MainActivity extends AbstractActivity implements
                     }
                 }
             } catch (Exception e) {
-                LOG.warn("Error handling download complete notification", e);
+                log.warn("Error handling download complete notification", e);
             }
         }
-
-        LOG.info("onNewIntent: {}", intent);
 
         if (intent.hasExtra(Constants.EXTRA_FINISH_MAIN_ACTIVITY)) {
             finish();
@@ -299,11 +296,11 @@ public class MainActivity extends AbstractActivity implements
                     }
                 }
             } else {
-                LOG.warn("MainActivity.onNewIntent(): Couldn't start torrent download from Intent's URI, intent.getDataString() -> null");
-                LOG.warn("(maybe URI is coming in another property of the intent object - #fragmentation)");
+                log.warn("MainActivity.onNewIntent(): Couldn't start torrent download from Intent's URI, intent.getDataString() -> null");
+                log.warn("(maybe URI is coming in another property of the intent object - #fragmentation)");
             }
         } catch (Throwable e) {
-            LOG.error("Error opening torrent from intent", e);
+            log.error("Error opening torrent from intent", e);
         }
     }
 
@@ -465,7 +462,7 @@ public class MainActivity extends AbstractActivity implements
             }
         } catch (Exception e) {
             // we can't do anything about this
-            LOG.error("Unable to detect if we have SD permissions", e);
+            log.error("Unable to detect if we have SD permissions", e);
         }
     }
 
@@ -596,7 +593,7 @@ public class MainActivity extends AbstractActivity implements
                 drawerToggle.syncState();
             }
         } catch (Exception e) { // protecting from weird android UI engine issues
-            LOG.warn("Error setting slide menu item selected", e);
+            log.warn("Error setting slide menu item selected", e);
         }
     }
 
@@ -633,18 +630,13 @@ public class MainActivity extends AbstractActivity implements
                     if (id == R.id.menu_main_settings) {
                         controller.showPreferences();
                     } else if (id == R.id.menu_main_shutdown) {
-                        LOG.info("setupMenuItems", "shutdown dialog");
                         showShutdownDialog();
-                    //} else if (id == R.id.menu_main_my_music) {
-                    //    controller.launchMyMusic();
-                    //} else if (id == R.id.menu_main_support) {
-                    //    UIUtils.openURL(MainActivity.this, Constants.SUPPORT_URL);
                     } else {
                         listMenu.setItemChecked(position, true);
                         controller.switchFragment((int) id);
                     }
                 } catch (Exception e) { // protecting from weird android UI engine issues
-                    LOG.error("Error clicking slide menu item", e);
+                    log.error("Error clicking slide menu item", e);
                 }
             }
         });
@@ -711,7 +703,7 @@ public class MainActivity extends AbstractActivity implements
                 }
             }
         } catch (Throwable e) {
-            LOG.error("Error updating main header", e);
+            log.error("Error updating main header", e);
         }
     }
 
@@ -885,7 +877,7 @@ public class MainActivity extends AbstractActivity implements
             }
 
         } catch (Exception e) {
-            LOG.error("Error when copying file from " + uri + " to temp/" + name, e);
+            log.error("Error when copying file from " + uri + " to temp/" + name, e);
             return null;
         } finally {
             IOUtils.closeQuietly(inStream);
