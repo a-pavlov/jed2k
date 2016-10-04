@@ -409,7 +409,7 @@
     <string name="storage_picker_treeuri_error">Errore imprevisto raccolta per il percorso di archiviazione</string>
     <string name="storage_picker_treeuri_not_directory">Il percorso selezionato non è una directory</string>
     <string name="storage_picker_treeuri_null">Nessun percorso di archiviazione è stato selezionato</string>
-    <string name="storage_setting_confirm_dialog_text">Mi rendo conto che tutti i file scaricati attraverso il Burro su una scheda SD, sarà rimosso ANDROID\n. L'applicazione Burro, verrà rimosso dal vostro dispositivo. Ricordiamo che il Burro non si assume alcuna responsabilità per eventuali file persi.</string>
+    <string name="storage_setting_confirm_dialog_text">Mi rendo conto che tutti i file scaricati attraverso il Burro su una scheda SD, sarà rimosso ANDROID\n. Lapplicazione Mule, verrà rimosso dal vostro dispositivo. Ricordiamo che il Burro non si assume alcuna responsabilità per eventuali file persi.</string>
     <string name="torrent_url_added">ED2K link aggiunto per i trasferimenti.</string>
     <string name="transfer_state_completed">Completato</string>
     <string name="transfer_state_downloading">Downloading</string>
