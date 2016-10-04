@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <!-- Notification template -->
-  <dimen name="notification_big_icon_height">64dp</dimen>
-  <dimen name="notification_big_icon_width">64dp</dimen>
+  <dimen name="notification_big_icon_height">40dp</dimen>
+  <dimen name="notification_big_icon_width">40dp</dimen>
   <dimen name="notification_info_container_padding_left">8dp</dimen>
   <dimen name="notification_info_container_padding_bottom">4dp</dimen>
   <dimen name="notification_action_padding">8dp</dimen>

@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">library</string>
-    <string name="INTENT_OPEN">org.dkf.jed2k.android.INTENT_OPEN</string>
-    <string name="INTENT_CLOSE">org.dkf.jed2k.android.INTENT_CLOSE</string>
+    <string name="app_name" translatable="false">library</string>
+    <string name="INTENT_OPEN" translatable="false">org.dkf.jed2k.android.INTENT_OPEN</string>
+    <string name="INTENT_CLOSE" translatable="false">org.dkf.jed2k.android.INTENT_CLOSE</string>
     <string name="media_type_all_types">All Types</string>
     <string name="media_type_documents">Books/Docs</string>
     <string name="media_type_applications">Applications</string>

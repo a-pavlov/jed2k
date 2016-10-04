@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">library</string>
+    <string name="jed2k_is_running" translatable="false">ED2K сервис запущен</string>
+    <string name="transfer_finished">Закачка завершена</string>
+    <string name="transfer_io_error">Ошибка записи файла</string>
+    <string name="media_type_video">Видео</string>
+    <string name="media_type_torrents">Торрент</string>
+    <string name="media_type_images">Изображение</string>
+    <string name="media_type_documents">Документ</string>
+    <string name="media_type_cd_images">CD диск</string>
+    <string name="media_type_audio">Аудио</string>
+    <string name="media_type_archives">Архив</string>
+    <string name="media_type_applications">Приложение</string>
+    <string name="media_type_all_types">Все</string>
+</resources>
