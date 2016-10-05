@@ -85,14 +85,14 @@
     <string name="please_enter_valid_url">Por favor, escriba un enlace válido</string>
     <string name="transfers_context_resume_all_torrent_transfers">Reanudar todas las transferencias Torrent</string>
     <string name="saving_to_internal_memory_description">También tienes un SD Card (%1$s disp.)</string>
-    <string name="android_will_erase_files_if_frostwire_is_uninstalled">Android borrará los archivos descargados si FrostWire es desinstalado.</string>
+    <string name="android_will_erase_files_if_frostwire_is_uninstalled">Android borrará los archivos descargados si Mula es desinstalado.</string>
     <string name="please_check_connection_status_before_resuming_download">Por favor, revisa el estado de tu conexión a Internet antes de reanudar.</string>
     <string name="confirm_download">Confirmar Descarga</string>
     <string name="sdcard_storage">Almacenamiento SD</string>
     <string name="available">disponible</string>
     <string name="storage_setting_confirm_dialog_title">TARJETA SD</string>
     <string name="cant_resume_torrent_transfers"> "Conectividad"</string>
-    <string name="storage_setting_warning">AVISO: Todos los archivos descargados por FrostWire en la tarjeta SD serán borrados por ANDROID si FrostWire es desinstalado.</string>
+    <string name="storage_setting_warning">AVISO: Todos los archivos descargados por Mula en la tarjeta SD serán borrados por ANDROID si Mula es desinstalado.</string>
     <string name="device_storage">Almacenamiento del Dispositivo</string>
     <string name="saving_to_internal_memory">Guardando en la Memoria Interna</string>
     <string name="storage_setting_confirm_dialog_text">Entiendo que todos los archivos descargados a la tarjeta SD por Mule on Android serán borrados POR ANDROID en el momento que la aplicación Mule on Android sea desinstalada de este dispositivo y no voy a mantener a Mule como responsable de archivos perdidos.</string>
@@ -100,7 +100,7 @@
     <string name="app_shutdown_dlg_message">Esto cancelará todas las transferencias y servicios ejecutados en segundo plano. ¿Estás seguro?</string>
     <string name="app_shutdown_dlg_title">Cerrar</string>
     <string name="try_other_keywords">Intenta otras palabras</string>
-    <string name="try_frostwire_plus_for_more_results"><u>Prueba FrostWire Plus para más resultados</u></string>
+    <string name="try_frostwire_plus_for_more_results"><u>Prueba Mula para más resultados</u></string>
     <string name="your_installation_is_complete">Instalación completa.</string>
     <string name="thank_you">¡Gracias!</string>
     <string name="keep_in_touch">¡Mantente en contacto!</string>
