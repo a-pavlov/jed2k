@@ -134,8 +134,8 @@
     <string name="app_shutdown_dlg_message">This will shutdown all transfers and background services. Are you sure?</string>
     <string name="dummy_build" translatable="false">[build number]</string>
     <string name="try_other_keywords">Try fewer/different keywords</string>
-    <string name="try_frostwire_plus_for_more_results">Try Mule on Android for more results</string>
-    <string name="your_installation_is_complete">Your installation is complete.</string>
+    <string name="try_frostwire_plus_for_more_results" translatable="false">Try Mule on Android for more results</string>
+    <string name="your_installation_is_complete" translatable="false">Your installation is complete.</string>
     <string name="thank_you">Thank you!</string>
     <string name="keep_in_touch">Keep in touch!</string>
     <string name="why_we_need_storage_permissions">Why we need storage permissions.</string>
