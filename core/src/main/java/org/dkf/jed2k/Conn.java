@@ -381,6 +381,12 @@ public class Conn {
                     log.warn("transfer {} is not exists", hash);
                 }
             }
+            else if(parts[0].compareTo("startupnp") == 0) {
+                s.startUPnP();
+            }
+            else if (parts[0].compareTo("stopupnp") == 0) {
+                s.stopUPnP();
+            }
         }
 
         for(TransferHandle handle: handles) {

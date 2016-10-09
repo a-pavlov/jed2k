@@ -46,6 +46,7 @@ public class Session extends Thread {
     private AtomicBoolean finished = new AtomicBoolean(false);
     private boolean aborted = false;
     private Statistics accumulator = new Statistics();
+    private UpnpServiceImpl upnpService = new UpnpServiceImpl();
 
 
     // from last established server connection
@@ -632,7 +633,7 @@ public class Session extends Thread {
         return Pair.make(dr, ur);
     }
 
-    private void startUPnP() {
+    public void startUPnP() {
         try {
             PortMapping[] desiredMapping = new PortMapping[2];
             desiredMapping[0] = new PortMapping(4661, InetAddress.getLocalHost().getHostAddress(),
@@ -642,14 +643,16 @@ public class Session extends Thread {
                     PortMapping.Protocol.UDP, " UDP POT Forwarding");
 
 
-            UpnpServiceImpl upnpService = new UpnpServiceImpl();
             RegistryListener registryListener = new PortMappingListener(desiredMapping);
             upnpService.getRegistry().addListener(registryListener);
-
             upnpService.getControlPoint().search();
         }
         catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void stopUPnP() {
+        upnpService.shutdown();
     }
 }
