@@ -46,7 +46,7 @@ public class Session extends Thread {
     private AtomicBoolean finished = new AtomicBoolean(false);
     private boolean aborted = false;
     private Statistics accumulator = new Statistics();
-    private UpnpServiceImpl upnpService = new UpnpServiceImpl();
+    private UpnpServiceImpl upnpService;
 
 
     // from last established server connection
@@ -227,6 +227,7 @@ public class Session extends Thread {
             // stop service
             diskIOService.shutdown();
 
+            stopUPnP();
             log.info("Session finished");
             finished.set(true);
 
@@ -635,12 +636,16 @@ public class Session extends Thread {
 
     public void startUPnP() {
         try {
-            PortMapping[] desiredMapping = new PortMapping[2];
-            desiredMapping[0] = new PortMapping(4661, InetAddress.getLocalHost().getHostAddress(),
+            stopUPnP();
+            assert upnpService == null;
+            upnpService = new UpnpServiceImpl();
+            PortMapping[] desiredMapping = new PortMapping[1];
+            log.info("start upnp for {}", InetAddress.getLocalHost().getHostAddress());
+            desiredMapping[0] = new PortMapping(settings.listenPort, "192.168.0.60",
                     PortMapping.Protocol.TCP, " TCP POT Forwarding");
 
-            desiredMapping[1] = new PortMapping(4661, InetAddress.getLocalHost().getHostAddress(),
-                    PortMapping.Protocol.UDP, " UDP POT Forwarding");
+            //desiredMapping[1] = new PortMapping(settings.listenPort, InetAddress.getLocalHost().getHostAddress(),
+            //        PortMapping.Protocol.UDP, " UDP POT Forwarding");
 
 
             RegistryListener registryListener = new PortMappingListener(desiredMapping);
@@ -653,6 +658,9 @@ public class Session extends Thread {
     }
 
     public void stopUPnP() {
-        upnpService.shutdown();
+        if (upnpService != null) {
+            upnpService.shutdown();
+            upnpService = null;
+        }
     }
 }
