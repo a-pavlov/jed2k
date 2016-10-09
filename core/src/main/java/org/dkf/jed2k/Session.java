@@ -7,10 +7,6 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
-import org.fourthline.cling.UpnpServiceImpl;
-import org.fourthline.cling.registry.RegistryListener;
-import org.fourthline.cling.support.igd.PortMappingListener;
-import org.fourthline.cling.support.model.PortMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +21,8 @@ import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.bitlet.weupnp.*;
 
 public class Session extends Thread {
     private static Logger log = LoggerFactory.getLogger(Session.class);
@@ -46,7 +44,6 @@ public class Session extends Thread {
     private AtomicBoolean finished = new AtomicBoolean(false);
     private boolean aborted = false;
     private Statistics accumulator = new Statistics();
-    private UpnpServiceImpl upnpService;
 
 
     // from last established server connection
@@ -635,32 +632,9 @@ public class Session extends Thread {
     }
 
     public void startUPnP() {
-        try {
-            stopUPnP();
-            assert upnpService == null;
-            upnpService = new UpnpServiceImpl();
-            PortMapping[] desiredMapping = new PortMapping[1];
-            log.info("start upnp for {}", InetAddress.getLocalHost().getHostAddress());
-            desiredMapping[0] = new PortMapping(settings.listenPort, "192.168.0.60",
-                    PortMapping.Protocol.TCP, " TCP POT Forwarding");
-
-            //desiredMapping[1] = new PortMapping(settings.listenPort, InetAddress.getLocalHost().getHostAddress(),
-            //        PortMapping.Protocol.UDP, " UDP POT Forwarding");
-
-
-            RegistryListener registryListener = new PortMappingListener(desiredMapping);
-            upnpService.getRegistry().addListener(registryListener);
-            upnpService.getControlPoint().search();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void stopUPnP() {
-        if (upnpService != null) {
-            upnpService.shutdown();
-            upnpService = null;
-        }
+
     }
 }

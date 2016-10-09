@@ -128,7 +128,7 @@ public class Conn {
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
         startSettings.serverPingTimeout = 0;
-        startSettings.listenPort = 9002;
+        startSettings.listenPort = 6991;
 
         LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
         String sp = System.getProperty("session.peers");

@@ -18,13 +18,6 @@
         </license>
     </licenses>
 
-    <repositories>
-        <repository>
-            <id>4thline</id>
-            <url>http://4thline.org/m2</url>
-        </repository>
-    </repositories>
-
     <build>
         <defaultGoal>deploy</defaultGoal>
         <finalName>${project.artifactId}-${project.version}</finalName>
@@ -165,16 +158,10 @@
             <version>2.7.5</version>
         </dependency>
 
-		  <dependency>
-			<groupId>org.fourthline.cling</groupId>
-			<artifactId>cling-core</artifactId>
-			<version>2.1.2-SNAPSHOT</version>
-		</dependency>
-
         <dependency>
-            <groupId>org.fourthline.cling</groupId>
-            <artifactId>cling-support</artifactId>
-            <version>2.1.2-SNAPSHOT</version>
+            <groupId>org.bitlet</groupId>
+            <artifactId>weupnp</artifactId>
+            <version>RELEASE</version>
         </dependency>
     </dependencies>
 </project>
