@@ -3,7 +3,7 @@ apply from: "$rootDir/dependencies.gradle"
 apply plugin: 'maven'
 
 group = 'org.dkf'
-version = '0.0.1'
+version = '0.0.3'
 
 description = """jed2k"""
 
