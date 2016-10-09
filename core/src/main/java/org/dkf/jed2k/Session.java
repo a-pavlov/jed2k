@@ -7,10 +7,15 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
+import org.fourthline.cling.UpnpServiceImpl;
+import org.fourthline.cling.registry.RegistryListener;
+import org.fourthline.cling.support.igd.PortMappingListener;
+import org.fourthline.cling.support.model.PortMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -625,5 +630,26 @@ public class Session extends Thread {
         long dr = accumulator.downloadRate();
         long ur = accumulator.uploadRate();
         return Pair.make(dr, ur);
+    }
+
+    private void startUPnP() {
+        try {
+            PortMapping[] desiredMapping = new PortMapping[2];
+            desiredMapping[0] = new PortMapping(4661, InetAddress.getLocalHost().getHostAddress(),
+                    PortMapping.Protocol.TCP, " TCP POT Forwarding");
+
+            desiredMapping[1] = new PortMapping(4661, InetAddress.getLocalHost().getHostAddress(),
+                    PortMapping.Protocol.UDP, " UDP POT Forwarding");
+
+
+            UpnpServiceImpl upnpService = new UpnpServiceImpl();
+            RegistryListener registryListener = new PortMappingListener(desiredMapping);
+            upnpService.getRegistry().addListener(registryListener);
+
+            upnpService.getControlPoint().search();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 }
