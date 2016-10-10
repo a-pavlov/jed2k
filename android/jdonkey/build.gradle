@@ -58,5 +58,4 @@ android {
 
 dependencies {
     compile project(':service')
-    //compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
 }

@@ -643,9 +643,10 @@ public class Session extends Thread {
             @Override
             public void run() {
                 assert discover != null;
+                BaseErrorCode ec = ErrorCode.NO_ERROR;
+                // TODO - fix unsynchronized access to settings
+                int port = settings.listenPort;
                 try {
-                    // TODO - fix unsynchronized access to settings
-                    int port = settings.listenPort;
                     discover.discover();
                     device = discover.getValidGateway();
                     if (device != null) {
@@ -657,20 +658,31 @@ public class Session extends Thread {
                                 log.info("port mapped {}", port);
                             } else {
                                 log.info("mapping error for port {}", port);
+                                ec = ErrorCode.PORT_MAPPING_ERROR;
                             }
                         } else {
                             log.debug("port {} already mapped", port);
+                            ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                         }
                     } else {
                         log.debug("can not find gateway device");
+                        ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_IO_ERROR;
                 } catch (SAXException e) {
                     e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_SAX_ERROR;
                 } catch (ParserConfigurationException e) {
                     e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_CONFIG_ERROR;
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_EXCEPTION;
                 }
+
+                pushAlert(new PortMapAlert(port, port, ec));
             }
         });
     }
@@ -688,9 +700,9 @@ public class Session extends Thread {
         if (device != null) {
             try {
                 if (device.deletePortMapping(settings.listenPort, "TCP")) {
-                    log.info("port mapping deleted {}", settings.listenPort);
+                    log.info("port mapping removed {}", settings.listenPort);
                 } else {
-                    log.info("port mapping delete failed");
+                    log.error("port mapping removing failed");
                 }
             } catch (IOException e) {
                 e.printStackTrace();

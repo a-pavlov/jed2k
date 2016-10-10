@@ -377,7 +377,11 @@ public class ED2KService extends Service {
                         }
                     });
                 }
-            } else {
+            } else if (a instanceof PortMapAlert) {
+                for (final AlertListener ls : listeners) ls.onPortMapAlert((PortMapAlert) a);
+                log.info("port mapped {} {}", ((PortMapAlert)a).port, ((PortMapAlert)a).ec.getDescription());
+            }
+            else {
                 log.debug("received unhandled alert {}", a);
             }
         }
