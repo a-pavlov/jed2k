@@ -283,6 +283,8 @@ public final class Engine implements AlertListener {
                         startServices();
                     }
 
+                    forwardPorts(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
+
                     //registerStatusReceiver(context);
                 } else {
                     throw new IllegalArgumentException("IBinder on service connected class is not instance of ED2KService.ED2KServiceBinder");
@@ -364,6 +366,7 @@ public final class Engine implements AlertListener {
     public void setVibrateOnDownloadCompleted(boolean vibrate) { if (service != null) service.setVibrateOnDownloadCompleted(vibrate); }
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
+    public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
 
     public void configureServices() {
         if (service != null) service.configureSession();

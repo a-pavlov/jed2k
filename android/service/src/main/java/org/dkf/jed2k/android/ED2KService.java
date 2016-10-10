@@ -45,6 +45,7 @@ public class ED2KService extends Service {
     private Binder binder;
 
     private boolean vibrateOnDownloadCompleted = false;
+    private boolean forwardPorts = false;
 
     /**
      * run notifications in ui thread
@@ -196,6 +197,7 @@ public class ED2KService extends Service {
         session.start();
         startBackgroundOperations();
         startingInProgress = false;
+        if (forwardPorts) session.startUPnP(); else session.stopUPnP();
         log.info("session started!");
     }
 
@@ -725,6 +727,17 @@ public class ED2KService extends Service {
 
     public void setVibrateOnDownloadCompleted(boolean vibrate) {
         this.vibrateOnDownloadCompleted = vibrate;
+    }
+
+    public void setForwardPort(boolean forward) {
+        forwardPorts = forward;
+        if (session != null) {
+            if (forward) {
+                session.startUPnP();
+            } else {
+                session.stopUPnP();
+            }
+        }
     }
 
     public void setListenPort(int port) {
