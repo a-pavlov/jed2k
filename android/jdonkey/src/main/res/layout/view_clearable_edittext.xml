@@ -23,7 +23,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/clearable_edittext_background" >
 
-    <org.dkf.jdonkey.views.FWAutoCompleteTextView
+    <org.dkf.jmule.views.FWAutoCompleteTextView
         android:id="@+id/view_clearable_edit_text_input"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

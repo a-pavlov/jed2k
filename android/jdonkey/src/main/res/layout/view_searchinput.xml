@@ -39,7 +39,7 @@
         android:focusableInTouchMode="true"
         android:orientation="horizontal" />
 
-    <org.dkf.jdonkey.views.ClearableEditTextView
+    <org.dkf.jmule.views.ClearableEditTextView
         android:id="@+id/view_search_input_text_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

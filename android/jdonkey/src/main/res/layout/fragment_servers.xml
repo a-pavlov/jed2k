@@ -6,7 +6,7 @@
               android:layout_width="match_parent"
               android:layout_height="fill_parent">
 
-    <org.dkf.jdonkey.views.RichNotification
+    <org.dkf.jmule.views.RichNotification
         android:id="@+id/fragment_servers_service_stopped_notification"
         frostwire:rich_notification_icon="@null"
         frostwire:rich_notification_title="@string/service_stopped"

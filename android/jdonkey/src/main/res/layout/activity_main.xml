@@ -41,21 +41,21 @@
 
                 <fragment
                     android:id="@+id/activity_main_fragment_servers"
-                    android:name="org.dkf.jdonkey.fragments.ServersFragment"
+                    android:name="org.dkf.jmule.fragments.ServersFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:tag="servers_fragment" />
 
                 <fragment
                     android:id="@+id/activity_main_fragment_search"
-                    android:name="org.dkf.jdonkey.fragments.SearchFragment"
+                    android:name="org.dkf.jmule.fragments.SearchFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:tag="search_fragment" />
 
                 <fragment
                     android:id="@+id/activity_main_fragment_transfers"
-                    android:name="org.dkf.jdonkey.fragments.TransfersFragment"
+                    android:name="org.dkf.jmule.fragments.TransfersFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:tag="transfers_fragment" />

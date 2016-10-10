@@ -24,7 +24,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <org.dkf.jdonkey.views.SearchParametersView
+    <org.dkf.jmule.views.SearchParametersView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fragment_search_parameters"
@@ -39,12 +39,12 @@
             android:indeterminate="true"
             android:progress="25"/>
 
-    <org.dkf.jdonkey.views.SearchInputView
+    <org.dkf.jmule.views.SearchInputView
             android:id="@+id/fragment_search_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <org.dkf.jdonkey.views.RichNotification
+    <org.dkf.jmule.views.RichNotification
             android:id="@+id/fragment_search_rating_reminder_notification"
             frostwire:rich_notification_icon="@null"
             frostwire:rich_notification_title="@string/server_not_connected"
@@ -74,7 +74,7 @@
 
     </LinearLayout>
 
-    <org.dkf.jdonkey.views.SwipeLayout
+    <org.dkf.jmule.views.SwipeLayout
             android:id="@+id/fragment_search_swipe"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -84,7 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <org.dkf.jdonkey.views.SearchProgressView
+            <org.dkf.jmule.views.SearchProgressView
                     android:id="@+id/fragment_search_search_progress"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
@@ -96,6 +96,6 @@
                     android:background="@color/basic_white"
                     android:fastScrollEnabled="true"/>
         </FrameLayout>
-    </org.dkf.jdonkey.views.SwipeLayout>
+    </org.dkf.jmule.views.SwipeLayout>
 
 </LinearLayout>

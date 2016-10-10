@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/fragment_about"
-        android:name="org.dkf.jdonkey.fragments.AboutFragment"
+        android:name="org.dkf.jmule.fragments.AboutFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_about"/>

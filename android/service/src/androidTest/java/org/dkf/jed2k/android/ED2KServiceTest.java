@@ -97,6 +97,16 @@ public class ED2KServiceTest {
             }
 
             @Override
+            public void onTransferAdded(TransferAddedAlert alert) {
+
+            }
+
+            @Override
+            public void onTransferRemoved(TransferRemovedAlert alert) {
+
+            }
+
+            @Override
             public void onTransferPaused(TransferPausedAlert alert) {
 
             }

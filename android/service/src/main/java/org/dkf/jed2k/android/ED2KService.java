@@ -4,12 +4,14 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 import org.dkf.jed2k.*;
@@ -22,20 +24,27 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ED2KService extends Service {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
     private final Logger log = LoggerFactory.getLogger(ED2KService.class);
 
-    public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jdonkey.android.ACTION_SHOW_TRANSFERS";
-    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jdonkey.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
+    public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jmule.android.ACTION_SHOW_TRANSFERS";
+    public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN";
+    public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
+
+    private final static long[] VENEZUELAN_VIBE = buildVenezuelanVibe();
 
     private Binder binder;
+
+    private boolean vibrateOnDownloadCompleted = false;
 
     /**
      * run notifications in ui thread
@@ -88,10 +97,34 @@ public class ED2KService extends Service {
 
     private int smallImage = R.drawable.default_art;
 
+    final AtomicBoolean permanentNotification = new AtomicBoolean(false);
+    private RemoteViews notificationViews;
+    private Notification notificationObject;
+
+    /**
+     * Localizable Number Format constant for the current default locale.
+     */
+    private static NumberFormat NUMBER_FORMAT0; // localized "#,##0"
+
+    public static final String GENERAL_UNIT_KBPSEC = "KB/s";
+
+    static {
+        NUMBER_FORMAT0 = NumberFormat.getNumberInstance(Locale.getDefault());
+        NUMBER_FORMAT0.setMaximumFractionDigits(0);
+        NUMBER_FORMAT0.setMinimumFractionDigits(0);
+        NUMBER_FORMAT0.setGroupingUsed(true);
+    }
+
+    public static String rate2speed(double rate) {
+        return NUMBER_FORMAT0.format(rate) + " " + GENERAL_UNIT_KBPSEC;
+    }
+
     /**
      * Notification manager
      */
     private NotificationManager mNotificationManager;
+
+    int lastStartId = -1;
 
     public ED2KService() {
         binder = new ED2KServiceBinder();
@@ -119,10 +152,13 @@ public class ED2KService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        setupNotification();
 
         if (intent == null) {
             return 0;
         }
+
+        lastStartId = startId;
 
         log.info("ED2K service started by this intent: {} flags {} startId {}", intent, flags, startId);
         return START_STICKY;
@@ -149,6 +185,7 @@ public class ED2KService extends Service {
         // stop alerts processing
         // need additional code to guarantee all alerts were processed
         if (scheduledExecutorService != null) scheduledExecutorService.shutdown();
+        log.info("ED2KService destruction completed");
     }
 
     void startSession() {
@@ -243,8 +280,7 @@ public class ED2KService extends Service {
         }
     }
 
-    private void saveResumeData(final TransferResumeDataAlert a) {
-        final TransferResumeDataAlert alert = (TransferResumeDataAlert)a;
+    private void saveResumeData(final TransferResumeDataAlert alert) {
         FileOutputStream stream = null;
         try {
             stream = openFileOutput("rd_" + alert.hash.toString(), MODE_PRIVATE);
@@ -261,6 +297,12 @@ public class ED2KService extends Service {
         catch(JED2KException e) {
             log.error("save resume data serialization {} failed {}", alert.hash, e);
         }
+        catch(Exception e) {
+            log.error("save resume data common error {}", e);
+        }
+        catch(Throwable e) {
+            log.error("save resume data throw error {}", e);
+        }
         finally {
             if (stream != null) {
                 try {
@@ -274,81 +316,77 @@ public class ED2KService extends Service {
     }
 
     public void processAlert(final Alert a) {
-        if (a instanceof ListenAlert) {
-            for(final AlertListener ls: listeners) ls.onListen((ListenAlert)a);
-        } else if (a instanceof SearchResultAlert) {
-            log.info("search result received");
-            for(final AlertListener ls: listeners)  ls.onSearchResult((SearchResultAlert)a);
-        }
-        else if (a instanceof ServerMessageAlert) {
-            for(final AlertListener ls: listeners) ls.onServerMessage((ServerMessageAlert)a);
-        }
-        else if (a instanceof ServerStatusAlert) {
-            for(final AlertListener ls: listeners) ls.onServerStatus((ServerStatusAlert)a);
-        }
-        else if (a instanceof ServerConectionClosed) {
-            for(final AlertListener ls: listeners) ls.onServerConnectionClosed((ServerConectionClosed)a);
-        }
-        else if (a instanceof ServerIdAlert) {
-            for(final AlertListener ls: listeners) ls.onServerIdAlert((ServerIdAlert) a);
-        }
-        else if (a instanceof ServerConnectionAlert) {
-            for(final AlertListener ls: listeners) ls.onServerConnectionAlert((ServerConnectionAlert)a);
-        }
-        else if (a instanceof TransferResumedAlert) {
-            for(final AlertListener ls: listeners) ls.onTransferResumed((TransferResumedAlert) a);
-        }
-        else if (a instanceof TransferPausedAlert) {
-            for(final AlertListener ls: listeners) ls.onTransferPaused((TransferPausedAlert) a);
-        }
-        else if (a instanceof TransferAddedAlert) {
-            localHashes.put(((TransferAddedAlert) a).hash, 0);
-            log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
-            session.saveResumeData();
-        }
-        else if (a instanceof TransferRemovedAlert) {
-            log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
-            localHashes.remove(((TransferRemovedAlert) a).hash);
-            removeResumeDataFile(((TransferRemovedAlert) a).hash);
-        }
-        else if (a instanceof TransferResumeDataAlert) {
-            saveResumeData((TransferResumeDataAlert)a);
-        }
-        else if (a instanceof TransferFinishedAlert) {
-            log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
-            session.saveResumeData();
-            notificationHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    createTransferNotification(getResources().getString(R.string.transfer_finished), EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION, ((TransferFinishedAlert) a).hash);
-                }
-            });
-        }
-        else if (a instanceof TransferDiskIOErrorAlert) {
-            TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert)a;
-            log.error("disk i/o error: {}", errorAlert.ec);
-            long lastIOErrorTime = 0;
-            if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
-                lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);
-            }
-
-            transfersIOErrorsOrder.put(errorAlert.hash, errorAlert.getCreationTime());
-
-            // dispatch alert if no i/o errors on this transfer in last 10 seconds
-            if (errorAlert.getCreationTime() - lastIOErrorTime > 10*1000) {
-                for(final AlertListener ls: listeners) ls.onTransferIOError(errorAlert);
+        try {
+            if (a instanceof ListenAlert) {
+                for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
+            } else if (a instanceof SearchResultAlert) {
+                log.info("search result received");
+                for (final AlertListener ls : listeners) ls.onSearchResult((SearchResultAlert) a);
+            } else if (a instanceof ServerMessageAlert) {
+                for (final AlertListener ls : listeners) ls.onServerMessage((ServerMessageAlert) a);
+            } else if (a instanceof ServerStatusAlert) {
+                for (final AlertListener ls : listeners) ls.onServerStatus((ServerStatusAlert) a);
+            } else if (a instanceof ServerConectionClosed) {
+                for (final AlertListener ls : listeners) ls.onServerConnectionClosed((ServerConectionClosed) a);
+            } else if (a instanceof ServerIdAlert) {
+                for (final AlertListener ls : listeners) ls.onServerIdAlert((ServerIdAlert) a);
+            } else if (a instanceof ServerConnectionAlert) {
+                for (final AlertListener ls : listeners) ls.onServerConnectionAlert((ServerConnectionAlert) a);
+            } else if (a instanceof TransferResumedAlert) {
+                for (final AlertListener ls : listeners) ls.onTransferResumed((TransferResumedAlert) a);
+            } else if (a instanceof TransferPausedAlert) {
+                for (final AlertListener ls : listeners) ls.onTransferPaused((TransferPausedAlert) a);
+            } else if (a instanceof TransferAddedAlert) {
+                localHashes.put(((TransferAddedAlert) a).hash, 0);
+                log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
+                session.saveResumeData();
+                for (final AlertListener ls : listeners) ls.onTransferAdded((TransferAddedAlert) a);
+            } else if (a instanceof TransferRemovedAlert) {
+                log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
+                localHashes.remove(((TransferRemovedAlert) a).hash);
+                removeResumeDataFile(((TransferRemovedAlert) a).hash);
+                for (final AlertListener ls : listeners) ls.onTransferRemoved((TransferRemovedAlert) a);
+            } else if (a instanceof TransferResumeDataAlert) {
+                saveResumeData((TransferResumeDataAlert) a);
+            } else if (a instanceof TransferFinishedAlert) {
+                log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
+                session.saveResumeData();
                 notificationHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        createTransferNotification(getResources().getString(R.string.transfer_io_error), "", ((TransferDiskIOErrorAlert) a).hash);
+                        createTransferNotification(getResources().getString(R.string.transfer_finished), EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION, ((TransferFinishedAlert) a).hash);
                     }
                 });
+            } else if (a instanceof TransferDiskIOErrorAlert) {
+                TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert) a;
+                log.error("disk i/o error: {}", errorAlert.ec);
+                long lastIOErrorTime = 0;
+                if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
+                    lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);
+                }
+
+                transfersIOErrorsOrder.put(errorAlert.hash, errorAlert.getCreationTime());
+
+                // dispatch alert if no i/o errors on this transfer in last 10 seconds
+                if (errorAlert.getCreationTime() - lastIOErrorTime > 10 * 1000) {
+                    for (final AlertListener ls : listeners) ls.onTransferIOError(errorAlert);
+                    notificationHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            createTransferNotification(getResources().getString(R.string.transfer_io_error), "", ((TransferDiskIOErrorAlert) a).hash);
+                        }
+                    });
+                }
+            } else {
+                log.debug("received unhandled alert {}", a);
             }
         }
-        else {
-            log.debug("received unhandled alert {}", a);
+        catch(Exception e) {
+            log.error("processing alert {} error {}", a, e);
         }
     }
+
+
 
     private void startBackgroundOperations() {
         assert(session != null);
@@ -372,6 +410,14 @@ public class ED2KService extends Service {
                 session.saveResumeData();
             }
         }, 60, 200, TimeUnit.SECONDS);
+
+        // every 5 seconds execute permanent notification
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                updatePermanentStatusNotification();
+            }
+        }, 1, 6, TimeUnit.SECONDS);
 
         scheduledExecutorService.submit(new Runnable() {
             @Override
@@ -444,6 +490,68 @@ public class ED2KService extends Service {
         });
     }
 
+    private void updatePermanentStatusNotification() {
+
+        if (!permanentNotification.get()) return;
+
+        if (notificationViews == null || notificationObject == null) {
+            log.warn("Notification views or object are null, review your logic");
+            return;
+        }
+
+        //  format strings
+        String sDown = rate2speed(getDownloadUploadRate().left / 1024);
+
+        // number of uploads (seeding) and downloads
+        int downloads = getTransfers().size();
+
+        // Transfers status.
+        notificationViews.setTextViewText(R.id.view_permanent_status_text_downloads, downloads + " @ " + sDown);
+
+        final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.notify(ED2K_STATUS_NOTIFICATION, notificationObject);
+        }
+    }
+
+    private void setupNotification() {
+        RemoteViews remoteViews = new RemoteViews(this.getPackageName(),
+                R.layout.view_permanent_status_notification);
+
+        PendingIntent showFrostWireIntent = createShowFrostwireIntent();
+        PendingIntent shutdownIntent = createShutdownIntent();
+
+        remoteViews.setOnClickPendingIntent(R.id.view_permanent_status_shutdown, shutdownIntent);
+        remoteViews.setOnClickPendingIntent(R.id.view_permanent_status_text_title, showFrostWireIntent);
+
+        Notification notification = new NotificationCompat.Builder(this).
+                setSmallIcon(R.drawable.mule).
+                setContentIntent(showFrostWireIntent).
+                setContent(remoteViews).
+                build();
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+
+        notificationViews = remoteViews;
+        notificationObject = notification;
+        log.info("setup notification {} {}", notificationViews!=null?"view ok":"view null", notificationObject!=null?"notification obj ok":"notificatiob obj null");
+    }
+
+    private PendingIntent createShowFrostwireIntent() {
+        return PendingIntent.getActivity(getApplicationContext(),
+                0,
+                new Intent(ACTION_SHOW_TRANSFERS)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                0);
+    }
+
+    private PendingIntent createShutdownIntent() {
+        return PendingIntent.getActivity(getApplicationContext(),
+                1,
+                new Intent(ACTION_REQUEST_SHUTDOWN).
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                0);
+    }
+
     private void buildNotification(final String title, final String summary, final String extra) {
         Intent intentShowTransfers = new Intent(ACTION_SHOW_TRANSFERS);
         if (!extra.isEmpty()) intentShowTransfers.putExtra(extra, true);
@@ -482,6 +590,8 @@ public class ED2KService extends Service {
                 .setContent(mNotificationTemplate)
                 .setUsesChronometer(true)
                 .build();
+
+        notification.vibrate = vibrateOnDownloadCompleted?VENEZUELAN_VIBE:null;
         //notification.flags = Notification.FLAG_ONGOING_EVENT;
 
 /*
@@ -566,7 +676,9 @@ public class ED2KService extends Service {
     public void shutdown(){
         stopServices();
         stopForeground(true);
-        stopSelf(-1);
+        stopSelf(lastStartId);
+        boolean b = stopSelfResult(lastStartId);
+        log.info("stop self {} last id: {}", b?"true":"false", lastStartId);
     }
 
     public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
@@ -607,6 +719,10 @@ public class ED2KService extends Service {
         settings.clientName = name;
     }
 
+    public void setVibrateOnDownloadCompleted(boolean vibrate) {
+        this.vibrateOnDownloadCompleted = vibrate;
+    }
+
     public void setListenPort(int port) {
         settings.listenPort = port;
     }
@@ -621,5 +737,25 @@ public class ED2KService extends Service {
         }
 
         return Pair.make(0l, 0l);
+    }
+
+    private static long[] buildVenezuelanVibe() {
+
+        long shortVibration = 80;
+        long mediumVibration = 100;
+        long shortPause = 100;
+        long mediumPause = 150;
+        long longPause = 180;
+
+        return new long[]{0, shortVibration, longPause, shortVibration, shortPause, shortVibration, shortPause, shortVibration, mediumPause, mediumVibration};
+    }
+
+    /**
+     * firstly setup notification and prepare all controls
+     * next set flag to avoid unsynchronized access to controls
+     * @param value
+     */
+    public void setPermanentNotification(boolean value) {
+        permanentNotification.set(value);
     }
 }
