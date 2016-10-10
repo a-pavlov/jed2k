@@ -36,6 +36,7 @@ import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
+import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.adapters.SearchResultListAdapter;
 import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.core.Constants;
@@ -72,6 +73,7 @@ public final class SearchFragment extends AbstractFragment implements
     private final FileTypeCounter fileTypeCounter;
     private final SparseArray<Byte> toTheRightOf = new SparseArray<>(6);
     private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(6);
+    private int searchCount = 0;
 
     private boolean awaitingResults = false;
 
@@ -160,14 +162,6 @@ public final class SearchFragment extends AbstractFragment implements
         searchParametersView = findView(view, R.id.fragment_search_parameters);
         searchParametersView.setVisibility(View.GONE);
 
-        /*promotions = findView(view, R.id.fragment_search_promos);
-        promotions.setOnPromotionClickListener(new OnPromotionClickListener() {
-            @Override
-            public void onPromotionClick(PromotionsView v, Slide slide) {
-                startPromotionDownload(slide);
-            }
-        });
-*/
         searchProgress = findView(view, R.id.fragment_search_search_progress);
         searchProgress.setCurrentQueryReporter(this);
 
@@ -193,7 +187,7 @@ public final class SearchFragment extends AbstractFragment implements
         });
 
         adRect = (AdView)findView(view, R.id.adViewRect);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice("9e0d331c").build();
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
         adRect.loadAd(adRequest);
         adRect.setVisibility(View.GONE);
         adRect.setAdListener(new AdListener() {
@@ -321,6 +315,9 @@ public final class SearchFragment extends AbstractFragment implements
             currentQuery = null;
             searchProgress.setProgressEnabled(false);
             showSearchView(getView());
+            if (++searchCount % 3 == 0) {
+                ((MainActivity)getActivity()).showInterstitial();
+            }
         }
     }
 
@@ -340,6 +337,9 @@ public final class SearchFragment extends AbstractFragment implements
         refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
         showSearchView(getView());
+        if (++searchCount % 3 == 0) {
+            ((MainActivity)getActivity()).showInterstitial();
+        }
     }
 
     private void showSearchView(View view) {

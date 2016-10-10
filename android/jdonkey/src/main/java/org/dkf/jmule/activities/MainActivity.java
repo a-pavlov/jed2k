@@ -36,6 +36,9 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.android.ED2KService;
@@ -102,6 +105,8 @@ public class MainActivity extends AbstractActivity implements
     private final Stack<Integer> fragmentsStack;
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
+    private InterstitialAd mInterstitialAd;
+    private boolean applicationExit = false;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -150,8 +155,6 @@ public class MainActivity extends AbstractActivity implements
     }
 
     public void shutdown() {
-        //Offers.stopAdNetworks(this);
-        //UXStats.instance().flush(true); // sends data and ends 3rd party APIs sessions.
         finish();
         Engine.instance().shutdown();
     }
@@ -396,17 +399,51 @@ public class MainActivity extends AbstractActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
+        //if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
             // we are still in the wizard.
+        //    return;
+        //}
+
+        if (isShutdown()) {
+            log.info("onCreate is shutdown, exit");
             return;
         }
 
-        if (isShutdown()) {
-            return;
-        }
+        log.info("onCreate initialize Ad");
 
         checkExternalStoragePermissionsOrBindMusicService();
         MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
+
+        applicationExit = false;
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getResources().getString(R.string.interstitioal_ad_1_id));
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                if (applicationExit) shutdown();
+                else requestNewInterstitial();
+            }
+
+        });
+
+        requestNewInterstitial();
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6")
+                .build();
+        mInterstitialAd.loadAd(adRequest);
+    }
+
+    public boolean showInterstitial() {
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+            return true;
+        }
+
+        return false;
     }
 
     private void checkExternalStoragePermissionsOrBindMusicService() {
@@ -538,15 +575,14 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void onLastDialogButtonPositive() {
-        //Offers.showInterstitial(this, false, true);
-        //Engine.instance().shutdown();
-        finish();
+        applicationExit = true;
+        if (!showInterstitial()) finish();
     }
 
     private void onShutdownDialogButtonPositive() {
+        applicationExit = true;
         Engine.instance().shutdown();
-        finish();
-        //Offers.showInterstitial(this, true, false);
+        if (!showInterstitial()) finish();
     }
 
     private void syncSlideMenu() {

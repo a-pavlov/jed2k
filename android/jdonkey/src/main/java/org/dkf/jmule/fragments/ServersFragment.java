@@ -13,6 +13,7 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import org.dkf.jed2k.Utils;
@@ -112,9 +113,38 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice("9e0d331c").build();
+        final AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
         mAdView.loadAd(adRequest);
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+            }
+
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+            }
+
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                log.info("ad block loaded");
+                mAdView.setVisibility(View.VISIBLE);
+
+            }
+        });
         return rootView;
     }
 
