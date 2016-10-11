@@ -106,7 +106,14 @@ public class MainActivity extends AbstractActivity implements
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
     private InterstitialAd mInterstitialAd;
-    private boolean applicationExit = false;
+
+    private enum APP_STATE {
+        ACTIVE,
+        WAIT_SHUTDOWN,
+        WAIT_MINIMIZE
+    }
+
+    private APP_STATE appState = APP_STATE.ACTIVE;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -155,8 +162,9 @@ public class MainActivity extends AbstractActivity implements
     }
 
     public void shutdown() {
+        log.info("shutdown app state {}", appState);
+        if (appState == APP_STATE.WAIT_SHUTDOWN) Engine.instance().shutdown();
         finish();
-        Engine.instance().shutdown();
     }
 
     private boolean isShutdown() {
@@ -396,14 +404,14 @@ public class MainActivity extends AbstractActivity implements
         checkExternalStoragePermissionsOrBindMusicService();
         MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
 
-        applicationExit = false;
+        appState = APP_STATE.ACTIVE;
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId(getResources().getString(R.string.interstitioal_ad_1_id));
 
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {
-                if (applicationExit) shutdown();
+                if (appState != APP_STATE.ACTIVE) shutdown();
                 else requestNewInterstitial();
             }
 
@@ -557,14 +565,13 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void onLastDialogButtonPositive() {
-        applicationExit = true;
-        if (!showInterstitial()) finish();
+        appState = APP_STATE.WAIT_MINIMIZE;
+        if (!showInterstitial()) shutdown();
     }
 
     private void onShutdownDialogButtonPositive() {
-        applicationExit = true;
-        Engine.instance().shutdown();
-        if (!showInterstitial()) finish();
+        appState = APP_STATE.WAIT_SHUTDOWN;
+        if (!showInterstitial()) shutdown();
     }
 
     private void syncSlideMenu() {

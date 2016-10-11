@@ -46,6 +46,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private ServersAdapter adapter;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
     private RichNotification serviceStopped;
+    AdView mAdView;
 
     public ServersFragment() {
         super(R.layout.fragment_servers);
@@ -107,13 +108,18 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     public void onDestroy() {
         super.onDestroy();
         Engine.instance().removeListener(this);
+        if (mAdView != null) {
+            log.info("servers fragment ad close");
+            mAdView.destroy();
+            mAdView.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        final AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
+        mAdView = (AdView) rootView.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
         mAdView.loadAd(adRequest);
         mAdView.setAdListener(new AdListener() {

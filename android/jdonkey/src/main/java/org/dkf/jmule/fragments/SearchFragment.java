@@ -137,8 +137,13 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onDestroy() {
-        Engine.instance().removeListener(this);
         super.onDestroy();
+        Engine.instance().removeListener(this);
+        if (adRect != null) {
+            LOG.info("search fragment ad close");
+            adRect.destroy();
+            adRect.setVisibility(View.GONE);
+        }
     }
 
     @Override
