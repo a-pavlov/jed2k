@@ -124,6 +124,8 @@ public class ED2KService extends Service {
      */
     private NotificationManager mNotificationManager;
 
+    int lastStartId = -1;
+
     public ED2KService() {
         binder = new ED2KServiceBinder();
     }
@@ -156,6 +158,8 @@ public class ED2KService extends Service {
             return 0;
         }
 
+        lastStartId = startId;
+
         log.info("ED2K service started by this intent: {} flags {} startId {}", intent, flags, startId);
         return START_STICKY;
     }
@@ -181,6 +185,7 @@ public class ED2KService extends Service {
         // stop alerts processing
         // need additional code to guarantee all alerts were processed
         if (scheduledExecutorService != null) scheduledExecutorService.shutdown();
+        log.info("ED2KService destruction completed");
     }
 
     void startSession() {
@@ -671,7 +676,9 @@ public class ED2KService extends Service {
     public void shutdown(){
         stopServices();
         stopForeground(true);
-        stopSelf(-1);
+        stopSelf(lastStartId);
+        boolean b = stopSelfResult(lastStartId);
+        log.info("stop self {} last id: {}", b?"true":"false", lastStartId);
     }
 
     public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {

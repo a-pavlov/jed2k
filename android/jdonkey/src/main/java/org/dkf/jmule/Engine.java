@@ -176,8 +176,10 @@ public final class Engine implements AlertListener {
 
     public void shutdown() {
         if (service != null) {
+            log.info("shutdown service");
             if (connection != null) {
                 try {
+                    log.info("unbind connection");
                     context.unbindService(connection);
                 } catch (IllegalArgumentException e) {
                 }
@@ -242,6 +244,7 @@ public final class Engine implements AlertListener {
      * @param context This must be the application context, otherwise there will be a leak.
      */
     private void startEngineService(final Context context) {
+        log.info("start engine service");
         Intent i = new Intent();
         i.setClass(context, ED2KService.class);
         context.startService(i);
@@ -270,9 +273,11 @@ public final class Engine implements AlertListener {
                     setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
                     setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
                     configureServices();
-                    //if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CORE_CONNECTED)) {
-                    //    startServices();
-                    //}
+
+                    if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_AUTO_START_SERVICE) && isStopped()) {
+                        startServices();
+                    }
+
                     //registerStatusReceiver(context);
                 } else {
                     throw new IllegalArgumentException("IBinder on service connected class is not instance of ED2KService.ED2KServiceBinder");

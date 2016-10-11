@@ -40,6 +40,12 @@ public class MainApplication extends Application {
     private static final Logger LOG = LoggerFactory.getLogger(MainApplication.class);
 
     @Override
+    public void onTerminate() {
+        super.onTerminate();
+        LOG.info("application terminated");
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
 

@@ -162,4 +162,8 @@
     <string name="transfers_max_total_connections_summary">El Máximo Total De Conexiones</string>
     <string name="user_id">ID de usuario</string>
     <string name="users_count">Los usuarios</string>
+    <string name="search_more_action">Buscar aún</string>
+    <string name="ed2k_network_summary">El estado de la conexión</string>
+    <string name="files_count">Los archivos</string>
+    <string name="transfers_settings">Las transferencias de configuración</string>
 </resources>

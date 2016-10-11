@@ -122,6 +122,13 @@
                 android:title="@string/notify_jdonkey_is_running"
                 android:summary="@string/notify_jdonkey_is_running_summary"
                 android:enabled="true"/>
+<!--
+        <CheckBoxPreference
+            android:key="jmule.prefs.gui.auto_start_service"
+            android:title="@string/auto_start_service_title"
+            android:summary="@string/auto_start_service_summary"
+            android:enabled="true" />
+            -->
     </PreferenceScreen>
 
     <Preference

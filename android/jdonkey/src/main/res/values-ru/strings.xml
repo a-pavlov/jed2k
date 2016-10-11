@@ -163,6 +163,7 @@
     <string name="transfers_settings">Настройки трансферов</string>
     <string name="user_id">Id пользователя</string>
     <string name="users_count">Пользователей</string>
+    <string name="pick_the_files_you_want_to_download_from_this_torrent">Выделите файлы</string>
 
     <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
 </resources>

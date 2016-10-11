@@ -134,8 +134,8 @@
     <string name="app_shutdown_dlg_message">This will shutdown all transfers and background services. Are you sure?</string>
     <string name="dummy_build" translatable="false">[build number]</string>
     <string name="try_other_keywords">Try fewer/different keywords</string>
-    <string name="try_frostwire_plus_for_more_results">Try Mule on Android for more results</string>
-    <string name="your_installation_is_complete">Your installation is complete.</string>
+    <string name="try_frostwire_plus_for_more_results" translatable="false">Try Mule on Android for more results</string>
+    <string name="your_installation_is_complete" translatable="false">Your installation is complete.</string>
     <string name="thank_you">Thank you!</string>
     <string name="keep_in_touch">Keep in touch!</string>
     <string name="why_we_need_storage_permissions">Why we need storage permissions.</string>
@@ -168,6 +168,8 @@
     <string name="connect_on_start_server_summary">Connect to last connected server on start</string>
     <string name="show_server_messages_summary">Show messages from server</string>
     <string name="show_server_messages">Server msg</string>
+    <string name="auto_start_service_title">Service auto start</string>
+    <string name="auto_start_service_summary">Start service(if it stopped) on application statup</string>
 
     <string name="service_stopped">ED2K service stopped</string>
     <string name="service_stopped_details">Please go to preferences and start ED2K service</string>
@@ -192,4 +194,5 @@
     <string name="transfer_state_completed">Completed</string>
     <string name="transfer_state_stalled">Waiting sources</string>
     <string name="transfer_state_downloading">Downloading</string>
+
 </resources>
