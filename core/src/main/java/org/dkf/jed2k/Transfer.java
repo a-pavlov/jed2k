@@ -290,7 +290,7 @@ public class Transfer {
         if (nextTimeForSourcesRequest < Time.currentTime() && !isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
             log.debug("Request peers {}", hash);
             session.sendSourcesRequest(hash, size);
-            nextTimeForSourcesRequest = Time.currentTime() + 1000*60;   // one request per second
+            nextTimeForSourcesRequest = Time.currentTime() + 1000*60;   // one request per minute
         }
 
         Iterator<PeerConnection> itr = connections.iterator();
