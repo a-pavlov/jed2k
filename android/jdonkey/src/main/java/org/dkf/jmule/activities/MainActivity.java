@@ -182,28 +182,12 @@ public class MainActivity extends AbstractActivity implements
         initDrawerListener();
         leftDrawer = findView(R.id.activity_main_left_drawer);
         listMenu = findView(R.id.left_drawer);
-        initAdMenuItemListener();
         setupFragments();
         setupMenuItems();
         setupInitialFragment(savedInstanceState);
-        //playerSubscription = TimerService.subscribe(((PlayerNotifierView) findView(R.id.activity_main_player_notifier)).getRefresher(), 1);
         onNewIntent(getIntent());
-        //SoftwareUpdater.instance().addConfigurationUpdateListener(this);
         setupActionBar();
         setupDrawer();
-    }
-
-    private void initAdMenuItemListener() {
-        /*menuRemoveAdsItem = findView(R.id.slidermenu_ad_menuitem);
-        RelativeLayout menuAd = findView(R.id.view_ad_menu_item_ad);
-        menuAd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, BuyActivity.class);
-                startActivity(intent);
-            }
-        });
-        */
     }
 
     private void initDrawerListener() {
@@ -314,14 +298,12 @@ public class MainActivity extends AbstractActivity implements
 
         initDrawerListener();
         setupDrawer();
-        initAdMenuItemListener();
 
         refreshPlayerItem();
         refreshMenuRemoveAdsItem();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_INITIAL_SETTINGS_COMPLETE)) {
             mainResume();
-            //Offers.initAdNetworks(this);
         } else if (!isShutdown()){
             //controller.startWizardActivity();
         }
@@ -855,7 +837,6 @@ public class MainActivity extends AbstractActivity implements
         if (checker != null) {
             checker.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        //Offers.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private static final class MenuDrawerToggle extends ActionBarDrawerToggle {
