@@ -709,6 +709,9 @@ public class Session extends Thread {
             } catch (SAXException e) {
                 e.printStackTrace();
             }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
             finally {
                 device = null;
             }
