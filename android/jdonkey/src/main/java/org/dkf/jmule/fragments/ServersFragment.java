@@ -275,6 +275,11 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         // do nothing not interested in transfer's state
     }
 
+    @Override
+    public void onPortMapAlert(PortMapAlert alert) {
+
+    }
+
 
     @Override
     public View getHeader(Activity activity) {

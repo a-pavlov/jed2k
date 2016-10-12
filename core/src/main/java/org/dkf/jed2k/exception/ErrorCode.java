@@ -43,7 +43,15 @@ public enum ErrorCode implements BaseErrorCode {
     FILE_IO_ERROR(37, "File I/O error occured"),
     BUFFER_TOO_LARGE(38, "Buffer too large"),
     NOT_CONNECTED(39, "Not connected"),
-    FAIL(40, "Fail");
+
+    PORT_MAPPING_ALREADY_MAPPED(40, "Port already mapped"),
+    PORT_MAPPING_NO_DEVICE(41, "No gateway device found"),
+    PORT_MAPPING_ERROR(42, "Unable to map port"),
+    PORT_MAPPING_IO_ERROR(43, "I/O exception on mapping port"),
+    PORT_MAPPING_SAX_ERROR(44, "SAX parsing exception on port mapping"),
+    PORT_MAPPING_CONFIG_ERROR(45, "Configuration exception on port mapping"),
+    PORT_MAPPING_EXCEPTION(46, "Unknown exception on port mapping"),
+    FAIL(47, "Fail");
 
     private final int code;
     private final String description;

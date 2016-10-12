@@ -92,6 +92,7 @@ final class ConfigurationDefaults {
         defaultValues.put(Constants.PREF_KEY_CONN_SERVER_ON_START, false);
         defaultValues.put(Constants.PREF_KEY_SHOW_SERVER_MSG, true);
         defaultValues.put(Constants.PREF_KEY_AUTO_START_SERVICE, false);
+        defaultValues.put(Constants.PREF_KEY_FORWARD_PORTS, false);
 
         // servers section
         ServerMet sm = new ServerMet();

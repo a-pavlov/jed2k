@@ -1,5 +1,8 @@
 package org.dkf.jed2k;
 
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
+import org.bitlet.weupnp.PortMappingEntry;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
@@ -9,8 +12,11 @@ import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -38,9 +44,12 @@ public class Session extends Thread {
     long zBufferLastAllocatedTime = 0;
     BufferPool bufferPool = null;
     private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
+    private ExecutorService upnpService = Executors.newSingleThreadExecutor();
     private AtomicBoolean finished = new AtomicBoolean(false);
     private boolean aborted = false;
     private Statistics accumulator = new Statistics();
+    private GatewayDiscover discover = new GatewayDiscover();
+    private GatewayDevice device = null;
 
 
     // from last established server connection
@@ -220,7 +229,8 @@ public class Session extends Thread {
 
             // stop service
             diskIOService.shutdown();
-
+            upnpService.shutdown();
+            stopUPnPImpl();
             log.info("Session finished");
             finished.set(true);
 
@@ -625,5 +635,86 @@ public class Session extends Thread {
         long dr = accumulator.downloadRate();
         long ur = accumulator.uploadRate();
         return Pair.make(dr, ur);
+    }
+
+    public void startUPnP() {
+        upnpService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+                assert discover != null;
+                BaseErrorCode ec = ErrorCode.NO_ERROR;
+                // TODO - fix unsynchronized access to settings
+                int port = settings.listenPort;
+                try {
+                    discover.discover();
+                    device = discover.getValidGateway();
+                    if (device != null) {
+                        PortMappingEntry portMapping = new PortMappingEntry();
+                        if (!device.getSpecificPortMappingEntry(port, "TCP",portMapping)) {
+                            InetAddress localAddress = device.getLocalAddress();
+                            if (device.addPortMapping(port, port, localAddress.getHostAddress(),"TCP","JED2K")) {
+                                // ok, mapping added
+                                log.info("port mapped {}", port);
+                            } else {
+                                log.info("mapping error for port {}", port);
+                                ec = ErrorCode.PORT_MAPPING_ERROR;
+                            }
+                        } else {
+                            log.debug("port {} already mapped", port);
+                            ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
+                        }
+                    } else {
+                        log.debug("can not find gateway device");
+                        ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_IO_ERROR;
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_SAX_ERROR;
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_CONFIG_ERROR;
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_EXCEPTION;
+                }
+
+                pushAlert(new PortMapAlert(port, port, ec));
+            }
+        });
+    }
+
+    public void stopUPnP() {
+        upnpService.submit(new Runnable() {
+            @Override
+            public void run() {
+                stopUPnPImpl();
+            }
+        });
+    }
+
+    private void stopUPnPImpl() {
+        if (device != null) {
+            try {
+                if (device.deletePortMapping(settings.listenPort, "TCP")) {
+                    log.info("port mapping removed {}", settings.listenPort);
+                } else {
+                    log.error("port mapping removing failed");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                device = null;
+            }
+        }
     }
 }
