@@ -322,6 +322,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     @Override
     public void onClick(View v) {
+        log.info("server added setup adapter");
         setupAdapter();
     }
 

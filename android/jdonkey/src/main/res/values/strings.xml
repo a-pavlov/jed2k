@@ -200,6 +200,7 @@
     <string name="server_add_name">Name</string>
     <string name="server_add_host">Host</string>
     <string name="server_add_port">Port</string>
-    <string name="server_add">Add server</string>
+    <string name="server_add_descr">Descr</string>
+    <string name="server_add">Add</string>
 
 </resources>

@@ -16,6 +16,7 @@
             android:text="@string/server_add_name"
             android:layout_alignParentLeft="true"
             android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"/>
 
@@ -27,9 +28,7 @@
             android:layout_toRightOf="@+id/server_add_name_descr"
             android:textColor="@android:color/black"
             android:singleLine="true"
-            android:paddingLeft="8dp"
-            android:paddingRight="38dp"
-            android:ems="12"
+            android:ems="10"
             android:background="@drawable/clearable_edittext_background"/>
     </RelativeLayout>
 
@@ -43,6 +42,7 @@
             android:text="@string/server_add_host"
             android:layout_alignParentLeft="true"
             android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"/>
 
@@ -55,8 +55,8 @@
             android:textColor="@android:color/black"
             android:singleLine="true"
             android:paddingLeft="8dp"
-            android:paddingRight="38dp"
-            android:ems="8"
+            android:layout_marginRight="8dp"
+            android:ems="6"
             android:background="@drawable/clearable_edittext_background"/>
 
         <TextView
@@ -81,13 +81,47 @@
             android:singleLine="true"
             android:paddingLeft="8dp"
             android:paddingRight="38dp"
+            android:layout_marginTop="4dp"
             android:background="@drawable/clearable_edittext_background"/>
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/view_add_server_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/server_add"
-        android:layout_marginLeft="8dp"/>
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                android:id="@+id/server_add_descr_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/server_add_descr"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerVertical="true"/>
+
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/view_server_add_descr"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/server_add_descr_text"
+                android:textColor="@android:color/black"
+                android:singleLine="true"
+                android:paddingLeft="8dp"
+                android:paddingRight="38dp"
+                android:ems="10"
+                android:background="@drawable/clearable_edittext_background"/>
+
+        <ImageButton
+                android:id="@+id/view_add_server_btn"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="@string/server_add"
+                android:layout_marginLeft="8dp"
+                android:src="@drawable/transfer_menuitem_plus"
+        />
+    </RelativeLayout>>
 </LinearLayout>

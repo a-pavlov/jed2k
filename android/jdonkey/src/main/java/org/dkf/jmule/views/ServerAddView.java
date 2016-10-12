@@ -3,8 +3,8 @@ package org.dkf.jmule.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.server.ServerMet;
@@ -22,7 +22,7 @@ public class ServerAddView extends LinearLayout implements View.OnClickListener 
     private EditText viewName;
     private EditText viewHost;
     private EditText viewPort;
-    private Button btnAdd;
+    private ImageButton btnAdd;
     private View.OnClickListener listener;
 
     public ServerAddView(Context context, AttributeSet set) {
@@ -36,7 +36,7 @@ public class ServerAddView extends LinearLayout implements View.OnClickListener 
         viewName = (EditText)findViewById(R.id.view_server_add_name);
         viewHost = (EditText)findViewById(R.id.view_server_add_host);
         viewPort = (EditText)findViewById(R.id.view_server_add_port);
-        btnAdd = (Button)findViewById(R.id.view_add_server_btn);
+        btnAdd = (ImageButton) findViewById(R.id.view_add_server_btn);
         btnAdd.setOnClickListener(this);
     }
 
@@ -53,10 +53,12 @@ public class ServerAddView extends LinearLayout implements View.OnClickListener 
             ServerMet sm = new ServerMet();
             ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
             try {
+
                 sm.addServer(ServerMet.ServerMetEntry.create(viewHost.getText().toString()
                         , Integer.parseInt(viewPort.getText().toString())
                         , viewName.getText().toString()
                         , ""));
+                ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
                 if (listener != null) listener.onClick(this);
             } catch(JED2KException e) {
                 e.printStackTrace();
