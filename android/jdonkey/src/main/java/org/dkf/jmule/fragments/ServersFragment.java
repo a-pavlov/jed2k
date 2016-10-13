@@ -76,7 +76,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
         ServerMet sm = new ServerMet();
         ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
-        adapter.clear();
         adapter.addServers(sm.getServers());
         list.setAdapter(adapter);
     }
@@ -323,6 +322,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     @Override
     public void onClick(View v) {
         log.info("server added setup adapter");
+        toggleServerAddView();
         setupAdapter();
     }
 
@@ -368,6 +368,13 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         @Override
         public String toString() {
             return "ID {" + getIdentifier() + "} " + ip + ":" + port;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o != null
+                    && o instanceof ServerEntry
+                    && ((ServerEntry)o).getIdentifier().compareTo(getIdentifier()) == 0);
         }
     }
 
@@ -432,12 +439,25 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         }
 
         public void addServers(final Collection<ServerMet.ServerMetEntry> servers) {
+            ServerEntry se = getActiveItem();
+            clear();
+
             for(final ServerMet.ServerMetEntry e: servers) {
-                list.add(new ServerEntry(e));
+                ServerEntry newSE = new ServerEntry(e);
+                if (newSE.equals(se)) {
+                    newSE = se;
+                }
+
+                list.add(newSE);
             }
 
             for(final ServerMet.ServerMetEntry e: servers) {
-                visualList.add(new ServerEntry(e));
+                ServerEntry newSE = new ServerEntry(e);
+                if (newSE.equals(se)) {
+                    newSE = se;
+                }
+
+                visualList.add(newSE);
             }
         }
 
@@ -449,6 +469,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
             return null;
         }
+
+        final ServerEntry getActiveItem() {
+            for(int i = 0; i < getCount(); ++i) {
+                ServerEntry se = getItem(i);
+                if (se.connStatus != ServerEntry.ConnectionStatus.DISCONNECTED) return se;
+            }
+
+            return null;
+        }
+
 
         public final boolean process(final ServerEntryProcessor p) {
             boolean affected = false;

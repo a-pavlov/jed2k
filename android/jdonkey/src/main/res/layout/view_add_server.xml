@@ -28,7 +28,7 @@
             android:layout_toRightOf="@+id/server_add_name_descr"
             android:textColor="@android:color/black"
             android:singleLine="true"
-            android:ems="10"
+            android:ems="12"
             android:background="@drawable/clearable_edittext_background"/>
     </RelativeLayout>
 
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:text="@string/server_add_host"
             android:layout_alignParentLeft="true"
-            android:layout_marginRight="8dp"
+            android:layout_marginRight="16dp"
             android:layout_marginLeft="8dp"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"/>
@@ -81,7 +81,7 @@
             android:singleLine="true"
             android:paddingLeft="8dp"
             android:paddingRight="38dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/clearable_edittext_background"/>
     </RelativeLayout>
 
@@ -110,7 +110,7 @@
                 android:singleLine="true"
                 android:paddingLeft="8dp"
                 android:paddingRight="38dp"
-                android:ems="10"
+                android:ems="12"
                 android:background="@drawable/clearable_edittext_background"/>
 
         <ImageButton
