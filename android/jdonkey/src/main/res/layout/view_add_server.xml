@@ -110,18 +110,20 @@
                 android:singleLine="true"
                 android:paddingLeft="8dp"
                 android:paddingRight="38dp"
-                android:ems="12"
+                android:ems="6"
                 android:background="@drawable/clearable_edittext_background"/>
 
         <ImageButton
                 android:id="@+id/view_add_server_btn"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_alignParentRight="false"
+                android:layout_toRightOf="@+id/view_server_add_descr"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:text="@string/server_add"
                 android:layout_marginLeft="8dp"
-                android:src="@drawable/transfer_menuitem_plus"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_add_box_white_24dp"
         />
     </RelativeLayout>>
 </LinearLayout>

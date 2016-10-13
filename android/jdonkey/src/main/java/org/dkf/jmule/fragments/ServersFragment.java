@@ -77,7 +77,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         ServerMet sm = new ServerMet();
         ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
         adapter.addServers(sm.getServers());
-        list.setAdapter(adapter);
+        if (list.getAdapter() == null) list.setAdapter(adapter);
     }
 
     @Override

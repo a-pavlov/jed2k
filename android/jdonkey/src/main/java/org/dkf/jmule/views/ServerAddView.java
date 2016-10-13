@@ -22,6 +22,7 @@ public class ServerAddView extends LinearLayout implements View.OnClickListener 
     private EditText viewName;
     private EditText viewHost;
     private EditText viewPort;
+    private EditText viewDescr;
     private ImageButton btnAdd;
     private View.OnClickListener listener;
 
@@ -36,6 +37,7 @@ public class ServerAddView extends LinearLayout implements View.OnClickListener 
         viewName = (EditText)findViewById(R.id.view_server_add_name);
         viewHost = (EditText)findViewById(R.id.view_server_add_host);
         viewPort = (EditText)findViewById(R.id.view_server_add_port);
+        viewDescr = (EditText)findViewById(R.id.view_server_add_descr);
         btnAdd = (ImageButton) findViewById(R.id.view_add_server_btn);
         btnAdd.setOnClickListener(this);
     }
@@ -57,7 +59,7 @@ public class ServerAddView extends LinearLayout implements View.OnClickListener 
                 sm.addServer(ServerMet.ServerMetEntry.create(viewHost.getText().toString()
                         , Integer.parseInt(viewPort.getText().toString())
                         , viewName.getText().toString()
-                        , ""));
+                        , viewDescr.getText().toString()));
                 ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
                 if (listener != null) listener.onClick(this);
             } catch(JED2KException e) {
