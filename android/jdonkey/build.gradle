@@ -63,7 +63,6 @@ android {
 dependencies {
     compile project(':service')
     compile 'com.google.firebase:firebase-ads:9.6.0'
-    //compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
 }
 
 apply plugin: 'com.google.gms.google-services'

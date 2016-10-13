@@ -170,6 +170,7 @@ public class SettingsActivity extends PreferenceActivity {
     private void setupOtherOptions() {
         setupPermanentStatusNotificationOption();
         setupVibrateOnDownloadCompletedOption();
+        setupForwardPortsOption();
     }
 
     private void setupPermanentStatusNotificationOption() {
@@ -200,6 +201,19 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     Engine.instance().setVibrateOnDownloadCompleted((boolean) newValue);
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void setupForwardPortsOption() {
+        final CheckBoxPreference vibrateOnDownloadCompleted = (CheckBoxPreference) findPreference(Constants.PREF_KEY_FORWARD_PORTS);
+        if (vibrateOnDownloadCompleted != null) {
+            vibrateOnDownloadCompleted.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().forwardPorts((boolean) newValue);
                     return true;
                 }
             });

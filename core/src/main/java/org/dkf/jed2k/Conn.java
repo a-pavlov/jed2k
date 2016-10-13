@@ -128,6 +128,7 @@ public class Conn {
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
         startSettings.serverPingTimeout = 0;
+        startSettings.listenPort = 6991;
 
         LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
         String sp = System.getProperty("session.peers");
@@ -380,6 +381,12 @@ public class Conn {
                 } else {
                     log.warn("transfer {} is not exists", hash);
                 }
+            }
+            else if(parts[0].compareTo("startupnp") == 0) {
+                s.startUPnP();
+            }
+            else if (parts[0].compareTo("stopupnp") == 0) {
+                s.stopUPnP();
             }
         }
 

@@ -120,6 +120,11 @@ public class ED2KServiceTest {
             public void onTransferIOError(TransferDiskIOErrorAlert alert) {
 
             }
+
+            @Override
+            public void onPortMapAlert(PortMapAlert alert) {
+
+            }
         });
 
         Thread.sleep(2000);

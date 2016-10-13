@@ -168,4 +168,6 @@
     <string name="transfers_select_completed">completato</string>
     <string name="transfers_select_downloading">download</string>
     <string name="transfers_settings">Trasferimenti impostazioni</string>
+    <string name="forward_ports_summary">Inoltro delle porte sul mio router. UPnP deve essere attivato sul router</string>
+    <string name="forward_ports_title">Avanti porte</string>
 </resources>

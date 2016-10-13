@@ -1,6 +1,5 @@
 package org.dkf.jmule.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,16 +40,19 @@ import java.util.List;
 /**
  * Created by ap197_000 on 07.09.2016.
  */
-public class ServersFragment extends AbstractFragment implements MainFragment, AlertListener {
+public class ServersFragment extends AbstractFragment implements MainFragment, AlertListener, View.OnClickListener {
     private final Logger log = LoggerFactory.getLogger(ServersFragment.class);
     private ListView list;
+    private ServerAddView serverAddView;
     private ServersAdapter adapter;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
     private RichNotification serviceStopped;
     AdView mAdView;
+    ButtonServersParametersListener buttonServersParametersListener;
 
     public ServersFragment() {
         super(R.layout.fragment_servers);
+        buttonServersParametersListener = new ButtonServersParametersListener(this);
         prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
 
             @Override
@@ -78,15 +81,17 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
         ServerMet sm = new ServerMet();
         ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
-        adapter.clear();
         adapter.addServers(sm.getServers());
-        list.setAdapter(adapter);
+        if (list.getAdapter() == null) list.setAdapter(adapter);
     }
 
     @Override
     protected void initComponents(final View rootView) {
         list = (ListView)findView(rootView, R.id.servers_list);
         list.setVisibility(View.VISIBLE);
+        serverAddView = (ServerAddView)findView(rootView, R.id.fragment_servers_add_server);
+        serverAddView.setVisibility(View.GONE);
+        serverAddView.setOnClickListener(this);
         serviceStopped = (RichNotification)findView(rootView, R.id.fragment_servers_service_stopped_notification);
     }
 
@@ -318,29 +323,56 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         // do nothing not interested in transfer's state
     }
 
+    @Override
+    public void onPortMapAlert(PortMapAlert alert) {
+
+    }
+
 
     @Override
     public View getHeader(Activity activity) {
         LayoutInflater inflater = LayoutInflater.from(activity);
-        @SuppressLint("InflateParams") TextView header = (TextView) inflater.inflate(R.layout.view_main_fragment_simple_header, null);
-        header.setText(R.string.servers);
-        header.setOnClickListener(new View.OnClickListener() {
-            private int clickCount = 0;
-            @Override
-            public void onClick(View v) {
-                clickCount++;
-                log.info("header.onClick() - clickCount => " + clickCount);
-                if (clickCount % 5 == 0) {
-                    //Offers.showInterstitial(getActivity(), false, false);
-                }
-            }
-        });
+
+        View header = inflater.inflate(R.layout.view_servers_header, null);
+
+        TextView text = (TextView) header.findViewById(R.id.view_servers_header_text_title);
+        text.setText(R.string.servers);
+
+        ImageButton buttonMenu = (ImageButton) header.findViewById(R.id.view_servers_header_more_parameters);
+        buttonMenu.setOnClickListener(buttonServersParametersListener);
         return header;
+    }
+
+    private static final class ButtonServersParametersListener extends ClickAdapter<ServersFragment> {
+
+        ButtonServersParametersListener(ServersFragment f) {
+            super(f);
+        }
+
+        @Override
+        public void onClick(ServersFragment f, View v) {
+            f.toggleServerAddView();
+        }
+    }
+
+    private void toggleServerAddView() {
+        if (serverAddView.getVisibility() == View.GONE) {
+            serverAddView.setVisibility(View.VISIBLE);
+        } else {
+            serverAddView.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onShow() {
         warnServiceStopped(getView());
+    }
+
+    @Override
+    public void onClick(View v) {
+        log.info("server added setup adapter");
+        toggleServerAddView();
+        setupAdapter();
     }
 
     private static final class ServerEntry {
@@ -385,6 +417,13 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         @Override
         public String toString() {
             return "ID {" + getIdentifier() + "} " + ip + ":" + port;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o != null
+                    && o instanceof ServerEntry
+                    && ((ServerEntry)o).getIdentifier().compareTo(getIdentifier()) == 0);
         }
     }
 
@@ -449,12 +488,25 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         }
 
         public void addServers(final Collection<ServerMet.ServerMetEntry> servers) {
+            ServerEntry se = getActiveItem();
+            clear();
+
             for(final ServerMet.ServerMetEntry e: servers) {
-                list.add(new ServerEntry(e));
+                ServerEntry newSE = new ServerEntry(e);
+                if (newSE.equals(se)) {
+                    newSE = se;
+                }
+
+                list.add(newSE);
             }
 
             for(final ServerMet.ServerMetEntry e: servers) {
-                visualList.add(new ServerEntry(e));
+                ServerEntry newSE = new ServerEntry(e);
+                if (newSE.equals(se)) {
+                    newSE = se;
+                }
+
+                visualList.add(newSE);
             }
         }
 
@@ -466,6 +518,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
             return null;
         }
+
+        final ServerEntry getActiveItem() {
+            for(int i = 0; i < getCount(); ++i) {
+                ServerEntry se = getItem(i);
+                if (se.connStatus != ServerEntry.ConnectionStatus.DISCONNECTED) return se;
+            }
+
+            return null;
+        }
+
 
         public final boolean process(final ServerEntryProcessor p) {
             boolean affected = false;

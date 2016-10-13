@@ -502,6 +502,11 @@ public final class SearchFragment extends AbstractFragment implements
 
     }
 
+    @Override
+    public void onPortMapAlert(PortMapAlert alert) {
+
+    }
+
     private static class SearchInputOnSearchListener implements SearchInputView.OnSearchListener {
         private final LinearLayout parentView;
         private final SearchFragment fragment;

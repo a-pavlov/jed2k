@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,6 +47,7 @@ public class ED2KService extends Service {
     private Binder binder;
 
     private boolean vibrateOnDownloadCompleted = false;
+    private boolean forwardPorts = false;
 
     /**
      * run notifications in ui thread
@@ -124,6 +127,8 @@ public class ED2KService extends Service {
      */
     private NotificationManager mNotificationManager;
 
+    private MulticastLock mlock;
+
     int lastStartId = -1;
 
     public ED2KService() {
@@ -196,12 +201,17 @@ public class ED2KService extends Service {
         session.start();
         startBackgroundOperations();
         startingInProgress = false;
+        WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        mlock = wm.createMulticastLock("jed2k");
+        mlock.acquire();
+        if (forwardPorts) session.startUPnP(); else session.stopUPnP();
         log.info("session started!");
     }
 
     void stopSession() {
         if (session != null) {
             log.info("stopping session....");
+            if (mlock != null) mlock.release();
             stoppingInProgress = true;
             session.saveResumeData();
             session.abort();
@@ -377,7 +387,11 @@ public class ED2KService extends Service {
                         }
                     });
                 }
-            } else {
+            } else if (a instanceof PortMapAlert) {
+                for (final AlertListener ls : listeners) ls.onPortMapAlert((PortMapAlert) a);
+                log.info("port mapped {} {}", ((PortMapAlert)a).port, ((PortMapAlert)a).ec.getDescription());
+            }
+            else {
                 log.debug("received unhandled alert {}", a);
             }
         }
@@ -721,6 +735,17 @@ public class ED2KService extends Service {
 
     public void setVibrateOnDownloadCompleted(boolean vibrate) {
         this.vibrateOnDownloadCompleted = vibrate;
+    }
+
+    public void setForwardPort(boolean forward) {
+        forwardPorts = forward;
+        if (session != null) {
+            if (forward) {
+                session.startUPnP();
+            } else {
+                session.stopUPnP();
+            }
+        }
     }
 
     public void setListenPort(int port) {

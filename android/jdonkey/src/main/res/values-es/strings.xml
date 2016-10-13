@@ -166,4 +166,6 @@
     <string name="ed2k_network_summary">El estado de la conexión</string>
     <string name="files_count">Los archivos</string>
     <string name="transfers_settings">Las transferencias de configuración</string>
+    <string name="forward_ports_summary">Adelante entrantes a los puertos en mi router. UPnP debe ser activado en el router</string>
+    <string name="forward_ports_title">La redirección de puertos</string>
 </resources>

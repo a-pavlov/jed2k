@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="1">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/server_add_name_descr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/server_add_name"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/view_server_add_name"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/server_add_name_descr"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:ems="12"
+            android:background="@drawable/clearable_edittext_background"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/server_add_host_descr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/server_add_host"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/view_server_add_host"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/server_add_host_descr"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:paddingLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:ems="6"
+            android:background="@drawable/clearable_edittext_background"/>
+
+        <TextView
+            android:id="@+id/server_add_port_descr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/server_add_port"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/view_server_add_host"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="4"
+            android:id="@+id/view_server_add_port"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/server_add_port_descr"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:paddingLeft="8dp"
+            android:paddingRight="38dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/clearable_edittext_background"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                android:id="@+id/server_add_descr_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/server_add_descr"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerVertical="true"/>
+
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/view_server_add_descr"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/server_add_descr_text"
+                android:textColor="@android:color/black"
+                android:singleLine="true"
+                android:paddingLeft="8dp"
+                android:paddingRight="38dp"
+                android:ems="6"
+                android:background="@drawable/clearable_edittext_background"/>
+
+        <ImageButton
+                android:id="@+id/view_add_server_btn"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="false"
+                android:layout_toRightOf="@+id/view_server_add_descr"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:text="@string/server_add"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_add_box_white_24dp"
+        />
+    </RelativeLayout>>
+</LinearLayout>
