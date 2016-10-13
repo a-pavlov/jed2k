@@ -198,8 +198,8 @@
     <string name="transfer_state_downloading">Downloading</string>
 
     <string name="server_add_name">Name</string>
-    <string name="server_add_host">Host</string>
-    <string name="server_add_port">Port</string>
+    <string name="server_add_host" translatable="false">Host</string>
+    <string name="server_add_port" translatable="false">Port</string>
     <string name="server_add_descr">Descr</string>
     <string name="server_add">Add</string>
 

@@ -170,4 +170,7 @@
     <string name="transfers_settings">Trasferimenti impostazioni</string>
     <string name="forward_ports_summary">Inoltro delle porte sul mio router. UPnP deve essere attivato sul router</string>
     <string name="forward_ports_title">Avanti porte</string>
+    <string name="server_add">Aggiungere</string>
+    <string name="server_add_descr">Descrizione</string>
+    <string name="server_add_name">Nome</string>
 </resources>
