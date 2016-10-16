@@ -566,12 +566,14 @@ public class MainActivity extends AbstractActivity implements
 
     private void onLastDialogButtonPositive() {
         appState = APP_STATE.WAIT_MINIMIZE;
-        if (!showInterstitial()) shutdown();
+        shutdown();
+        //if (!showInterstitial()) shutdown();
     }
 
     private void onShutdownDialogButtonPositive() {
         appState = APP_STATE.WAIT_SHUTDOWN;
-        if (!showInterstitial()) shutdown();
+        shutdown();
+        //if (!showInterstitial()) shutdown();
     }
 
     private void syncSlideMenu() {
