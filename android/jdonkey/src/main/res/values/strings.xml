@@ -210,10 +210,11 @@
     <string name="upnp_summary">If you have router you can forward incoming port on your router. It will help to get HiID on servers and find more sources. Please check UPnP feature is activated on your router</string>
 
     <string name="usage_notes_title">Usage notes</string>
-    <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service).
-        Application supports downloading in background using service. Two types of exit - shutdown all and shutdown only GUI.
-        When you press back button in the end you will be able to minimize application.
-        If you need completely shutdown application and service choose exit in menu.</string>
+    <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service) if it is
+        stopped. Application supports downloading in background using service. Two types of exit - shutdown all and
+        shutdown only GUI.
+        When you press back button in the end you will be able to minimize application. If you need completely shutdown
+        application and service choose exit in menu.</string>
     <string name="usage_suggestions_title">Usage suggestions</string>
     <string name="usage_suggestions_summary">Try to provide accessible incoming port - in this case you will have much more sources.
         Prefer files with large sources count.</string>
