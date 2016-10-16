@@ -8,8 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -127,8 +125,6 @@ public class ED2KService extends Service {
      */
     private NotificationManager mNotificationManager;
 
-    private MulticastLock mlock;
-
     int lastStartId = -1;
 
     public ED2KService() {
@@ -201,9 +197,6 @@ public class ED2KService extends Service {
         session.start();
         startBackgroundOperations();
         startingInProgress = false;
-        WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-        mlock = wm.createMulticastLock("jed2k");
-        mlock.acquire();
         if (forwardPorts) session.startUPnP(); else session.stopUPnP();
         log.info("session started!");
     }
@@ -211,7 +204,6 @@ public class ED2KService extends Service {
     void stopSession() {
         if (session != null) {
             log.info("stopping session....");
-            if (mlock != null) mlock.release();
             stoppingInProgress = true;
             session.saveResumeData();
             session.abort();
