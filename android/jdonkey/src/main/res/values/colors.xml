@@ -90,4 +90,9 @@
     <!-- A light Holo shade of orange -->
 
     <!-- A dark Holo shade of orange -->
+
+    <!-- Other colors (old) -->
+    <color name="frostwire_orange">#ffe9a54c</color>
+    <color name="frostwire_gray_explanation_text">#abb3bc</color>
+    <color name="frostwire_gray_explanation_text_dark">#ff6f7d88</color>
 </resources>

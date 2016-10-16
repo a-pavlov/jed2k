@@ -201,9 +201,30 @@
     <string name="interstitioal_ad_1_id" translatable="false">ca-app-pub-1671474838801728/1595203897</string>
 
     <string name="server_add_name">Name</string>
-    <string name="server_add_host">Host</string>
-    <string name="server_add_port">Port</string>
+    <string name="server_add_host" translatable="false">Host</string>
+    <string name="server_add_port" translatable="false">Port</string>
     <string name="server_add_descr">Descr</string>
     <string name="server_add">Add</string>
 
+
+    <string name="welcome_to_mule">Welcome to Mule on Android</string>
+    <string name="storage_path">Storage Path</string>
+    <string name="upnp">Forward port on my router</string>
+    <string name="upnp_summary">If you have router you can forward incoming port on your router. It will help to get HiID on servers and find more sources. Please check UPnP feature is activated on your router</string>
+
+    <string name="usage_notes_title">Usage notes</string>
+    <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service) if it is
+        stopped. Application supports downloading in background using service. Two types of exit - shutdown all and
+        shutdown only GUI.
+        When you press back button in the end you will be able to minimize application. If you need completely shutdown
+        application and service choose exit in menu.</string>
+    <string name="usage_suggestions_title">Usage suggestions</string>
+    <string name="usage_suggestions_summary">Try to provide accessible incoming port - in this case you will have much more sources.
+        Prefer files with large sources count.</string>
+
+    <string name="usage_proposals_title">Proposals and problems reporting</string>
+    <string name="usage_proposals_summary">Please, report problems and proposals to developer\'s email or by ticket in project\'s page on github</string>
+    <string name="wizard_previous">Previous</string>
+    <string name="wizard_next">Next</string>
+    <string name="wizard_finish">Finish</string>
 </resources>

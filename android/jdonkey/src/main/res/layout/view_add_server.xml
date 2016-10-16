@@ -81,8 +81,9 @@
             android:singleLine="true"
             android:paddingLeft="8dp"
             android:paddingRight="38dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/clearable_edittext_background"/>
+            android:layout_marginTop="8dp"
+            android:background="@drawable/clearable_edittext_background"
+            android:accessibilityTraversalAfter="@+id/view_server_add_host"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -110,20 +111,9 @@
                 android:singleLine="true"
                 android:paddingLeft="8dp"
                 android:paddingRight="38dp"
-                android:ems="6"
-                android:background="@drawable/clearable_edittext_background"/>
-
-        <ImageButton
-                android:id="@+id/view_add_server_btn"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="false"
-                android:layout_toRightOf="@+id/view_server_add_descr"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:text="@string/server_add"
-                android:layout_marginLeft="8dp"
-                android:layout_marginBottom="8dp"
-                android:src="@drawable/ic_add_box_white_24dp"
-        />
+                android:ems="10"
+                android:background="@drawable/clearable_edittext_background"
+                android:accessibilityTraversalAfter="@+id/view_server_add_port"
+                android:layout_marginBottom="8dp"/>
     </RelativeLayout>>
 </LinearLayout>

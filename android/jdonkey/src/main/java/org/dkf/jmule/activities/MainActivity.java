@@ -313,7 +313,7 @@ public class MainActivity extends AbstractActivity implements
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_INITIAL_SETTINGS_COMPLETE)) {
             mainResume();
         } else if (!isShutdown()){
-            //controller.startWizardActivity();
+            controller.startWizardActivity();
         }
 
         checkLastSeenVersion();

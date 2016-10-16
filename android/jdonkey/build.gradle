@@ -63,6 +63,7 @@ android {
 dependencies {
     compile project(':service')
     compile 'com.google.firebase:firebase-ads:9.6.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

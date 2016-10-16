@@ -25,14 +25,18 @@
         android:theme="@style/Theme.FrostWire">
 
         <activity
-            android:name="org.dkf.jmule.activities.MainActivity"
-            android:label="@string/app_name" >
+            android:name="org.dkf.jmule.activities.SplashActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+        </activity>
 
+        <activity
+            android:name="org.dkf.jmule.activities.MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="org.dkf.jmule.android.ACTION_SHOW_TRANSFERS" />
                 <action android:name="org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN" />
@@ -47,10 +51,12 @@
                   android:label="@string/activity_preferences_name"
                   android:theme="@style/Preferences"/>
 
+        <activity android:name="org.dkf.jmule.activities.WizardActivity"
+                  android:label="@string/app_name" android:screenOrientation="portrait"/>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
     </application>
 
 </manifest>

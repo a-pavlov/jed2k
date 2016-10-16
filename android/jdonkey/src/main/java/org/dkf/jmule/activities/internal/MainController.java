@@ -22,6 +22,8 @@ import android.content.Intent;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.activities.SettingsActivity;
+import org.dkf.jmule.activities.WizardActivity;
+import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.fragments.TransfersFragment;
 import org.dkf.jmule.fragments.TransfersFragment.TransferStatus;
 
@@ -64,6 +66,12 @@ public final class MainController {
             //fragment.selectStatusTab(status);
             switchFragment(R.id.menu_main_transfers);
         }
+    }
 
+    public void startWizardActivity() {
+        ConfigurationManager.instance().resetToDefaults();
+        Intent i = new Intent(activity, WizardActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        activity.startActivity(i);
     }
 }

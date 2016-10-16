@@ -168,4 +168,29 @@
     <string name="transfers_settings">Las transferencias de configuración</string>
     <string name="forward_ports_summary">Adelante entrantes a los puertos en mi router. UPnP debe ser activado en el router</string>
     <string name="forward_ports_title">La redirección de puertos</string>
+    <string name="server_add">Agregar</string>
+    <string name="server_add_descr">Descripción</string>
+    <string name="server_add_name">Nombre</string>
+
+    <string name="storage_path">Ruta de almacenamiento</string>
+    <string name="wizard_previous">Anterior</string>
+    <string name="wizard_next">Siguiente</string>
+    <string name="wizard_finish">Terminar</string>
+    <string name="upnp">La redirección de puertos en el enrutador</string>
+    <string name="upnp_summary">Si está conectado a través de un router intenta tender un puerto de entrada en el
+        enrutador. En este caso, el puerto de conexión entrante será accesible desde el exterior. Esto le dará una mayor
+        cantidad de fuentes. Compruebe que el router está activado el UPnP.
+    </string>
+    <string name="usage_notes_summary">Antes de comenzar, vaya a configuración y active el servicio ED2K si está
+        apagado. La aplicación soporta la descarga en el fondo a través del servicio. Pulsando el botón de atrás está al
+        final será capaz de salir de la aplicación sin necesidad de interrumpir el servicio. Para la total paralización
+        del servicio y de la aplicación y seleccione salir en el menú.</string>
+    <string name="usage_notes_title">Trabajar con la aplicación</string>
+    <string name="usage_proposals_summary">Направляйте пожелания и отчеты о проблемах на почту разработчика</string>
+    <string name="usage_proposals_title">La propuesta y el mensaje de los problemas</string>
+    <string name="usage_suggestions_summary">Trate de proporcionar accesible desde el exterior el puerto de las
+        conexiones entrantes. Seleccione los archivos con una gran cantidad de fuentes.
+    </string>
+    <string name="usage_suggestions_title">Consejos sobre el uso del</string>
+    <string name="welcome_to_mule">Bienvenido a un Mule para Android</string>
 </resources>
