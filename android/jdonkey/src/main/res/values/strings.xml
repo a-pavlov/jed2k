@@ -203,4 +203,14 @@
     <string name="server_add_descr">Descr</string>
     <string name="server_add">Add</string>
 
+
+    <string name="welcome_to_mule">Welcome to Mule on Android</string>
+    <string name="storage_path">Storage Path</string>
+    <string name="upnp">Forward port on my router</string>
+    <string name="upnp_summary">If you have router you can forward incoming port on your router. It will help to get HiID on servers and find more sources. Please check UPnP feature is activated on your router</string>
+
+    <string name="usage_title">Before usage please go to Preferences and activate core</string>
+    <string name="wizard_previous">Previous</string>
+    <string name="wizard_next">Next</string>
+    <string name="wizard_finish">Finish</string>
 </resources>

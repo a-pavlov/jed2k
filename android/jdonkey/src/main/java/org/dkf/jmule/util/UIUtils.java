@@ -83,14 +83,13 @@ public final class UIUtils {
         }
     }
 
-    /*
+
     public static void sendShutdownIntent(Context ctx) {
         Intent i = new Intent(ctx, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra("shutdown-" + ConfigurationManager.instance().getUUIDString(), true);
         ctx.startActivity(i);
     }
-    */
 
     public static void showToastMessage(Context context, String message, int duration) {
         showToastMessage(context, message, duration, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 0);
@@ -380,19 +379,20 @@ public final class UIUtils {
         socialLinksDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         socialLinksDialog.setOnDismissListener(dismissListener);
 
-        ImageButton fbButton = (ImageButton) customView.findViewById(R.id.view_social_buttons_facebook_button);
-        ImageButton twitterButton = (ImageButton) customView.findViewById(R.id.view_social_buttons_twitter_button);
-        ImageButton redditButton = (ImageButton) customView.findViewById(R.id.view_social_buttons_reddit_button);
+        ImageButton githubButton = (ImageButton) customView.findViewById(R.id.view_buttons_github);
+        //ImageButton twitterButton = (ImageButton) customView.findViewById(R.id.view_social_buttons_twitter_button);
+        //ImageButton redditButton = (ImageButton) customView.findViewById(R.id.view_social_buttons_reddit_button);
 
-        final String referrerParam  = "?ref=android_" + ((referrerContextSuffix!=null) ? referrerContextSuffix.trim() : "");
 
-        fbButton.setOnClickListener(new View.OnClickListener() {
+        //final String referrerParam  = "?ref=android_" + ((referrerContextSuffix!=null) ? referrerContextSuffix.trim() : "");
+
+        githubButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UIUtils.openURL(v.getContext(), Constants.SOCIAL_URL_FACEBOOK_PAGE + referrerParam);
+                UIUtils.openURL(v.getContext(), Constants.GITHUB_PAGE);
             }
         });
-
+/*
         twitterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -407,7 +407,7 @@ public final class UIUtils {
             }
         });
 
-
+*/
         if (showInstallationCompleteSection) {
             LinearLayout installationCompleteLayout =
                     (LinearLayout) customView.findViewById(R.id.view_social_buttons_installation_complete_layout);

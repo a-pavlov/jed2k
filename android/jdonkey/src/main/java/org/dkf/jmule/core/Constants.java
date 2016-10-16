@@ -136,6 +136,7 @@ public final class Constants {
     public static final String SOCIAL_URL_FACEBOOK_PAGE = "https://www.facebook.com/jed2kOfficial";
     public static final String SOCIAL_URL_TWITTER_PAGE = "https://twitter.com/jed2k";
     public static final String SOCIAL_URL_REDDIT_PAGE = "https://reddit.com/r/jed2k";
+    public static final String GITHUB_PAGE = "https://github.com/a-pavlov/jed2k";
 
     public static final String VPN_LEARN_MORE_URL = "http://www.jed2k.com/vpn.expressvpn.learnmore";
     public static final String EXPRESSVPN_URL_BASIC = "http://www.jed2k.com/vpn.expressvpn";

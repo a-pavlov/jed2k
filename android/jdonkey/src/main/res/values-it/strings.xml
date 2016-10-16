@@ -173,4 +173,8 @@
     <string name="server_add">Aggiungere</string>
     <string name="server_add_descr">Descrizione</string>
     <string name="server_add_name">Nome</string>
+
+    <string name="wizard_previous">Precedente</string>
+    <string name="wizard_next">Successivo</string>
+    <string name="wizard_finish">Fine</string>
 </resources>

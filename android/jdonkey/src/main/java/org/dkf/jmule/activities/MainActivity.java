@@ -319,7 +319,7 @@ public class MainActivity extends AbstractActivity implements
             mainResume();
             //Offers.initAdNetworks(this);
         } else if (!isShutdown()){
-            //controller.startWizardActivity();
+            controller.startWizardActivity();
         }
 
         checkLastSeenVersion();

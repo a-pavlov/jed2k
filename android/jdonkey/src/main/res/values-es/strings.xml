@@ -171,4 +171,9 @@
     <string name="server_add">Agregar</string>
     <string name="server_add_descr">Descripción</string>
     <string name="server_add_name">Nombre</string>
+
+    <string name="storage_path">Ruta de almacenamiento</string>
+    <string name="wizard_previous">Anterior</string>
+    <string name="wizard_next">Siguiente</string>
+    <string name="wizard_finish">Terminar</string>
 </resources>
