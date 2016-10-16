@@ -190,4 +190,5 @@
     <string name="usage_suggestions_title">Suggerimenti per l\'uso</string>
     <string name="usage_notes_summary">Prima di iniziare, andare in impostazioni e attivare il servizio di ED2K seèspento. L\'applicazione supporta il download in background tramite il servizio. Premendo il pulsante indietrosialla fine sarà in grado di uscire dall\'applicazione senza interrompere il servizio. Per la completa chiusura del servizio e dell\'applicazione, selezionare esci dal menu.</string>
     <string name="welcome_to_mule">Benvenuti nel Mulo per Android</string>
+    <string name="storage_path">Il percorso di archiviazione</string>
 </resources>
