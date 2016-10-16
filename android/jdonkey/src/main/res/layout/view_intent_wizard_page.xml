@@ -29,6 +29,48 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:layout_marginBottom="10dp"
-        android:text="@string/usage_title"
+        android:text="@string/usage_notes_title"
         style="@style/WizardSubTitle" />
+
+    <TextView android:id="@+id/view_intent_wizard_page_text_tos"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/usage_notes_summary"
+              android:clickable="true"
+              style="@style/WizardText"
+              android:layout_marginLeft="5dp" />
+
+    <TextView
+            android:id="@+id/view_intent_wizard_page_text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/usage_suggestions_title"
+            style="@style/WizardSubTitle" />
+
+    <TextView android:id="@+id/view_intent_wizard_page_text_tos2"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/usage_suggestions_summary"
+              android:clickable="true"
+              style="@style/WizardText"
+              android:layout_marginLeft="5dp" />
+
+    <TextView
+            android:id="@+id/view_intent_wizard_page_text3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/usage_proposals_title"
+            style="@style/WizardSubTitle" />
+
+    <TextView android:id="@+id/view_intent_wizard_page_text_tos3"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/usage_proposals_summary"
+              android:clickable="true"
+              style="@style/WizardText"
+              android:layout_marginLeft="5dp" />
 </LinearLayout>

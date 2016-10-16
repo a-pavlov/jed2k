@@ -169,6 +169,14 @@
     <string name="server_add">Добавить</string>
     <string name="server_add_descr">Описание</string>
     <string name="server_add_name">Имя</string>
+    <string name="upnp">Проброс порта на роутере</string>
+    <string name="upnp_summary">Если вы подключены посредством роутера попробуйте пробросить входящий порт на роутере. В этом случае порт входящих соединений будет доступен извне. Это даст большее количество источников. Проверьте что на роутере активировано UPnP.</string>
+    <string name="usage_notes_title">Работа с приложением</string>
+    <string name="usage_proposals_title">Предложения и сообщения о проблемах</string>
+    <string name="usage_suggestions_title">Советы по работе</string>
+    <string name="usage_suggestions_summary">Попробуйте обеспечить достижимый извне порт входящих соединений. Выбирайте файлы с большим количеством источников.</string>
+    <string name="usage_proposals_summary">Направляйте пожелания и отчеты о проблемах на почту разработчика</string>
+    <string name="usage_notes_summary">Перед началом работы перейдите в настройки и включите сервис ED2K. Приложение поддерживает закачку в фоне посредством сервиса. Нажимая кнопку назад вы в конце сможете выйти из приложения не останавливая сервис. Для полного закрытия сервиса и приложения выберите выход в меню.</string>
 
     <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
 </resources>

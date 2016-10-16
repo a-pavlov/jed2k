@@ -177,4 +177,22 @@
     <string name="wizard_previous">Precedente</string>
     <string name="wizard_next">Successivo</string>
     <string name="wizard_finish">Fine</string>
+    <string name="upnp">Portforwarding della porta sul router</string>
+    <string name="upnp_summary">Se si è connessi tramite un router prova a mappare la porta in ingresso sul router. In
+        questo caso, porta le connessioni in entrata sarà accessibile dall\'esterno. Questo darà un maggior numero di
+        fonti. Verificare che il router è attivato UPnP.
+    </string>
+    <string name="usage_notes_summary">Prima di iniziare, andare in impostazioni e attivare il servizio di ED2K.
+        L\'applicazione supporta il download in background tramite il servizio. Premendo il pulsante indietro si alla
+        fine sarà in grado di uscire dall\'applicazione senza interrompere il servizio. Per la completa chiusura del
+        servizio e dell\'applicazione, selezionare esci dal menu.
+    </string>
+    <string name="usage_notes_title">Il lavoro con l\'applicazione</string>
+    <string name="usage_proposals_summary">Inviare richieste e segnalazioni di problemi per e-mail allo sviluppatore
+    </string>
+    <string name="usage_proposals_title">Suggerimenti e segnalazioni di problemi</string>
+    <string name="usage_suggestions_summary">Prova a fornire raggiungibile dall\'esterno porta le connessioni in entrata.
+        Scegli i file con molte fonti.
+    </string>
+    <string name="usage_suggestions_title">Suggerimenti per l\'uso</string>
 </resources>
