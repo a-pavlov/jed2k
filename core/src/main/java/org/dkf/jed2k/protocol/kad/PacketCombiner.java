@@ -1,13 +1,15 @@
-package org.jed2k.protocol.client.kad;
+package org.dkf.jed2k.protocol.kad;
+
+import org.dkf.jed2k.protocol.PacketHeader;
+import org.dkf.jed2k.protocol.PacketKey;
+import org.dkf.jed2k.protocol.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jed2k.protocol.PacketHeader;
-import org.jed2k.protocol.PacketKey;
-import org.jed2k.protocol.Serializable;
 
-public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
+public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
+
     enum KadUdp {
         KADEMLIA_BOOTSTRAP_REQ      (0x00),
         KADEMLIA_BOOTSTRAP_RES      (0x08),
@@ -36,7 +38,7 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
         KADEMLIA_FINDBUDDY_RES      (0x5A),
 
         KADEMLIA_PUBLISH_NOTES_REQ  (0x42),
-        KADEMLIA_PUBLISH_NOTES_RES  (0x4A), 
+        KADEMLIA_PUBLISH_NOTES_RES  (0x4A),
 
         KADEMLIA2_BOOTSTRAP_REQ     (0x01),
         KADEMLIA2_BOOTSTRAP_RES     (0x09),
@@ -79,11 +81,11 @@ public class PacketCombiner extends org.jed2k.protocol.PacketCombiner {
             value = (byte)v;
         }
     }
-    
+
     private static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsKad;
     private static final Map<Class<? extends Serializable>, PacketKey> struct2KeyKad;
-    
-    static {        
+
+    static {
         supportedPacketsKad = new HashMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyKad = new HashMap<Class<? extends Serializable>, PacketKey>();
     }

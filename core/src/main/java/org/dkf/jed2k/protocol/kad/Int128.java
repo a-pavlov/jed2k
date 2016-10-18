@@ -1,20 +1,21 @@
-package org.jed2k.protocol.client.kad;
+package org.dkf.jed2k.protocol.kad;
+
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.BitField;
+import org.dkf.jed2k.protocol.Serializable;
 
 import java.nio.ByteBuffer;
 
-import org.jed2k.exception.JED2KException;
-import org.jed2k.protocol.BitField;
-import org.jed2k.protocol.Serializable;
 
 /**
- * 
+ *
  * @author apavlov
  * 128 bit identifier in KAD network
  */
 public class Int128 implements Serializable, Comparable<Int128> {
 
     private BitField data;
-    
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         // TODO Auto-generated method stub
@@ -38,5 +39,5 @@ public class Int128 implements Serializable, Comparable<Int128> {
         // TODO Auto-generated method stub
         return 0;
     }
-    
+
 }

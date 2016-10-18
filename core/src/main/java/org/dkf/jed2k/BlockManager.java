@@ -2,13 +2,12 @@ package org.dkf.jed2k;
 
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Hash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by inkpot on 17.07.2016.
