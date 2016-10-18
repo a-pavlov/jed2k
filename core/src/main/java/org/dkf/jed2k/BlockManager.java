@@ -1,0 +1,80 @@
+package org.dkf.jed2k;
+
+import org.dkf.jed2k.hash.MD4;
+import org.dkf.jed2k.protocol.Hash;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Created by inkpot on 17.07.2016.
+ * this class designed to store information about dedicated piece
+ * and partial hash
+ */
+public class BlockManager {
+    private static final Logger log = LoggerFactory.getLogger(BlockManager.class);
+    private Hash pieceHash;
+    private MD4 hasher = new MD4();
+    private int lastHashedBlock = -1;
+    private ByteBuffer[] buffers;
+    private int piece;
+
+    public BlockManager(int piece, int buffersCount) {
+        this.piece = piece;
+        buffers = new ByteBuffer[buffersCount];
+        Arrays.fill(buffers, null);
+    }
+
+    public LinkedList<ByteBuffer> registerBlock(int blockIndex, ByteBuffer buffer) {
+        log.debug("register block {} last hashed block {}", blockIndex, lastHashedBlock);
+        assert pieceHash == null;
+        assert(buffer.hasRemaining());
+        assert(blockIndex < buffers.length);
+        // have no holes - hash all contiguous blocks
+        assert(buffers[blockIndex] == null);
+        buffers[blockIndex] = buffer;
+        if (lastHashedBlock + 1 == blockIndex) {
+            LinkedList<ByteBuffer> res = new LinkedList<>();
+            for(int i = blockIndex; i != buffers.length; ++i) {
+                if (buffers[i] != null) lastHashedBlock++; else break;
+                assert(lastHashedBlock == i);
+                assert(buffers[i] != null);
+                assert(buffers[i].hasRemaining());
+                hasher.update(buffers[i]);
+                assert(!buffers[i].hasRemaining());
+                res.addLast(buffers[i]);
+                buffers[i] = null;
+            }
+
+            return res;
+        }
+
+        return null;
+    }
+
+    public Hash pieceHash() {
+        if (pieceHash == null) {
+            assert(lastHashedBlock == buffers.length - 1);
+            pieceHash = Hash.fromBytes(hasher.digest());
+        }
+
+        return pieceHash;
+    }
+
+    public int getPieceIndex() {
+        return piece;
+    }
+
+    final int getByteBuffersCount() {
+        int res = 0;
+        for(ByteBuffer b: buffers) {
+            if (b != null) ++res;
+        }
+
+        return res;
+    }
+}

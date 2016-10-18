@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * Creado por Angel Leon (@gubatron), Alden Torres (aldenml)
+ * Derechos de Autor (c) 2011-2016, FrostWire(R). Todos los derechos reservados.
+ *
+ * Este programa es gratuito: puedes distribuirlo y/o modificarlo
+ * bajo los términos de la Licencia General Pública de GNU tal y como lo publica
+ * la Fundación del Software Gratuito, ya sea la 3ª versión de la Licencia, o
+ * (es tu opción) una versión anterior.
+ *
+ * Este programa se distribuye con la esperanza de que será de gran uso,
+ * pero SIN GARANTÍAS; ni siquiera con la garantía implícita de la
+ * COMERCIALIDAD o ADECUACIÓN AL PROPÓSITO. Lee los
+ * detalles de la Licencia General Pública de GNU.
+ *
+ * Deberías haber recibido una copia de la Licencia General Pública GNU
+ * junto con este programa. Si no la has recibido, ve a http://www.gnu.org/licenses/.
+ */
+-->
+<resources>
+    <string name="activity_preferences_name">Configuración</string>
+    <string name="exit">Salir</string>
+    <string name="search_label">Buscar</string>
+    <string name="audio">Audio</string>
+    <string name="video">Video</string>
+    <string name="applications">Aplicaciones</string>
+    <string name="pictures">Imágenes</string>
+    <string name="documents">Documentos</string>
+    <string name="about">Acerca de</string>
+    <string name="settings">Preferencias</string>
+    <string name="files">archivos</string>
+    <string name="are_you_sure_you_wanna_leave">¿Seguro que quieres volver a la pantalla de inicio?</string>
+    <string name="unknown">Desconocido</string>
+    <string name="open">Abrir</string>
+    <string name="nickname">Nombre</string>
+    <string name="how_other_users_will_see_you">Cómo te verán los demás</string>
+    <string name="other_settings">Otros Ajustes</string>
+    <string name="vibrate_on_finished_download">Vibrar cuando termine una descarga</string>
+    <string name="use_mobile_data">Utilizar 3G/4G</string>
+    <string name="use_mobile_data_summary">Puede haber cargos por el sobreuso de la cobertura de datos. Úsalo con precaución.</string>
+    <string name="cant_open_file">Lo siento, no sé cómo abrir este archivo.</string>
+    <string name="download_added_to_queue">1 archivo comenzará a descargarse</string>
+    <string name="open_menu_action">Abrir %s</string>
+    <string name="cancel_menu_action">Parar la Transferencia</string>
+    <string name="cancel_delete_menu_action">Parar y borrar los datos</string>
+    <string name="media_type_all_types">Todos los Tipos</string>
+    <string name="media_type_documents">Libros/Docs</string>
+    <string name="media_type_applications">Aplicaciones</string>
+    <string name="media_type_audio">Audio</string>
+    <string name="media_type_video">Video</string>
+    <string name="media_type_images">Imágenes</string>
+    <string name="media_type_torrents">Torrents</string>
+    <string name="search">Buscar</string>
+    <string name="transfers">Transferencias</string>
+    <string name="yes_no_cancel_transfer_question">¿Seguro que quieres parar y eliminar esta descarga de la lista? (No se eliminará ningún dato)</string>
+    <string name="yes_no_cancel_delete_transfer_question">¿Seguro que quieres cancelar esta descarga? (Los datos descargados hasta ahora se borrarán)</string>
+    <string name="cancel_transfer">Cancelar Transferencia</string>
+    <string name="pause_torrent_menu_action">Pausa</string>
+    <string name="resume_torrent_menu_action">Resumir</string>
+    <string name="clear_complete">Borrar Descargas Terminadas</string>
+    <string name="im_on_it">Estoy en ello…</string>
+    <string name="show_transfers_on_download_start">Mostrar Transferencias al comienzo de la descarga</string>
+    <string name="dialog_new_transfer_text_text">¿Estás seguro de que quieres descargar %1$s (%2$s)?</string>
+    <string name="dialog_new_transfer_check_text">Mostrar esto la próxima vez</string>
+    <string name="show_new_transfer_dialog">Mostrar el Diálogo de Nueva Transferencia</string>
+    <string name="toast_on_disconnect">ED2K sesión se detuvo. Todas las transferencias se han detenido.</string>
+    <string name="toast_on_connect">ED2K inicia la sesión.</string>
+    <string name="seeds_n">Semilla: %s</string>
+    <string name="size_unknown">Tamaño desconocido</string>
+    <string name="storage_preference_title">Seleccionar ubicación de almacenamiento</string>
+    <string name="storage_preference_summary">La ubicación de almacenamiento por defecto donde se guardarán los archivos.</string>
+    <string name="retry_search">Reintentar</string>
+    <string name="no_results_feedback">No se encontraron resultados.\n\nRevisa tu conexión a Internet o\nprueba otra búsqueda.</string>
+    <string name="drawer_close">Cierra el menu de navegación</string>
+    <string name="add_transfer_label">Copia una URL de magnet o torrent</string>
+    <string name="drawer_open">Abre el menu de navegación</string>
+    <string name="magnet_url_added">Enlace agregado a las transferencias</string>
+    <string name="transfers_select_completed">completado</string>
+    <string name="transfers_context_menu_pause_stop_all_transfers">Pausa/Para todas las Transferencias</string>
+    <string name="transfers_select_downloading">descargando</string>
+    <string name="transfers_context_menu_clear_finished">Limpia todas las descargas completadas</string>
+    <string name="transfers_select_all">Todo</string>
+    <string name="torrent_url_added">ED2K link añadido a las transferencias.</string>
+    <string name="please_enter_valid_url">Por favor, escriba un enlace válido</string>
+    <string name="transfers_context_resume_all_torrent_transfers">Reanudar todas las transferencias Torrent</string>
+    <string name="saving_to_internal_memory_description">También tienes un SD Card (%1$s disp.)</string>
+    <string name="android_will_erase_files_if_frostwire_is_uninstalled">Android borrará los archivos descargados si Mula es desinstalado.</string>
+    <string name="please_check_connection_status_before_resuming_download">Por favor, revisa el estado de tu conexión a Internet antes de reanudar.</string>
+    <string name="confirm_download">Confirmar Descarga</string>
+    <string name="sdcard_storage">Almacenamiento SD</string>
+    <string name="available">disponible</string>
+    <string name="storage_setting_confirm_dialog_title">TARJETA SD</string>
+    <string name="cant_resume_torrent_transfers"> "Conectividad"</string>
+    <string name="storage_setting_warning">AVISO: Todos los archivos descargados por Mula en la tarjeta SD serán borrados por ANDROID si Mula es desinstalado.</string>
+    <string name="device_storage">Almacenamiento del Dispositivo</string>
+    <string name="saving_to_internal_memory">Guardando en la Memoria Interna</string>
+    <string name="storage_setting_confirm_dialog_text">Entiendo que todos los archivos descargados a la tarjeta SD por Mule on Android serán borrados POR ANDROID en el momento que la aplicación Mule on Android sea desinstalada de este dispositivo y no voy a mantener a Mule como responsable de archivos perdidos.</string>
+    <string name="saving_to_sd_card">Guardando en la tarjeta SD.</string>
+    <string name="app_shutdown_dlg_message">Esto cancelará todas las transferencias y servicios ejecutados en segundo plano. ¿Estás seguro?</string>
+    <string name="app_shutdown_dlg_title">Cerrar</string>
+    <string name="try_other_keywords">Intenta otras palabras</string>
+    <string name="try_frostwire_plus_for_more_results"><u>Prueba Mula para más resultados</u></string>
+    <string name="your_installation_is_complete">Instalación completa.</string>
+    <string name="thank_you">¡Gracias!</string>
+    <string name="keep_in_touch">¡Mantente en contacto!</string>
+    <string name="why_we_need_storage_permissions_summary">Mule es un explorador de archivos, y aplicación de descargas, por ende necesitará acceder a los archivos en tus dispositivos de almacenamiento.</string>
+    <string name="remove_torrent_and_data">Quitar la transferencia y el archivo</string>
+    <string name="why_we_need_storage_permissions">Por qué necesitamos permisos de almacenamiento.</string>
+    <string name="request_again">Intenta nuevamente</string>
+    <string name="storage_picker_treeuri_error">Error inesperado seleccionando ruta de almacenamiento</string>
+    <string name="storage_picker_treeuri_null">La ruta de almacenamiento no fue seleccionada</string>
+    <string name="storage_picker_treeuri_cant_write">Mule on Android no puede escribir en la ruta de almacenamiento seleccionada</string>
+
+    <!-- Important: Android tiene bugs con HTML, no dejes etiquetas HTML pegadas al texto, deja espacios. De otro modo android cuenta las etiquetas como parte de la longitud del texto y luego las lineas se cortan de forma prematura. -->
+    <string name="selected">seleccionado</string>
+    <string name="check_internet_connection">Comprobar conexión de Internet</string>
+    <string name="select_all">Seleccionar todo</string>
+    <string name="storage_picker_treeuri_not_directory">La ruta seleccionada no es un directorio</string>
+    <string name="finishing">Terminando</string>
+    <string name="sd_permission_no_accessible_path">La ruta que ha seleccionado en la tarjeta SD no es accesible como antes. Presione OK para seleccionarla de nuevo.</string>
+    <string name="pick_the_files_you_want_to_download_from_this_torrent">Seleccione los archivos que desea descargar de este torrent</string>
+    <string name="app_name">Mula en Android</string>
+    <string name="cancel">Cancelar</string>
+    <string name="common_settings">La configuración común</string>
+    <string name="connect_on_start_server">Vuelva a conectar</string>
+    <string name="connect_on_start_server_summary">Conectarse a la última conexión con el servidor en el inicio</string>
+    <string name="listen_port">Puerto en el que escucha</string>
+    <string name="listen_port_summary">Puerto para las conexiones entrantes</string>
+    <string name="minimize_application">Minimizar la Mula en Android</string>
+    <string name="notify_jdonkey_is_running">Notificar si la Mula en Android se está ejecutando</string>
+    <string name="notify_jdonkey_is_running_summary">Muestran una permanente Android notificación con el estado de las transferencias de</string>
+    <string name="peer_speed">Velocidad %1$s</string>
+    <string name="peer_total_bytes_download">El Total de bytes %1$s</string>
+    <string name="search_item_source_server">Servidor</string>
+    <string name="search_item_sources">Fuentes %1$d</string>
+    <string name="search_parameter_complete_sources">Completa las fuentes</string>
+    <string name="search_parameter_max_size">Tamaño máx., Mb</string>
+    <string name="search_parameter_min_size">Min tamaño, Mb</string>
+    <string name="search_parameter_sources">Fuentes</string>
+    <string name="server_connect_action">Conectarse a %1$s</string>
+    <string name="server_disconnect_action">Desconectar de %1$s</string>
+    <string name="server_not_connected">No se conecta al servidor</string>
+    <string name="server_not_connected_det">Antes de comenzar la búsqueda conectar al servidor</string>
+    <string name="server_remove_action">Quitar %1$s</string>
+    <string name="servers">Servidores</string>
+    <string name="servers_settings">Configuración de servidores</string>
+    <string name="service_stopped">20 / 10000 ИСПАНСКИЙ Перевести вGoogleBing ED2K detenido el servicio de</string>
+    <string name="service_stopped_details" translatable="false">Por favor, vaya a preferencias y empezar ED2K servicio</string>
+    <string name="sever_menu_title">Las operaciones del servidor</string>
+    <string name="show_server_messages">El servidor msg</string>
+    <string name="show_server_messages_summary">Mostrar mensajes desde el servidor</string>
+    <string name="transfer_state_completed">Completado</string>
+    <string name="transfer_state_downloading">Descargar</string>
+    <string name="transfer_state_paused">Pausa</string>
+    <string name="transfer_state_stalled">A la espera de fuentes</string>
+    <string name="transfers_context_menu_copy_link">Copiar link</string>
+    <string name="transfers_context_menu_copy_link_copied">Enlace copiado al portapapeles</string>
+    <string name="transfers_max_downloads">Max Descargas</string>
+    <string name="transfers_max_downloads_summary">Max Descargas</string>
+    <string name="transfers_max_total_connections">El Máximo Total De Conexiones</string>
+    <string name="transfers_max_total_connections_summary">El Máximo Total De Conexiones</string>
+    <string name="user_id">ID de usuario</string>
+    <string name="users_count">Los usuarios</string>
+    <string name="search_more_action">Buscar aún</string>
+    <string name="ed2k_network_summary">El estado de la conexión</string>
+    <string name="files_count">Los archivos</string>
+    <string name="transfers_settings">Las transferencias de configuración</string>
+    <string name="forward_ports_summary">Adelante entrantes a los puertos en mi router. UPnP debe ser activado en el router</string>
+    <string name="forward_ports_title">La redirección de puertos</string>
+    <string name="server_add">Agregar</string>
+    <string name="server_add_descr">Descripción</string>
+    <string name="server_add_name">Nombre</string>
+
+    <string name="storage_path">Ruta de almacenamiento</string>
+    <string name="wizard_previous">Anterior</string>
+    <string name="wizard_next">Siguiente</string>
+    <string name="wizard_finish">Terminar</string>
+    <string name="upnp">La redirección de puertos en el enrutador</string>
+    <string name="upnp_summary">Si está conectado a través de un router intenta tender un puerto de entrada en el
+        enrutador. En este caso, el puerto de conexión entrante será accesible desde el exterior. Esto le dará una mayor
+        cantidad de fuentes. Compruebe que el router está activado el UPnP.
+    </string>
+    <string name="usage_notes_summary">Antes de comenzar, vaya a configuración y active el servicio ED2K si está
+        apagado. La aplicación soporta la descarga en el fondo a través del servicio. Pulsando el botón de atrás está al
+        final será capaz de salir de la aplicación sin necesidad de interrumpir el servicio. Para la total paralización
+        del servicio y de la aplicación y seleccione salir en el menú.</string>
+    <string name="usage_notes_title">Trabajar con la aplicación</string>
+    <string name="usage_proposals_summary">Направляйте пожелания и отчеты о проблемах на почту разработчика</string>
+    <string name="usage_proposals_title">La propuesta y el mensaje de los problemas</string>
+    <string name="usage_suggestions_summary">Trate de proporcionar accesible desde el exterior el puerto de las
+        conexiones entrantes. Seleccione los archivos con una gran cantidad de fuentes.
+    </string>
+    <string name="usage_suggestions_title">Consejos sobre el uso del</string>
+    <string name="welcome_to_mule">Bienvenido a un Mule para Android</string>
+</resources>

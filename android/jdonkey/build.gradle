@@ -1,0 +1,62 @@
+apply plugin: 'com.android.application'
+apply from: '../../core/dependencies.gradle'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.0'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+def manifestVersionCode() {
+    def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
+
+    def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
+    def xml = new XmlParser().parse(manifestFile)
+
+    return Integer.parseInt(xml.attributes()[ns.versionCode].toString())
+}
+
+def manifestVersionName() {
+    def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
+
+    def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
+    def xml = new XmlParser().parse(manifestFile)
+
+    return xml.attributes()[ns.versionName].toString()
+}
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "org.dkf.jmule"
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 3
+        versionName "0.3"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile project(':service')
+    compile 'com.android.support:appcompat-v7:22.2.0'
+}

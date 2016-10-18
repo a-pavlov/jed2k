@@ -1,0 +1,2 @@
+language: java
+script: pushd core && mvn test && popd
