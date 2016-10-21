@@ -14,10 +14,10 @@
    id="svg4225"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   width="240"
-   height="240"
-   viewBox="0 0 240 240"
-   sodipodi:docname="mule_last.svg"
+   width="242"
+   height="242"
+   viewBox="0 0 242 242"
+   sodipodi:docname="mule.svg"
    inkscape:label="(корень)"
    style="enable-background:new">
   <metadata
@@ -242,7 +242,7 @@
     <radialGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4242"
-       id="radialGradient3343"
+       id="radialGradient3325"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1,0,0,0.95497444,0,1.8270898)"
        cx="86.085876"
@@ -266,17 +266,18 @@
      showgrid="false"
      borderlayer="true"
      inkscape:zoom="3.9826182"
-     inkscape:cx="123.59823"
-     inkscape:cy="139.56409"
+     inkscape:cx="129.00518"
+     inkscape:cy="100.96492"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer7"
+     inkscape:current-layer="svg4225"
      inkscape:snap-intersection-paths="true" />
   <g
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Фон 2задний метал"
+     transform="translate(0,2)"
      sodipodi:insensitive="true">
     <ellipse
        style="fill:url(#linearGradient5787);fill-opacity:1;stroke:url(#linearGradient4258);stroke-width:1.00002563;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -285,25 +286,28 @@
        cy="174.85728"
        rx="118.94215"
        ry="120.07017"
-       transform="matrix(0.07999707,-0.9967951,0.99593418,0.09008392,-46.200763,0)"
+       transform="matrix(0.07999707,-0.9967951,0.99593418,0.09008392,-44.425281,0)"
        sodipodi:cx="-104.46857"
        sodipodi:cy="174.85728"
        sodipodi:rx="118.94215"
-       sodipodi:ry="120.07017" />
+       sodipodi:ry="120.07017"
+       d="m 14.473579,174.85728 c 0,66.31293 -53.252212,120.07017 -118.942149,120.07017 -65.68993,0 -118.94214,-53.75724 -118.94214,-120.07017 0,-66.31292 53.25221,-120.070163 118.94214,-120.070163 65.689937,0 118.942149,53.757243 118.942149,120.070163 z" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Фон 1задний"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="Фон"
      style="opacity:0;display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true">
     <g
-       transform="translate(-31.301282,86.254344)"
+       transform="translate(-29.5258,86.254344)"
        id="g5822-5-0"
        style="fill:#666666">
       <circle
@@ -328,11 +332,12 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Фон 1задний с болтами"
+     transform="translate(0,2)"
      sodipodi:insensitive="true">
     <g
        id="g5822"
        style="fill:#b3b3b3"
-       transform="matrix(0.8801875,0.47462613,-0.47462613,0.8801875,23.317908,-45.71249)">
+       transform="matrix(0.8801875,0.47462613,-0.47462613,0.8801875,25.09339,-45.71249)">
       <circle
          r="4.5422378"
          cy="108.77979"
@@ -351,7 +356,7 @@
          style="fill:#b3b3b3;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="matrix(-0.99288208,-0.11910155,0.11910155,-0.99288208,101.19358,328.83925)"
+       transform="matrix(-0.99288208,-0.11910155,0.11910155,-0.99288208,102.96906,328.83925)"
        id="g5822-5"
        style="fill:#666666">
       <circle
@@ -372,7 +377,7 @@
          style="fill:#666666;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="translate(22.38465,-91.220434)"
+       transform="translate(24.160132,-91.220434)"
        id="g5822-1"
        style="fill:#e6e6e6">
       <circle
@@ -393,7 +398,7 @@
          style="fill:#e6e6e6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="matrix(-0.98801271,-0.18398238,-0.2800697,0.95997966,242.71194,-77.35424)"
+       transform="matrix(-0.98801271,-0.18398238,-0.2800697,0.95997966,244.48742,-77.35424)"
        id="g5822-7"
        style="fill:#e6e6e6">
       <circle
@@ -414,7 +419,7 @@
          style="fill:#e6e6e6;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="matrix(0.94859918,0.31648001,-0.31648001,0.94859918,204.71922,-45.972166)"
+       transform="matrix(0.94859918,0.31648001,-0.31648001,0.94859918,206.4947,-45.972166)"
        id="g5822-9"
        style="fill:#b3b3b3">
       <circle
@@ -435,7 +440,7 @@
          style="fill:#b3b3b3;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="matrix(-0.07811428,0.99694441,-0.99694441,-0.07811428,288.08463,172.13406)"
+       transform="matrix(-0.07811428,0.99694441,-0.99694441,-0.07811428,289.86011,172.13406)"
        id="g5822-5-1"
        style="fill:#666666">
       <circle
@@ -456,7 +461,7 @@
          style="fill:#666666;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="matrix(-0.62513751,0.78051463,-0.78051463,-0.62513751,133.10899,184.20711)"
+       transform="matrix(-0.62513751,0.78051463,-0.78051463,-0.62513751,134.88447,184.20711)"
        id="g5822-5-5"
        style="fill:#808080">
       <circle
@@ -477,7 +482,7 @@
          style="fill:#808080;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="matrix(0.94853596,-0.31666944,0.31666944,0.94853596,140.52729,68.188679)"
+       transform="matrix(0.94853596,-0.31666944,0.31666944,0.94853596,142.30277,68.188679)"
        id="g5822-5-14"
        style="fill:#808080">
       <circle
@@ -503,40 +508,47 @@
      id="layer13"
      inkscape:label="Нижняя челюсть"
      style="display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer11"
      inkscape:label="Язык"
      style="display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer10"
      inkscape:label="Верхние зубы"
      style="display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="нижние зубы"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer1"
      inkscape:label="Уши основание"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer15"
      inkscape:label="Уши лампочки"
      style="opacity:0.99744682;display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer7"
      inkscape:label="Голова с глазами"
      style="display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true">
     <path
        style="fill:none;stroke-width:1000;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none"
@@ -556,16 +568,18 @@
      id="layer8"
      inkscape:label="Голова с ноздрями"
      style="display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true" />
   <g
      inkscape:groupmode="layer"
      id="layer9"
      inkscape:label="Верхняя губа"
      style="display:inline"
+     transform="translate(0,2)"
      sodipodi:insensitive="true">
     <g
        id="g4274"
-       transform="translate(-46.702945,0.50218217)">
+       transform="translate(-44.927463,0.50218217)">
       <ellipse
          transform="matrix(-0.04252333,-0.99909547,0.99949278,-0.03184611,0,0)"
          ry="101.53944"
@@ -640,7 +654,7 @@
            d="m 110.61795,79.823197 c 4.41107,3.130478 21.50425,-14.944579 16.37242,-20.412461"
            style="opacity:0.99490015;fill:none;stroke:#000000;stroke-width:1.22270679px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;display:inline" />
         <path
-           style="opacity:0.99744682;fill:#ffffff;fill-rule:evenodd;stroke:url(#radialGradient3343);stroke-width:1.22270679px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
+           style="opacity:0.99744682;fill:#ffffff;fill-rule:evenodd;stroke:url(#radialGradient3325);stroke-width:1.22270679px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
            d="M 111.69661,78.421027 C 91.932409,65.587214 50.344528,36.469388 46.995045,18.672402 44.116742,11.200537 52.89852,0.3905506 63.760639,3.1881766 c 10.3042,0.6432 29.48437,18.5652324 61.974411,58.2555254 0.0873,3.199832 -1.7719,5.394726 -5.26218,7.13548 C 86.932559,32.763344 64.699805,8.644233 58.220459,13.744829 c -6.648633,5.233859 23.61008,33.938158 59.004301,57.278804 1.48125,2.131244 -2.98699,7.515022 -5.52815,7.397394 z"
            id="path5029"
            inkscape:connector-curvature="0"
