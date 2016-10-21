@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.any;
@@ -127,5 +129,83 @@ public class PolicyTest {
         assertTrue(p.addPeer(p2));
         assertTrue(p.addPeer(p3));
         assertEquals(0, p.numConnectCandidates());
+    }
+
+    @Test
+    public void testPolicyErasePeers() throws JED2KException {
+        LinkedList<Peer> peers = new LinkedList<>();
+        Policy p = new Policy(transfer);
+        for(int i = 1; i < 101; ++i) {
+            peers.add(new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0." + new Integer(i).toString(), i+2000)), true));
+            p.addPeer(peers.peekLast());
+        }
+
+        assertEquals(100, p.size());
+
+        // test possibly incorrect random
+        for(int i = 0; i < 20; ++i) {
+            p.erasePeers();
+        }
+
+        assertEquals(100, p.size());
+        // check one candidate for erasing
+        {
+            Peer p1 = peers.poll();
+            p1.setFailCount(11);
+            p.erasePeers();
+            assertEquals(99, p.size());
+            Iterator<Peer> itr = p.iterator();
+            while(itr.hasNext()) {
+                assertFalse(p1.equals(itr.next()));
+            }
+        }
+
+        // check two candidates for erasing and erasing priority
+        {
+            Peer p1 = peers.poll();
+            Peer p2 = peers.poll();
+            Peer p3 = peers.pollLast();
+            assertFalse(p1.equals(p2));
+            p1.setFailCount(20);
+            p2.setConnectable(false);
+            p2.setFailCount(11);
+            p3.setFailCount(15);
+            p.erasePeers();
+            assertEquals(98, p.size());
+
+            Iterator<Peer> itr = p.iterator();
+            while (itr.hasNext()) {
+                assertFalse(p1.equals(itr.next()));
+            }
+
+            p.erasePeers();
+            assertEquals(97, p.size());
+            itr = p.iterator();
+            while (itr.hasNext()) {
+                assertFalse(p3.equals(itr.next()));
+            }
+
+            p.erasePeers();
+            assertEquals(96, p.size());
+            itr = p.iterator();
+            while (itr.hasNext()) {
+                assertFalse(p2.equals(itr.next()));
+            }
+
+        }
+
+        {
+            Peer p1 = peers.poll();
+            Peer p2 = peers.poll();
+            p1.setFailCount(12);
+            p2.setFailCount(12);
+            p2.setConnectable(false);
+            p.erasePeers();
+            assertEquals(95, p.size());
+            Iterator<Peer> itr = p.iterator();
+            while(itr.hasNext()) {
+                assertFalse(p2.equals(itr.next()));
+            }
+        }
     }
 }

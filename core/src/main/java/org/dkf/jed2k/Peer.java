@@ -75,4 +75,22 @@ public class Peer implements Comparable<Peer> {
                 + " fail count {" + failCount + "}"
                 + " last connected: " + lastConnected;
     }
+
+
+    public void setFailCount(int failCount) {
+        assert failCount > 0;
+        this.failCount = failCount;
+    }
+
+    public int getFailCount() {
+        return failCount;
+    }
+
+    public void setConnectable(boolean connectable) {
+        this.connectable = connectable;
+    }
+
+    public boolean getConnectable() {
+        return connectable;
+    }
 }

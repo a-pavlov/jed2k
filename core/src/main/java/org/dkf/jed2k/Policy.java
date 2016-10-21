@@ -17,6 +17,7 @@ public class Policy extends AbstractCollection<Peer> {
     private int roundRobin = 0;
     private ArrayList<Peer> peers = new ArrayList<Peer>();
     private Transfer transfer = null;
+    private Random rnd = new Random();
 
     public Policy(Transfer t) {
         transfer = t;
@@ -61,15 +62,16 @@ public class Policy extends AbstractCollection<Peer> {
     /**
      * try to remove some peers from list
      */
-    private void erasePeers() {
+    public void erasePeers() {
         int maxPeerListSize = 100;
 
         if (maxPeerListSize == 0 || peers.isEmpty()) return;
 
         int eraseCandidate = -1;
 
-        Random rnd = new Random();
-        int roundRobin = rnd.nextInt() % peers.size();
+        int roundRobin = rnd.nextInt(peers.size());
+        assert roundRobin >=0;
+        assert roundRobin < peers.size();
 
         int lowWatermark = maxPeerListSize * 95 / 100;
         if (lowWatermark == maxPeerListSize) --lowWatermark;
@@ -86,6 +88,8 @@ public class Policy extends AbstractCollection<Peer> {
             if (isEraseCandidate(pe) && (eraseCandidate == -1 || !comparePeerErase(peers.get(eraseCandidate), pe))) {
                 if (shouldEraseImmediately(pe)) {
                     if (eraseCandidate > current) eraseCandidate--;
+                    assert current >= 0;
+                    assert current < peers.size();
                     peers.remove(current);
                 } else eraseCandidate = current;
             }
