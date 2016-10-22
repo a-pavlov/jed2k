@@ -73,7 +73,7 @@
     <string name="retry_search">Reintentar</string>
     <string name="no_results_feedback">No se encontraron resultados.\n\nRevisa tu conexión a Internet o\nprueba otra búsqueda.</string>
     <string name="drawer_close">Cierra el menu de navegación</string>
-    <string name="add_transfer_label">Copia una URL de magnet o torrent</string>
+    <string name="add_transfer_label">Inserte el enlace ED2K</string>
     <string name="drawer_open">Abre el menu de navegación</string>
     <string name="magnet_url_added">Enlace agregado a las transferencias</string>
     <string name="transfers_select_completed">completado</string>

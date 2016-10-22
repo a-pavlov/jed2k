@@ -81,7 +81,7 @@
     <string name="drawer_open">Показать панель навигацию</string>
     <string name="drawer_close">Закрыть панель навигации</string>
     <string name="please_check_connection_status_before_resuming_download">Пожалуйста, проверьте ваше интернет-соединение, прежде чем возобновить.</string>
-    <string name="add_transfer_label">Вставьте magnet или торрент ссылку</string>
+    <string name="add_transfer_label">Вставьте ED2K ссылку</string>
     <string name="please_enter_valid_url">Пожалуйста, введите правильный URL</string>
     <string name="magnet_url_added">Cсылка добавлена для передачи. (лучше всего работают через Wi-Fi)</string>
     <string name="torrent_url_added">ED2K ссылка добавлена для передачи.</string>
