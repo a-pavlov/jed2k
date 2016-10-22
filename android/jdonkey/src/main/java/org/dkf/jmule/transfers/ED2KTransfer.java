@@ -30,6 +30,7 @@ public class ED2KTransfer implements Transfer {
     }
 
     public ED2KTransfer(final TransferHandle handle) {
+        assert handle != null;
         this.handle = handle;
         cachedStatus = null;
         cachedItems = handle.getPeersInfo();
