@@ -35,6 +35,7 @@ import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.SettingsActivity;
 import org.dkf.jmule.adapters.TransferListAdapter;
+import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.dialogs.MenuDialog;
 import org.dkf.jmule.transfers.Transfer;
@@ -261,7 +262,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         RichNotification internalMemoryNotification = findView(v, R.id.fragment_transfers_internal_memory_notification);
         internalMemoryNotification.setVisibility(View.GONE);
 
-        /*if (TransferManager.isUsingSDCardPrivateStorage() && !sdCardNotification.wasDismissed()) {
+        if (TransferManager.isUsingSDCardPrivateStorage() && !sdCardNotification.wasDismissed()) {
             String currentPath = ConfigurationManager.instance().getStoragePath();
             boolean inPrivateFolder = currentPath.contains("Android/data");
 
@@ -283,7 +284,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             internalMemoryNotification.setVisibility(View.VISIBLE);
             internalMemoryNotification.setOnClickListener(new SDCardNotificationListener(this));
         }
-        */
+
     }
 
     private void setupAdapter() {
@@ -419,10 +420,8 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         String url = addTransferUrlTextView.getText();
         if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
             toggleAddTransferControls();
-            if (url.startsWith("ed2k")) { //magnets are automatically started if found on the clipboard by autoPasteMagnetOrURL
-                //TransferManager.instance().downloadTorrent(url.trim(),
-                //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
-                UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
+            if (url.startsWith("ed2k")) {
+                if (Engine.instance().startDownload(url) != null) UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
             }
             addTransferUrlTextView.setText("");
         } else {
@@ -451,8 +450,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                         if (text.startsWith("ed2k")) {
                             addTransferUrlTextView.setText(text.trim());
                             if (Engine.instance().startDownload(text) != null) {
-                                //TransferManager.instance().downloadTorrent(text.trim(),
-                                //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
                                 UIUtils.showLongMessage(getActivity(), R.string.magnet_url_added);
                             }
                             clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
@@ -461,7 +458,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                     }
                 }
             } catch (Exception ignored) {
-
             }
         }
     }
