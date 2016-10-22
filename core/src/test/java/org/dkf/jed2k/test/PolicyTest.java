@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.any;
@@ -135,19 +134,19 @@ public class PolicyTest {
     public void testPolicyErasePeers() throws JED2KException {
         LinkedList<Peer> peers = new LinkedList<>();
         Policy p = new Policy(transfer);
-        for(int i = 1; i < 101; ++i) {
-            peers.add(new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0." + new Integer(i).toString(), i+2000)), true));
+        for(int i = 0; i < Policy.MAX_PEER_LIST_SIZE; ++i) {
+            peers.add(new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0." + new Integer(i+1).toString(), i+2000)), true));
             p.addPeer(peers.peekLast());
         }
 
-        assertEquals(100, p.size());
+        assertEquals(Policy.MAX_PEER_LIST_SIZE, p.size());
 
         // test possibly incorrect random
         for(int i = 0; i < 20; ++i) {
             p.erasePeers();
         }
 
-        assertEquals(100, p.size());
+        assertEquals(Policy.MAX_PEER_LIST_SIZE, p.size());
         // check one candidate for erasing
         {
             Peer p1 = peers.poll();

@@ -14,6 +14,7 @@ import java.util.*;
  */
 public class Policy extends AbstractCollection<Peer> {
     private final Logger log = LoggerFactory.getLogger(Policy.class);
+    public static final int MAX_PEER_LIST_SIZE = 100;
     private int roundRobin = 0;
     private ArrayList<Peer> peers = new ArrayList<Peer>();
     private Transfer transfer = null;
@@ -63,9 +64,8 @@ public class Policy extends AbstractCollection<Peer> {
      * try to remove some peers from list
      */
     public void erasePeers() {
-        int maxPeerListSize = 100;
 
-        if (maxPeerListSize == 0 || peers.isEmpty()) return;
+        if (MAX_PEER_LIST_SIZE == 0 || peers.isEmpty()) return;
 
         int eraseCandidate = -1;
 
@@ -73,8 +73,8 @@ public class Policy extends AbstractCollection<Peer> {
         assert roundRobin >=0;
         assert roundRobin < peers.size();
 
-        int lowWatermark = maxPeerListSize * 95 / 100;
-        if (lowWatermark == maxPeerListSize) --lowWatermark;
+        int lowWatermark = MAX_PEER_LIST_SIZE * 95 / 100;
+        if (lowWatermark == MAX_PEER_LIST_SIZE) --lowWatermark;
 
         for (int iterations = Math.min(peers.size(), 300); iterations > 0; --iterations)
         {
