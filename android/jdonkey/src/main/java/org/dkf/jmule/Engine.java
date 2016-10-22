@@ -323,7 +323,10 @@ public final class Engine implements AlertListener {
             if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
         } catch(JED2KException e) {
             log.error("add transfer error {}", e);
+        } catch(Exception e) {
+            log.error("add transfer error {}", e.toString());
         }
+
 
         return null;
     }
@@ -336,6 +339,8 @@ public final class Engine implements AlertListener {
             }
         } catch(JED2KException e) {
             log.error("load link error {}", e);
+        } catch(Exception e) {
+            log.error("load link error {}", e.toString());
         }
 
         return null;

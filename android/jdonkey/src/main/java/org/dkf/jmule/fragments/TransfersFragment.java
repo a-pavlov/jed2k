@@ -564,7 +564,8 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         @Override
         public void onClick(TransfersFragment f, View v) {
-            f.showContextMenu();
+            // temporary do nothing
+            //f.showContextMenu();
         }
     }
 

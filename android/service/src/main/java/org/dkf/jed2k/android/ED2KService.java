@@ -687,7 +687,8 @@ public class ED2KService extends Service {
         log.info("stop self {} last id: {}", b?"true":"false", lastStartId);
     }
 
-    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
+    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath)
+            throws JED2KException, Exception {
         if(session != null) {
             Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
             TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
@@ -698,7 +699,7 @@ public class ED2KService extends Service {
             return handle;
         }
 
-        return null;
+        throw new Exception("Session in null");
     }
 
     public List<TransferHandle> getTransfers() {
