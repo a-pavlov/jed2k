@@ -135,7 +135,7 @@
     <string name="dummy_build" translatable="false">[build number]</string>
     <string name="try_other_keywords">Try fewer/different keywords</string>
     <string name="try_frostwire_plus_for_more_results" translatable="false">Try Mule on Android for more results</string>
-    <string name="your_installation_is_complete" translatable="false">Your installation is complete.</string>
+    <string name="your_installation_is_complete">Your installation is complete.</string>
     <string name="thank_you">Thank you!</string>
     <string name="keep_in_touch">Keep in touch!</string>
     <string name="why_we_need_storage_permissions">Why we need storage permissions.</string>
@@ -157,7 +157,7 @@
     <string name="listen_port">Listen port</string>
     <string name="listen_port_summary">Port for incoming connections</string>
 
-    <string name="NA">N/A</string>
+    <string name="NA" translatable="false">N/A</string>
     <string name="users_count">Users</string>
     <string name="files_count">Files</string>
     <string name="user_id">User ID</string>
@@ -198,8 +198,8 @@
     <string name="transfer_state_downloading">Downloading</string>
 
     <string name="server_add_name">Name</string>
-    <string name="server_add_host" translatable="false">Host</string>
-    <string name="server_add_port" translatable="false">Port</string>
+    <string name="server_add_host">Host</string>
+    <string name="server_add_port">Port</string>
     <string name="server_add_descr">Descr</string>
     <string name="server_add">Add</string>
 
