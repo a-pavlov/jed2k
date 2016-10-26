@@ -20,10 +20,11 @@ public class AsyncWrite implements Callable<AsyncOperationResult> {
 
     // TODO - check parameters here, most likely no need peer request, use piece block here
     public AsyncWrite(final PieceBlock block, final ByteBuffer b, final Transfer t) {
-        assert(b != null);
-        assert(block != null);
-        assert(t != null);
-        assert(b.hasRemaining());
+        assert b != null;
+        assert block != null;
+        assert t != null;
+        boolean hasRemaining = b.hasRemaining();
+        assert hasRemaining;
         this.block = block;
         buffer = b;
         transfer = t;
