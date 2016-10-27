@@ -127,12 +127,15 @@ public final class SearchFragment extends AbstractFragment implements
         if (adapter != null && (adapter.getCount() > 0 || adapter.getTotalCount() > 0)) {
             refreshFileTypeCounters(true);
         }
+
+        adRect.resume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Engine.instance().removeListener(this);
+        adRect.pause();
     }
 
     @Override

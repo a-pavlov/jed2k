@@ -101,12 +101,14 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         Engine.instance().setListener(this);
         invalidateServersState();
         warnServiceStopped(getView());
+        mAdView.resume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Engine.instance().removeListener(this);
+        mAdView.pause();
     }
 
     @Override
