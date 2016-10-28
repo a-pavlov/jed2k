@@ -116,7 +116,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         super.onDestroy();
         Engine.instance().removeListener(this);
         if (mAdView != null) {
-            log.info("servers fragment ad close");
             mAdView.destroy();
             mAdView.setVisibility(View.GONE);
         }
@@ -153,7 +152,6 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                log.info("ad block loaded");
                 mAdView.setVisibility(View.VISIBLE);
 
             }

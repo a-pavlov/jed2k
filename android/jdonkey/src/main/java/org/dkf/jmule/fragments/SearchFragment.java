@@ -143,7 +143,6 @@ public final class SearchFragment extends AbstractFragment implements
         super.onDestroy();
         Engine.instance().removeListener(this);
         if (adRect != null) {
-            LOG.info("search fragment ad close");
             adRect.destroy();
             adRect.setVisibility(View.GONE);
         }
@@ -222,7 +221,6 @@ public final class SearchFragment extends AbstractFragment implements
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                LOG.info("ad loaded");
                 if (adapter == null || adapter.isEmpty()) {
                     adRect.setVisibility(View.VISIBLE);
                 }

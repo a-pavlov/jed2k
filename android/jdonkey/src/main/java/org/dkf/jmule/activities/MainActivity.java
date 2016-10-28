@@ -162,7 +162,6 @@ public class MainActivity extends AbstractActivity implements
     }
 
     public void shutdown() {
-        log.info("shutdown app state {}", appState);
         if (appState == APP_STATE.WAIT_SHUTDOWN) Engine.instance().shutdown();
         finish();
     }
@@ -184,9 +183,7 @@ public class MainActivity extends AbstractActivity implements
 
     @Override
     protected void initComponents(Bundle savedInstanceState) {
-        log.info("main activity init components");
         if (isShutdown()) {
-            log.info("shutdown");
             return;
         }
 
@@ -199,7 +196,6 @@ public class MainActivity extends AbstractActivity implements
         onNewIntent(getIntent());
         setupActionBar();
         setupDrawer();
-        log.info("init components completed");
     }
 
     private void initDrawerListener() {
@@ -235,7 +231,6 @@ public class MainActivity extends AbstractActivity implements
         }
 
         if (isShutdown(intent)) {
-            log.info("shutdown");
             return;
         }
 
@@ -401,11 +396,8 @@ public class MainActivity extends AbstractActivity implements
         //}
 
         if (isShutdown()) {
-            log.info("onCreate is shutdown, exit");
             return;
         }
-
-        log.info("onCreate initialize Ad");
 
         checkExternalStoragePermissionsOrBindMusicService();
         MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
@@ -458,7 +450,6 @@ public class MainActivity extends AbstractActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        log.info("main activity destroy");
         MobileAds.initialize(null, getResources().getString(R.string.banner_ad_1_id));
     }
 
