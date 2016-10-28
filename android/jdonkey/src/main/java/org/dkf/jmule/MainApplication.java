@@ -50,7 +50,7 @@ public class MainApplication extends Application {
         super.onCreate();
 
         try {
-
+            LOG.info("main application onCreate");
             Platforms.set(new AndroidPlatform(this));
             ConfigurationManager.create(this);
             NetworkManager.create(this);

@@ -184,9 +184,12 @@ public class MainActivity extends AbstractActivity implements
 
     @Override
     protected void initComponents(Bundle savedInstanceState) {
+        log.info("main activity init components");
         if (isShutdown()) {
+            log.info("shutdown");
             return;
         }
+
         initDrawerListener();
         leftDrawer = findView(R.id.activity_main_left_drawer);
         listMenu = findView(R.id.left_drawer);
@@ -196,6 +199,7 @@ public class MainActivity extends AbstractActivity implements
         onNewIntent(getIntent());
         setupActionBar();
         setupDrawer();
+        log.info("init components completed");
     }
 
     private void initDrawerListener() {
@@ -225,11 +229,13 @@ public class MainActivity extends AbstractActivity implements
 
     @Override
     protected void onNewIntent(Intent intent) {
+        log.info("main activity on new intent {}", intent);
         if (intent == null) {
             return;
         }
 
         if (isShutdown(intent)) {
+            log.info("shutdown");
             return;
         }
 
@@ -411,8 +417,7 @@ public class MainActivity extends AbstractActivity implements
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {
-                if (appState != APP_STATE.ACTIVE) shutdown();
-                else requestNewInterstitial();
+                if (appState == APP_STATE.ACTIVE) requestNewInterstitial();
             }
 
         });
@@ -453,6 +458,8 @@ public class MainActivity extends AbstractActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        log.info("main activity destroy");
+        MobileAds.initialize(null, getResources().getString(R.string.banner_ad_1_id));
     }
 
     private void saveLastFragment(Bundle outState) {
