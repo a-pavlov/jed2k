@@ -100,7 +100,6 @@
     <string name="app_shutdown_dlg_message">Esto cancelará todas las transferencias y servicios ejecutados en segundo plano. ¿Estás seguro?</string>
     <string name="app_shutdown_dlg_title">Cerrar</string>
     <string name="try_other_keywords">Intenta otras palabras</string>
-    <string name="try_frostwire_plus_for_more_results"><u>Prueba Mula para más resultados</u></string>
     <string name="your_installation_is_complete">Instalación completa.</string>
     <string name="thank_you">¡Gracias!</string>
     <string name="keep_in_touch">¡Mantente en contacto!</string>
@@ -193,4 +192,6 @@
     </string>
     <string name="usage_suggestions_title">Consejos sobre el uso del</string>
     <string name="welcome_to_mule">Bienvenido a un Mule para Android</string>
+    <string name="server_add_host">Host</string>
+    <string name="server_add_port">Port</string>
 </resources>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">library</string>
     <string name="jed2k_is_running" translatable="false">ED2K сервис запущен</string>
     <string name="transfer_finished">Закачка завершена</string>
     <string name="transfer_io_error">Ошибка записи файла</string>

@@ -579,12 +579,12 @@ public class ED2KService extends Service {
         mNotificationTemplate.setTextViewText(R.id.notification_line_one, title);
         mNotificationTemplate.setTextViewText(R.id.notification_line_two, summary);
         //mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.btn_playback_pause /* : R.drawable.btn_playback_play*/);
-        mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
+        //mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
 
         /**
          * OnClickPending intent for collapsed notification
          */
-        mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
+        //mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
 
         /**
          * Create notification instance
