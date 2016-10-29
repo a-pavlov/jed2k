@@ -131,7 +131,7 @@
             android:layout_alignParentBottom="true"
             android:visibility="gone"
             ads:adSize="SMART_BANNER"
-            ads:adUnitId="@string/banner_ad_1_id">
+            ads:adUnitId="@string/banner_ad_2_id">
     </com.google.android.gms.ads.AdView>
 
     <LinearLayout
