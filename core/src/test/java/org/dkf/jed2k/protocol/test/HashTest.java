@@ -214,4 +214,12 @@ public class HashTest{
         m.remove(h);
         assertTrue(m.isEmpty());
     }
+
+    @Test
+    public void testEmuleHash() {
+        Hash h = Hash.random(true);
+        String str = h.toString();
+        assertEquals("0E", str.substring(10, 12));
+        assertEquals("6F", str.substring(28, 30));
+    }
 }
