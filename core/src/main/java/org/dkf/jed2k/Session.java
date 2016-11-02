@@ -172,7 +172,7 @@ public class Session extends Thread {
 
         accumulator.secondTick(tickIntervalMS);
         connectNewPeers();
-        log.trace(bufferPool.toString());
+        //log.trace(bufferPool.toString());
     }
 
     @Override

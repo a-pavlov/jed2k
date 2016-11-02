@@ -389,7 +389,7 @@ public class PeerConnection extends Connection {
         mo2.setLargeFiles();
         mo2.setSourceExt2();
 
-        hello.properties.add(Tag.tag(Tag.CT_EMULE_VERSION, null, Utils.makeFullED2KVersion(ClientSoftware.SO_AMULE.value,
+        hello.properties.add(Tag.tag(Tag.CT_EMULE_VERSION, null, (int)Utils.makeFullED2KVersion(ClientSoftware.SO_AMULE.value,
                 session.getModMajorVersion(),
                 session.getModMinorVersion(),
                 session.getModBuildVersion())));

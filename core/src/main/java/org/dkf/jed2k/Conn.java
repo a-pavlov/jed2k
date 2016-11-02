@@ -304,6 +304,16 @@ public class Conn {
                 log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
                 handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
             }
+            else if (parts[0].compareTo("link") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    try {
+                        EMuleLink link = EMuleLink.fromString(parts[i]);
+                        handles.add(addTransfer(s, link.hash, link.size, Paths.get(args[0], link.filepath).toAbsolutePath().toString()));
+                    } catch(JED2KException e) {
+                        log.error("Unable to parse link {}", e);
+                    }
+                }
+            }
             else if (parts[0].compareTo("save") == 0) {
                 // saving search results to file for next usage
                 if (globalSearchRes != null && !globalSearchRes.files.isEmpty()) {
