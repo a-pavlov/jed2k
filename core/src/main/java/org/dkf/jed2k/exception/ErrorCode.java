@@ -51,7 +51,8 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_SAX_ERROR(44, "SAX parsing exception on port mapping"),
     PORT_MAPPING_CONFIG_ERROR(45, "Configuration exception on port mapping"),
     PORT_MAPPING_EXCEPTION(46, "Unknown exception on port mapping"),
-    FAIL(47, "Fail");
+    RC4_INVALID_KEY(47, "Invalid key in RC4 chipher"),
+    FAIL(48, "Fail");
 
     private final int code;
     private final String description;
