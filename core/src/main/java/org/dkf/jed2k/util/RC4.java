@@ -81,7 +81,7 @@ public class RC4 {
 		}
 
 		for (int i = 0; i < SBOX_LENGTH; i++) {
-			j = (j + sbox[i] + key[i % key.length]) % SBOX_LENGTH;
+			j = (j + sbox[i] + (0xFF & (int)key[i % key.length])) % SBOX_LENGTH;
 			swap(i, j, sbox);
 		}
 
