@@ -504,6 +504,11 @@ public class PeerConnection extends Connection {
     }
 
     @Override
+    public void onFoundFileSourcesObfu(FoundFileSourcesObfu value) throws JED2KException {
+        throw new JED2KException(ErrorCode.PEER_CONN_UNSUPPORTED_PACKET);
+    }
+
+    @Override
     public void onClientHello(Hello value) throws JED2KException {
         // extract client information
         assignRemotePeerInformation(value);

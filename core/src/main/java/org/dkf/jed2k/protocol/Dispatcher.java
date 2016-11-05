@@ -14,6 +14,7 @@ public interface Dispatcher {
     public void onServerStatus(Status value) throws JED2KException;
     public void onSearchResult(SearchResult value) throws JED2KException;
     public void onFoundFileSources(FoundFileSources value) throws JED2KException;
+    public void onFoundFileSourcesObfu(FoundFileSourcesObfu value) throws JED2KException;
     public void onCallbackRequestFailed(CallbackRequestFailed value) throws JED2KException;
     public void onCallbackRequestIncoming(CallbackRequestIncoming value) throws JED2KException;
 

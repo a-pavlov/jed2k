@@ -28,6 +28,8 @@ public class ServerConnection extends Connection {
     private long lastPingTime = 0;
     private boolean handshakeCompleted = false;
 
+    private int tcpFlags = 0;
+
     /**
      * special identifier for server connection
      * will be added to each server alert
@@ -92,8 +94,12 @@ public class ServerConnection extends Connection {
         session.clientId = value.clientId;
         session.tcpFlags = value.tcpFlags;
         session.auxPort = value.auxPort;
+        this.tcpFlags = value.tcpFlags;
         handshakeCompleted = true;
         session.pushAlert(new ServerIdAlert(identifier, value.clientId));
+        if ((session.tcpFlags & LoginRequest.SRV_TCPFLG_TCPOBFUSCATION) != 0) {
+            log.info("obfuscation supported on server");
+        }
     }
 
     @Override
@@ -250,6 +256,30 @@ public class ServerConnection extends Connection {
     }
 
     @Override
+    public void onFoundFileSourcesObfu(FoundFileSourcesObfu value) throws JED2KException {
+        Transfer transfer = session.transfers.get(value.hash);
+        if (transfer != null) {
+            for(final FileSourceObfu src: value.sources) {
+                if (Utils.isLowId(src.endpoint.getIP()) && !Utils.isLowId(session.clientId) && !session.callbacks.containsKey(src.endpoint.getIP())) {
+                    sendCallbackRequest(src.endpoint.getIP());
+                    session.callbacks.put(src.endpoint.getIP(), value.hash);
+                } else {
+                    log.debug("to hash {} added endpoint {} with hash {}"
+                            , value.hash
+                            , src.endpoint
+                            , src.hash);
+                    try {
+                        transfer.addPeer(src.endpoint);
+                    } catch(JED2KException e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public void onCallbackRequestFailed(CallbackRequestFailed value) throws JED2KException {
         log.debug("callback request failed {}" + value);
     }
@@ -302,7 +332,12 @@ public class ServerConnection extends Connection {
     void sendFileSourcesRequest(final Hash h, final long size) {
         long hi = (size >>> 32) & 0xFFFFFFFF;
         long lo = size & 0xFFFFFFFF;
-        write(new GetFileSources(h, (int)hi, (int)lo));
+        if ((tcpFlags & LoginRequest.SRV_TCPFLG_TCPOBFUSCATION) != 0) {
+            log.info("call get file sources with hash support");
+            write(new GetFileSourcesObfu(h, (int) hi, (int) lo));
+        } else {
+            write(new GetFileSources(h, (int) hi, (int) lo));
+        }
     }
 
     void sendCallbackRequest(final int clientId) {
