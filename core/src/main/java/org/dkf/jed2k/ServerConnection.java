@@ -72,7 +72,8 @@ public class ServerConnection extends Connection {
                 | LoginRequest.CAPABLE_NEWTAGS
                 | LoginRequest.CAPABLE_UNICODE
                 | LoginRequest.CAPABLE_LARGEFILES
-                | LoginRequest.CAPABLE_ZLIB;
+                | LoginRequest.CAPABLE_ZLIB
+                | LoginRequest.SRVCAP_SUPPORTCRYPT;
 
         int versionClient = (LoginRequest.JED2K_VERSION_MAJOR << 24) | (LoginRequest.JED2K_VERSION_MINOR << 17) | (LoginRequest.JED2K_VERSION_TINY << 10) | (1 << 7);
 
@@ -264,10 +265,12 @@ public class ServerConnection extends Connection {
                     sendCallbackRequest(src.endpoint.getIP());
                     session.callbacks.put(src.endpoint.getIP(), value.hash);
                 } else {
-                    log.debug("to hash {} added endpoint {} with hash {}"
+                    log.debug("to hash {} added endpoint {} with {} crypt opt {} has hash {}"
                             , value.hash
                             , src.endpoint
-                            , src.hash);
+                            , src.hash
+                            , (int)src.cryptOptions
+                            , src.hasHash()?"true":"false");
                     try {
                         transfer.addPeer(src.endpoint);
                     } catch(JED2KException e) {

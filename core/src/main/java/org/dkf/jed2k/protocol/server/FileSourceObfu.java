@@ -12,10 +12,10 @@ import java.nio.ByteBuffer;
  */
 public class FileSourceObfu implements Serializable {
     public NetworkIdentifier endpoint = new NetworkIdentifier();
-    byte cryptOptions;
+    public byte cryptOptions = 0;
     public Hash hash = Hash.INVALID;
 
-    private boolean hasHash() {
+    public boolean hasHash() {
         return ((cryptOptions & 0x80) != 0);
     }
 
