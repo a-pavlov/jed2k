@@ -147,9 +147,15 @@ public class Conn {
             }
         }
 
+        String hashSession = System.getProperty("session.hash");
+        if (hashSession != null) {
+            startSettings.userAgent = Hash.fromString(hashSession);
+        }
+
         final Session s = (trial)?(new SessionTrial(startSettings, systemPeers)):(new Session(startSettings));
         // add sources here
         log.info("Kind of session now: {}", s);
+        log.info("Settings: {}", startSettings);
         s.start();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
