@@ -77,6 +77,7 @@ public final class Constants {
     public static final String PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG = "jmule.prefs.gui.show_new_transfer_dialog";
 
     // ed2k common and servers
+    public static final String PREF_KEY_USER_AGENT = "jmule.prefs.user_agent";
     public static final String PREF_KEY_NICKNAME = "jmule.prefs.nickname";
     public static final String PREF_KEY_LISTEN_PORT = "jmule.prefs.listen_port";
     public static final String PREF_KEY_CONN_SERVER_ON_START = "jmule.prefs.connect_server_on_start";

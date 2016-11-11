@@ -59,7 +59,7 @@ public final class SearchFragment extends AbstractFragment implements
         SearchProgressView.CurrentQueryReporter,
         AlertListener {
     private static final Logger LOG = LoggerFactory.getLogger(SearchFragment.class);
-    private SearchResultListAdapter adapter;
+    private SearchResultListAdapter adapter = null;
 
     private SearchInputView searchInput;
     private ProgressBar deepSearchProgress;

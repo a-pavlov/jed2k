@@ -3,7 +3,7 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.protocol.Hash;
 
 public class Settings {
-    public final Hash userAgent = new Hash(Hash.LIBED2K);
+    public Hash userAgent = new Hash(Hash.LIBED2K);
     public String modName = new String("jed2k");
     public String clientName = new String("jed2k");
     public int listenPort = 4661;

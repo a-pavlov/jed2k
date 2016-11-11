@@ -749,6 +749,10 @@ public class ED2KService extends Service {
         settings.maxPeerListSize = maxSize;
     }
 
+    public void setUserAgent(Hash hash) {
+        settings.userAgent = hash;
+    }
+
     public Pair<Long, Long> getDownloadUploadRate() {
         if (session != null) {
             return session.getDownloadUploadRate();

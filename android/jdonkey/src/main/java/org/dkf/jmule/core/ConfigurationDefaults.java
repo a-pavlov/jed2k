@@ -19,6 +19,7 @@ package org.dkf.jmule.core;
 
 import android.os.Environment;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.server.ServerMet;
 
 import java.util.Collections;
@@ -109,6 +110,8 @@ final class ConfigurationDefaults {
         } catch(JED2KException e) {
             // wtf?
         }
+
+        defaultValues.put(Constants.PREF_KEY_USER_AGENT, Hash.random(true).toString());
     }
 
     private void resetValue(String key) {
