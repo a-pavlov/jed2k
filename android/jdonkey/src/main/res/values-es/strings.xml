@@ -144,7 +144,7 @@
     <string name="server_remove_action">Quitar %1$s</string>
     <string name="servers">Servidores</string>
     <string name="servers_settings">Configuración de servidores</string>
-    <string name="service_stopped">20 / 10000 ИСПАНСКИЙ Перевести вGoogleBing ED2K detenido el servicio de</string>
+    <string name="service_stopped">ED2K detenido el servicio de</string>
     <string name="service_stopped_details" translatable="false">Por favor, vaya a preferencias y empezar ED2K servicio</string>
     <string name="sever_menu_title">Las operaciones del servidor</string>
     <string name="show_server_messages">El servidor msg</string>
@@ -185,7 +185,7 @@
         final será capaz de salir de la aplicación sin necesidad de interrumpir el servicio. Para la total paralización
         del servicio y de la aplicación y seleccione salir en el menú.</string>
     <string name="usage_notes_title">Trabajar con la aplicación</string>
-    <string name="usage_proposals_summary">Направляйте пожелания и отчеты о проблемах на почту разработчика</string>
+    <string name="usage_proposals_summary">Envíe los deseos y los informes de problemas en el correo del desarrollador</string>
     <string name="usage_proposals_title">La propuesta y el mensaje de los problemas</string>
     <string name="usage_suggestions_summary">Trate de proporcionar accesible desde el exterior el puerto de las
         conexiones entrantes. Seleccione los archivos con una gran cantidad de fuentes.
