@@ -147,9 +147,15 @@ public class Conn {
             }
         }
 
+        String hashSession = System.getProperty("session.hash");
+        if (hashSession != null) {
+            startSettings.userAgent = Hash.fromString(hashSession);
+        }
+
         final Session s = (trial)?(new SessionTrial(startSettings, systemPeers)):(new Session(startSettings));
         // add sources here
         log.info("Kind of session now: {}", s);
+        log.info("Settings: {}", startSettings);
         s.start();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
@@ -303,6 +309,16 @@ public class Conn {
                 Hash hash = Hash.fromString(parts[1]);
                 log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
                 handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
+            }
+            else if (parts[0].compareTo("link") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    try {
+                        EMuleLink link = EMuleLink.fromString(parts[i]);
+                        handles.add(addTransfer(s, link.hash, link.size, Paths.get(args[0], link.filepath).toAbsolutePath().toString()));
+                    } catch(JED2KException e) {
+                        log.error("Unable to parse link {}", e);
+                    }
+                }
             }
             else if (parts[0].compareTo("save") == 0) {
                 // saving search results to file for next usage

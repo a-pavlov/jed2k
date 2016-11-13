@@ -277,6 +277,18 @@ public final class Engine implements AlertListener {
                     setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
                     setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
                     setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
+
+                    // migrate old versions which have no saved user agent hash
+                    String userAgent = ConfigurationManager.instance().getString(Constants.PREF_KEY_USER_AGENT);
+                    if (userAgent == null || userAgent.isEmpty()) {
+                        userAgent = Hash.random(true).toString();
+                        ConfigurationManager.instance().setString(Constants.PREF_KEY_USER_AGENT, userAgent);
+                        log.info("previous user aget not found, generate new {}", userAgent);
+                    }
+
+                    log.info("user agent {}", userAgent);
+                    setUserAgent(userAgent);
+
                     configureServices();
 
                     if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_AUTO_START_SERVICE) && isStopped()) {
@@ -323,7 +335,10 @@ public final class Engine implements AlertListener {
             if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
         } catch(JED2KException e) {
             log.error("add transfer error {}", e);
+        } catch(Exception e) {
+            log.error("add transfer error {}", e.toString());
         }
+
 
         return null;
     }
@@ -336,6 +351,8 @@ public final class Engine implements AlertListener {
             }
         } catch(JED2KException e) {
             log.error("load link error {}", e);
+        } catch(Exception e) {
+            log.error("load link error {}", e.toString());
         }
 
         return null;
@@ -367,6 +384,12 @@ public final class Engine implements AlertListener {
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
+
+    public void setUserAgent(final String s) {
+        assert s != null;
+        assert !s.isEmpty();
+        if (service != null) service.setUserAgent(Hash.fromString(s));
+    }
 
     public void configureServices() {
         if (service != null) service.configureSession();

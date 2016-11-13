@@ -579,12 +579,12 @@ public class ED2KService extends Service {
         mNotificationTemplate.setTextViewText(R.id.notification_line_one, title);
         mNotificationTemplate.setTextViewText(R.id.notification_line_two, summary);
         //mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.btn_playback_pause /* : R.drawable.btn_playback_play*/);
-        mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
+        //mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
 
         /**
          * OnClickPending intent for collapsed notification
          */
-        mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
+        //mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
 
         /**
          * Create notification instance
@@ -687,7 +687,8 @@ public class ED2KService extends Service {
         log.info("stop self {} last id: {}", b?"true":"false", lastStartId);
     }
 
-    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath) throws JED2KException {
+    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath)
+            throws JED2KException, Exception {
         if(session != null) {
             Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
             TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
@@ -698,7 +699,7 @@ public class ED2KService extends Service {
             return handle;
         }
 
-        return null;
+        throw new Exception("Session in null");
     }
 
     public List<TransferHandle> getTransfers() {
@@ -746,6 +747,10 @@ public class ED2KService extends Service {
 
     public void setMaxPeerListSize(int maxSize) {
         settings.maxPeerListSize = maxSize;
+    }
+
+    public void setUserAgent(Hash hash) {
+        settings.userAgent = hash;
     }
 
     public Pair<Long, Long> getDownloadUploadRate() {

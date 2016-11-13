@@ -41,8 +41,8 @@ android {
         applicationId "org.dkf.jmule"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 3
-        versionName "0.3"
+        versionCode 6
+        versionName "0.6"
     }
 
     sourceSets {
@@ -59,4 +59,7 @@ android {
 dependencies {
     compile project(':service')
     compile 'com.android.support:appcompat-v7:22.2.0'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
 }
