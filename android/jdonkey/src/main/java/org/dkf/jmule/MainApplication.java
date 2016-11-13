@@ -20,6 +20,7 @@ package org.dkf.jmule;
 
 import android.app.Application;
 import android.view.ViewConfiguration;
+import com.squareup.leakcanary.LeakCanary;
 import org.apache.commons.io.FileUtils;
 import org.dkf.jmule.core.AndroidPlatform;
 import org.dkf.jmule.core.ConfigurationManager;
@@ -48,6 +49,14 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+
+        LeakCanary.install(this);
 
         try {
 
