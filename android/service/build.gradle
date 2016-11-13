@@ -66,4 +66,5 @@ dependencies {
     androidTestCompile 'org.mockito:mockito-core:2.+'
     // Set this dependency to use JUnit 4 rules
     androidTestCompile 'com.android.support.test:rules:0.4'
+    provided "org.projectlombok:lombok:1.12.6"
 }

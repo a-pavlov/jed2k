@@ -1,5 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.BitField;
 import org.dkf.jed2k.protocol.Serializable;
@@ -12,6 +14,8 @@ import java.nio.ByteBuffer;
  * @author apavlov
  * 128 bit identifier in KAD network
  */
+@Slf4j
+@Data
 public class Int128 implements Serializable, Comparable<Int128> {
 
     private BitField data;
