@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Hash;
 
 import java.nio.ByteBuffer;
@@ -53,5 +54,49 @@ public class KadId extends Hash {
     @Override
     public int bytesCount() {
         return value.length;
+    }
+
+    // returns the distance between the two nodes
+    // using the kademlia XOR-metric
+    public static KadId distance(final KadId n1, final KadId n2) {
+        assert n1 != null;
+        assert n2 != null;
+
+        KadId ret = new KadId();
+        for(int i = 0; i < MD4.HASH_SIZE; ++i) {
+            ret.set(i, (byte)(n1.at(i) ^ n2.at(i)));
+        }
+        return ret;
+    }
+
+    // returns true if: distance(n1, ref) < distance(n2, ref)
+    public static boolean compareRef(final KadId n1, final KadId n2, final KadId ref) {
+        for (int i = 0; i != MD4.HASH_SIZE; ++i) {
+            int lhs = (n1.at(i) ^ ref.at(i)) & 0xFF;
+            int rhs = (n2.at(i) ^ ref.at(i)) & 0xFF;
+            if (lhs < rhs) return true;
+            if (lhs > rhs) return false;
+        }
+        return false;
+    }
+
+    // returns n in: 2^n <= distance(n1, n2) < 2^(n+1)
+    // useful for finding out which bucket a node belongs to
+    public static int distanceExp(final KadId n1, final KadId n2) {
+        int bt = MD4.HASH_SIZE - 1;
+        for (int i = 0; i != MD4.HASH_SIZE; ++i, --bt) {
+            assert bt >= 0;
+            int t = (n1.at(i) ^ n2.at(i)) & 0xFF;
+            if (t == 0) continue;
+            // we have found the first non-zero byte
+            // return the bit-number of the first bit
+            // that differs
+            int bit = bt * 8;
+            for (int b = 7; b >= 0; --b)
+                if (t >= (1 << b)) return bit + b;
+            return bit;
+        }
+
+        return 0;
     }
 }
