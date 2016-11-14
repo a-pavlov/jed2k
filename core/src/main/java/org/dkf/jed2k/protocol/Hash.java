@@ -13,7 +13,7 @@ import static org.dkf.jed2k.Utils.byte2String;
 
 public class Hash implements Serializable, Comparable<Hash> {
 
-    private final byte[] value = {
+    protected final byte[] value = {
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
