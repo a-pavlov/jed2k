@@ -35,4 +35,29 @@ public class KadIdTest {
             assertEquals(template[i], bb.getInt());
         }
     }
+
+
+    @Test
+    public void testGetPut() throws JED2KException {
+        KadId kids[] = {
+                KadId.fromString("514d5f30f05328a05b94c140aa412fd3"),
+                KadId.fromString("59c729f19e6bc2ab269d99917bceb5a0"),
+                KadId.fromString("44d847c1c5e8d910d4200db8b464dbf4")
+        };
+
+        ByteBuffer bb = ByteBuffer.allocate(MD4.HASH_SIZE*kids.length);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for(final KadId kid: kids) {
+            kid.put(bb);
+        }
+
+        assertFalse(bb.hasRemaining());
+
+        bb.flip();
+        for(int i = 0; i < kids.length; ++i) {
+            KadId kid = new KadId();
+            kid.get(bb);
+            assertEquals(kids[i], kid);
+        }
+    }
 }
