@@ -60,4 +60,11 @@ public class KadIdTest {
             assertEquals(kids[i], kid);
         }
     }
+
+    @Test
+    public void trivialTest() {
+        byte a = 10;
+        byte b = 2;
+        assertEquals(8, a ^ b);
+    }
 }

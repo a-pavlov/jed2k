@@ -17,5 +17,7 @@ public class KadFunctionsTest {
         assertEquals(0, KadId.distanceExp(n1, n2));
         KadId n3 = KadId.fromString("D14d5f30f05328a05b94c140aa412fd3");
         assertEquals(127, KadId.distanceExp(n1, n3));
+        assertEquals(124, KadId.distanceExp(n3, KadId.fromString("CA4d5f30f05328a05b94c140aa412fd3")));
+        assertEquals(99, KadId.distanceExp(n2, KadId.fromString("514d5f38f05328a05b94c140aa412fd3")));
     }
 }
