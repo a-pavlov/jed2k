@@ -13,7 +13,7 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
     public static final short MAX_VALUE = 0xff;
     private byte container;
 
-    UInt8() {
+    public UInt8() {
         container = 0;
     }
 
