@@ -51,7 +51,7 @@
             android:summary="@string/listen_port_summary"
             android:title="@string/listen_port"
             jdonkey:picker_defaultValue="30000"
-            jdonkey:picker_endRange="99999"
+            jdonkey:picker_endRange="65535"
             jdonkey:picker_startRange="1000"/>
     </PreferenceCategory>
 

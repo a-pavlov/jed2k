@@ -92,11 +92,21 @@ public class Session extends Thread {
                 ssc.register(selector, SelectionKey.OP_ACCEPT);
                 pushAlert(new ListenAlert("", settings.listenPort));
             } else {
-                log.info("no listen mode");
+                log.info("no listen mode, listen port is {}", settings.listenPort);
             }
         }
         catch(IOException e) {
             log.error("listen failed {}", e.getMessage());
+            closeListenSocket();
+            pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
+        }
+        catch(IllegalArgumentException e) {
+            log.error("illegal argument exception {}", e.getMessage());
+            closeListenSocket();
+            pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
+        }
+        catch(Exception e) {
+            log.error("unexpected exception {}", e.getMessage());
             closeListenSocket();
             pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
         }
