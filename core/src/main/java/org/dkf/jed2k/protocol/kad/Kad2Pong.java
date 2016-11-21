@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Kad2Pong extends Transaction {
+public class Kad2Pong extends TransactionIdentifier {
     private UInt16 portUdp = new UInt16();
 
     @Override
@@ -32,6 +32,6 @@ public class Kad2Pong extends Transaction {
 
     @Override
     public byte getTransactionId() {
-        return Transaction.PING_PONG;
+        return TransactionIdentifier.PING_PONG;
     }
 }

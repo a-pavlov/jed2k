@@ -9,14 +9,14 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 21.11.2016.
  */
 @Getter
-public class Kad2Req extends Transaction {
+public class Kad2Req extends TransactionIdentifier {
     private byte searchType;
     private KadId target = new KadId();
     private KadId receiver = new KadId();
 
     @Override
     public byte getTransactionId() {
-        return Transaction.REQ_RES;
+        return TransactionIdentifier.REQ_RES;
     }
 
     @Override

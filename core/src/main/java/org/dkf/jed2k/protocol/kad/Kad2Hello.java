@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Getter
-public class Kad2Hello extends Transaction {
+public class Kad2Hello extends TransactionIdentifier {
     private KadId kid = new KadId();
     private UInt16 portTcp = new UInt16();
     private UInt8 version = new UInt8();
@@ -36,6 +36,6 @@ public class Kad2Hello extends Transaction {
 
     @Override
     public byte getTransactionId() {
-        return Transaction.HELLO;
+        return TransactionIdentifier.HELLO;
     }
 }
