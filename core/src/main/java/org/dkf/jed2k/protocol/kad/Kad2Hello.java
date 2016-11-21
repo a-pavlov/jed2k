@@ -3,7 +3,6 @@ package org.dkf.jed2k.protocol.kad;
 import lombok.Getter;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.UInt8;
 import org.dkf.jed2k.protocol.tag.Tag;
@@ -14,7 +13,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Getter
-public class Kad2Hello implements Serializable {
+public class Kad2Hello extends Transaction {
     private KadId kid = new KadId();
     private UInt16 portTcp = new UInt16();
     private UInt8 version = new UInt8();
@@ -33,5 +32,10 @@ public class Kad2Hello implements Serializable {
     @Override
     public int bytesCount() {
         return kid.bytesCount() + portTcp.bytesCount() + version.bytesCount() + info.bytesCount();
+    }
+
+    @Override
+    public byte getTransactionId() {
+        return Transaction.HELLO;
     }
 }

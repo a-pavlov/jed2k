@@ -1,8 +1,8 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 
 import java.nio.ByteBuffer;
@@ -11,7 +11,8 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Data
-public class Kad2Pong implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+public class Kad2Pong extends Transaction {
     private UInt16 portUdp = new UInt16();
 
     @Override
@@ -27,5 +28,10 @@ public class Kad2Pong implements Serializable {
     @Override
     public int bytesCount() {
         return portUdp.bytesCount();
+    }
+
+    @Override
+    public byte getTransactionId() {
+        return Transaction.PING_PONG;
     }
 }
