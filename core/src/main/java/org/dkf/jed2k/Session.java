@@ -85,6 +85,7 @@ public class Session extends Thread {
 
         try {
             if (settings.listenPort > 0) {
+                assert selector != null;
                 log.info("Start listening on port {}", settings.listenPort);
                 ssc = ServerSocketChannel.open();
                 ssc.socket().bind(new InetSocketAddress(settings.listenPort));
