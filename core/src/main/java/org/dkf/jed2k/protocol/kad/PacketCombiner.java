@@ -121,7 +121,7 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
         addKadHandler(KadUdp.KADEMLIA2_SEARCH_RES.value, Kad2SearchRes.class);
 
         addKadHandler(KadUdp.KADEMLIA2_BOOTSTRAP_REQ.value, Kad2BootstrapReq.class);
-        addKadHandler(KadUdp.KADEMLIA_BOOTSTRAP_RES.value, Kad2BootstrapRes.class);
+        addKadHandler(KadUdp.KADEMLIA2_BOOTSTRAP_RES.value, Kad2BootstrapRes.class);
     }
 
     @Override

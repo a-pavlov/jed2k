@@ -7,6 +7,7 @@ import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.PacketHeader;
 import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.kad.Kad2BootstrapReq;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadPacketHeader;
 
@@ -39,6 +40,7 @@ public class DhtTracker extends Thread {
     private ByteBuffer incomingBuffer = null;
     private ByteBuffer outgoingBuffer = null;
     private LinkedList<Serializable> outgoingOrder = null;
+    private LinkedList<InetSocketAddress> outgoingAddresses = null;
     private PacketCombiner combiner = null;
     private PacketHeader incomingHeader = null;
 
@@ -61,6 +63,7 @@ public class DhtTracker extends Thread {
             incomingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingOrder = new LinkedList<>();
+            outgoingAddresses = new LinkedList<>();
             combiner = new org.dkf.jed2k.protocol.kad.PacketCombiner();
             incomingHeader = new KadPacketHeader();
 
@@ -127,10 +130,13 @@ public class DhtTracker extends Thread {
         try {
             assert incomingBuffer.remaining() == incomingBuffer.capacity();
             InetSocketAddress address = (InetSocketAddress) channel.receive(incomingBuffer);
+            log.debug("receive {} bytes from {}", incomingBuffer.capacity() - incomingBuffer.remaining(), address);
             incomingBuffer.flip();
             incomingHeader.get(incomingBuffer);
+            incomingHeader.reset(incomingHeader.key(), incomingBuffer.remaining());
             Serializable t = combiner.unpack(incomingHeader, incomingBuffer);
             assert t != null;
+            log.trace("packet {}: {}", t.bytesCount(), t);
 
         } catch (IOException e) {
             log.error("I/O exception on reading packet {}", incomingHeader);
@@ -147,6 +153,7 @@ public class DhtTracker extends Thread {
         if (outgoingOrder.isEmpty()) return;
 
         Serializable packet = outgoingOrder.poll();
+        InetSocketAddress ep = outgoingAddresses.poll();
         assert packet != null;
         outgoingBuffer.clear();
         assert outgoingBuffer.remaining() == outgoingBuffer.capacity();
@@ -155,7 +162,7 @@ public class DhtTracker extends Thread {
             combiner.pack(packet, outgoingBuffer);
             outgoingBuffer.flip();
             // TODO - fix it with appropriate address
-            channel.send(outgoingBuffer, new InetSocketAddress(4444));
+            channel.send(outgoingBuffer, ep);
         }
         catch(JED2KException e) {
             log.error("pack packet {} error {}", packet, e);
@@ -170,9 +177,10 @@ public class DhtTracker extends Thread {
         }
     }
 
-    void write(final Serializable packet) {
+    void write(final Serializable packet, final InetSocketAddress ep) {
         boolean wasInProgress = !outgoingOrder.isEmpty();
         outgoingOrder.add(packet);
+        outgoingAddresses.add(ep);
 
         // writing in progress, no need additional actions here
         if (wasInProgress) return;
@@ -200,5 +208,9 @@ public class DhtTracker extends Thread {
 
     public synchronized void addNode(final NetworkIdentifier endpoint, final KadId id) {
         node.addNode(endpoint, id);
+    }
+
+    public synchronized void bootstrap(final InetSocketAddress ep) {
+        write(new Kad2BootstrapReq(), ep);
     }
 }

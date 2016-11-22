@@ -2,6 +2,7 @@ package org.dkf.jed2k.protocol.kad;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.UInt16;
@@ -14,6 +15,7 @@ import java.nio.ByteBuffer;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@ToString
 public class Kad2BootstrapRes extends TransactionIdentifier {
     private KadId kid = new KadId();
     private UInt16 portTcp = new UInt16();
