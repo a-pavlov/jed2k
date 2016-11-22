@@ -1,16 +1,14 @@
 package org.dkf.jed2k.kad;
 
+import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
-
-import java.net.InetSocketAddress;
 
 /**
  * Created by inkpot on 22.11.2016.
  */
 public class NodeImpl {
 
-    // TODO - use appropriate input type
-    public void addNode(final InetSocketAddress ep) {
+    public void addNode(final NetworkIdentifier ep, final KadId id) {
 
     }
 

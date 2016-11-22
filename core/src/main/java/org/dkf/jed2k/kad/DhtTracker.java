@@ -3,9 +3,11 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.PacketHeader;
 import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadPacketHeader;
 
 import java.io.IOException;
@@ -88,7 +90,7 @@ public class DhtTracker extends Thread {
         }
     }
 
-    private void tick(int channelCount) {
+    synchronized private void tick(int channelCount) {
         if (channelCount != 0) {
             assert selector != null;
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -194,5 +196,9 @@ public class DhtTracker extends Thread {
                 aborted = true;
             }
         });
+    }
+
+    public synchronized void addNode(final NetworkIdentifier endpoint, final KadId id) {
+        node.addNode(endpoint, id);
     }
 }
