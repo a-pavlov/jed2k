@@ -1,9 +1,12 @@
 package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
-import org.dkf.jed2k.Connection;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.PacketCombiner;
+import org.dkf.jed2k.protocol.PacketHeader;
 import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.kad.KadPacketHeader;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,7 +17,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -35,6 +37,8 @@ public class DhtTracker extends Thread {
     private ByteBuffer incomingBuffer = null;
     private ByteBuffer outgoingBuffer = null;
     private LinkedList<Serializable> outgoingOrder = null;
+    private PacketCombiner combiner = null;
+    private PacketHeader incomingHeader = null;
 
     public DhtTracker(int listenPort) {
         assert listenPort > 0 && listenPort <= 65535;
@@ -55,6 +59,8 @@ public class DhtTracker extends Thread {
             incomingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingOrder = new LinkedList<>();
+            combiner = new org.dkf.jed2k.protocol.kad.PacketCombiner();
+            incomingHeader = new KadPacketHeader();
 
             while(!aborted && !interrupted()) {
                 int channelCount = selector.select(1000);
@@ -117,36 +123,48 @@ public class DhtTracker extends Thread {
 
     private void onReadable() {
         try {
-            // check buffer is empty
-            assert incomingBuffer.hasRemaining();
             assert incomingBuffer.remaining() == incomingBuffer.capacity();
             InetSocketAddress address = (InetSocketAddress) channel.receive(incomingBuffer);
             incomingBuffer.flip();
-            // deserialize packet and deliver it to recipients
-            key.interestOps(SelectionKey.OP_READ);
+            incomingHeader.get(incomingBuffer);
+            Serializable t = combiner.unpack(incomingHeader, incomingBuffer);
+            assert t != null;
+
         } catch (IOException e) {
-
+            log.error("I/O exception on reading packet {}", incomingHeader);
+        } catch (JED2KException e) {
+            log.error("exception on parse packet {}", incomingHeader);
         } catch (Exception e) {
-
+            log.error("unexpected error on parse packet {}", incomingHeader);
+        } finally {
+            key.interestOps(SelectionKey.OP_READ);
         }
     }
 
     private void onWriteable() {
         if (outgoingOrder.isEmpty()) return;
 
-        Serializable packet = outgoingOrder.peek();
+        Serializable packet = outgoingOrder.poll();
         assert packet != null;
-        outgoingBuffer.flip();
+        outgoingBuffer.clear();
         assert outgoingBuffer.remaining() == outgoingBuffer.capacity();
-        // serialize packet here
+
         try {
+            combiner.pack(packet, outgoingBuffer);
+            outgoingBuffer.flip();
+            // TODO - fix it with appropriate address
             channel.send(outgoingBuffer, new InetSocketAddress(4444));
-        } catch (IOException e) {
-
         }
-
-        if (outgoingOrder.isEmpty()) {
-            key.interestOps(SelectionKey.OP_READ);
+        catch(JED2KException e) {
+            log.error("pack packet {} error {}", packet, e);
+        }
+        catch (IOException e) {
+            log.error("I/O exception on send packet {}", packet);
+        } finally {
+            // go to wait bytes mode when output order becomes empty
+            if (outgoingOrder.isEmpty()) {
+                key.interestOps(SelectionKey.OP_READ);
+            }
         }
     }
 

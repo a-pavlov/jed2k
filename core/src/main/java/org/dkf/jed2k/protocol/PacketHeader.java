@@ -64,4 +64,4 @@ public class PacketHeader implements Serializable {
         assert(isDefined());
         return new PacketKey(protocol, packet);
     }
-};
+}
