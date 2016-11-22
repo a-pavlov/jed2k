@@ -40,6 +40,11 @@ public class Kad {
                 InetSocketAddress address = new InetSocketAddress(parts[1], Integer.parseInt(parts[2]));
                 tracker.bootstrap(address);
             }
+            else if (parts[0].compareTo("search") == 0 && parts.length == 4) {
+                log.info("search on {}:{} for {}", parts[1], parts[2], parts[3]);
+                InetSocketAddress address = new InetSocketAddress(parts[1], Integer.parseInt(parts[2]));
+                tracker.searchKey(address, parts[3]);
+            }
         }
 
         log.info("Kad finished");

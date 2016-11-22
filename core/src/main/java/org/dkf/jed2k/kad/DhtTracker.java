@@ -3,11 +3,10 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
-import org.dkf.jed2k.protocol.PacketCombiner;
-import org.dkf.jed2k.protocol.PacketHeader;
-import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.hash.MD4;
+import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.kad.Kad2BootstrapReq;
+import org.dkf.jed2k.protocol.kad.Kad2SearchKeysReq;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadPacketHeader;
 
@@ -159,9 +158,9 @@ public class DhtTracker extends Thread {
         assert outgoingBuffer.remaining() == outgoingBuffer.capacity();
 
         try {
+            log.debug("send packet size {}", packet.bytesCount());
             combiner.pack(packet, outgoingBuffer);
             outgoingBuffer.flip();
-            // TODO - fix it with appropriate address
             channel.send(outgoingBuffer, ep);
         }
         catch(JED2KException e) {
@@ -212,5 +211,12 @@ public class DhtTracker extends Thread {
 
     public synchronized void bootstrap(final InetSocketAddress ep) {
         write(new Kad2BootstrapReq(), ep);
+    }
+
+    public synchronized void searchKey(final InetSocketAddress ep, final String key) {
+        MD4 md4 = new MD4();
+        md4.update(key.getBytes());
+        Hash h = Hash.fromBytes(md4.digest());
+        write(Kad2SearchKeysReq.builder().kid(KadId.fromBytes(md4.digest())).startPos(Unsigned.uint16(0)).build(), ep);
     }
 }

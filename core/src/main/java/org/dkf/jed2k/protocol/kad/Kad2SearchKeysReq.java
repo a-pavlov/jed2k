@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.kad;
 
+import lombok.Builder;
 import lombok.Getter;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
@@ -11,6 +12,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Getter
+@Builder
 public class Kad2SearchKeysReq implements Serializable {
     private KadId kid = new KadId();
     private UInt16 startPos = new UInt16();
