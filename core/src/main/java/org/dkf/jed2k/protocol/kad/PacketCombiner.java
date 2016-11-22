@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
 
-    enum KadUdp {
+    public enum KadUdp {
         KADEMLIA_BOOTSTRAP_REQ      (0x00),
         KADEMLIA_BOOTSTRAP_RES      (0x08),
 
@@ -82,7 +82,9 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
         }
     }
 
-    static final byte OP_KADEMLIAHEADER = (byte)0xE4;
+    public static final byte OP_KADEMLIAHEADER = (byte)0xE4;
+
+    private KadPacketHeader header = new KadPacketHeader();
 
     private static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsKad;
     private static final Map<Class<? extends Serializable>, PacketKey> struct2KeyKad;
@@ -135,6 +137,11 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
     @Override
     public int serviceSize(PacketHeader ph) {
         return ph.sizePacket();
+    }
+
+    @Override
+    protected PacketHeader getHeader() {
+        return header;
     }
 }
 

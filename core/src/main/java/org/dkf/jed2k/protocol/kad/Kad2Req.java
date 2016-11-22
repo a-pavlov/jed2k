@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.dkf.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
@@ -9,6 +10,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 21.11.2016.
  */
 @Getter
+@Setter
 public class Kad2Req extends TransactionIdentifier {
     private byte searchType;
     private KadId target = new KadId();

@@ -28,7 +28,7 @@ public abstract class PacketCombiner {
         }
     }
 
-    private PacketHeader outgoingHeader = new PacketHeader();
+    private PacketHeader reusableHeader = new PacketHeader();
 
     /**
      *
@@ -41,8 +41,8 @@ public abstract class PacketCombiner {
         assert(header.isDefined());
         assert(src.remaining() == serviceSize(header));
 
-        // special case for packed protocol
-        if (header.key().protocol == ProtocolType.OP_PACKEDPROT.value) {
+        // special case for packed protocol - both tcp and KAD udp
+        if (header.key().protocol == ProtocolType.OP_PACKEDPROT.value || header.key().protocol == ProtocolType.OP_KAD_COMPRESSED_UDP.value) {
             byte[] compressedData = new byte[src.remaining()];
             byte[] plainData = new byte[src.remaining()*10];
             src.get(compressedData);
@@ -112,8 +112,9 @@ public abstract class PacketCombiner {
      */
     public boolean pack(Serializable object, ByteBuffer dst) throws JED2KException {
         PacketKey key = classToKey(object.getClass());
-
         assert(key != null);
+        // use appropriate header here
+        PacketHeader outgoingHeader = getHeader();
         if ((outgoingHeader.bytesCount() + object.bytesCount()) < dst.remaining()) {
             outgoingHeader.reset(key, object.bytesCount() + 1);
             assert(outgoingHeader.isDefined());
@@ -128,4 +129,12 @@ public abstract class PacketCombiner {
     protected abstract Class<? extends Serializable> keyToPacket(PacketKey key);
     protected abstract PacketKey classToKey(Class<? extends Serializable> clazz);
     public abstract int serviceSize(PacketHeader ph);
+
+    /**
+     * by default returns standard tcp emule packet header
+     * @return packet header for generation of new packet
+     */
+    protected PacketHeader getHeader() {
+        return reusableHeader;
+    }
 }
