@@ -82,12 +82,44 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
         }
     }
 
+    static final byte OP_KADEMLIAHEADER = (byte)0xE4;
+
     private static final Map<PacketKey, Class<? extends Serializable>> supportedPacketsKad;
     private static final Map<Class<? extends Serializable>, PacketKey> struct2KeyKad;
+
+    private static void addHandler(byte protocol, byte type, Class<? extends Serializable> clazz) {
+        PacketKey pk = new PacketKey(protocol, type);
+        assert(!supportedPacketsKad.containsKey(pk));
+        assert(clazz != null);
+        supportedPacketsKad.put(pk, clazz);
+        struct2KeyKad.put(clazz, pk);
+    }
+
+    private static void addKadHandler(byte type, Class<? extends  Serializable> clazz) {
+        addHandler(OP_KADEMLIAHEADER, type, clazz);
+    }
 
     static {
         supportedPacketsKad = new HashMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyKad = new HashMap<Class<? extends Serializable>, PacketKey>();
+
+
+        addKadHandler(KadUdp.KADEMLIA2_PING.value, Kad2Ping.class);
+        addKadHandler(KadUdp.KADEMLIA2_PONG.value, Kad2Pong.class);
+
+        addKadHandler(KadUdp.KADEMLIA2_REQ.value, Kad2Req.class);
+        addKadHandler(KadUdp.KADEMLIA2_RES.value, Kad2Res.class);
+
+        addKadHandler(KadUdp.KADEMLIA2_HELLO_REQ.value, Kad2HelloReq.class);
+        addKadHandler(KadUdp.KADEMLIA2_HELLO_RES.value, Kad2HelloRes.class);
+
+        addKadHandler(KadUdp.KADEMLIA2_SEARCH_SOURCE_REQ.value, Kad2SearchSourcesReq.class);
+        addKadHandler(KadUdp.KADEMLIA2_SEARCH_KEY_REQ.value, Kad2SearchKeysReq.class);
+        addKadHandler(KadUdp.KADEMLIA2_SEARCH_NOTES_REQ.value, Kad2SearchNotesReq.class);
+        addKadHandler(KadUdp.KADEMLIA2_SEARCH_RES.value, Kad2SearchRes.class);
+
+        addKadHandler(KadUdp.KADEMLIA2_BOOTSTRAP_REQ.value, Kad2BootstrapReq.class);
+        addKadHandler(KadUdp.KADEMLIA_BOOTSTRAP_RES.value, Kad2BootstrapRes.class);
     }
 
     @Override
