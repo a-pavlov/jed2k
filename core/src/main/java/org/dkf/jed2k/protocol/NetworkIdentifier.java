@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static org.dkf.jed2k.Utils.int2Address;
+import static org.dkf.jed2k.Utils.ip2String;
 import static org.dkf.jed2k.Utils.sizeof;
 
 public final class NetworkIdentifier implements Serializable, Comparable<NetworkIdentifier> {
@@ -70,7 +70,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
 
     @Override
     public String toString() {
-        return int2Address(ip) + ":" + port;
+        return ip2String(ip) + ":" + port;
     }
 
     public InetSocketAddress toInetSocketAddress() throws JED2KException {

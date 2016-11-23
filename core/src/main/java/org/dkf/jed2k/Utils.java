@@ -1,5 +1,7 @@
 package org.dkf.jed2k;
 
+import org.dkf.jed2k.exception.ErrorCode;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.Serializable;
@@ -70,6 +72,31 @@ public final class Utils {
         }
 
         return null;
+    }
+
+    public static String ip2String(int ip) {
+        return String.format("%d.%d.%d.%d",
+                ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
+    }
+
+    public static int string2Ip(final String s) throws JED2KException {
+        String[] parts = s.split("[.]");
+        if (parts.length != 4) throw new JED2KException(ErrorCode.ILLEGAL_ARGUMENT);
+        try {
+            int raw[] = {Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])};
+
+            for (int r : raw) {
+                if (r < 0 || r > 255) throw new JED2KException(ErrorCode.ILLEGAL_ARGUMENT);
+            }
+
+            return raw[0]
+                    | ((raw[1] << 8) & 0xff00)
+                    | ((raw[2] << 16) & 0xff0000)
+                    | ((raw[3] << 24) & 0xff000000);
+        }
+        catch(NumberFormatException e) {
+            throw new JED2KException(ErrorCode.ILLEGAL_ARGUMENT);
+        }
     }
 
     /**

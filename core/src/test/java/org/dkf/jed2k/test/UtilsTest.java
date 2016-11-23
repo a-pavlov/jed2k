@@ -3,6 +3,7 @@ package org.dkf.jed2k.test;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.junit.Test;
@@ -13,7 +14,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import static junit.framework.Assert.*;
-import static org.dkf.jed2k.Utils.int2Address;
+import static org.dkf.jed2k.Utils.*;
 
 
 public class UtilsTest {
@@ -24,6 +25,44 @@ public class UtilsTest {
         assertEquals(InetAddress.getByName("0.0.0.16"), int2Address(0x10000000));
         assertEquals(InetAddress.getByName("127.0.0.1"), int2Address(0x0100007f));
         assertEquals(InetAddress.getByName("196.127.10.1"), int2Address(0x010a7fc4));
+    }
+
+    @Test
+    public void testIpAddressToString() {
+        assertEquals("0.0.0.22", ip2String(0x16000000));
+        assertEquals("0.0.0.16", ip2String(0x10000000));
+        assertEquals("127.0.0.1", ip2String(0x0100007f));
+        assertEquals("196.127.10.1", ip2String(0x010a7fc4));
+    }
+
+    @Test
+    public void testString2Ip() throws JED2KException {
+        assertEquals(0x16000000, string2Ip("0.0.0.22"));
+        assertEquals(0x10000000, string2Ip("0.0.0.16"));
+        assertEquals(0x0100007f, string2Ip("127.0.0.1"));
+        assertEquals(0x010a7fc4, string2Ip("196.127.10.1"));
+    }
+
+    @Test
+    public void testTwoDirectionsTransformation() throws JED2KException {
+        assertEquals("192.168.0.33", ip2String(string2Ip("192.168.0.33")));
+        assertEquals("255.255.255.255", ip2String(string2Ip("255.255.255.255")));
+        assertEquals("88.122.32.45", ip2String(string2Ip("88.122.32.45")));
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testIllegalArguments() throws JED2KException {
+        string2Ip("192.678.33.0");
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testIllegalArguments2() throws JED2KException {
+        string2Ip("192.678..0");
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testIllegalArguments3() throws JED2KException {
+        string2Ip("192.678.0");
     }
 
     @Test
@@ -76,3 +115,4 @@ public class UtilsTest {
         assertEquals("ed2k://|file|some_file|100|31D6CFE0D16AE931B73C59D7E0C089C0|/", Utils.formatLink("some_file", 100l, Hash.TERMINAL));
     }
 }
+
