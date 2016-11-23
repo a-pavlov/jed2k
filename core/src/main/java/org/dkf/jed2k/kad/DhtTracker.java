@@ -5,10 +5,8 @@ import org.dkf.jed2k.Time;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.*;
-import org.dkf.jed2k.protocol.kad.Kad2BootstrapReq;
-import org.dkf.jed2k.protocol.kad.Kad2SearchKeysReq;
-import org.dkf.jed2k.protocol.kad.KadId;
-import org.dkf.jed2k.protocol.kad.KadPacketHeader;
+import org.dkf.jed2k.protocol.PacketCombiner;
+import org.dkf.jed2k.protocol.kad.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -218,5 +216,13 @@ public class DhtTracker extends Thread {
         md4.update(key.getBytes());
         Hash h = Hash.fromBytes(md4.digest());
         write(Kad2SearchKeysReq.builder().kid(KadId.fromBytes(md4.digest())).startPos(Unsigned.uint16(0)).build(), ep);
+    }
+
+    public synchronized void hello(final InetSocketAddress ep) {
+        Kad2HelloReq hello = new Kad2HelloReq();
+        hello.getKid().assign(Hash.EMULE);
+        hello.getVersion().assign(org.dkf.jed2k.protocol.kad.PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getPortTcp().assign(listenPort);
+        write(hello, ep);
     }
 }

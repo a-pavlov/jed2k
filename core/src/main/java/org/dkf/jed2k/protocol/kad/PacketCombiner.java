@@ -83,6 +83,7 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
     }
 
     public static final byte OP_KADEMLIAHEADER = (byte)0xE4;
+    public static final byte KADEMLIA_VERSION5_48a =  (byte)0x05; // -0.48a
 
     private KadPacketHeader header = new KadPacketHeader();
 

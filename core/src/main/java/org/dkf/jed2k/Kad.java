@@ -45,6 +45,11 @@ public class Kad {
                 InetSocketAddress address = new InetSocketAddress(parts[1], Integer.parseInt(parts[2]));
                 tracker.searchKey(address, parts[3]);
             }
+            else if (parts[0].compareTo("hello") == 0 && parts.length == 3) {
+                log.info("hello to {}:{}", parts[1], parts[2]);
+                InetSocketAddress address = new InetSocketAddress(parts[1], Integer.parseInt(parts[2]));
+                tracker.hello(address);
+            }
         }
 
         log.info("Kad finished");
