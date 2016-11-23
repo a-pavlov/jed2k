@@ -32,7 +32,6 @@ public class DhtTracker extends Thread {
     private SelectionKey key = null;
     private int listenPort;
     private boolean aborted = false;
-    private long currentTime = Time.currentTimeHiRes();
     private long lastTick = Time.currentTimeHiRes();
     private ByteBuffer incomingBuffer = null;
     private ByteBuffer outgoingBuffer = null;
@@ -66,7 +65,8 @@ public class DhtTracker extends Thread {
 
             while(!aborted && !interrupted()) {
                 int channelCount = selector.select(1000);
-                currentTime = Time.currentTimeHiRes();
+                // TODO - do not update global time here when we work in main session scope
+                Time.updateCachedTime();
                 tick(channelCount);
             }
         } catch(IOException e) {
@@ -112,9 +112,9 @@ public class DhtTracker extends Thread {
         }
 
         // process user's command every second
-        long tickIntervalMs = currentTime - lastTick;
+        long tickIntervalMs = Time.currentTime() - lastTick;
         if (tickIntervalMs >= 1000) {
-            lastTick = currentTime;
+            lastTick = Time.currentTime();
             Runnable r = commands.poll();
             while(r != null) {
                 r.run();

@@ -186,7 +186,7 @@ public class Session extends Thread {
 
             while(!aborted && !interrupted()) {
                 int channelCount = selector.select(1000);
-                Time.currentCachedTime = Time.currentTimeHiRes();
+                Time.updateCachedTime();
                 on_tick(ErrorCode.NO_ERROR, channelCount);
             }
         }
