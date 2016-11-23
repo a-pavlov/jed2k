@@ -4,7 +4,6 @@ import org.dkf.jed2k.protocol.kad.KadId;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by inkpot on 14.11.2016.
@@ -27,7 +26,7 @@ public class KadFunctionsTest {
         KadId ref = KadId.fromString("514d5f30f05328a05b94c140aa412fd3");
         KadId n1 = KadId.fromString("514d5f30f05328a05b94c140aa412fd3");
         KadId n2 = KadId.fromString("524d5f30f05328a05b94c140aa412fd3");
-        assertTrue(KadId.compareRef(n1, n2, ref));
-        assertTrue(KadId.compareRef(n2, KadId.fromString("624d5f30f05328a05b94c140aa412fd3"), ref));
+        assertEquals(1, KadId.compareRef(n1, n2, ref));
+        assertEquals(1, KadId.compareRef(n2, KadId.fromString("624d5f30f05328a05b94c140aa412fd3"), ref));
     }
 }

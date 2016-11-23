@@ -56,6 +56,14 @@ public class KadId extends Hash {
         return value.length;
     }
 
+    public boolean isAllZeros() {
+        for(byte b: value) {
+            if (b != 0) return false;
+        }
+
+        return true;
+    }
+
     // returns the distance between the two nodes
     // using the kademlia XOR-metric
     public static KadId distance(final KadId n1, final KadId n2) {
@@ -70,14 +78,15 @@ public class KadId extends Hash {
     }
 
     // returns true if: distance(n1, ref) < distance(n2, ref)
-    public static boolean compareRef(final KadId n1, final KadId n2, final KadId ref) {
+    public static int compareRef(final KadId n1, final KadId n2, final KadId ref) {
         for (int i = 0; i != MD4.HASH_SIZE; ++i) {
             int lhs = (n1.at(i) ^ ref.at(i)) & 0xFF;
             int rhs = (n2.at(i) ^ ref.at(i)) & 0xFF;
-            if (lhs < rhs) return true;
-            if (lhs > rhs) return false;
+            if (lhs < rhs) return 1;
+            if (lhs > rhs) return -1;
         }
-        return false;
+
+        return 0;
     }
 
     // returns n in: 2^n <= distance(n1, n2) < 2^(n+1)

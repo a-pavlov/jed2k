@@ -16,19 +16,22 @@ import java.net.InetSocketAddress;
 @Getter
 @Setter
 public abstract class Observer {
-    public final byte QUERIED = 1;
-    public final byte INITIAL = 2;
-    public final byte NO_ID = 4;
-    public final byte SHORT_TIMEOUT = 8;
-    public final byte FAILED = 16;
-    public final byte ALIVE = 32;
-    public final byte DONE = 64;
+    public static final byte FLAG_QUERIED = 1;
+    public static final byte FLAG_INITIAL = 2;
+    public static final byte FLAG_NO_ID = 4;
+    public static final byte FLAG_SHORT_TIMEOUT = 8;
+    public static final byte FLAG_FAILED = 16;
+    public static final byte FLAG_ALIVE = 32;
+    public static final byte FLAG_DONE = 64;
 
     private TraversalAlgorithm algorithm;
     private InetSocketAddress endpoint;
     private KadId id;
     private byte transactionId;
     private byte flag;
+
+
+    private boolean wasAbandoned = false;
 
     public void reply(final TransactionIdentifier t, final NetworkIdentifier endpoint) {
 
