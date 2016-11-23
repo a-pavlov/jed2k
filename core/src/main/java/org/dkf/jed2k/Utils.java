@@ -226,4 +226,8 @@ public final class Utils {
                 .append(hash.toString())
                 .append("|/").toString();
     }
+
+    public static boolean isBit(int value, int mask) {
+        return (value & mask) == mask;
+    }
 }

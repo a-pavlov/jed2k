@@ -114,5 +114,19 @@ public class UtilsTest {
     public void testLinksGeneration() {
         assertEquals("ed2k://|file|some_file|100|31D6CFE0D16AE931B73C59D7E0C089C0|/", Utils.formatLink("some_file", 100l, Hash.TERMINAL));
     }
+
+    @Test
+    public void testBitSat() {
+        assertTrue(Utils.isBit(1, 1));
+        assertFalse(Utils.isBit(2, 1));
+        assertTrue(Utils.isBit(3, 1));
+        int value = 0;
+        value |= 64;
+        value |= 32;
+        assertTrue(Utils.isBit(value, 32));
+        assertTrue(Utils.isBit(value, 64));
+        assertFalse(Utils.isBit(value, 16));
+        assertFalse(Utils.isBit(value, 1));
+    }
 }
 

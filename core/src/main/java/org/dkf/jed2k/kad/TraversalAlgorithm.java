@@ -1,6 +1,7 @@
 package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 
@@ -25,8 +26,8 @@ public class TraversalAlgorithm {
     int timeouts = 0;
     int numTargetNodes = 0;
 
-    private static final byte preventRequest = 1;
-    private static final byte shortTimeout = 2;
+    public static final int PREVENT_REQUEST = 1;
+    public static final int SHORT_TIMEOUT = 2;
 
     protected Observer newObserver(final InetSocketAddress endpoint, final KadId id) {
         return null;
@@ -53,18 +54,18 @@ public class TraversalAlgorithm {
         // Find the first node that hasn't already been queried.
         for (int i = 0; i != results.size() && resultsTarget > 0 && invokeCount < branchFactor; ++i) {
             Observer o = results.get(i);
-            if ((o.getFlag() & Observer.FLAG_ALIVE) != 0) --resultsTarget;
-            if ((o.getFlag() & Observer.FLAG_QUERIED) != 0) continue;
+            if (Utils.isBit(o.getFlags(), Observer.FLAG_ALIVE)) --resultsTarget;
+            if (Utils.isBit(o.getFlags(), Observer.FLAG_QUERIED)) continue;
             log.debug("traversal: {} nodes-left: {} invoke-count: {} branch-factor: {}",
                     name(), results.size(), invokeCount, branchFactor);
 
-            o.setFlag((byte)(o.getFlag() | Observer.FLAG_QUERIED));
+            o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
 
             if (invoke(o)) {
                 assert invokeCount >= 0;
                 ++invokeCount;
             } else {
-                o.setFlag((byte)(o.getFlag() | Observer.FLAG_FAILED));
+                o.setFlags(o.getFlags() | Observer.FLAG_FAILED);
             }
         }
     }
@@ -102,10 +103,10 @@ public class TraversalAlgorithm {
 
         if (id.isAllZeros()) {
             o.setId(new KadId(Hash.random(false)));
-            o.setFlag((byte)(o.getFlag() | Observer.FLAG_NO_ID));
+            o.setFlags(o.getFlags() | Observer.FLAG_NO_ID);
         }
 
-        o.setFlag((byte)(o.getFlag() | flags));
+        o.setFlags(o.getFlags() | flags);
 
         int pos = Collections.binarySearch(results, o, new Comparator<Observer>() {
             @Override
@@ -157,30 +158,29 @@ public class TraversalAlgorithm {
 
         if (results.isEmpty()) return;
 
-        assert (o.getFlag() & Observer.FLAG_QUERIED) != 0;
+        assert (o.getFlags() & Observer.FLAG_QUERIED) != 0;
 
-        if ((flags & shortTimeout) != 0) {
+        if (Utils.isBit(flags, SHORT_TIMEOUT)) {
             // short timeout means that it has been more than
             // two seconds since we sent the request, and that
             // we'll most likely not get a response. But, in case
             // we do get a late response, keep the handler
             // around for some more, but open up the slot
             // by increasing the branch factor
-            if ((o.getFlag() & Observer.FLAG_SHORT_TIMEOUT) == 0)
-                ++branchFactor;
-            o.setFlag((byte)(o.getFlag() | Observer.FLAG_SHORT_TIMEOUT));
+            if ((o.getFlags() & Observer.FLAG_SHORT_TIMEOUT) == 0) ++branchFactor;
+            o.setFlags(o.getFlags() | Observer.FLAG_SHORT_TIMEOUT);
             log.debug("traversal {} first chance timeout {} branch-factor: {} invoke-count: {}", name(), o.getId(), branchFactor, invokeCount);
         }
         else {
-            o.setFlag((byte)(o.getFlag() | Observer.FLAG_FAILED));
+            o.setFlags(o.getFlags() | Observer.FLAG_FAILED);
             // if this flag is set, it means we increased the
             // branch factor for it, and we should restore it
-            if ((o.getFlag() & Observer.FLAG_SHORT_TIMEOUT) != 0) --branchFactor;
+            if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
             log.debug("traversal {} failed {} branch-factor: {} invoke-count: {}", name(), branchFactor, invokeCount);
 
             // don't tell the routing table about
             // node ids that we just generated ourself
-            if ((o.getFlag() & Observer.FLAG_NO_ID) == 0) {
+            if ((o.getFlags() & Observer.FLAG_NO_ID) == 0) {
                 // TODO - tell table we failed
                 //m_node.m_table.node_failed(o->id(), o->target_ep());
             }
@@ -190,7 +190,7 @@ public class TraversalAlgorithm {
             assert invokeCount >= 0;
         }
 
-        if ((flags & preventRequest) != 0) {
+        if (Utils.isBit(flags, PREVENT_REQUEST)) {
             --branchFactor;
             if (branchFactor <= 0) branchFactor = 1;
         }
@@ -215,10 +215,10 @@ public class TraversalAlgorithm {
 
         // if this flag is set, it means we increased the
         // branch factor for it, and we should restore it
-        if ((o.getFlag() & Observer.FLAG_SHORT_TIMEOUT) != 0) --branchFactor;
+        if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
 
-        assert (o.getFlag() & Observer.FLAG_QUERIED) != 0;
-        o.setFlag((byte)(o.getFlag() | Observer.FLAG_ALIVE));
+        assert (o.getFlags() & Observer.FLAG_QUERIED) != 0;
+        o.setFlags(o.getFlags() | Observer.FLAG_ALIVE);
 
         ++responses;
         --invokeCount;

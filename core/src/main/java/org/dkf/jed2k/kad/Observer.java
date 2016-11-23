@@ -1,8 +1,8 @@
 package org.dkf.jed2k.kad;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
@@ -12,7 +12,6 @@ import java.net.InetSocketAddress;
 /**
  * Created by inkpot on 21.11.2016.
  */
-@AllArgsConstructor
 @Getter
 @Setter
 public abstract class Observer {
@@ -28,24 +27,42 @@ public abstract class Observer {
     private InetSocketAddress endpoint;
     private KadId id;
     private byte transactionId;
-    private byte flag;
-
+    private int flags;
 
     private boolean wasAbandoned = false;
 
-    public void reply(final Transaction t, final NetworkIdentifier endpoint) {
-
+    public Observer(final TraversalAlgorithm algorithm, final InetSocketAddress ep, final KadId id) {
+        this.algorithm = algorithm;
+        this.endpoint = ep;
+        this.id = id;
     }
 
-    public void abort() {
-
+    public void shortTimeout() {
+        if (Utils.isBit(flags, FLAG_SHORT_TIMEOUT)) return;
+        algorithm.failed(this, TraversalAlgorithm.SHORT_TIMEOUT);
     }
 
-    public void done() {
-
+    public boolean hasShortTimeout() {
+        return Utils.isBit(flags, FLAG_SHORT_TIMEOUT);
     }
 
     public void timeout() {
-
+        if (Utils.isBit(flags, FLAG_DONE)) return;
+        flags |= FLAG_DONE;
+        algorithm.failed(this, 0);
     }
+
+    public void abort() {
+        if (Utils.isBit(flags, FLAG_DONE)) return;
+        flags |= FLAG_DONE;
+        algorithm.failed(this, TraversalAlgorithm.PREVENT_REQUEST);
+    }
+
+    public void done() {
+        if (Utils.isBit(flags, FLAG_DONE)) return;
+        flags |= FLAG_DONE;
+        algorithm.finished(this);
+    }
+
+    public abstract void reply(final Transaction t, final NetworkIdentifier endpoint);
 }
