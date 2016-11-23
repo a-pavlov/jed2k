@@ -11,13 +11,13 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 21.11.2016.
  */
 @Getter
-public class Kad2Res extends TransactionIdentifier {
+public class Kad2Res extends Transaction {
     private KadId target = new KadId();
     private Container<UInt8, KadEntry> results = Container.makeByte(KadEntry.class);
 
     @Override
     public byte getTransactionId() {
-        return TransactionIdentifier.REQ_RES;
+        return Transaction.REQ_RES;
     }
 
     @Override

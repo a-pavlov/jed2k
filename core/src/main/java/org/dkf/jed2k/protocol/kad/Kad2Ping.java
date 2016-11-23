@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 15.11.2016.
  */
-public class Kad2Ping extends TransactionIdentifier {
+public class Kad2Ping extends Transaction {
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         return src;
@@ -25,6 +25,6 @@ public class Kad2Ping extends TransactionIdentifier {
 
     @Override
     public byte getTransactionId() {
-        return TransactionIdentifier.PING_PONG;
+        return Transaction.PING_PONG;
     }
 }

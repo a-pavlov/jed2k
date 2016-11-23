@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
-import org.dkf.jed2k.protocol.kad.TransactionIdentifier;
+import org.dkf.jed2k.protocol.kad.Transaction;
 
 import java.net.InetSocketAddress;
 
@@ -33,7 +33,7 @@ public abstract class Observer {
 
     private boolean wasAbandoned = false;
 
-    public void reply(final TransactionIdentifier t, final NetworkIdentifier endpoint) {
+    public void reply(final Transaction t, final NetworkIdentifier endpoint) {
 
     }
 

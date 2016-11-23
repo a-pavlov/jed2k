@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class Kad2BootstrapRes extends TransactionIdentifier {
+public class Kad2BootstrapRes extends Transaction {
     private KadId kid = new KadId();
     private UInt16 portTcp = new UInt16();
     private UInt8 version = new UInt8();
@@ -39,6 +39,6 @@ public class Kad2BootstrapRes extends TransactionIdentifier {
 
     @Override
     public byte getTransactionId() {
-        return TransactionIdentifier.BOOTSTRAP;
+        return Transaction.BOOTSTRAP;
     }
 }
