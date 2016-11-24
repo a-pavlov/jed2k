@@ -41,4 +41,12 @@ public class Time {
      * @return current time offset convertable to Date object
      */
     public static long currentTimeMillis() { return System.currentTimeMillis(); }
+
+    public static long minutes(int value) {
+        return value*1000*60;
+    }
+
+    public static long seconds(int value) {
+        return value*1000;
+    }
 }

@@ -91,7 +91,7 @@ public class RoutingTable {
         if (numBuckets == 0) {
             buckets.add(new RoutingTableNode());
             // add 160 seconds to prioritize higher buckets (i.e. buckets closer to us)
-            buckets.get(buckets.size() - 1).setLastActive(Time.currentTime() + 160*1000);
+            buckets.get(buckets.size() - 1).setLastActive(Time.currentTime() + Time.seconds(160));
             ++numBuckets;
         }
 
@@ -106,7 +106,7 @@ public class RoutingTable {
         long now = Time.currentTime();
 
         // refresh our own bucket once every 15 minutes
-        if (now - lastSelfRefresh > 15*1000*60) {
+        if (now - lastSelfRefresh > Time.minutes(15)) {
             lastSelfRefresh = now;
             log.debug("table need_refresh [ bucket: self target: {}]", self);
             return self;
@@ -118,8 +118,8 @@ public class RoutingTable {
             @Override
             public int compare(RoutingTableNode lhs, RoutingTableNode rhs) {
                 // add the number of nodes to prioritize buckets with few nodes in them
-                long diff = lhs.getLastActive() + (lhs.getLive_nodes().size() * 5)*1000 -
-                        rhs.getLastActive() + (rhs.getLive_nodes().size() * 5)*1000;
+                long diff = lhs.getLastActive() + Time.seconds(lhs.getLive_nodes().size() * 5) -
+                        rhs.getLastActive() + Time.seconds(rhs.getLive_nodes().size() * 5);
                 if (diff < 0) return -1;
                 if (diff > 0) return 1;
                 return 0;
@@ -133,8 +133,8 @@ public class RoutingTable {
         assert i >= 0;
         assert i < buckets.size();
 
-        if (now - bucket.getLastActive() < 15*1000*60) return null;
-        if (now - lastRefresh < 45*1000) return null;
+        if (now - bucket.getLastActive() < Time.minutes(15)) return null;
+        if (now - lastRefresh < Time.seconds(45)) return null;
 
         // generate a random node_id within the given bucket
         KadId target = new KadId(KadId.random(false));
@@ -158,7 +158,7 @@ public class RoutingTable {
         target.set(bitPos, (byte)(target.at(bitPos) & (byte)(~(0x80 >> ((num_bits - 1) % 8)))));
         target.set(bitPos, (byte)(target.at(bitPos) | (byte)((~(self.at(bitPos))) & (byte)(0x80 >> ((num_bits - 1) % 8)))));
 
-        assert(KadId.distanceExp(self, target) == KadId.TOTAL_BITS - num_bits);
+        assert KadId.distanceExp(self, target) == KadId.TOTAL_BITS - num_bits;
 
         log.debug("table need_refresh [ bucket: {} target: {} ]", num_bits, target);
         lastRefresh = now;

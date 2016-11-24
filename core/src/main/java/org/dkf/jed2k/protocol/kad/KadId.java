@@ -79,14 +79,16 @@ public class KadId extends Hash {
             value[i] ^= id.at(i);
     }
 
-    public void bitsOr(final KadId id) {
+    public KadId bitsOr(final KadId id) {
         for (int i = 0; i != value.length; ++i)
             value[i] |= id.at(i);
+        return this;
     }
 
-    public void bitsAnd(final KadId id) {
+    public KadId bitsAnd(final KadId id) {
         for (int i = 0; i != value.length; ++i)
             value[i] &= id.at(i);
+        return this;
     }
 
     // returns the distance between the two nodes

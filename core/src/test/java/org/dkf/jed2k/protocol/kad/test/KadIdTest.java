@@ -8,8 +8,7 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.*;
 
 /**
  * Created by inkpot on 14.11.2016.
@@ -66,5 +65,17 @@ public class KadIdTest {
         byte a = 10;
         byte b = 2;
         assertEquals(8, a ^ b);
+    }
+
+    @Test
+    public void testBitsOperations() {
+        KadId id = new KadId();
+        assertTrue(id.isAllZeros());
+        for(int i = 0; i != id.TOTAL_BITS / 8; ++i) id.set(i, (byte)0x80);
+        KadId template = new KadId();
+        for(int i = 0; i != id.TOTAL_BITS / 8; ++i) template.set(i, (byte)0x7F);
+        assertEquals(template, id.bitsInverse());
+        assertEquals(new KadId(), template.bitsAnd(id));
+        assertEquals(id, template.bitsOr(id));
     }
 }
