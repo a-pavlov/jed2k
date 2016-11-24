@@ -20,7 +20,7 @@ public class RoutingTable {
     @EqualsAndHashCode
     private static class RoutingTableBucket {
         private ArrayList<NodeEntry> replacements = new ArrayList<>();
-        private ArrayList<NodeEntry> live_nodes = new ArrayList<>();
+        private ArrayList<NodeEntry> liveNodes = new ArrayList<>();
         private long lastActive = Time.currentTime();
     }
 
@@ -57,7 +57,7 @@ public class RoutingTable {
         int nodes = 0;
         int replacements = 0;
         for (final RoutingTableBucket node: buckets) {
-            nodes += node.getLive_nodes().size();
+            nodes += node.getLiveNodes().size();
             replacements += node.getReplacements().size();
         }
 
@@ -68,7 +68,7 @@ public class RoutingTable {
         int deepestBucket = 0;
         int deepestSize = 0;
         for (final RoutingTableBucket node: buckets) {
-            deepestSize = node.getLive_nodes().size(); // + i->replacements.size();
+            deepestSize = node.getLiveNodes().size(); // + i->replacements.size();
             if (deepestSize < bucketSize) break;
             // this bucket is full
             ++deepestBucket;
@@ -118,8 +118,8 @@ public class RoutingTable {
             @Override
             public int compare(RoutingTableBucket lhs, RoutingTableBucket rhs) {
                 // add the number of nodes to prioritize buckets with few nodes in them
-                long diff = lhs.getLastActive() + Time.seconds(lhs.getLive_nodes().size() * 5) -
-                        rhs.getLastActive() + Time.seconds(rhs.getLive_nodes().size() * 5);
+                long diff = lhs.getLastActive() + Time.seconds(lhs.getLiveNodes().size() * 5) -
+                        rhs.getLastActive() + Time.seconds(rhs.getLiveNodes().size() * 5);
                 if (diff < 0) return -1;
                 if (diff > 0) return 1;
                 return 0;
@@ -165,4 +165,32 @@ public class RoutingTable {
         return target;
     }
 
+    Pair<NodeEntry, RoutingTableBucket> findNode(final InetSocketAddress ep) {
+        for (RoutingTableBucket bucket: buckets) {
+            for (NodeEntry n: bucket.getReplacements()) {
+                if (!n.getEndpoint().equals(ep)) continue;
+                return Pair.make(n, bucket);
+            }
+
+            for (NodeEntry n: bucket.getLiveNodes()) {
+                if (!n.getEndpoint().equals(ep)) continue;
+                return Pair.make(n, bucket);
+            }
+        }
+
+        return null;
+    }
+
+    boolean needBootstrap() {
+        if (Time.currentTime() - lastBootstrap < Time.seconds(30)) return false;
+
+        for (RoutingTableBucket bucket: buckets) {
+            for (final NodeEntry node: bucket.getLiveNodes()) {
+                if (node.isConfirmed()) return false;
+            }
+        }
+
+        lastBootstrap = Time.currentTime();
+        return true;
+    }
 }
