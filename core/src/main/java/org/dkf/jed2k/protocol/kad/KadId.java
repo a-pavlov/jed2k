@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
  */
 public class KadId extends Hash {
 
+    public static final int TOTAL_BITS = 128;
+
     public KadId() {
         super();
     }
@@ -62,6 +64,29 @@ public class KadId extends Hash {
         }
 
         return true;
+    }
+
+    public KadId bitsInverse() {
+        KadId res = new KadId(this);
+        for (int i = 0; i != value.length; ++i)
+            res.set(i, (byte) ~value[i]);
+
+        return res;
+    }
+
+    public void bitsXor(final KadId id) {
+        for (int i = 0; i != value.length; ++i)
+            value[i] ^= id.at(i);
+    }
+
+    public void bitsOr(final KadId id) {
+        for (int i = 0; i != value.length; ++i)
+            value[i] |= id.at(i);
+    }
+
+    public void bitsAnd(final KadId id) {
+        for (int i = 0; i != value.length; ++i)
+            value[i] &= id.at(i);
     }
 
     // returns the distance between the two nodes
