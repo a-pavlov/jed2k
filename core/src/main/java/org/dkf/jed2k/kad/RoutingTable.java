@@ -18,13 +18,13 @@ public class RoutingTable {
 
     @Data
     @EqualsAndHashCode
-    private static class RoutingTableNode {
+    private static class RoutingTableBucket {
         private ArrayList<NodeEntry> replacements = new ArrayList<>();
         private ArrayList<NodeEntry> live_nodes = new ArrayList<>();
         private long lastActive = Time.currentTime();
     }
 
-    private ArrayList<RoutingTableNode> buckets = new ArrayList<>();
+    private ArrayList<RoutingTableBucket> buckets = new ArrayList<>();
     private KadId self;
 
     // the last time need_bootstrap() returned true
@@ -56,7 +56,7 @@ public class RoutingTable {
     public Pair<Integer, Integer> size() {
         int nodes = 0;
         int replacements = 0;
-        for (final RoutingTableNode node: buckets) {
+        for (final RoutingTableBucket node: buckets) {
             nodes += node.getLive_nodes().size();
             replacements += node.getReplacements().size();
         }
@@ -67,7 +67,7 @@ public class RoutingTable {
     public int numGlobalNodes() {
         int deepestBucket = 0;
         int deepestSize = 0;
-        for (final RoutingTableNode node: buckets) {
+        for (final RoutingTableBucket node: buckets) {
             deepestSize = node.getLive_nodes().size(); // + i->replacements.size();
             if (deepestSize < bucketSize) break;
             // this bucket is full
@@ -81,15 +81,15 @@ public class RoutingTable {
     }
 
     public void touchBucket(final KadId target) {
-        RoutingTableNode node = findBucket(target);
-        node.setLastActive(Time.currentTime());
+        RoutingTableBucket bucket = findBucket(target);
+        bucket.setLastActive(Time.currentTime());
     }
 
-    public RoutingTableNode findBucket(final KadId id) {
+    public RoutingTableBucket findBucket(final KadId id) {
 
         int numBuckets = buckets.size();
         if (numBuckets == 0) {
-            buckets.add(new RoutingTableNode());
+            buckets.add(new RoutingTableBucket());
             // add 160 seconds to prioritize higher buckets (i.e. buckets closer to us)
             buckets.get(buckets.size() - 1).setLastActive(Time.currentTime() + Time.seconds(160));
             ++numBuckets;
@@ -114,9 +114,9 @@ public class RoutingTable {
 
         if (buckets.isEmpty()) return null;
 
-        RoutingTableNode bucket = Collections.min(buckets, new Comparator<RoutingTableNode>() {
+        RoutingTableBucket bucket = Collections.min(buckets, new Comparator<RoutingTableBucket>() {
             @Override
-            public int compare(RoutingTableNode lhs, RoutingTableNode rhs) {
+            public int compare(RoutingTableBucket lhs, RoutingTableBucket rhs) {
                 // add the number of nodes to prioritize buckets with few nodes in them
                 long diff = lhs.getLastActive() + Time.seconds(lhs.getLive_nodes().size() * 5) -
                         rhs.getLastActive() + Time.seconds(rhs.getLive_nodes().size() * 5);
