@@ -564,4 +564,89 @@ public class RoutingTable {
         lastBootstrap = Time.currentTime();
         return true;
     }
+
+    void forEach(final NodeEntryFun func) {
+        assert func != null;
+        for(RoutingTableBucket bucket: buckets) {
+            for(final NodeEntry live: bucket.getLiveNodes()) {
+                func.fun(live);
+            }
+
+            for(final NodeEntry repl: bucket.getReplacements()) {
+                func.fun(repl);
+            }
+        }
+    }
+
+    void addRouterNode(final NetworkIdentifier ep) {
+        routerNodes.add(ep);
+    }
+
+    // was spoofed or not (i.e. pinged == false)
+    void heardAbout(final KadId id, final NetworkIdentifier ep) {
+        addNode(new NodeEntry(id, ep, false));
+    }
+
+    // this function is called every time the node sees
+    // a sign of a node being alive. This node will either
+    // be inserted in the k-buckets or be moved to the top
+    // of its bucket.
+    // the return value indicates if the table needs a refresh.
+    // if true, the node should refresh the table (i.e. do a find_node
+    // on its own id)
+    boolean nodeSeen(final KadId id, final NetworkIdentifier ep) {
+        return addNode(new NodeEntry(id, ep, true));
+    }
+
+    private void copy(int bucketIndex, List<NodeEntry> res, boolean includeFailed, int count) {
+        RoutingTableBucket bucket = buckets.get(bucketIndex);
+        assert bucket != null;
+        for(NodeEntry e: bucket.getLiveNodes()) {
+            if (res.size() == count) break;
+            if (includeFailed || e.isConfirmed()) {
+                res.add(e);
+            }
+        }
+    }
+
+    // fills the vector with the k nodes from our buckets that
+    // are nearest to the given id.
+    List<NodeEntry> findNode(final KadId target, boolean includeFailed, int count) {
+        List<NodeEntry> res = new LinkedList<>();
+        if (count == 0) count = bucketSize;
+
+        int i = findBucket(target);
+        copy(i, res, includeFailed, count);
+
+        assert res.size() <= count;
+
+        if (res.size() >= count) return res;
+
+        // if we didn't have enough nodes in that bucket
+        // we have to reply with nodes from buckets closer
+        // to us.
+        int j = i;
+        ++j;
+
+        for (; j < buckets.size() && res.size() < count; ++j) {
+            copy(j, res, includeFailed, count);
+            assert res.size() <= count;
+            if (res.size() >= count) return res;
+        }
+
+        // if we still don't have enough nodes, copy nodes
+        // further away from us
+        if (i == 0) return res;
+        j = i;
+
+        do {
+            --j;
+            assert j >= 0;
+            copy(j, res, includeFailed, count);
+            if (res.size() >= count) return res;
+        }
+        while (j > 0 && res.size() < count);
+
+        return res;
+    }
 }
