@@ -1,6 +1,5 @@
 package org.dkf.jed2k.test;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.dkf.jed2k.Checker;
@@ -136,9 +135,14 @@ public class UtilsTest {
     }
 
     @Data
-    @AllArgsConstructor
     @EqualsAndHashCode
     private static class Stub {
+
+        public Stub(int f, int s) {
+            first = f;
+            second = s;
+        }
+
         private int first;
         private int second;
     }

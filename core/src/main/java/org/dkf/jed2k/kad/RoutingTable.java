@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -188,9 +187,12 @@ public class RoutingTable {
         return null;
     }
 
-    @AllArgsConstructor
     private static class FindByKadId implements Checker<NodeEntry> {
         private final KadId target;
+
+        public FindByKadId(final KadId id) {
+            target = id;
+        }
 
         @Override
         public boolean check(NodeEntry nodeEntry) {

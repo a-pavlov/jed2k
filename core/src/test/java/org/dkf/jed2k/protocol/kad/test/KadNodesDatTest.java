@@ -2,6 +2,7 @@ package org.dkf.jed2k.protocol.kad.test;
 
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.File;
@@ -20,6 +21,7 @@ public class KadNodesDatTest {
 
     @Test
     public void testNodesDatFile() throws IOException, JED2KException {
+        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("nodes.dat").getFile());
         assertTrue(file != null);

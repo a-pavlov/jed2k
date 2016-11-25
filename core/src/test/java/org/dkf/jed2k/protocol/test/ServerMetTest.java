@@ -4,6 +4,7 @@ import org.dkf.jed2k.ResourceFile;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.ServerMet;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
@@ -21,6 +22,7 @@ public class ServerMetTest {
 
     @Test
     public void testSerialization() throws JED2KException {
+        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         ResourceFile rf = new ResourceFile();
         ByteBuffer buffer = rf.read("server.met", null);
         assertTrue(buffer.hasRemaining());

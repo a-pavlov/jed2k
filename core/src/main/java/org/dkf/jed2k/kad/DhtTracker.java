@@ -215,7 +215,10 @@ public class DhtTracker extends Thread {
         MD4 md4 = new MD4();
         md4.update(key.getBytes());
         Hash h = Hash.fromBytes(md4.digest());
-        write(Kad2SearchKeysReq.builder().kid(KadId.fromBytes(md4.digest())).startPos(Unsigned.uint16(0)).build(), ep);
+        Kad2SearchKeysReq req = new Kad2SearchKeysReq();
+        req.setKid(KadId.fromBytes(md4.digest()));
+        req.setStartPos(Unsigned.uint16(0));
+        write(req, ep);
     }
 
     public synchronized void hello(final InetSocketAddress ep) {
