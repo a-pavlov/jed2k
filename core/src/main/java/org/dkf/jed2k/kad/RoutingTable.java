@@ -1,10 +1,13 @@
 package org.dkf.jed2k.kad;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.net.InetSocketAddress;
@@ -22,6 +25,11 @@ public class RoutingTable {
         private ArrayList<NodeEntry> replacements = new ArrayList<>();
         private ArrayList<NodeEntry> liveNodes = new ArrayList<>();
         private long lastActive = Time.currentTime();
+
+        void removeEntry(final NodeEntry e) {
+            replacements.remove(e);
+            liveNodes.remove(e);
+        }
     }
 
     private ArrayList<RoutingTableBucket> buckets = new ArrayList<>();
@@ -179,6 +187,66 @@ public class RoutingTable {
         }
 
         return null;
+    }
+
+    @AllArgsConstructor
+    private static class FindByKadId implements Checker<NodeEntry> {
+        private final KadId target;
+
+        @Override
+        public boolean check(NodeEntry nodeEntry) {
+            return false;
+        }
+    }
+
+    public void nodeFailed(final KadId id, final InetSocketAddress ep) {
+        // if messages to ourself fails, ignore it
+        if (id.equals(self)) return;
+
+        RoutingTableBucket bucket = findBucket(id);
+
+        assert bucket != null;
+        int j = Utils.indexOf(bucket.getLiveNodes(), new FindByKadId(id));
+
+        if (j == -1) return;
+
+        // if the endpoint doesn't match, it's a different node
+        // claiming the same ID. The node we have in our routing
+        // table is not necessarily stale
+        NodeEntry failedNode = bucket.getLiveNodes().get(j);
+        if (!failedNode.getEndpoint().equals(ep)) return;
+
+        if (bucket.getReplacements().isEmpty()) {
+            failedNode.timedOut();
+            log.debug("table NODE FAILED id: {} ip: {} fails: {} pinged: {} uptime: {}"
+                    , id
+                    , failedNode.failCount()
+                    , failedNode.isPinged()
+                    , Time.currentTime() - failedNode.getFirstSeen());
+
+            // if this node has failed too many times, or if this node
+            // has never responded at all, remove it
+            if (failedNode.failCount() >= 10 || !failedNode.isPinged()) {
+                //ips.erase(j->addr.to_v4().to_bytes());
+                bucket.getLiveNodes().remove(j);
+            }
+
+            return;
+        }
+
+        //m_ips.erase(j->addr.to_v4().to_bytes());
+        bucket.getLiveNodes().remove(j);
+
+        j = Utils.indexOf(bucket.getReplacements(), new Checker<NodeEntry>() {
+            @Override
+            public boolean check(NodeEntry nodeEntry) {
+                return nodeEntry.isPinged();
+            }
+        });
+
+        if (j == -1) j = 0;
+        bucket.getLiveNodes().add(bucket.getReplacements().get(j));
+        bucket.getReplacements().remove(j);
     }
 
     boolean needBootstrap() {

@@ -8,6 +8,7 @@ import org.dkf.jed2k.protocol.Serializable;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
 
 public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -229,5 +230,15 @@ public final class Utils {
 
     public static boolean isBit(int value, int mask) {
         return (value & mask) == mask;
+    }
+
+    public static <T> int indexOf(Collection<T> src, Checker<T> chk) {
+        int i = 0;
+        for(final T s: src) {
+            if (chk.check(s)) return i;
+            ++i;
+        }
+
+        return -1;
     }
 }

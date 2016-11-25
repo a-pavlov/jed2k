@@ -1,5 +1,9 @@
 package org.dkf.jed2k.test;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Utils;
@@ -11,7 +15,9 @@ import org.junit.Test;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import static junit.framework.Assert.*;
 import static org.dkf.jed2k.Utils.*;
@@ -127,6 +133,39 @@ public class UtilsTest {
         assertTrue(Utils.isBit(value, 64));
         assertFalse(Utils.isBit(value, 16));
         assertFalse(Utils.isBit(value, 1));
+    }
+
+    @Data
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    private static class Stub {
+        private int first;
+        private int second;
+    }
+
+    private static class StubCheck implements Checker<Stub> {
+        private int firstTarget;
+
+        public StubCheck(int f) {
+            firstTarget = f;
+        }
+
+        @Override
+        public boolean check(Stub stub) {
+            return stub.getFirst() == firstTarget;
+        }
+    }
+
+    @Test
+    public void testIndexOf() {
+        List<Stub> data = new ArrayList<>();
+        data.add(new Stub(1,2));
+        data.add(new Stub(0, 4));
+        data.add(new Stub(5,5));
+
+        assertEquals(-1, Utils.indexOf(data, new StubCheck(4)));
+        assertEquals(0, Utils.indexOf(data, new StubCheck(1)));
+        assertEquals(1, Utils.indexOf(data, new StubCheck(0)));
     }
 }
 

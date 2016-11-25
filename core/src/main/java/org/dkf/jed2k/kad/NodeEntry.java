@@ -38,4 +38,7 @@ public class NodeEntry {
     public void resetFailCount() { if (isPinged()) timeoutCount = 0; }
     public InetSocketAddress getEndpoint() { return address; }
     public boolean isConfirmed() { return timeoutCount == 0; }
+    public long getFirstSeen() {
+        return firstSeen;
+    }
 }
