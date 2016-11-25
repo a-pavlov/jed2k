@@ -90,11 +90,10 @@ public class RoutingTable {
     }
 
     public void touchBucket(final KadId target) {
-        RoutingTableBucket bucket = findBucket(target);
-        bucket.setLastActive(Time.currentTime());
+        buckets.get(findBucket(target)).setLastActive(Time.currentTime());
     }
 
-    public RoutingTableBucket findBucket(final KadId id) {
+    public int findBucket(final KadId id) {
 
         int numBuckets = buckets.size();
         if (numBuckets == 0) {
@@ -104,11 +103,10 @@ public class RoutingTable {
             ++numBuckets;
         }
 
-        int bucket_index = Math.min(KadId.TOTAL_BITS - 1 - KadId.distanceExp(self, id), numBuckets - 1);
-        assert (bucket_index < buckets.size());
-        assert (bucket_index >= 0);
-
-        return buckets.get(bucket_index);
+        int bucketIndex = Math.min(KadId.TOTAL_BITS - 1 - KadId.distanceExp(self, id), numBuckets - 1);
+        assert (bucketIndex < buckets.size());
+        assert (bucketIndex >= 0);
+        return bucketIndex;
     }
 
     KadId needRefresh() {
@@ -190,8 +188,6 @@ public class RoutingTable {
         return null;
     }
 
-
-
     @AllArgsConstructor
     private static class FindByKadId implements Checker<NodeEntry> {
         private final KadId target;
@@ -202,11 +198,317 @@ public class RoutingTable {
         }
     }
 
+    public boolean addNode(final NodeEntry e) {
+        if (routerNodes.contains(e.getEndpoint())) return false;
+
+        boolean ret = needBootstrap();
+
+        // don't add ourself
+        if (e.getId().equals(self)) return ret;
+
+        // do we already have this IP in the table?
+        if (ips.contains(e.getEndpoint().getIP())) {
+            // this exact IP already exists in the table. It might be the case
+            // that the node changed IP. If pinged is true, and the port also
+            // matches then we assume it's in fact the same node, and just update
+            // the routing table
+            // pinged means that we have sent a message to the IP, port and received
+            // a response with a correct transaction ID, i.e. it is verified to not
+            // be the result of a poisoned routing table
+
+            Pair<NodeEntry, RoutingTableBucket> existing = findNode(e.getEndpoint());
+            if (!e.isPinged() || existing == null) {
+                // the new node is not pinged, or it's not an existing node
+                // we should ignore it, unless we allow duplicate IPs in our
+                // routing table
+                //if (m_settings.restrict_routing_ips) {
+                //    log.debug("table ignoring node (duplicate IP): {} {}", e.getId(), e.getEndpoint());
+                //    return ret;
+                //}
+            }
+            else if (existing != null && existing.left.getId().equals(e.getId())) {
+                // if the node ID is the same, just update the failcount
+                // and be done with it
+                existing.left.setTimeoutCount(0);
+                return ret;
+            }
+            else if (existing != null) {
+                assert !existing.left.getId().equals(e.getId());
+                // this is the same IP and port, but with
+                // a new node ID. remove the old entry and
+                // replace it with this new ID
+                existing.right.removeEntry(existing.left);
+                ips.remove(existing.left.getEndpoint().getIP());
+                //remove_node(existing, existing_bucket);
+            }
+        }
+
+        int bucketIndex = findBucket(e.getId());
+        RoutingTableBucket bucket = buckets.get(bucketIndex);
+
+        int j = Utils.indexOf(bucket.getLiveNodes(), new FindByKadId(e.getId()));
+
+        if (j != -1) {
+            // a new IP address just claimed this node-ID
+            // ignore it
+            NodeEntry n = bucket.getLiveNodes().get(j);
+            if (!n.equals(e.getEndpoint())) return ret;
+
+            // we already have the node in our bucket
+            // just move it to the back since it was
+            // the last node we had any contact with
+            // in this bucket
+            assert n.getId().equals(e.getId()) && n.getEndpoint().equals(e.getEndpoint());
+            n.setTimeoutCount(0);
+            log.debug("table updating node: {}", n);
+            return ret;
+        }
+
+        if (Utils.indexOf(bucket.getReplacements(), new FindByKadId(e.getId())) != -1) return ret;
+/*
+        if (m_settings.restrict_routing_ips)
+        {
+            // don't allow multiple entries from IPs very close to each other
+            j = std::find_if(b->begin(), b->end(), boost::bind(&compare_ip_cidr, _1, e));
+            if (j != b->end())
+            {
+                // we already have a node in this bucket with an IP very
+                // close to this one. We know that it's not the same, because
+                // it claims a different node-ID. Ignore this to avoid attacks
+                #ifdef LIBED2K_DHT_VERBOSE_LOGGING
+                LIBED2K_LOG(table) << "ignoring node: " << e.id << " " << e.addr
+                        << " existing node: "
+                        << j->id << " " << j->addr;
+                #endif
+                return ret;
+            }
+
+            j = std::find_if(rb->begin(), rb->end(), boost::bind(&compare_ip_cidr, _1, e));
+            if (j != rb->end())
+            {
+                // same thing bug for the replacement bucket
+                #ifdef LIBED2K_DHT_VERBOSE_LOGGING
+                LIBED2K_LOG(table) << "ignoring (replacement) node: " << e.id << " " << e.addr
+                        << " existing node: "
+                        << j->id << " " << j->addr;
+                #endif
+                return ret;
+            }
+        }
+*/
+        // if the node was not present in our list
+        // we will only insert it if there is room
+        // for it, or if some of our nodes have gone
+        // offline
+        if (bucket.getLiveNodes().size() < bucketSize) {
+            bucket.getLiveNodes().add(e);
+            ips.add(e.getEndpoint().getIP());
+            return ret;
+        }
+
+        // if there is no room, we look for nodes that are not 'pinged',
+        // i.e. we haven't confirmed that they respond to messages.
+        // Then we look for nodes marked as stale
+        // in the k-bucket. If we find one, we can replace it.
+
+        // can we split the bucket?
+        boolean canSplit = false;
+
+        if (e.isPinged() && e.failCount() == 0) {
+            // only nodes that are pinged and haven't failed
+            // can split the bucket, and we can only split
+            // the last bucket
+            canSplit = (bucketIndex == buckets.size() - 1) && (buckets.size() < KadId.TOTAL_BITS);
+
+            // if the node we're trying to insert is considered pinged,
+            // we may replace other nodes that aren't pinged
+            //j = std::find_if(b->begin(), b->end(), boost::bind(&node_entry::pinged, _1) == false);
+
+            j = Utils.indexOf(bucket.getLiveNodes(), new Checker<NodeEntry>() {
+                @Override
+                public boolean check(NodeEntry nodeEntry) {
+                    return nodeEntry.isPinged();
+                }
+            });
+
+            if (j != -1 && !bucket.getLiveNodes().get(j).isPinged()) {
+                // j points to a node that has not been pinged.
+                // Replace it with this new one
+                NodeEntry n = bucket.getLiveNodes().get(j);
+                log.debug("table replacing unpinged node {} with {}", n, e);
+                ips.remove(n.getEndpoint().getIP());
+                bucket.getLiveNodes().remove(j);
+                bucket.getLiveNodes().add(e);
+                ips.add(e.getEndpoint().getIP());
+                return ret;
+            }
+
+            // A node is considered stale if it has failed at least one
+            // time. Here we choose the node that has failed most times.
+            // If we don't find one, place this node in the replacement-
+            // cache and replace any nodes that will fail in the future
+            // with nodes from that cache.
+            NodeEntry staleNode = Collections.max(bucket.getLiveNodes(), new Comparator<NodeEntry>() {
+                @Override
+                public int compare(NodeEntry o1, NodeEntry o2) {
+                    if (o1.failCount() < o2.failCount()) return -1;
+                    if (o1.failCount() > o2.failCount()) return 1;
+                    return 0;
+                }
+            });
+
+            if (staleNode != null && staleNode.failCount() > 0) {
+                // i points to a node that has been marked
+                // as stale. Replace it with this new one
+                log.debug("table replacing stale node {} with {}", staleNode, e);
+                ips.remove(staleNode.getEndpoint().getIP());
+                bucket.getLiveNodes().remove(staleNode);
+                bucket.getLiveNodes().add(e);
+                ips.add(e.getEndpoint().getIP());
+                return ret;
+            }
+        }
+
+        // if we can't split, try to insert into the replacement bucket
+
+        if (!canSplit) {
+            // if we don't have any identified stale nodes in
+            // the bucket, and the bucket is full, we have to
+            // cache this node and wait until some node fails
+            // and then replace it.
+            j = Utils.indexOf(bucket.getReplacements(), new FindByKadId(e.getId()));
+
+            // if the node is already in the replacement bucket
+            // just return.
+            if (j != -1) {
+                // if the IP address matches, it's the same node
+                // make sure it's marked as pinged
+                if (bucket.getReplacements().get(j).getEndpoint().equals(e.getEndpoint())) bucket.getReplacements().get(j).setPinged();
+                return ret;
+            }
+
+            if (bucket.getReplacements().size() >= bucketSize) {
+                // if the replacement bucket is full, remove the oldest entry
+                // but prefer nodes that haven't been pinged, since they are
+                // less reliable than this one, that has been pinged
+                //j = std::find_if(rb->begin(), rb->end(), boost::bind(&node_entry::pinged, _1) == false);
+
+                j = Utils.indexOf(bucket.getReplacements(), new Checker<NodeEntry>() {
+                    @Override
+                    public boolean check(NodeEntry nodeEntry) {
+                        return !nodeEntry.isPinged();
+                    }});
+
+                if (j == -1) j = 0;
+
+                ips.remove(bucket.getReplacements().get(j).getEndpoint().getIP());
+                bucket.getReplacements().remove(j);
+            }
+
+            bucket.getReplacements().add(e);
+            ips.add(e.getEndpoint().getIP());
+            log.debug("table inserting node in replacement cache: {}", e);
+            return ret;
+        }
+
+        // this is the last bucket, and it's full already. Split
+        // it by adding another bucket
+        RoutingTableBucket newBucket = new RoutingTableBucket();
+        buckets.add(newBucket);
+        // the extra seconds added to the end is to prioritize
+        // buckets closer to us when refreshing
+        newBucket.setLastActive(Time.currentTime() + Time.seconds(KadId.TOTAL_BITS - buckets.size()));
+        //m_buckets.back().last_active = min_time() + seconds(kad_id::kad_total_bits - m_buckets.size());
+
+        //bucket_t& new_bucket = m_buckets.back().live_nodes;
+        //bucket_t& new_replacement_bucket = m_buckets.back().replacements;
+
+        // update the iterator and bucket pointers, since we
+        // appended a new bucket to the routing table, and all
+        // iterators may have been invalidated
+        //i = m_buckets.begin() + bucket_index;
+        //b = &i->live_nodes;
+        //rb = &i->replacements;
+
+        // move any node whose (kad_id::kad_total_bits - distane_exp(m_id, id)) >= (i - m_buckets.begin())
+        // to the new bucket
+        Iterator<NodeEntry> itr = bucket.getLiveNodes().iterator();
+
+        while(itr.hasNext()) {
+            NodeEntry entry = itr.next();
+            if (KadId.distanceExp(self, entry.getId()) < KadId.TOTAL_BITS - 1 - bucketIndex) {
+                newBucket.getLiveNodes().add(entry);
+                itr.remove();
+            }
+        }
+
+        //for (NodeEntry entry: bucket.getLiveNodes()) {
+        //    if (KadId.distanceExp(self, entry.getId()) >= KadId.TOTAL_BITS - 1 - bucketIndex) {
+        //        continue;
+        //    }
+
+            // this entry belongs in the new bucket
+        //    new_bucket.push_back(*j);
+        //    j = b->erase(j);
+        //}
+
+        // split the replacement bucket as well. If the live bucket
+        // is not full anymore, also move the replacement entries
+        // into the main bucket
+        itr = bucket.getReplacements().iterator();
+        while(itr.hasNext()) {
+            NodeEntry entry = itr.next();
+            if (KadId.distanceExp(self, entry.getId()) >= KadId.TOTAL_BITS - 1 - bucketIndex) {
+                if (bucket.getLiveNodes().size() >= bucketSize) {
+                    continue;
+                }
+
+                bucket.getLiveNodes().add(entry);
+            } else {
+                if (newBucket.getLiveNodes().size() < bucketSize) {
+                    newBucket.getLiveNodes().add(entry);
+                } else {
+                    newBucket.getReplacements().add(entry);
+                }
+            }
+
+            itr.remove();
+        }
+
+        boolean added = false;
+
+        // now insert the new node in the appropriate bucket
+        if (KadId.distanceExp(self, e.getId()) >= KadId.TOTAL_BITS - 1 - bucketIndex) {
+            if (bucket.getLiveNodes().size() < bucketSize) {
+                bucket.getLiveNodes().add(e);
+                added = true;
+            }
+            else if (bucket.getReplacements().size() < bucketSize) {
+                bucket.getReplacements().add(e);
+                added = true;
+            }
+        }
+        else
+        {
+            if (newBucket.getLiveNodes().size() < bucketSize) {
+                newBucket.getLiveNodes().add(e);
+                added = true;
+            }
+            else if (newBucket.getReplacements().size() < bucketSize) {
+                newBucket.getReplacements().add(e);
+                added = true;
+            }
+        }
+
+        if (added) ips.add(e.getEndpoint().getIP());
+        return ret;
+    }
+
     public void nodeFailed(final KadId id, final NetworkIdentifier ep) {
         // if messages to ourself fails, ignore it
         if (id.equals(self)) return;
 
-        RoutingTableBucket bucket = findBucket(id);
+        RoutingTableBucket bucket = buckets.get(findBucket(id));
 
         assert bucket != null;
         int j = Utils.indexOf(bucket.getLiveNodes(), new FindByKadId(id));
@@ -221,10 +523,8 @@ public class RoutingTable {
 
         if (bucket.getReplacements().isEmpty()) {
             failedNode.timedOut();
-            log.debug("table NODE FAILED id: {} ip: {} fails: {} pinged: {} uptime: {}"
-                    , id
-                    , failedNode.failCount()
-                    , failedNode.isPinged()
+            log.debug("table NODE FAILED {} uptime {}"
+                    , failedNode
                     , Time.currentTime() - failedNode.getFirstSeen());
 
             // if this node has failed too many times, or if this node

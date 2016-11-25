@@ -1,5 +1,6 @@
 package org.dkf.jed2k.kad;
 
+import lombok.ToString;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.NetworkIdentifier;
@@ -10,6 +11,7 @@ import java.net.InetSocketAddress;
 /**
  * Created by inkpot on 23.11.2016.
  */
+@ToString
 public class NodeEntry {
     private NetworkIdentifier address;
     private KadId id;
@@ -34,6 +36,9 @@ public class NodeEntry {
     public void setPinged() { if (timeoutCount == 0xffff) timeoutCount = 0; }
 
     public void timedOut() { if (isPinged()) ++timeoutCount; }
+    public void setTimeoutCount(int value) {
+        timeoutCount = value;
+    }
 
     public int failCount() { return isPinged() ? timeoutCount : 0; }
     public void resetFailCount() { if (isPinged()) timeoutCount = 0; }
@@ -41,5 +46,9 @@ public class NodeEntry {
     public boolean isConfirmed() { return timeoutCount == 0; }
     public long getFirstSeen() {
         return firstSeen;
+    }
+
+    public KadId getId() {
+        return id;
     }
 }
