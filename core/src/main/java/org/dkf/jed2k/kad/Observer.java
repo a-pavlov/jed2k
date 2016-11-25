@@ -7,8 +7,6 @@ import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
 
-import java.net.InetSocketAddress;
-
 /**
  * Created by inkpot on 21.11.2016.
  */
@@ -24,14 +22,14 @@ public abstract class Observer {
     public static final byte FLAG_DONE = 64;
 
     private TraversalAlgorithm algorithm;
-    private InetSocketAddress endpoint;
+    private NetworkIdentifier endpoint;
     private KadId id;
     private byte transactionId;
     private int flags;
 
     private boolean wasAbandoned = false;
 
-    public Observer(final TraversalAlgorithm algorithm, final InetSocketAddress ep, final KadId id) {
+    public Observer(final TraversalAlgorithm algorithm, final NetworkIdentifier ep, final KadId id) {
         this.algorithm = algorithm;
         this.endpoint = ep;
         this.id = id;

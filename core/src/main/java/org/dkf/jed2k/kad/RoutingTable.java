@@ -8,9 +8,9 @@ import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
 
-import java.net.InetSocketAddress;
 import java.util.*;
 
 /**
@@ -51,13 +51,14 @@ public class RoutingTable {
     // been identified as router nodes. They will
     // be used in searches, but they will never
     // be added to the routing table.
-    Set<InetSocketAddress> routerNodes = new HashSet<>();
+    Set<NetworkIdentifier> routerNodes = new HashSet<>();
 
     // these are all the IPs that are in the routing
     // table. It's used to only allow a single entry
     // per IP in the whole table. Currently only for
     // IPv4
     //MultiSemultiset<address_v4::bytes_type> m_ips;
+    Set<Integer> ips = new HashSet<>();
 
     private int bucketSize;
 
@@ -173,7 +174,7 @@ public class RoutingTable {
         return target;
     }
 
-    Pair<NodeEntry, RoutingTableBucket> findNode(final InetSocketAddress ep) {
+    Pair<NodeEntry, RoutingTableBucket> findNode(final NetworkIdentifier ep) {
         for (RoutingTableBucket bucket: buckets) {
             for (NodeEntry n: bucket.getReplacements()) {
                 if (!n.getEndpoint().equals(ep)) continue;
@@ -189,6 +190,8 @@ public class RoutingTable {
         return null;
     }
 
+
+
     @AllArgsConstructor
     private static class FindByKadId implements Checker<NodeEntry> {
         private final KadId target;
@@ -199,7 +202,7 @@ public class RoutingTable {
         }
     }
 
-    public void nodeFailed(final KadId id, final InetSocketAddress ep) {
+    public void nodeFailed(final KadId id, final NetworkIdentifier ep) {
         // if messages to ourself fails, ignore it
         if (id.equals(self)) return;
 
@@ -227,14 +230,14 @@ public class RoutingTable {
             // if this node has failed too many times, or if this node
             // has never responded at all, remove it
             if (failedNode.failCount() >= 10 || !failedNode.isPinged()) {
-                //ips.erase(j->addr.to_v4().to_bytes());
+                ips.remove(failedNode.getEndpoint().getIP());
                 bucket.getLiveNodes().remove(j);
             }
 
             return;
         }
 
-        //m_ips.erase(j->addr.to_v4().to_bytes());
+        ips.remove(failedNode.getEndpoint().getIP());
         bucket.getLiveNodes().remove(j);
 
         j = Utils.indexOf(bucket.getReplacements(), new Checker<NodeEntry>() {

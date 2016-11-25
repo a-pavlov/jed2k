@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad;
 
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.net.InetSocketAddress;
@@ -10,12 +11,12 @@ import java.net.InetSocketAddress;
  * Created by inkpot on 23.11.2016.
  */
 public class NodeEntry {
-    private InetSocketAddress address;
+    private NetworkIdentifier address;
     private KadId id;
     private int timeoutCount;
     private long firstSeen;
 
-    public NodeEntry(final KadId id_, final InetSocketAddress address, boolean pinged) {
+    public NodeEntry(final KadId id_, final NetworkIdentifier address, boolean pinged) {
         this.id = id_;
         this.address = address;
         this.timeoutCount = (pinged)?0:0xffff;
@@ -36,7 +37,7 @@ public class NodeEntry {
 
     public int failCount() { return isPinged() ? timeoutCount : 0; }
     public void resetFailCount() { if (isPinged()) timeoutCount = 0; }
-    public InetSocketAddress getEndpoint() { return address; }
+    public NetworkIdentifier getEndpoint() { return address; }
     public boolean isConfirmed() { return timeoutCount == 0; }
     public long getFirstSeen() {
         return firstSeen;
