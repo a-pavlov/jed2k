@@ -7,8 +7,8 @@ import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,7 +259,7 @@ public class Session extends Thread {
         connections.remove(p);
     }
 
-    void openConnection(NetworkIdentifier point) throws JED2KException {
+    void openConnection(Endpoint point) throws JED2KException {
         if (findPeerConnection(point) == null) {
             PeerConnection p = PeerConnection.make(Session.this, point, null, null);
             if (p != null) connections.add(p);
@@ -278,7 +278,7 @@ public class Session extends Thread {
                 try {
                     serverConection = ServerConnection.makeConnection(id, Session.this);
                     serverConection.connect(point);
-                    NetworkIdentifier endpoint = new NetworkIdentifier(point);
+                    Endpoint endpoint = new Endpoint(point);
                     log.debug("connect to server {}", endpoint);
                 } catch(JED2KException e) {
                     // emit alert - connect to server failed
@@ -302,7 +302,7 @@ public class Session extends Thread {
                     try {
                         serverConection = ServerConnection.makeConnection(id, Session.this);
                         serverConection.connect(addr);
-                        NetworkIdentifier endpoint = new NetworkIdentifier(addr);
+                        Endpoint endpoint = new Endpoint(addr);
                         pushAlert(new ServerConnectionAlert(id));
                         log.debug("connect to server {}", endpoint);
                     } catch(JED2KException e) {
@@ -357,7 +357,7 @@ public class Session extends Thread {
     }
 
     // TODO - remove only
-    public void connectToPeer(final NetworkIdentifier point) {
+    public void connectToPeer(final Endpoint point) {
         commands.add(new Runnable() {
             @Override
             public void run() {
@@ -372,7 +372,7 @@ public class Session extends Thread {
         });
     }
 
-    private PeerConnection findPeerConnection(NetworkIdentifier endpoint) {
+    private PeerConnection findPeerConnection(Endpoint endpoint) {
         for(PeerConnection p: connections) {
             if (p.hasEndpoint() && endpoint.compareTo(p.getEndpoint()) == 0) return p;
         }

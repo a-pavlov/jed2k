@@ -3,8 +3,8 @@ package org.dkf.jed2k.test;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.TransferResumeData;
 import org.junit.Assume;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class TransferTest {
         picker.restoreHave(0);
         picker.restoreHave(1);
 
-        Peer peer = new Peer(new NetworkIdentifier(0, 0));
+        Peer peer = new Peer(new Endpoint(0, 0));
         // move blocks to downloading queue
         LinkedList<PieceBlock> pieces = new LinkedList<>();
         picker.pickPieces(pieces, Constants.BLOCKS_PER_PIECE + 3, peer, PeerConnection.PeerSpeed.SLOW);
@@ -106,7 +106,7 @@ public class TransferTest {
         Transfer t = new Transfer(new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), fileSize, "", true), picker);
 
         // we have 1 piece(last) without 1024 bytes + 2 blocks in first piece
-        Peer peer = new Peer(new NetworkIdentifier(0, 0));
+        Peer peer = new Peer(new Endpoint(0, 0));
         picker.restoreHave(1);
         LinkedList<PieceBlock> pieces = new LinkedList<>();
         picker.pickPieces(pieces, 3, peer, PeerConnection.PeerSpeed.SLOW);

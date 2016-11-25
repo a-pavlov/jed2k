@@ -203,7 +203,7 @@ public class DhtTracker extends Thread {
         });
     }
 
-    public synchronized void addNode(final NetworkIdentifier endpoint, final KadId id) {
+    public synchronized void addNode(final Endpoint endpoint, final KadId id) {
         node.addNode(endpoint, id);
     }
 

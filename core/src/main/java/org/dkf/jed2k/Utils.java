@@ -2,8 +2,8 @@ package org.dkf.jed2k;
 
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.Serializable;
 
 import java.net.InetAddress;
@@ -143,7 +143,7 @@ public final class Utils {
      * @param ep ip address in network byte order
      * @return true if it is local address
      */
-    public static boolean isLocalAddress(NetworkIdentifier ep) {
+    public static boolean isLocalAddress(Endpoint ep) {
         int host = ntohl(ep.getIP());
         return ((host & 0xff000000) == 0x0a000000 // 10.x.x.x
                 || (host & 0xfff00000) == 0xac100000 // 172.16.x.x

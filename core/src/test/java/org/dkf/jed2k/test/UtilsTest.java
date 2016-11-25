@@ -7,8 +7,8 @@ import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.junit.Test;
 
 import java.net.InetAddress;
@@ -91,9 +91,9 @@ public class UtilsTest {
 
     @Test
     public void testIsLocal() throws UnknownHostException {
-        assertTrue(Utils.isLocalAddress(new NetworkIdentifier(new InetSocketAddress("192.168.0.1", 7080))));
-        assertTrue(Utils.isLocalAddress(new NetworkIdentifier(new InetSocketAddress("10.168.0.1", 7080))));
-        assertFalse(Utils.isLocalAddress(new NetworkIdentifier(new InetSocketAddress("184.168.0.0", 7081))));
+        assertTrue(Utils.isLocalAddress(new Endpoint(new InetSocketAddress("192.168.0.1", 7080))));
+        assertTrue(Utils.isLocalAddress(new Endpoint(new InetSocketAddress("10.168.0.1", 7080))));
+        assertFalse(Utils.isLocalAddress(new Endpoint(new InetSocketAddress("184.168.0.0", 7081))));
     }
 
     /*

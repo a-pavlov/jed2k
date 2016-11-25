@@ -318,5 +318,5 @@ public abstract class Connection implements Dispatcher {
         return disconnecting;
     }
 
-    abstract NetworkIdentifier getEndpoint();
+    abstract Endpoint getEndpoint();
 }

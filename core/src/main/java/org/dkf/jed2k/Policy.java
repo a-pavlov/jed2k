@@ -2,7 +2,7 @@ package org.dkf.jed2k;
 
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class Policy extends AbstractCollection<Peer> {
         return pe.failCount > 0;
     }
 
-    Peer get(NetworkIdentifier endpoint) {
+    Peer get(Endpoint endpoint) {
         for(Peer p: peers) {
             if (p.endpoint.equals(endpoint)) return p;
         }

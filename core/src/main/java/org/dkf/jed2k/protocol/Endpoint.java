@@ -11,33 +11,33 @@ import java.nio.ByteOrder;
 import static org.dkf.jed2k.Utils.ip2String;
 import static org.dkf.jed2k.Utils.sizeof;
 
-public final class NetworkIdentifier implements Serializable, Comparable<NetworkIdentifier> {
+public final class Endpoint implements Serializable, Comparable<Endpoint> {
     private int ip = 0;
     private int port = 0;
 
     /**
      * for serialization purposes
      */
-    public NetworkIdentifier() {
+    public Endpoint() {
     }
 
-    public NetworkIdentifier(InetSocketAddress ep) {
+    public Endpoint(InetSocketAddress ep) {
         ip  = Utils.packToNetworkByteOrder(ep.getAddress().getAddress());
         port = (short)ep.getPort();
     }
 
-    public NetworkIdentifier(int ip, int port) {
+    public Endpoint(int ip, int port) {
         this.ip = ip;
         this.port = port;
     }
 
-    public NetworkIdentifier assign(int ip, int port) {
+    public Endpoint assign(int ip, int port) {
         this.ip = ip;
         this.port = port;
         return this;
     }
 
-    public NetworkIdentifier assign(NetworkIdentifier point) {
+    public Endpoint assign(Endpoint point) {
         this.ip = point.ip;
         this.port = point.port;
         return this;
@@ -82,7 +82,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
     }
 
     @Override
-    public int compareTo(NetworkIdentifier arg0) {
+    public int compareTo(Endpoint arg0) {
         if (ip > arg0.ip) return 1;
         if (ip < arg0.ip) return -1;
         if (port > arg0.port) return 1;
@@ -92,7 +92,7 @@ public final class NetworkIdentifier implements Serializable, Comparable<Network
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof NetworkIdentifier && compareTo((NetworkIdentifier)o) == 0) {
+        if (o instanceof Endpoint && compareTo((Endpoint)o) == 0) {
             return true;
         }
 

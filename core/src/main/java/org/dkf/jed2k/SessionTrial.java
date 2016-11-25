@@ -1,8 +1,8 @@
 package org.dkf.jed2k;
 
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,14 +15,14 @@ import java.util.LinkedList;
  */
 public class SessionTrial extends Session {
     private final Logger log = LoggerFactory.getLogger(SessionTrial.class);
-    private final HashSet<NetworkIdentifier> fileSources = new HashSet<NetworkIdentifier>();
+    private final HashSet<Endpoint> fileSources = new HashSet<Endpoint>();
 
-    public SessionTrial(Settings st, final LinkedList<NetworkIdentifier> peers) {
+    public SessionTrial(Settings st, final LinkedList<Endpoint> peers) {
         super(st);
         fileSources.addAll(peers);
     }
 
-    public void add(final NetworkIdentifier endpoint) {
+    public void add(final Endpoint endpoint) {
         fileSources.add(endpoint);
     }
 
@@ -30,7 +30,7 @@ public class SessionTrial extends Session {
     void sendSourcesRequest(final Hash h, final long size) {
         Transfer transfer = transfers.get(h);
         if (transfer != null) {
-            for(final NetworkIdentifier endpoint: fileSources) {
+            for(final Endpoint endpoint: fileSources) {
                 try {
                     transfer.addPeer(endpoint);
                 } catch(JED2KException e) {

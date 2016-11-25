@@ -4,8 +4,8 @@ import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.client.*;
 import org.dkf.jed2k.protocol.server.*;
@@ -232,7 +232,7 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         Transfer transfer = session.transfers.get(value.hash);
         if (transfer != null) {
-            for(final NetworkIdentifier endpoint: value.sources) {
+            for(final Endpoint endpoint: value.sources) {
                 if (Utils.isLowId(endpoint.getIP()) && !Utils.isLowId(session.clientId) && !session.callbacks.containsKey(endpoint.getIP())) {
                     sendCallbackRequest(endpoint.getIP());
                     session.callbacks.put(endpoint.getIP(), value.hash);
@@ -294,9 +294,9 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    NetworkIdentifier getEndpoint() {
+    Endpoint getEndpoint() {
         // actually we have server ip/port but currently I no need them for debug purposes
-        return new NetworkIdentifier();
+        return new Endpoint();
     }
 
     void sendFileSourcesRequest(final Hash h, final long size) {

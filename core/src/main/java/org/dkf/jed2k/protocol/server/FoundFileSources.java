@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 public class FoundFileSources implements Serializable, Dispatchable {
     public Hash hash = new Hash();
-    public Container<UInt8, NetworkIdentifier> sources = Container.makeByte(NetworkIdentifier.class);
+    public Container<UInt8, Endpoint> sources = Container.makeByte(Endpoint.class);
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

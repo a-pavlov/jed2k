@@ -2,8 +2,8 @@ package org.dkf.jed2k.kad;
 
 import lombok.ToString;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.net.InetSocketAddress;
@@ -13,12 +13,12 @@ import java.net.InetSocketAddress;
  */
 @ToString
 public class NodeEntry {
-    private NetworkIdentifier address;
+    private Endpoint address;
     private KadId id;
     private int timeoutCount;
     private long firstSeen;
 
-    public NodeEntry(final KadId id_, final NetworkIdentifier address, boolean pinged) {
+    public NodeEntry(final KadId id_, final Endpoint address, boolean pinged) {
         this.id = id_;
         this.address = address;
         this.timeoutCount = (pinged)?0:0xffff;
@@ -42,7 +42,7 @@ public class NodeEntry {
 
     public int failCount() { return isPinged() ? timeoutCount : 0; }
     public void resetFailCount() { if (isPinged()) timeoutCount = 0; }
-    public NetworkIdentifier getEndpoint() { return address; }
+    public Endpoint getEndpoint() { return address; }
     public boolean isConfirmed() { return timeoutCount == 0; }
     public long getFirstSeen() {
         return firstSeen;

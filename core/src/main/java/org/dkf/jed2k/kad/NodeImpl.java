@@ -1,6 +1,6 @@
 package org.dkf.jed2k.kad;
 
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 /**
@@ -8,7 +8,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
  */
 public class NodeImpl {
 
-    public void addNode(final NetworkIdentifier ep, final KadId id) {
+    public void addNode(final Endpoint ep, final KadId id) {
 
     }
 

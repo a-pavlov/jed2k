@@ -7,7 +7,7 @@ import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.util.*;
@@ -50,7 +50,7 @@ public class RoutingTable {
     // been identified as router nodes. They will
     // be used in searches, but they will never
     // be added to the routing table.
-    Set<NetworkIdentifier> routerNodes = new HashSet<>();
+    Set<Endpoint> routerNodes = new HashSet<>();
 
     // these are all the IPs that are in the routing
     // table. It's used to only allow a single entry
@@ -171,7 +171,7 @@ public class RoutingTable {
         return target;
     }
 
-    Pair<NodeEntry, RoutingTableBucket> findNode(final NetworkIdentifier ep) {
+    Pair<NodeEntry, RoutingTableBucket> findNode(final Endpoint ep) {
         for (RoutingTableBucket bucket: buckets) {
             for (NodeEntry n: bucket.getReplacements()) {
                 if (!n.getEndpoint().equals(ep)) continue;
@@ -506,7 +506,7 @@ public class RoutingTable {
         return ret;
     }
 
-    public void nodeFailed(final KadId id, final NetworkIdentifier ep) {
+    public void nodeFailed(final KadId id, final Endpoint ep) {
         // if messages to ourself fails, ignore it
         if (id.equals(self)) return;
 
@@ -580,12 +580,12 @@ public class RoutingTable {
         }
     }
 
-    void addRouterNode(final NetworkIdentifier ep) {
+    void addRouterNode(final Endpoint ep) {
         routerNodes.add(ep);
     }
 
     // was spoofed or not (i.e. pinged == false)
-    void heardAbout(final KadId id, final NetworkIdentifier ep) {
+    void heardAbout(final KadId id, final Endpoint ep) {
         addNode(new NodeEntry(id, ep, false));
     }
 
@@ -596,7 +596,7 @@ public class RoutingTable {
     // the return value indicates if the table needs a refresh.
     // if true, the node should refresh the table (i.e. do a find_node
     // on its own id)
-    boolean nodeSeen(final KadId id, final NetworkIdentifier ep) {
+    boolean nodeSeen(final KadId id, final Endpoint ep) {
         return addNode(new NodeEntry(id, ep, true));
     }
 

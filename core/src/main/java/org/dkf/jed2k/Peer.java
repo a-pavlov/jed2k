@@ -1,6 +1,6 @@
 package org.dkf.jed2k;
 
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 
 /**
  * Created by ap197_000 on 04.07.2016.
@@ -26,14 +26,14 @@ public class Peer implements Comparable<Peer> {
     int     failCount       = 0;
     boolean connectable     = false;
     int source      = 0;
-    NetworkIdentifier   endpoint;
+    Endpoint endpoint;
     private PeerConnection  connection = null;
 
-    public Peer(NetworkIdentifier ep) {
+    public Peer(Endpoint ep) {
         endpoint = ep;
     }
 
-    public Peer(NetworkIdentifier ep, boolean conn) {
+    public Peer(Endpoint ep, boolean conn) {
         endpoint = ep;
         connectable = conn;
     }

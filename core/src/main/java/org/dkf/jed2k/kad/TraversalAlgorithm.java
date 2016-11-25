@@ -2,8 +2,8 @@ package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class TraversalAlgorithm {
     public static final int PREVENT_REQUEST = 1;
     public static final int SHORT_TIMEOUT = 2;
 
-    protected Observer newObserver(final NetworkIdentifier endpoint, final KadId id) {
+    protected Observer newObserver(final Endpoint endpoint, final KadId id) {
         return null;
     }
 
@@ -83,7 +83,7 @@ public class TraversalAlgorithm {
         target = t;
     }
 
-    public void addEntry(final KadId id, final NetworkIdentifier addr, byte flags) {
+    public void addEntry(final KadId id, final Endpoint addr, byte flags) {
         //TODO check this assert later
         //LIBED2K_ASSERT(m_node.m_rpc.allocation_size() >= sizeof(find_data_observer));
         /*

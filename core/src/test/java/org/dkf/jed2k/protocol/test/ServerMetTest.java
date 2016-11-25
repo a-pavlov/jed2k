@@ -2,7 +2,7 @@ package org.dkf.jed2k.protocol.test;
 
 import org.dkf.jed2k.ResourceFile;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.junit.Assume;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class ServerMetTest {
     @Test
     public void testGetters() throws JED2KException {
         ServerMet sm = new ServerMet();
-        sm.addServer(ServerMet.ServerMetEntry.create(new NetworkIdentifier(new InetSocketAddress("192.168.0.9", 1223)).getIP(), (short)5600, "Test server name", "Test descr"));
+        sm.addServer(ServerMet.ServerMetEntry.create(new Endpoint(new InetSocketAddress("192.168.0.9", 1223)).getIP(), (short)5600, "Test server name", "Test descr"));
         sm.addServer(ServerMet.ServerMetEntry.create("mule.org", (short)45567, "Name2", null));
         ByteBuffer bb = ByteBuffer.allocate(sm.bytesCount());
         bb.order(ByteOrder.LITTLE_ENDIAN);

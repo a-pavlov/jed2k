@@ -3,8 +3,8 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
@@ -130,7 +130,7 @@ public class Conn {
         startSettings.serverPingTimeout = 0;
         startSettings.listenPort = 6991;
 
-        LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
+        LinkedList<Endpoint> systemPeers = new LinkedList<Endpoint>();
         String sp = System.getProperty("session.peers");
         if (sp != null) {
             String[] strP = sp.split(",");
@@ -138,7 +138,7 @@ public class Conn {
                 String[] strEndpoint = s.split(":");
 
                 if (strEndpoint.length == 2) {
-                    NetworkIdentifier ep = new NetworkIdentifier(new InetSocketAddress(strEndpoint[0], (short) Integer.parseInt(strEndpoint[1])));
+                    Endpoint ep = new Endpoint(new InetSocketAddress(strEndpoint[0], (short) Integer.parseInt(strEndpoint[1])));
                     systemPeers.addLast(ep);
                     log.debug("add system peer: {}", ep);
                 } else {
@@ -250,7 +250,7 @@ public class Conn {
                     log.error(e.getMessage());
                 }
             } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
-                s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
+                s.connectToPeer(new Endpoint(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
 
                 EMuleLink eml = null;

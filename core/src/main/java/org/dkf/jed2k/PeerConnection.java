@@ -7,8 +7,8 @@ import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.BitField;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.client.*;
 import org.dkf.jed2k.protocol.server.*;
@@ -181,9 +181,9 @@ public class PeerConnection extends Connection {
     /**
      * network endpoint for outgoing connections
      */
-    private NetworkIdentifier endpoint;
+    private Endpoint endpoint;
 
-    PeerConnection(NetworkIdentifier point,
+    PeerConnection(Endpoint point,
             ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer,
             PacketCombiner packetCombiner,
@@ -201,7 +201,7 @@ public class PeerConnection extends Connection {
             Session session,
             SocketChannel socket) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session, socket);
-        endpoint = new NetworkIdentifier();
+        endpoint = new Endpoint();
         peerInfo = null;
     }
 
@@ -217,7 +217,7 @@ public class PeerConnection extends Connection {
         }
     }
 
-    public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer, Peer peerInfo) throws JED2KException {
+    public static PeerConnection make(Session ses, final Endpoint point, Transfer transfer, Peer peerInfo) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(8128);
             ByteBuffer obuff = ByteBuffer.allocate(MAX_OUTGOING_BUFFER_SIZE);
@@ -244,7 +244,7 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public NetworkIdentifier getEndpoint() {
+    public Endpoint getEndpoint() {
         return endpoint;
     }
 
@@ -344,7 +344,7 @@ public class PeerConnection extends Connection {
     }
 
     public class RemotePeerInfo {
-        public NetworkIdentifier point = new NetworkIdentifier();
+        public Endpoint point = new Endpoint();
         public String modName;
         public int version = 0;
         public String modVersion;

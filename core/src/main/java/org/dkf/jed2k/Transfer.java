@@ -6,8 +6,8 @@ import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.BitField;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.TransferResumeData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -235,7 +235,7 @@ public class Transfer {
         session.sendSourcesRequest(hash, size);
     }
 
-    final void addPeer(NetworkIdentifier endpoint) throws JED2KException {
+    final void addPeer(Endpoint endpoint) throws JED2KException {
         policy.addPeer(new Peer(endpoint, true));
     }
 
