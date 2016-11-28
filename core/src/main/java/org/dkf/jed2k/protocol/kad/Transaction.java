@@ -14,4 +14,12 @@ public abstract class Transaction implements Serializable {
     public static final byte REQ_RES = 0x04;
 
     public abstract byte getTransactionId();
+
+    public KadId getSelfId() {
+        return new KadId();
+    }
+
+    public KadId getRequesterId() {
+        return new KadId();
+    }
 }

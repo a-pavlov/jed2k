@@ -34,4 +34,9 @@ public class Kad2Res extends Transaction {
     public int bytesCount() {
         return target.bytesCount() + results.bytesCount();
     }
+
+    @Override
+    public KadId getRequesterId() {
+        return target;
+    }
 }

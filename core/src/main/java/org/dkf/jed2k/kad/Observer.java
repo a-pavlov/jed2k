@@ -25,7 +25,8 @@ public abstract class Observer {
     private Endpoint endpoint;
     private KadId id;
     private byte transactionId;
-    private int flags;
+    private long sentTime;
+    protected int flags;
 
     private boolean wasAbandoned = false;
 
@@ -33,6 +34,7 @@ public abstract class Observer {
         this.algorithm = algorithm;
         this.endpoint = ep;
         this.id = id;
+        this.sentTime = 0;
     }
 
     public void shortTimeout() {
@@ -60,6 +62,10 @@ public abstract class Observer {
         if (Utils.isBit(flags, FLAG_DONE)) return;
         flags |= FLAG_DONE;
         algorithm.finished(this);
+    }
+
+    public Endpoint getTarget() {
+        return endpoint;
     }
 
     public abstract void reply(final Transaction t, final Endpoint endpoint);
