@@ -588,6 +588,10 @@ public class RoutingTable {
         routerNodes.add(ep);
     }
 
+    public Set<Endpoint> getRouterNodes() {
+        return routerNodes;
+    }
+
     // was spoofed or not (i.e. pinged == false)
     void heardAbout(final KadId id, final Endpoint ep) {
         addNode(new NodeEntry(id, ep, false));
@@ -600,7 +604,7 @@ public class RoutingTable {
     // the return value indicates if the table needs a refresh.
     // if true, the node should refresh the table (i.e. do a find_node
     // on its own id)
-    boolean nodeSeen(final KadId id, final Endpoint ep) {
+    public boolean nodeSeen(final KadId id, final Endpoint ep) {
         return addNode(new NodeEntry(id, ep, true));
     }
 

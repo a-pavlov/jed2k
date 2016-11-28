@@ -21,6 +21,10 @@ public final class Endpoint implements Serializable, Comparable<Endpoint> {
     public Endpoint() {
     }
 
+    public static Endpoint fromInet(final InetSocketAddress addr) {
+        return new Endpoint(addr);
+    }
+
     public Endpoint(InetSocketAddress ep) {
         ip  = Utils.packToNetworkByteOrder(ep.getAddress().getAddress());
         port = (short)ep.getPort();

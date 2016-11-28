@@ -43,6 +43,7 @@ public class DhtTracker extends Thread {
     public DhtTracker(int listenPort) {
         assert listenPort > 0 && listenPort <= 65535;
         this.listenPort = listenPort;
+        this.node = new NodeImpl(this);
     }
 
     @Override
@@ -131,10 +132,11 @@ public class DhtTracker extends Thread {
             incomingBuffer.flip();
             incomingHeader.get(incomingBuffer);
             incomingHeader.reset(incomingHeader.key(), incomingBuffer.remaining());
-            Serializable t = combiner.unpack(incomingHeader, incomingBuffer);
+            Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
+            Transaction t = (Transaction)s;
             assert t != null;
             log.trace("packet {}: {}", t.bytesCount(), t);
-
+            node.incoming(t, Endpoint.fromInet(address));
         } catch (IOException e) {
             log.error("I/O exception on reading packet {}", incomingHeader);
         } catch (JED2KException e) {
@@ -146,8 +148,8 @@ public class DhtTracker extends Thread {
         }
     }
 
-    private void onWriteable() {
-        if (outgoingOrder.isEmpty()) return;
+    private boolean onWriteable() {
+        if (outgoingOrder.isEmpty()) return false;
 
         Serializable packet = outgoingOrder.poll();
         InetSocketAddress ep = outgoingAddresses.poll();
@@ -160,6 +162,7 @@ public class DhtTracker extends Thread {
             combiner.pack(packet, outgoingBuffer);
             outgoingBuffer.flip();
             channel.send(outgoingBuffer, ep);
+            return true;
         }
         catch(JED2KException e) {
             log.error("pack packet {} error {}", packet, e);
@@ -172,23 +175,36 @@ public class DhtTracker extends Thread {
                 key.interestOps(SelectionKey.OP_READ);
             }
         }
+
+        return false;
     }
 
-    void write(final Serializable packet, final InetSocketAddress ep) {
+    /**
+     *
+     * @param packet data block
+     * @param ep target endpoint
+     * @return true if packet was written to socket and in case of deferred sending
+     * expect this method will write data immediately - need to be verified
+     */
+    public boolean write(final Serializable packet, final InetSocketAddress ep) {
         boolean wasInProgress = !outgoingOrder.isEmpty();
         outgoingOrder.add(packet);
         outgoingAddresses.add(ep);
 
         // writing in progress, no need additional actions here
-        if (wasInProgress) return;
+        if (wasInProgress) return true;
 
         // in writeable case start writing immediately
         // otherwise wait write able state
         if (key.isWritable()) {
-            onWriteable();
+            // return actual write result
+            boolean res = onWriteable();
+            log.trace("actual write to {} is {}", ep, res);
         } else {
             key.interestOps(SelectionKey.OP_WRITE);
         }
+
+        return true;
     }
 
     /**

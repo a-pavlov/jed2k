@@ -3,7 +3,6 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
 
 import java.util.Iterator;
@@ -25,7 +24,7 @@ public class RpcManager {
         transactions.add(o);
     }
 
-    public Observer incoming(final Transaction t, final Endpoint ep, final KadId id) {
+    public Observer incoming(final Transaction t, final Endpoint ep) {
         if (destructing) return null;
 
         Iterator<Observer> itr = transactions.iterator();
@@ -50,16 +49,6 @@ public class RpcManager {
         }
 
         return o;
-/*
-        *id = extract_packet_node_id(t);
-
-        // we have no node_id in packet - set it from observer
-        if (*id == node_id::invalid) *id = o->id();
-
-        // we found an observer for this reply, hence the node is not spoofing
-        // add it to the routing table
-        return m_table.node_seen(*id, target);
-        */
     }
 
     public void unreachable(final Endpoint ep) {

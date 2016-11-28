@@ -29,23 +29,33 @@ public class TraversalAlgorithm {
     public static final int PREVENT_REQUEST = 1;
     public static final int SHORT_TIMEOUT = 2;
 
+    public TraversalAlgorithm(final NodeImpl ni, final KadId t) {
+        assert t != null;
+        assert !t.isAllZeros();
+        assert ni != null;
+        nodeImpl = ni;
+        target = t;
+    }
+
     protected Observer newObserver(final Endpoint endpoint, final KadId id) {
         return null;
     }
 
     protected boolean invoke(final Observer o) {
+        assert false;
         return false;
     }
 
     protected void done() {
         results.clear();
+        nodeImpl.removeTraversalAlgorithm(this);
     }
 
     protected void init() {
         // update the last activity of this bucket
-        //m_node.m_table.touch_bucket(m_target);
-        branchFactor = nodeImpl.getSearchBranching(); // TODO - use value from DHT settings
-        //m_node.add_traversal_algorithm(this);
+        nodeImpl.getTable().touchBucket(target);
+        branchFactor = nodeImpl.getSearchBranching();
+        nodeImpl.addTraversalAlgorithm(this);
     }
 
     protected void addRequests() {
@@ -57,7 +67,7 @@ public class TraversalAlgorithm {
             if (Utils.isBit(o.getFlags(), Observer.FLAG_ALIVE)) --resultsTarget;
             if (Utils.isBit(o.getFlags(), Observer.FLAG_QUERIED)) continue;
             log.debug("traversal: {} nodes-left: {} invoke-count: {} branch-factor: {}",
-                    name(), results.size(), invokeCount, branchFactor);
+                    getName(), results.size(), invokeCount, branchFactor);
 
             o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
 
@@ -71,16 +81,14 @@ public class TraversalAlgorithm {
     }
 
     protected void addRouterEntries() {
-        // TODO - add content here after node implementation completed
+        log.debug("traversal using router nodes to initiate traversal algorithm. count {}", nodeImpl.getTable().getRouterNodes().size());
+        for(final Endpoint ep: nodeImpl.getTable().getRouterNodes()) {
+            addEntry(new KadId(), ep, Observer.FLAG_INITIAL);
+        }
     }
 
-    public String name() {
-        return "traversal algorithm";
-    }
-
-    public TraversalAlgorithm(final NodeImpl ni, final KadId t) {
-        nodeImpl = ni;
-        target = t;
+    public String getName() {
+        return "TA";
     }
 
     public void addEntry(final KadId id, final Endpoint addr, byte flags) {
@@ -142,7 +150,7 @@ public class TraversalAlgorithm {
             }
             */
 
-            log.debug("traversal {} adding result: {} {} distance ", name(), id, addr, KadId.distanceExp(target, o.getId()));
+            log.debug("traversal {} adding result: {} {} distance ", getName(), id, addr, KadId.distanceExp(target, o.getId()));
             results.add(((pos + 1)*-1), o);
         }
 
@@ -169,20 +177,19 @@ public class TraversalAlgorithm {
             // by increasing the branch factor
             if ((o.getFlags() & Observer.FLAG_SHORT_TIMEOUT) == 0) ++branchFactor;
             o.setFlags(o.getFlags() | Observer.FLAG_SHORT_TIMEOUT);
-            log.debug("traversal {} first chance timeout {} branch-factor: {} invoke-count: {}", name(), o.getId(), branchFactor, invokeCount);
+            log.debug("traversal {} first chance timeout {} branch-factor: {} invoke-count: {}", getName(), o.getId(), branchFactor, invokeCount);
         }
         else {
             o.setFlags(o.getFlags() | Observer.FLAG_FAILED);
             // if this flag is set, it means we increased the
             // branch factor for it, and we should restore it
             if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
-            log.debug("traversal {} failed {} branch-factor: {} invoke-count: {}", name(), branchFactor, invokeCount);
+            log.debug("traversal {} failed {} branch-factor: {} invoke-count: {}", getName(), branchFactor, invokeCount);
 
             // don't tell the routing table about
             // node ids that we just generated ourself
             if ((o.getFlags() & Observer.FLAG_NO_ID) == 0) {
-                // TODO - tell table we failed
-                //m_node.m_table.node_failed(o->id(), o->target_ep());
+                nodeImpl.getTable().nodeFailed(o.getId(), o.getEndpoint());
             }
 
             ++timeouts;
@@ -206,7 +213,6 @@ public class TraversalAlgorithm {
         if (invokeCount == 0) done();
     }
 
-
     public void finished(final Observer o) {
         boolean contains = results.contains(o);
         // we have this observer or it was abandoned(size > 100)
@@ -225,5 +231,20 @@ public class TraversalAlgorithm {
         assert invokeCount >= 0;
         addRequests();
         if (invokeCount == 0) done();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TraversalAlgorithm that = (TraversalAlgorithm) o;
+
+        return target.equals(that.target) && getName().equals(that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return target.hashCode() + getName().hashCode();
     }
 }
