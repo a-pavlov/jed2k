@@ -9,7 +9,6 @@ import org.dkf.jed2k.protocol.kad.Transaction;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Created by inkpot on 21.11.2016.
@@ -97,13 +96,10 @@ public class RpcManager {
         long now = Time.currentTime();
         final Long[] last = {new Long(0)};
 
-        transactions.forEach(new Consumer<Observer>() {
-            @Override
-            public void accept(Observer observer) {
-                assert observer.getSentTime() >= last[0];
-                last[0] = observer.getSentTime();
-            }
-        });
+        for(final Observer o: transactions) {
+            assert o.getSentTime() >= last[0];
+            last[0] = o.getSentTime();
+        }
 
         Iterator<Observer> itr = transactions.iterator();
         while(itr.hasNext()) {
