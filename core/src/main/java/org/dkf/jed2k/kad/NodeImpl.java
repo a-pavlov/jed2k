@@ -8,6 +8,13 @@ import org.dkf.jed2k.protocol.kad.KadId;
  */
 public class NodeImpl {
 
+    private static final int SEARCH_BRANCHING = 5;
+    private final RpcManager rpc;
+
+    public NodeImpl(final RpcManager rpc) {
+        this.rpc = rpc;
+    }
+
     public void addNode(final Endpoint ep, final KadId id) {
 
     }
@@ -29,4 +36,7 @@ public class NodeImpl {
 
     }
 
+    public int getSearchBranching() {
+        return SEARCH_BRANCHING;
+    }
 }

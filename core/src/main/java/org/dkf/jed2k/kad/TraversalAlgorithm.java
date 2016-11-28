@@ -44,7 +44,7 @@ public class TraversalAlgorithm {
     protected void init() {
         // update the last activity of this bucket
         //m_node.m_table.touch_bucket(m_target);
-        branchFactor = 5; // TODO - use value from DHT settings
+        branchFactor = nodeImpl.getSearchBranching(); // TODO - use value from DHT settings
         //m_node.add_traversal_algorithm(this);
     }
 

@@ -18,6 +18,9 @@ import java.util.*;
 @Slf4j
 public class RoutingTable {
 
+    private static final boolean RESTRICT_ROUTING_IPS = false;
+    private static int MAX_FAIL_COUNT = 20;
+
     @Data
     @EqualsAndHashCode
     private static class RoutingTableBucket {
@@ -223,10 +226,10 @@ public class RoutingTable {
                 // the new node is not pinged, or it's not an existing node
                 // we should ignore it, unless we allow duplicate IPs in our
                 // routing table
-                //if (m_settings.restrict_routing_ips) {
-                //    log.debug("table ignoring node (duplicate IP): {} {}", e.getId(), e.getEndpoint());
-                //    return ret;
-                //}
+                if (RESTRICT_ROUTING_IPS) {
+                    log.debug("table ignoring node (duplicate IP): {}", e);
+                    return ret;
+                }
             }
             else if (existing != null && existing.left.getId().equals(e.getId())) {
                 // if the node ID is the same, just update the failcount
@@ -267,10 +270,10 @@ public class RoutingTable {
         }
 
         if (Utils.indexOf(bucket.getReplacements(), new FindByKadId(e.getId())) != -1) return ret;
-/*
-        if (m_settings.restrict_routing_ips)
-        {
+
+        if (RESTRICT_ROUTING_IPS) {
             // don't allow multiple entries from IPs very close to each other
+            /*
             j = std::find_if(b->begin(), b->end(), boost::bind(&compare_ip_cidr, _1, e));
             if (j != b->end())
             {
@@ -296,8 +299,9 @@ public class RoutingTable {
                 #endif
                 return ret;
             }
+            */
         }
-*/
+
         // if the node was not present in our list
         // we will only insert it if there is room
         // for it, or if some of our nodes have gone
@@ -531,7 +535,7 @@ public class RoutingTable {
 
             // if this node has failed too many times, or if this node
             // has never responded at all, remove it
-            if (failedNode.failCount() >= 10 || !failedNode.isPinged()) {
+            if (failedNode.failCount() >= MAX_FAIL_COUNT || !failedNode.isPinged()) {
                 ips.remove(failedNode.getEndpoint().getIP());
                 bucket.getLiveNodes().remove(j);
             }
