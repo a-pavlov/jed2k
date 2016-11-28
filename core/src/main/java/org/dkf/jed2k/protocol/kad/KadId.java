@@ -5,6 +5,8 @@ import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Hash;
 
 import java.nio.ByteBuffer;
+import java.util.Random;
+import java.util.zip.CRC32;
 
 /**
  * Created by inkpot on 14.11.2016.
@@ -134,5 +136,33 @@ public class KadId extends Hash {
         }
 
         return 0;
+    }
+
+    public static KadId generateId(int addr, int r) {
+        byte[] mask = { 0x03, 0x0f, 0x3f, (byte)0xff };
+        byte[] ip = {(byte)(addr & 0xff),
+                (byte)((addr >> 8) & 0xff),
+                (byte)((addr >> 16) & 0xff),
+                (byte)((addr >> 24) & 0xff)};
+
+        for(int i = 0; i < ip.length; ++i) {
+            ip[i] &= mask[i];
+        }
+
+        ip[0] |= (r & 0x7) << 5;
+        CRC32 crc = new CRC32();
+        crc.update(ip);
+        long c = crc.getValue();
+        KadId id = new KadId();
+        Random rnd = new Random();
+        byte[] randBytes = new byte[MD4.HASH_SIZE];
+        rnd.nextBytes(randBytes);
+
+        id.set(0, (byte)((c >> 24) & 0xff));
+        id.set(1, (byte)((c >> 16) & 0xff));
+        id.set(2, (byte)(((c >> 8) & 0xf8) | (randBytes[2] & 0x7)));
+
+        for (int i = 3; i < MD4.HASH_SIZE; ++i) id.set(i, randBytes[i]);
+        return id;
     }
 }

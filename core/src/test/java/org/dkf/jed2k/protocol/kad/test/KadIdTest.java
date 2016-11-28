@@ -2,9 +2,11 @@ package org.dkf.jed2k.protocol.kad.test;
 
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.junit.Test;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -77,5 +79,11 @@ public class KadIdTest {
         assertEquals(template, id.bitsInverse());
         assertEquals(new KadId(), template.bitsAnd(id));
         assertEquals(id, template.bitsOr(id));
+    }
+
+    @Test
+    public void testIdGenerator() {
+        KadId id = KadId.generateId(new Endpoint(new InetSocketAddress("81.168.99.44", 8999)).getIP(), 0);
+        assertTrue(id != null);
     }
 }
