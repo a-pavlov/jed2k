@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -12,6 +13,7 @@ import org.dkf.jed2k.protocol.kad.Transaction;
  */
 @Getter
 @Setter
+@ToString
 public abstract class Observer {
     public static final byte FLAG_QUERIED = 1;
     public static final byte FLAG_INITIAL = 2;

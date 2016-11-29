@@ -32,8 +32,12 @@ public class RpcManager {
         while(itr.hasNext()) {
             o = itr.next();
             assert o != null;
+            /**
+             * search for source observer using artificial transaction id, endpoint
+             * and if available(packet contains target KAD id) target KAD id in observer and target KAD id in incoming packet
+             */
             if (o.getTransactionId() == t.getTransactionId() && o.getTarget().equals(ep)
-                    && (t.getRequesterId().isAllZeros() || o.getTarget().equals(t.getRequesterId()))) {
+                    && (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))) {
                 itr.remove();
                 break;
             }

@@ -15,11 +15,19 @@ public abstract class Transaction implements Serializable {
 
     public abstract byte getTransactionId();
 
+    /**
+     *
+     * @return KAD id of requester - in other hands our KAD id
+     */
     public KadId getSelfId() {
         return new KadId();
     }
 
-    public KadId getRequesterId() {
+    /**
+     *
+     * @return KAD id of searching resource
+     */
+    public KadId getTargetId() {
         return new KadId();
     }
 }

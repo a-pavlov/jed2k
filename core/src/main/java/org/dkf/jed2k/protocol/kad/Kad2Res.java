@@ -36,7 +36,7 @@ public class Kad2Res extends Transaction {
     }
 
     @Override
-    public KadId getRequesterId() {
+    public KadId getTargetId() {
         return target;
     }
 }
