@@ -593,7 +593,7 @@ public class RoutingTable {
     }
 
     // was spoofed or not (i.e. pinged == false)
-    void heardAbout(final KadId id, final Endpoint ep) {
+    public void heardAbout(final KadId id, final Endpoint ep) {
         addNode(new NodeEntry(id, ep, false));
     }
 

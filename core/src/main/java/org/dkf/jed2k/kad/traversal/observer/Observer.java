@@ -1,9 +1,10 @@
-package org.dkf.jed2k.kad;
+package org.dkf.jed2k.kad.traversal.observer;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
@@ -23,7 +24,7 @@ public abstract class Observer {
     public static final byte FLAG_ALIVE = 32;
     public static final byte FLAG_DONE = 64;
 
-    private TraversalAlgorithm algorithm;
+    private Traversal algorithm;
     private Endpoint endpoint;
     private KadId id;
     private byte transactionId;
@@ -32,7 +33,7 @@ public abstract class Observer {
 
     private boolean wasAbandoned = false;
 
-    public Observer(final TraversalAlgorithm algorithm, final Endpoint ep, final KadId id) {
+    public Observer(final Traversal algorithm, final Endpoint ep, final KadId id) {
         this.algorithm = algorithm;
         this.endpoint = ep;
         this.id = id;
@@ -41,7 +42,7 @@ public abstract class Observer {
 
     public void shortTimeout() {
         if (Utils.isBit(flags, FLAG_SHORT_TIMEOUT)) return;
-        algorithm.failed(this, TraversalAlgorithm.SHORT_TIMEOUT);
+        algorithm.failed(this, Traversal.SHORT_TIMEOUT);
     }
 
     public boolean hasShortTimeout() {
@@ -57,7 +58,7 @@ public abstract class Observer {
     public void abort() {
         if (Utils.isBit(flags, FLAG_DONE)) return;
         flags |= FLAG_DONE;
-        algorithm.failed(this, TraversalAlgorithm.PREVENT_REQUEST);
+        algorithm.failed(this, Traversal.PREVENT_REQUEST);
     }
 
     public void done() {

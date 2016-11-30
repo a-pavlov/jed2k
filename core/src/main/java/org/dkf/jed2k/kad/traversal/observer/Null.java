@@ -1,7 +1,6 @@
-package org.dkf.jed2k.kad.observer;
+package org.dkf.jed2k.kad.traversal.observer;
 
-import org.dkf.jed2k.kad.Observer;
-import org.dkf.jed2k.kad.TraversalAlgorithm;
+import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
@@ -9,9 +8,9 @@ import org.dkf.jed2k.protocol.kad.Transaction;
 /**
  * Created by inkpot on 28.11.2016.
  */
-public class NullObserver extends Observer {
+public class Null extends Observer {
 
-    public NullObserver(final TraversalAlgorithm algorithm, final Endpoint ep, final KadId id) {
+    public Null(final Traversal algorithm, final Endpoint ep, final KadId id) {
         super(algorithm, ep, id);
     }
 

@@ -2,7 +2,9 @@ package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.kad.observer.NullObserver;
+import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
+import org.dkf.jed2k.kad.traversal.observer.Null;
+import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
@@ -20,7 +22,7 @@ public class NodeImpl {
     private final RpcManager rpc;
     private DhtTracker tracker = null;
     private RoutingTable table = null;
-    private Set<TraversalAlgorithm> runningRequests = new HashSet<>();
+    private Set<Traversal> runningRequests = new HashSet<>();
 
     public NodeImpl(final DhtTracker tracker) {
         this.tracker = tracker;
@@ -29,16 +31,16 @@ public class NodeImpl {
     }
 
     public void addNode(final Endpoint ep, final KadId id) {
-        TraversalAlgorithm ta = new TraversalAlgorithm(this, id);
-        Observer o = new NullObserver(ta, ep, id);
+        Traversal ta = new Traversal(this, id);
+        Observer o = new Null(ta, ep, id);
     }
 
-    public void addTraversalAlgorithm(final TraversalAlgorithm ta) {
+    public void addTraversalAlgorithm(final Traversal ta) {
         assert !runningRequests.contains(ta);
         runningRequests.add(ta);
     }
 
-    public void removeTraversalAlgorithm(final TraversalAlgorithm ta) {
+    public void removeTraversalAlgorithm(final Traversal ta) {
         assert runningRequests.contains(ta);
         runningRequests.remove(ta);
     }

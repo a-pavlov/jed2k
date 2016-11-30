@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Transaction;
 

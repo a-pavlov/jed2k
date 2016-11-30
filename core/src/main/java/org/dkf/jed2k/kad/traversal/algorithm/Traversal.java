@@ -1,7 +1,9 @@
-package org.dkf.jed2k.kad;
+package org.dkf.jed2k.kad.traversal.algorithm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.kad.NodeImpl;
+import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -15,7 +17,7 @@ import java.util.List;
  * Created by inkpot on 21.11.2016.
  */
 @Slf4j
-public class TraversalAlgorithm {
+public class Traversal implements Algorithm {
     private NodeImpl nodeImpl;
     private KadId target;
     List<Observer> results = new ArrayList<>();
@@ -29,7 +31,7 @@ public class TraversalAlgorithm {
     public static final int PREVENT_REQUEST = 1;
     public static final int SHORT_TIMEOUT = 2;
 
-    public TraversalAlgorithm(final NodeImpl ni, final KadId t) {
+    public Traversal(final NodeImpl ni, final KadId t) {
         assert t != null;
         assert !t.isAllZeros();
         assert ni != null;
@@ -37,21 +39,22 @@ public class TraversalAlgorithm {
         target = t;
     }
 
-    protected Observer newObserver(final Endpoint endpoint, final KadId id) {
+    public Observer newObserver(final Endpoint endpoint, final KadId id) {
+        assert false;
         return null;
     }
 
-    protected boolean invoke(final Observer o) {
+    public boolean invoke(final Observer o) {
         assert false;
         return false;
     }
 
-    protected void done() {
+    public void done() {
         results.clear();
         nodeImpl.removeTraversalAlgorithm(this);
     }
 
-    protected void init() {
+    public void init() {
         // update the last activity of this bucket
         nodeImpl.getTable().touchBucket(target);
         branchFactor = nodeImpl.getSearchBranching();
@@ -218,7 +221,6 @@ public class TraversalAlgorithm {
         // we have this observer or it was abandoned(size > 100)
         assert contains || results.size() == 100;
 
-
         // if this flag is set, it means we increased the
         // branch factor for it, and we should restore it
         if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
@@ -233,12 +235,22 @@ public class TraversalAlgorithm {
         if (invokeCount == 0) done();
     }
 
+    /**
+     *  traverse new node - add to results and prepare for requesting
+     * @param id of new node
+     * @param ep address of new node
+     */
+    public void traverse(final KadId id, final Endpoint ep) {
+        nodeImpl.getTable().heardAbout(id, ep);
+        addEntry(id, ep, (byte)0);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TraversalAlgorithm that = (TraversalAlgorithm) o;
+        Traversal that = (Traversal) o;
 
         return target.equals(that.target) && getName().equals(that.getName());
     }
