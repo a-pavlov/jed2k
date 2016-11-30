@@ -3,7 +3,7 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
-import org.dkf.jed2k.kad.traversal.observer.Null;
+import org.dkf.jed2k.kad.traversal.observer.NullObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -32,7 +32,7 @@ public class NodeImpl {
 
     public void addNode(final Endpoint ep, final KadId id) {
         Traversal ta = new Traversal(this, id);
-        Observer o = new Null(ta, ep, id);
+        Observer o = new NullObserver(ta, ep, id);
     }
 
     public void addTraversalAlgorithm(final Traversal ta) {

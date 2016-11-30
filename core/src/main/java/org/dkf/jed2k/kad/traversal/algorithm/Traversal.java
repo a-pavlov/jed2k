@@ -39,21 +39,25 @@ public class Traversal implements Algorithm {
         target = t;
     }
 
+    @Override
     public Observer newObserver(final Endpoint endpoint, final KadId id) {
         assert false;
         return null;
     }
 
+    @Override
     public boolean invoke(final Observer o) {
         assert false;
         return false;
     }
 
+    @Override
     public void done() {
         results.clear();
         nodeImpl.removeTraversalAlgorithm(this);
     }
 
+    @Override
     public void init() {
         // update the last activity of this bucket
         nodeImpl.getTable().touchBucket(target);
@@ -90,6 +94,7 @@ public class Traversal implements Algorithm {
         }
     }
 
+    @Override
     public String getName() {
         return "TA";
     }
@@ -164,6 +169,7 @@ public class Traversal implements Algorithm {
         }
     }
 
+    @Override
     public void failed(final Observer o, int flags) {
         assert invokeCount >= 0;
 
@@ -209,6 +215,7 @@ public class Traversal implements Algorithm {
         if (invokeCount == 0) done();
     }
 
+    @Override
     public void start() {
         if (results.isEmpty()) addRouterEntries();
         init();
@@ -216,6 +223,7 @@ public class Traversal implements Algorithm {
         if (invokeCount == 0) done();
     }
 
+    @Override
     public void finished(final Observer o) {
         boolean contains = results.contains(o);
         // we have this observer or it was abandoned(size > 100)
@@ -240,7 +248,8 @@ public class Traversal implements Algorithm {
      * @param id of new node
      * @param ep address of new node
      */
-    public void traverse(final KadId id, final Endpoint ep) {
+    @Override
+    public void traverse(final Endpoint ep, final KadId id) {
         nodeImpl.getTable().heardAbout(id, ep);
         addEntry(id, ep, (byte)0);
     }

@@ -24,4 +24,6 @@ public interface Algorithm {
     public void failed(final Observer o, int flags);
 
     public Observer newObserver(final Endpoint endpoint, final KadId id);
+
+    public void traverse(final Endpoint ep, final KadId id);
 }

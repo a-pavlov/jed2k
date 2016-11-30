@@ -12,22 +12,22 @@ import java.nio.ByteBuffer;
 @Data
 public class KadEntry implements Serializable {
     private KadId kid = new KadId();
-    private KadNetworkIdentifier endpoint = new KadNetworkIdentifier();
+    private KadEndpoint kadEndpoint = new KadEndpoint();
     private byte version;
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        version = endpoint.get(kid.get(src)).get();
+        version = kadEndpoint.get(kid.get(src)).get();
         return src;
     }
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        return endpoint.put(kid.put(dst)).put(version);
+        return kadEndpoint.put(kid.put(dst)).put(version);
     }
 
     @Override
     public int bytesCount() {
-        return kid.bytesCount() + endpoint.bytesCount() + 1;
+        return kid.bytesCount() + kadEndpoint.bytesCount() + 1;
     }
 }

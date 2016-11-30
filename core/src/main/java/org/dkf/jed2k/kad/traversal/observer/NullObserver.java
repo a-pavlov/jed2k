@@ -8,9 +8,9 @@ import org.dkf.jed2k.protocol.kad.Transaction;
 /**
  * Created by inkpot on 28.11.2016.
  */
-public class Null extends Observer {
+public class NullObserver extends Observer {
 
-    public Null(final Traversal algorithm, final Endpoint ep, final KadId id) {
+    public NullObserver(final Traversal algorithm, final Endpoint ep, final KadId id) {
         super(algorithm, ep, id);
     }
 

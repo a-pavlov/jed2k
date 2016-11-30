@@ -48,4 +48,9 @@ public class Direct implements Algorithm {
     public Observer newObserver(Endpoint endpoint, KadId id) {
         return null;
     }
+
+    @Override
+    public void traverse(Endpoint ep, KadId id) {
+
+    }
 }
