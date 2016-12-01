@@ -2,14 +2,17 @@ package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.traversal.algorithm.Bootstrap;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.kad.traversal.observer.NullObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.kad.Kad2Ping;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,8 +34,7 @@ public class NodeImpl {
     }
 
     public void addNode(final Endpoint ep, final KadId id) {
-        Traversal ta = new Traversal(this, id);
-        Observer o = new NullObserver(ta, ep, id);
+        invoke(new Kad2Ping(), ep, new NullObserver(new Traversal(this, id), ep, id));
     }
 
     public void addTraversalAlgorithm(final Traversal ta) {
@@ -70,6 +72,15 @@ public class NodeImpl {
 
     public void refresh(final KadId id) {
 
+    }
+
+    public void bootstrap(final List<Endpoint> nodes) {
+        Traversal t = new Bootstrap(this, null);
+        for(Endpoint ep: nodes) {
+            t.addEntry(new KadId(), ep, Observer.FLAG_INITIAL);
+        }
+
+        t.start();
     }
 
     public int getSearchBranching() {

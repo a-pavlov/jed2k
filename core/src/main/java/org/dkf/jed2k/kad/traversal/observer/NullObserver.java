@@ -16,6 +16,6 @@ public class NullObserver extends Observer {
 
     @Override
     public void reply(Transaction t, Endpoint endpoint) {
-        flags |= FLAG_DONE;
+        done();
     }
 }
