@@ -21,16 +21,19 @@ import java.util.Set;
 @Slf4j
 public class NodeImpl {
 
-    private static final int SEARCH_BRANCHING = 5;
+    private final static int SEARCH_BRANCHING = 5;
+    private final static int BUCKET_SIZE = 10;
     private final RpcManager rpc;
     private DhtTracker tracker = null;
     private RoutingTable table = null;
     private Set<Traversal> runningRequests = new HashSet<>();
+    private final KadId self;
 
-    public NodeImpl(final DhtTracker tracker) {
+    public NodeImpl(final DhtTracker tracker, final KadId id) {
         this.tracker = tracker;
         this.rpc = new RpcManager();
-        this.table = new RoutingTable();
+        this.self = id;
+        this.table = new RoutingTable(id, BUCKET_SIZE);
     }
 
     public void addNode(final Endpoint ep, final KadId id) {
@@ -72,6 +75,10 @@ public class NodeImpl {
 
     public void refresh(final KadId id) {
 
+    }
+
+    public void abort() {
+        tracker = null;
     }
 
     public void bootstrap(final List<Endpoint> nodes) {

@@ -38,16 +38,16 @@ public class RoutingTable {
     private KadId self;
 
     // the last time need_bootstrap() returned true
-    private long lastBootstrap;
+    private long lastBootstrap = 0;
 
     // the last time the routing table was refreshed.
     // this is used to stagger buckets needing refresh
     // to be at least 45 seconds apart.
-    private long lastRefresh;
+    private long lastRefresh = 0;
 
     // the last time we refreshed our own bucket
     // refreshed every 15 minutes
-    private long lastSelfRefresh;
+    private long lastSelfRefresh = 0;
 
     // this is a set of all the endpoints that have
     // been identified as router nodes. They will
@@ -59,10 +59,15 @@ public class RoutingTable {
     // table. It's used to only allow a single entry
     // per IP in the whole table. Currently only for
     // IPv4
-    //MultiSemultiset<address_v4::bytes_type> m_ips;
     Set<Integer> ips = new HashSet<>();
 
     private int bucketSize;
+
+
+    public RoutingTable(final KadId id, int bucketSize) {
+        this.self = id;
+        this.bucketSize = bucketSize;
+    }
 
     public Pair<Integer, Integer> size() {
         int nodes = 0;
@@ -658,5 +663,9 @@ public class RoutingTable {
         while (j > 0 && res.size() < count);
 
         return res;
+    }
+
+    public int getBucketsCount() {
+        return buckets.size();
     }
 }

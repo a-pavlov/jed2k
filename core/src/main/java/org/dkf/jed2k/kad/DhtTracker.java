@@ -17,6 +17,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -40,10 +41,10 @@ public class DhtTracker extends Thread {
     private PacketCombiner combiner = null;
     private PacketHeader incomingHeader = null;
 
-    public DhtTracker(int listenPort) {
+    public DhtTracker(int listenPort, final KadId id) {
         assert listenPort > 0 && listenPort <= 65535;
         this.listenPort = listenPort;
-        this.node = new NodeImpl(this);
+        this.node = new NodeImpl(this, id);
     }
 
     @Override
@@ -86,6 +87,9 @@ public class DhtTracker extends Thread {
             } catch(IOException e) {
                 log.error("DHT selector close exception {}", e.getMessage());
             }
+
+            node.abort();
+            node = null;
 
             log.debug("DHT tracker finished");
         }
@@ -223,7 +227,7 @@ public class DhtTracker extends Thread {
         node.addNode(endpoint, id);
     }
 
-    public synchronized void bootstrap(final InetSocketAddress ep) {
+    public synchronized void bootstrapTest(final InetSocketAddress ep) {
         write(new Kad2BootstrapReq(), ep);
     }
 
@@ -243,5 +247,14 @@ public class DhtTracker extends Thread {
         hello.getVersion().assign(org.dkf.jed2k.protocol.kad.PacketCombiner.KADEMLIA_VERSION5_48a);
         hello.getPortTcp().assign(listenPort);
         write(hello, ep);
+    }
+
+    public void bootstrap(final List<Endpoint> endpoints) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                node.bootstrap(endpoints);
+            }
+        });
     }
 }

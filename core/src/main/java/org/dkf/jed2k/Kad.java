@@ -3,6 +3,7 @@ package org.dkf.jed2k;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +20,8 @@ public class Kad {
         log.info("Kad starting");
         String command;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        DhtTracker tracker = new DhtTracker(9999);
+        KadId target = new KadId(KadId.random(false));
+        DhtTracker tracker = new DhtTracker(9999, target);
         tracker.start();
 
         while ((command = in.readLine()) != null) {
@@ -38,7 +40,7 @@ public class Kad {
             else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
                 log.info("bootstrap on {}:{}", parts[1], parts[2]);
                 InetSocketAddress address = new InetSocketAddress(parts[1], Integer.parseInt(parts[2]));
-                tracker.bootstrap(address);
+                tracker.bootstrapTest(address);
             }
             else if (parts[0].compareTo("search") == 0 && parts.length == 4) {
                 log.info("search on {}:{} for {}", parts[1], parts[2], parts[3]);
