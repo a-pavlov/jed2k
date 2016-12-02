@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Pair;
@@ -23,6 +24,7 @@ public class RoutingTable {
 
     @Data
     @EqualsAndHashCode
+    @ToString
     private static class RoutingTableBucket {
         private ArrayList<NodeEntry> replacements = new ArrayList<>();
         private ArrayList<NodeEntry> liveNodes = new ArrayList<>();
@@ -314,6 +316,7 @@ public class RoutingTable {
         if (bucket.getLiveNodes().size() < bucketSize) {
             bucket.getLiveNodes().add(e);
             ips.add(e.getEndpoint().getIP());
+            log.debug("table insert node {} directly to live nodes", e);
             return ret;
         }
 
@@ -394,6 +397,7 @@ public class RoutingTable {
             if (j != -1) {
                 // if the IP address matches, it's the same node
                 // make sure it's marked as pinged
+                log.debug("table node {} already in replacement bucket", e);
                 if (bucket.getReplacements().get(j).getEndpoint().equals(e.getEndpoint())) bucket.getReplacements().get(j).setPinged();
                 return ret;
             }
@@ -414,6 +418,7 @@ public class RoutingTable {
 
                 ips.remove(bucket.getReplacements().get(j).getEndpoint().getIP());
                 bucket.getReplacements().remove(j);
+                log.debug("table replacement bucket is full, remove item {}", j);
             }
 
             bucket.getReplacements().add(e);
@@ -422,6 +427,8 @@ public class RoutingTable {
             return ret;
         }
 
+        log.debug("table can split = true");
+        log.debug("table bucket before split {}", bucket);
         // this is the last bucket, and it's full already. Split
         // it by adding another bucket
         RoutingTableBucket newBucket = new RoutingTableBucket();
@@ -485,6 +492,9 @@ public class RoutingTable {
 
             itr.remove();
         }
+
+        log.debug("table old bucket {}", bucket);
+        log.debug("table new bucket {}", newBucket);
 
         boolean added = false;
 
