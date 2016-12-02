@@ -1,5 +1,6 @@
 package org.dkf.jed2k.kad;
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -12,6 +13,7 @@ import java.net.InetSocketAddress;
  * Created by inkpot on 23.11.2016.
  */
 @ToString
+@EqualsAndHashCode(exclude = {"timeoutCount", "firstSeen"})
 public class NodeEntry {
     private Endpoint address;
     private KadId id;

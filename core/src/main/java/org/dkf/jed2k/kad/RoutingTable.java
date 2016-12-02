@@ -71,7 +71,7 @@ public class RoutingTable {
         this.bucketSize = bucketSize;
     }
 
-    public Pair<Integer, Integer> size() {
+    public Pair<Integer, Integer> getSize() {
         int nodes = 0;
         int replacements = 0;
         for (final RoutingTableBucket node: buckets) {
