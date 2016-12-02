@@ -160,6 +160,14 @@ public class UtilsTest {
         }
     }
 
+    @Data
+    private static class Node {
+        private boolean pinged;
+        public Node(boolean pinged) {
+            this.pinged = pinged;
+        }
+    }
+
     @Test
     public void testIndexOf() {
         List<Stub> data = new ArrayList<>();
@@ -170,6 +178,23 @@ public class UtilsTest {
         assertEquals(-1, Utils.indexOf(data, new StubCheck(4)));
         assertEquals(0, Utils.indexOf(data, new StubCheck(1)));
         assertEquals(1, Utils.indexOf(data, new StubCheck(0)));
+    }
+
+    @Test
+    public void testIndexOf2() {
+        List<Node> nodes = new LinkedList<>();
+        nodes.add(new Node(true));
+        nodes.add(new Node(true));
+        nodes.add(new Node(false));
+        nodes.add(new Node(false));
+        nodes.add(new Node(true));
+        nodes.add(new Node(false));
+        assertEquals(2, Utils.indexOf(nodes, new Checker<Node>() {
+            @Override
+            public boolean check(Node node) {
+                return !node.isPinged();
+            }
+        }));
     }
 }
 

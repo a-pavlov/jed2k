@@ -338,7 +338,7 @@ public class RoutingTable {
             j = Utils.indexOf(bucket.getLiveNodes(), new Checker<NodeEntry>() {
                 @Override
                 public boolean check(NodeEntry nodeEntry) {
-                    return nodeEntry.isPinged();
+                    return !nodeEntry.isPinged();
                 }
             });
 
@@ -493,10 +493,15 @@ public class RoutingTable {
             if (bucket.getLiveNodes().size() < bucketSize) {
                 bucket.getLiveNodes().add(e);
                 added = true;
+                log.debug("table inserting node {} into live bucket", e);
             }
             else if (bucket.getReplacements().size() < bucketSize) {
                 bucket.getReplacements().add(e);
                 added = true;
+                log.debug("table inserting node {} into replacement bucket", e);
+            }
+            else {
+                log.debug("no space in buckets for {}", e);
             }
         }
         else
@@ -504,10 +509,15 @@ public class RoutingTable {
             if (newBucket.getLiveNodes().size() < bucketSize) {
                 newBucket.getLiveNodes().add(e);
                 added = true;
+                log.debug("table inserting node {} into new live bucket", e);
             }
             else if (newBucket.getReplacements().size() < bucketSize) {
                 newBucket.getReplacements().add(e);
                 added = true;
+                log.debug("table inserting node {} into new replacement bucket", e);
+            }
+            else {
+                log.debug("no space in new bucket for {}", e);
             }
         }
 
