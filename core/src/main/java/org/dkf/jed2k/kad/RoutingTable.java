@@ -386,6 +386,7 @@ public class RoutingTable {
         // if we can't split, try to insert into the replacement bucket
 
         if (!canSplit) {
+            log.debug("can't split");
             // if we don't have any identified stale nodes in
             // the bucket, and the bucket is full, we have to
             // cache this node and wait until some node fails

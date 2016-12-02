@@ -19,6 +19,20 @@ import static junit.framework.Assert.assertTrue;
 public class RoutingTableTest {
 
     final private KadId target = new KadId(KadId.random(false));
+    final Random random = new Random();
+    final Set<KadId> dict = new HashSet<>();
+
+    KadId getDistinctId() {
+        while(true) {
+            KadId id = new KadId(KadId.random(false));
+            if (dict.contains(id)) {
+                continue;
+            }
+
+            dict.add(id);
+            return id;
+        }
+    }
 
     @Test
     public void bulkTest() {
@@ -44,5 +58,44 @@ public class RoutingTableTest {
         assertEquals(table.getBucketsCount() - 1, table.findBucket(target));
         log.info("table alive nodes {}", aliveNodes.size());
         log.info("table buckets count {} total nodes {}", table.getBucketsCount(), table.getSize());
+    }
+
+    @Test
+    public void testExactlyNodes() {
+        Random rnd = new Random();
+        RoutingTable table = new RoutingTable(target, 10);
+        Set<KadId> entries = new HashSet<>();
+        for(int i = 0; i < 10; ++i) {
+            while(true) {
+                KadId id = getDistinctId();
+                entries.add(id);
+                table.addNode(new NodeEntry(id, new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true));
+                break;
+            }
+        }
+
+        assertEquals(10, table.getSize().left.intValue());
+        assertEquals(1, table.getBucketsCount());
+
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
+        assertEquals(10, table.getSize().left.intValue());
+        assertEquals(1, table.getSize().right.intValue());
+        for(int i = 0; i < 9; ++i) {
+            table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
+        }
+
+        assertEquals(10, table.getSize().left.intValue());
+        assertEquals(10, table.getSize().right.intValue());
+        assertEquals(1, table.getBucketsCount());
+
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
+
+        assertEquals(10, table.getSize().left.intValue());
+        assertEquals(10, table.getSize().right.intValue());
+        assertEquals(1, table.getBucketsCount());
+
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true));
+        assertEquals(2, table.getBucketsCount());
     }
 }
