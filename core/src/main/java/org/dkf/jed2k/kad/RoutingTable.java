@@ -338,8 +338,6 @@ public class RoutingTable {
 
             // if the node we're trying to insert is considered pinged,
             // we may replace other nodes that aren't pinged
-            //j = std::find_if(b->begin(), b->end(), boost::bind(&node_entry::pinged, _1) == false);
-
             j = Utils.indexOf(bucket.getLiveNodes(), new Checker<NodeEntry>() {
                 @Override
                 public boolean check(NodeEntry nodeEntry) {
@@ -409,8 +407,6 @@ public class RoutingTable {
                 // if the replacement bucket is full, remove the oldest entry
                 // but prefer nodes that haven't been pinged, since they are
                 // less reliable than this one, that has been pinged
-                //j = std::find_if(rb->begin(), rb->end(), boost::bind(&node_entry::pinged, _1) == false);
-
                 j = Utils.indexOf(bucket.getReplacements(), new Checker<NodeEntry>() {
                     @Override
                     public boolean check(NodeEntry nodeEntry) {
@@ -439,22 +435,10 @@ public class RoutingTable {
         // the extra seconds added to the end is to prioritize
         // buckets closer to us when refreshing
         newBucket.setLastActive(Time.currentTime() + Time.seconds(KadId.TOTAL_BITS - buckets.size()));
-        //m_buckets.back().last_active = min_time() + seconds(kad_id::kad_total_bits - m_buckets.size());
-
-        //bucket_t& new_bucket = m_buckets.back().live_nodes;
-        //bucket_t& new_replacement_bucket = m_buckets.back().replacements;
-
-        // update the iterator and bucket pointers, since we
-        // appended a new bucket to the routing table, and all
-        // iterators may have been invalidated
-        //i = m_buckets.begin() + bucket_index;
-        //b = &i->live_nodes;
-        //rb = &i->replacements;
 
         // move any node whose (kad_id::kad_total_bits - distane_exp(m_id, id)) >= (i - m_buckets.begin())
         // to the new bucket
         Iterator<NodeEntry> itr = bucket.getLiveNodes().iterator();
-
         while(itr.hasNext()) {
             NodeEntry entry = itr.next();
             if (KadId.distanceExp(self, entry.getId()) < KadId.TOTAL_BITS - 1 - bucketIndex) {
@@ -462,16 +446,6 @@ public class RoutingTable {
                 itr.remove();
             }
         }
-
-        //for (NodeEntry entry: bucket.getLiveNodes()) {
-        //    if (KadId.distanceExp(self, entry.getId()) >= KadId.TOTAL_BITS - 1 - bucketIndex) {
-        //        continue;
-        //    }
-
-            // this entry belongs in the new bucket
-        //    new_bucket.push_back(*j);
-        //    j = b->erase(j);
-        //}
 
         // split the replacement bucket as well. If the live bucket
         // is not full anymore, also move the replacement entries
