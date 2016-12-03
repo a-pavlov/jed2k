@@ -1,6 +1,7 @@
 package org.dkf.jed2k.kad;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -12,17 +13,18 @@ import java.net.InetSocketAddress;
 /**
  * Created by inkpot on 23.11.2016.
  */
+@Getter
 @ToString
 @EqualsAndHashCode(exclude = {"timeoutCount", "firstSeen"})
 public class NodeEntry {
-    private Endpoint address;
+    private Endpoint endpoint;
     private KadId id;
     private int timeoutCount;
     private long firstSeen;
 
     public NodeEntry(final KadId id_, final Endpoint address, boolean pinged) {
         this.id = id_;
-        this.address = address;
+        this.endpoint = address;
         this.timeoutCount = (pinged)?0:0xffff;
         firstSeen = Time.currentTime();
     }
@@ -34,7 +36,6 @@ public class NodeEntry {
     }
 
     public boolean isPinged() { return timeoutCount != 0xffff; }
-
     public void setPinged() { if (timeoutCount == 0xffff) timeoutCount = 0; }
 
     public void timedOut() { if (isPinged()) ++timeoutCount; }
@@ -44,13 +45,5 @@ public class NodeEntry {
 
     public int failCount() { return isPinged() ? timeoutCount : 0; }
     public void resetFailCount() { if (isPinged()) timeoutCount = 0; }
-    public Endpoint getEndpoint() { return address; }
     public boolean isConfirmed() { return timeoutCount == 0; }
-    public long getFirstSeen() {
-        return firstSeen;
-    }
-
-    public KadId getId() {
-        return id;
-    }
 }

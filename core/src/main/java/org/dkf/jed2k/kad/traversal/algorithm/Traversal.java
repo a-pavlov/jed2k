@@ -18,8 +18,8 @@ import java.util.List;
  */
 @Slf4j
 public class Traversal implements Algorithm {
-    private NodeImpl nodeImpl;
-    private KadId target;
+    protected NodeImpl nodeImpl;
+    protected KadId target;
     List<Observer> results = new ArrayList<>();
 
     int invokeCount = 0;
@@ -88,7 +88,7 @@ public class Traversal implements Algorithm {
     }
 
     protected void addRouterEntries() {
-        log.debug("traversal using router nodes to initiate traversal algorithm. count {}", nodeImpl.getTable().getRouterNodes().size());
+        log.debug("[traversal] using router nodes to initiate traversal algorithm. count {}", nodeImpl.getTable().getRouterNodes().size());
         for(final Endpoint ep: nodeImpl.getTable().getRouterNodes()) {
             addEntry(new KadId(), ep, Observer.FLAG_INITIAL);
         }
@@ -158,7 +158,7 @@ public class Traversal implements Algorithm {
             }
             */
 
-            log.debug("traversal {} adding result: {} {} distance ", getName(), id, addr, KadId.distanceExp(target, o.getId()));
+            log.debug("[traversal] {} adding result: {} {} distance ", getName(), id, addr, KadId.distanceExp(target, o.getId()));
             results.add(((pos + 1)*-1), o);
         }
 
@@ -186,14 +186,14 @@ public class Traversal implements Algorithm {
             // by increasing the branch factor
             if ((o.getFlags() & Observer.FLAG_SHORT_TIMEOUT) == 0) ++branchFactor;
             o.setFlags(o.getFlags() | Observer.FLAG_SHORT_TIMEOUT);
-            log.debug("traversal {} first chance timeout {} branch-factor: {} invoke-count: {}", getName(), o.getId(), branchFactor, invokeCount);
+            log.debug("[traversal] {} first chance timeout {} branch-factor: {} invoke-count: {}", getName(), o.getId(), branchFactor, invokeCount);
         }
         else {
             o.setFlags(o.getFlags() | Observer.FLAG_FAILED);
             // if this flag is set, it means we increased the
             // branch factor for it, and we should restore it
             if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
-            log.debug("traversal {} failed {} branch-factor: {} invoke-count: {}", getName(), branchFactor, invokeCount);
+            log.debug("[traversal] {} failed {} branch-factor: {} invoke-count: {}", getName(), branchFactor, invokeCount);
 
             // don't tell the routing table about
             // node ids that we just generated ourself

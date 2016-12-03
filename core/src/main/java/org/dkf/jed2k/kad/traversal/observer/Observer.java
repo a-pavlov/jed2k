@@ -33,6 +33,7 @@ public abstract class Observer {
     protected int flags;
 
     private boolean wasAbandoned = false;
+    private boolean wasSent = false;
 
     public Observer(final Algorithm algorithm, final Endpoint ep, final KadId id) {
         this.algorithm = algorithm;

@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
@@ -14,12 +15,13 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Getter
+@Setter
 @ToString
 public class Kad2Hello extends Transaction {
     private KadId kid = new KadId();
     private UInt16 portTcp = new UInt16();
     private UInt8 version = new UInt8();
-    private Container<UInt8, Tag> info = Container.makeByte(Tag.class);
+    private Container<UInt8, Tag> info = Container.makeByte(Tag.class);;
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
@@ -28,6 +30,10 @@ public class Kad2Hello extends Transaction {
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        assert kid != null;
+        assert portTcp != null;
+        assert version != null;
+        assert info != null;
         return info.put(version.put(portTcp.put(kid.put(dst))));
     }
 

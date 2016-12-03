@@ -4,6 +4,7 @@ import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.BootstrapObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.kad.Kad2BootstrapReq;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 /**
@@ -18,5 +19,17 @@ public class Bootstrap extends Traversal {
     @Override
     public Observer newObserver(final Endpoint endpoint, final KadId id) {
         return new BootstrapObserver(this, endpoint, id);
+    }
+
+    @Override
+    public boolean invoke(final Observer o) {
+        Kad2BootstrapReq ping = new Kad2BootstrapReq();
+        nodeImpl.invoke(ping, o.getEndpoint(), o);
+        return true;
+    }
+
+    @Override
+    public String getName() {
+        return "Bootstrap";
     }
 }

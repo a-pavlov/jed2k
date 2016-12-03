@@ -14,7 +14,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
- * Created by ap197_000 on 02.12.2016.
+ * Created by inkpot on 02.12.2016.
  */
 @Slf4j
 public class RoutingTableTest {

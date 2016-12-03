@@ -124,7 +124,7 @@ public class RoutingTable {
         // refresh our own bucket once every 15 minutes
         if (now - lastSelfRefresh > Time.minutes(15)) {
             lastSelfRefresh = now;
-            log.debug("table need_refresh [ bucket: self target: {}]", self);
+            log.debug("[table] need_refresh [ bucket: self target: {}]", self);
             return self;
         }
 
@@ -153,7 +153,7 @@ public class RoutingTable {
         if (now - lastRefresh < Time.seconds(45)) return null;
 
         KadId target = KadId.generateRandomWithinBucket(i, self);
-        log.debug("table need_refresh [ bucket: {} target: {} ]", i, target);
+        log.debug("[table] need_refresh [ bucket: {} target: {} ]", i, target);
         lastRefresh = now;
         return target;
     }
@@ -212,14 +212,14 @@ public class RoutingTable {
                 // we should ignore it, unless we allow duplicate IPs in our
                 // routing table
                 if (RESTRICT_ROUTING_IPS) {
-                    log.debug("table ignoring node (duplicate IP): {}", e);
+                    log.debug("[table] ignoring node (duplicate IP): {}", e);
                     return ret;
                 }
             }
             else if (existing != null && existing.left.getId().equals(e.getId())) {
                 // if the node ID is the same, just update the failcount
                 // and be done with it
-                log.debug("table node {} the same, just update it", e);
+                log.debug("[table] node {} the same, just update it", e);
                 existing.left.setTimeoutCount(0);
                 return ret;
             }
@@ -251,7 +251,7 @@ public class RoutingTable {
             // in this bucket
             assert n.getId().equals(e.getId()) && n.getEndpoint().equals(e.getEndpoint());
             n.setTimeoutCount(0);
-            log.debug("table updating node: {}", n);
+            log.debug("[table] updating node: {}", n);
             return ret;
         }
 
@@ -295,7 +295,7 @@ public class RoutingTable {
         if (bucket.getLiveNodes().size() < bucketSize) {
             bucket.getLiveNodes().add(e);
             ips.add(e.getEndpoint().getIP());
-            log.debug("table insert node {} directly to live nodes", e);
+            log.debug("[table] insert node {} directly to live nodes", e);
             return ret;
         }
 
@@ -326,7 +326,7 @@ public class RoutingTable {
                 // j points to a node that has not been pinged.
                 // Replace it with this new one
                 NodeEntry n = bucket.getLiveNodes().get(j);
-                log.debug("table replacing unpinged node {} with {}", n, e);
+                log.debug("[table] replacing unpinged node {} with {}", n, e);
                 ips.remove(n.getEndpoint().getIP());
                 bucket.getLiveNodes().remove(j);
                 bucket.getLiveNodes().add(e);
@@ -351,7 +351,7 @@ public class RoutingTable {
             if (staleNode != null && staleNode.failCount() > 0) {
                 // i points to a node that has been marked
                 // as stale. Replace it with this new one
-                log.debug("table replacing stale node {} with {}", staleNode, e);
+                log.debug("[table] replacing stale node {} with {}", staleNode, e);
                 ips.remove(staleNode.getEndpoint().getIP());
                 bucket.getLiveNodes().remove(staleNode);
                 bucket.getLiveNodes().add(e);
@@ -375,7 +375,7 @@ public class RoutingTable {
             if (j != -1) {
                 // if the IP address matches, it's the same node
                 // make sure it's marked as pinged
-                log.debug("table node {} already in replacement bucket", e);
+                log.debug("[table] node {} already in replacement bucket", e);
                 if (bucket.getReplacements().get(j).getEndpoint().equals(e.getEndpoint())) bucket.getReplacements().get(j).setPinged();
                 return ret;
             }
@@ -394,17 +394,17 @@ public class RoutingTable {
 
                 ips.remove(bucket.getReplacements().get(j).getEndpoint().getIP());
                 bucket.getReplacements().remove(j);
-                log.debug("table replacement bucket is full, remove item {}", j);
+                log.debug("[table] replacement bucket is full, remove item {}", j);
             }
 
             bucket.getReplacements().add(e);
             ips.add(e.getEndpoint().getIP());
-            log.debug("table inserting node in replacement cache: {}", e);
+            log.debug("[table] inserting node in replacement cache: {}", e);
             return ret;
         }
 
-        log.debug("table can split = true");
-        log.debug("table bucket before split {}", bucket);
+        log.debug("[table] can split = true");
+        log.debug("[table] bucket before split {}", bucket);
         // this is the last bucket, and it's full already. Split
         // it by adding another bucket
         RoutingTableBucket newBucket = new RoutingTableBucket();
@@ -447,8 +447,8 @@ public class RoutingTable {
             itr.remove();
         }
 
-        log.debug("table old bucket {}", bucket);
-        log.debug("table new bucket {}", newBucket);
+        log.debug("[table] old bucket {}", bucket);
+        log.debug("[table] new bucket {}", newBucket);
 
         boolean added = false;
 
@@ -457,15 +457,15 @@ public class RoutingTable {
             if (bucket.getLiveNodes().size() < bucketSize) {
                 bucket.getLiveNodes().add(e);
                 added = true;
-                log.debug("table inserting node {} into live bucket", e);
+                log.debug("[table] inserting node {} into live bucket", e);
             }
             else if (bucket.getReplacements().size() < bucketSize) {
                 bucket.getReplacements().add(e);
                 added = true;
-                log.debug("table inserting node {} into replacement bucket", e);
+                log.debug("[table] inserting node {} into replacement bucket", e);
             }
             else {
-                log.debug("no space in buckets for {}", e);
+                log.debug("[table] no space in buckets for {}", e);
             }
         }
         else
@@ -473,15 +473,15 @@ public class RoutingTable {
             if (newBucket.getLiveNodes().size() < bucketSize) {
                 newBucket.getLiveNodes().add(e);
                 added = true;
-                log.debug("table inserting node {} into new live bucket", e);
+                log.debug("[table] inserting node {} into new live bucket", e);
             }
             else if (newBucket.getReplacements().size() < bucketSize) {
                 newBucket.getReplacements().add(e);
                 added = true;
-                log.debug("table inserting node {} into new replacement bucket", e);
+                log.debug("[table] inserting node {} into new replacement bucket", e);
             }
             else {
-                log.debug("no space in new bucket for {}", e);
+                log.debug("[table] no space in new bucket for {}", e);
             }
         }
 
@@ -499,7 +499,7 @@ public class RoutingTable {
         int j = Utils.indexOf(bucket.getLiveNodes(), new FindByKadId(id));
 
         if (j == -1) {
-            log.debug("table node {}/{} not found in live nodes", id, ep);
+            log.debug("[table] node {}/{} not found in live nodes", id, ep);
             return;
         }
 
@@ -508,13 +508,13 @@ public class RoutingTable {
         // table is not necessarily stale
         NodeEntry failedNode = bucket.getLiveNodes().get(j);
         if (!failedNode.getEndpoint().equals(ep)) {
-            log.debug("table node in bucket {} have not equal endpoint to target {}", failedNode, ep);
+            log.debug("[table] node in bucket {} have not equal endpoint to target {}", failedNode, ep);
             return;
         }
 
         if (bucket.getReplacements().isEmpty()) {
             failedNode.timedOut();
-            log.debug("table NODE FAILED {} uptime {}"
+            log.debug("[table] NODE FAILED {} uptime {}"
                     , failedNode
                     , Time.currentTime() - failedNode.getFirstSeen());
 

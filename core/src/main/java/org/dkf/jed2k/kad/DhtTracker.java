@@ -44,13 +44,13 @@ public class DhtTracker extends Thread {
     public DhtTracker(int listenPort, final KadId id) {
         assert listenPort > 0 && listenPort <= 65535;
         this.listenPort = listenPort;
-        this.node = new NodeImpl(this, id);
+        this.node = new NodeImpl(this, id, listenPort);
     }
 
     @Override
     public void run() {
         try {
-            log.debug("DHT tracker start");
+            log.debug("[tracker] starting");
             selector = Selector.open();
             channel = DatagramChannel.open();
             channel.socket().bind(new InetSocketAddress(listenPort));
@@ -72,26 +72,26 @@ public class DhtTracker extends Thread {
                 tick(channelCount);
             }
         } catch(IOException e) {
-            log.error("I/O exception on DHT starting {}", e.getMessage());
+            log.error("[tracker] I/O exception on DHT starting {}", e.getMessage());
         } finally {
-            log.debug("DHT tracker stopping");
+            log.debug("[tracker] stopping");
 
             try {
                 if (channel != null) channel.close();
             } catch(IOException e) {
-                log.error("Datagram channel close error {}", e.getMessage());
+                log.error("[tracker] datagram channel close error {}", e.getMessage());
             }
 
             try {
                 if (selector != null) selector.close();
             } catch(IOException e) {
-                log.error("DHT selector close exception {}", e.getMessage());
+                log.error("[tracker] selector close exception {}", e.getMessage());
             }
 
             node.abort();
             node = null;
 
-            log.debug("DHT tracker finished");
+            log.debug("[tracker] tracker finished");
         }
     }
 
@@ -132,21 +132,21 @@ public class DhtTracker extends Thread {
         try {
             assert incomingBuffer.remaining() == incomingBuffer.capacity();
             InetSocketAddress address = (InetSocketAddress) channel.receive(incomingBuffer);
-            log.debug("receive {} bytes from {}", incomingBuffer.capacity() - incomingBuffer.remaining(), address);
+            log.debug("[tracker] receive {} bytes from {}", incomingBuffer.capacity() - incomingBuffer.remaining(), address);
             incomingBuffer.flip();
             incomingHeader.get(incomingBuffer);
             incomingHeader.reset(incomingHeader.key(), incomingBuffer.remaining());
             Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
             Transaction t = (Transaction)s;
             assert t != null;
-            log.trace("packet {}: {}", t.bytesCount(), t);
+            log.trace("[tracker] packet {}: {}", t.bytesCount(), t);
             node.incoming(t, Endpoint.fromInet(address));
         } catch (IOException e) {
-            log.error("I/O exception on reading packet {}", incomingHeader);
+            log.error("[tracker] I/O exception on reading packet {}", incomingHeader);
         } catch (JED2KException e) {
-            log.error("exception on parse packet {}", incomingHeader);
+            log.error("[tracker] exception on parse packet {}", incomingHeader);
         } catch (Exception e) {
-            log.error("unexpected error on parse packet {}", incomingHeader);
+            log.error("[tracker] unexpected error on parse packet {}", incomingHeader);
         } finally {
             key.interestOps(SelectionKey.OP_READ);
         }
@@ -162,17 +162,17 @@ public class DhtTracker extends Thread {
         assert outgoingBuffer.remaining() == outgoingBuffer.capacity();
 
         try {
-            log.debug("send packet size {}", packet.bytesCount());
+            log.debug("[tracker] send packet size {}", packet.bytesCount());
             combiner.pack(packet, outgoingBuffer);
             outgoingBuffer.flip();
             channel.send(outgoingBuffer, ep);
             return true;
         }
         catch(JED2KException e) {
-            log.error("pack packet {} error {}", packet, e);
+            log.error("[tracker] pack packet {} error {}", packet, e);
         }
         catch (IOException e) {
-            log.error("I/O exception on send packet {}", packet);
+            log.error("[tracker] I/O exception on send packet {}", packet);
         } finally {
             // go to wait bytes mode when output order becomes empty
             if (outgoingOrder.isEmpty()) {
@@ -203,7 +203,7 @@ public class DhtTracker extends Thread {
         if (key.isWritable()) {
             // return actual write result
             boolean res = onWriteable();
-            log.trace("actual write to {} is {}", ep, res);
+            log.trace("[tracker] actual write to {} is {}", ep, res);
         } else {
             key.interestOps(SelectionKey.OP_WRITE);
         }

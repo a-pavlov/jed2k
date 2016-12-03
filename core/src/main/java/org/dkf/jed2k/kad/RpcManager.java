@@ -23,6 +23,7 @@ public class RpcManager {
 
     public void invoke(final Transaction t, final Endpoint ep, final Observer o) {
         transactions.add(o);
+        o.setWasSent(true);
     }
 
     public Observer incoming(final Transaction t, final Endpoint ep) {
@@ -47,9 +48,9 @@ public class RpcManager {
         }
 
         if (o == null) {
-            log.debug("reply with unknown transaction id: {} from {}", t, ep);
+            log.debug("[rpc] reply with unknown transaction id: {} from {}", t, ep);
         } else {
-            log.debug("reply {} from {}", t, ep);
+            log.debug("[rpc] reply {} from {}", t, ep);
             o.reply(t, ep);
         }
 
@@ -57,13 +58,13 @@ public class RpcManager {
     }
 
     public void unreachable(final Endpoint ep) {
-        log.debug("port unreachable {}", ep);
+        log.debug("[rpc] port unreachable {}", ep);
 
         Iterator<Observer> itr = transactions.iterator();
         while(itr.hasNext()) {
             Observer o = itr.next();
             if (o.getEndpoint().equals(ep)) {
-                log.debug("found unreachable transaction {}", ep);
+                log.debug("[rpc] found unreachable transaction {}", ep);
                 itr.remove();
                 o.timeout();
                 break;
@@ -106,7 +107,7 @@ public class RpcManager {
                 break;
             }
 
-            log.debug("rpc timeout {}", o);
+            log.debug("[rpc] timeout {}", o);
             itr.remove();
             timeouts.add(o);
         }
