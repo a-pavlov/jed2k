@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.kad.test;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -15,6 +16,7 @@ import static junit.framework.Assert.*;
 /**
  * Created by inkpot on 14.11.2016.
  */
+@Slf4j
 public class KadIdTest {
 
     @Test
@@ -85,5 +87,15 @@ public class KadIdTest {
     public void testIdGenerator() {
         KadId id = KadId.generateId(new Endpoint(new InetSocketAddress("81.168.99.44", 8999)).getIP(), 0);
         assertTrue(id != null);
+    }
+
+    @Test
+    public void testKadIdForBucketGeneration() {
+        final KadId target = new KadId(KadId.fromString("F8A8AFE3018B38D9B4D880D0683CCEB5"));
+        log.debug("{}", target);
+        for(int i = 0; i < KadId.TOTAL_BITS; ++i) {
+            KadId id = KadId.generateRandomWithinBucket(i, target);
+            log.debug("{} <-- {}", id, i);
+        }
     }
 }

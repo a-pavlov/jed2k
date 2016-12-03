@@ -152,31 +152,8 @@ public class RoutingTable {
         if (now - bucket.getLastActive() < Time.minutes(15)) return null;
         if (now - lastRefresh < Time.seconds(45)) return null;
 
-        // generate a random node_id within the given bucket
-        KadId target = new KadId(KadId.random(false));
-        int num_bits = i + 1;  // std::distance(begin, itr) + 1 in C++
-        KadId mask = new KadId();
-
-        for (int j = 0; j < num_bits; ++j) {
-            mask.set(j/8, (byte)(mask.at(j/8) | (byte)(0x80 >> (j&7))));
-        };
-
-        // target = (target & ~mask) | (root & mask)
-        KadId root = new KadId(self);
-        root.bitsAnd(mask);
-        target.bitsAnd(mask.bitsInverse());
-        target.bitsOr(root);
-
-        // make sure this is in another subtree than m_id
-        // clear the (num_bits - 1) bit and then set it to the
-        // inverse of m_id's corresponding bit.
-        int bitPos = (num_bits - 1) / 8;
-        target.set(bitPos, (byte)(target.at(bitPos) & (byte)(~(0x80 >> ((num_bits - 1) % 8)))));
-        target.set(bitPos, (byte)(target.at(bitPos) | (byte)((~(self.at(bitPos))) & (byte)(0x80 >> ((num_bits - 1) % 8)))));
-
-        assert KadId.distanceExp(self, target) == KadId.TOTAL_BITS - num_bits;
-
-        log.debug("table need_refresh [ bucket: {} target: {} ]", num_bits, target);
+        KadId target = KadId.generateRandomWithinBucket(i, self);
+        log.debug("table need_refresh [ bucket: {} target: {} ]", i, target);
         lastRefresh = now;
         return target;
     }

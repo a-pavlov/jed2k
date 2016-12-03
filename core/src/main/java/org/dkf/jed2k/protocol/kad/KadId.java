@@ -166,4 +166,33 @@ public class KadId extends Hash {
         for (int i = 3; i < MD4.HASH_SIZE; ++i) id.set(i, randBytes[i]);
         return id;
     }
+
+    // generate a random node_id within the given bucket
+    public static KadId generateRandomWithinBucket(int bucketIndex, final KadId id) {
+        assert bucketIndex >= 0;
+        assert bucketIndex < KadId.TOTAL_BITS;
+
+        KadId target = new KadId(KadId.random(false));
+        int num_bits = bucketIndex + 1;  // std::distance(begin, itr) + 1 in C++
+        KadId mask = new KadId();
+
+        for (int j = 0; j < num_bits; ++j) {
+            mask.set(j/8, (byte)(mask.at(j/8) | (byte)(0x80 >> (j&7))));
+        }
+
+        KadId root = new KadId(id);
+        root.bitsAnd(mask);
+        target.bitsAnd(mask.bitsInverse());
+        target.bitsOr(root);
+
+        // make sure this is in another subtree than m_id
+        // clear the (num_bits - 1) bit and then set it to the
+        // inverse of m_id's corresponding bit.
+        int bitPos = (num_bits - 1) / 8;
+        target.set(bitPos, (byte)(target.at(bitPos) & (byte)(~(0x80 >> ((num_bits - 1) % 8)))));
+        target.set(bitPos, (byte)(target.at(bitPos) | (byte)((~(id.at(bitPos))) & (byte)(0x80 >> ((num_bits - 1) % 8)))));
+
+        assert KadId.distanceExp(id, target) == KadId.TOTAL_BITS - num_bits;
+        return target;
+    }
 }
