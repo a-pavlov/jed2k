@@ -25,6 +25,10 @@ public final class Endpoint implements Serializable, Comparable<Endpoint> {
         return new Endpoint(addr);
     }
 
+    public static Endpoint fromString(final String addr, int port) throws JED2KException {
+        return new Endpoint(Utils.string2Ip(addr), port);
+    }
+
     public Endpoint(InetSocketAddress ep) {
         ip  = Utils.packToNetworkByteOrder(ep.getAddress().getAddress());
         port = (short)ep.getPort();

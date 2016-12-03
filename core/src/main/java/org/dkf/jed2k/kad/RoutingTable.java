@@ -25,7 +25,7 @@ public class RoutingTable {
     @Data
     @EqualsAndHashCode
     @ToString
-    private static class RoutingTableBucket {
+    public static class RoutingTableBucket {
         private ArrayList<NodeEntry> replacements = new ArrayList<>();
         private ArrayList<NodeEntry> liveNodes = new ArrayList<>();
         private long lastActive = Time.currentTime();
@@ -201,12 +201,13 @@ public class RoutingTable {
         private final KadId target;
 
         public FindByKadId(final KadId id) {
+            assert id != null;
             target = id;
         }
 
         @Override
         public boolean check(NodeEntry nodeEntry) {
-            return false;
+            return target.equals(nodeEntry.getId());
         }
     }
 
@@ -241,6 +242,7 @@ public class RoutingTable {
             else if (existing != null && existing.left.getId().equals(e.getId())) {
                 // if the node ID is the same, just update the failcount
                 // and be done with it
+                log.debug("table node {} the same, just update it", e);
                 existing.left.setTimeoutCount(0);
                 return ret;
             }
@@ -545,13 +547,19 @@ public class RoutingTable {
         assert bucket != null;
         int j = Utils.indexOf(bucket.getLiveNodes(), new FindByKadId(id));
 
-        if (j == -1) return;
+        if (j == -1) {
+            log.debug("table node {}/{} not found in live nodes", id, ep);
+            return;
+        }
 
         // if the endpoint doesn't match, it's a different node
         // claiming the same ID. The node we have in our routing
         // table is not necessarily stale
         NodeEntry failedNode = bucket.getLiveNodes().get(j);
-        if (!failedNode.getEndpoint().equals(ep)) return;
+        if (!failedNode.getEndpoint().equals(ep)) {
+            log.debug("table node in bucket {} have not equal endpoint to target {}", failedNode, ep);
+            return;
+        }
 
         if (bucket.getReplacements().isEmpty()) {
             failedNode.timedOut();
@@ -647,7 +655,7 @@ public class RoutingTable {
 
     // fills the vector with the k nodes from our buckets that
     // are nearest to the given id.
-    List<NodeEntry> findNode(final KadId target, boolean includeFailed, int count) {
+    public List<NodeEntry> findNode(final KadId target, boolean includeFailed, int count) {
         List<NodeEntry> res = new LinkedList<>();
         if (count == 0) count = bucketSize;
 
@@ -688,5 +696,15 @@ public class RoutingTable {
 
     public int getBucketsCount() {
         return buckets.size();
+    }
+
+    public RoutingTableBucket getBucket(int index) {
+        assert index >= 0;
+        assert index < buckets.size();
+        return buckets.get(index);
+    }
+
+    public KadId getSelf() {
+        return self;
     }
 }

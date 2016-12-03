@@ -126,6 +126,7 @@ public class KadId extends Hash {
             assert bt >= 0;
             int t = (n1.at(i) ^ n2.at(i)) & 0xFF;
             if (t == 0) continue;
+            assert t > 0;
             // we have found the first non-zero byte
             // return the bit-number of the first bit
             // that differs
