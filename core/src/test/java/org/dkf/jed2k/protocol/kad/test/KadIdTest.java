@@ -95,6 +95,7 @@ public class KadIdTest {
         log.debug("{}", target);
         for(int i = 0; i < KadId.TOTAL_BITS; ++i) {
             KadId id = KadId.generateRandomWithinBucket(i, target);
+            assertEquals(KadId.TOTAL_BITS - 1 - i, KadId.distanceExp(target, id));
             log.debug("{} <-- {}", id, i);
         }
     }
