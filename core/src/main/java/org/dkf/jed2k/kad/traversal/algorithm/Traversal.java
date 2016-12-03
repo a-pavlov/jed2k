@@ -30,6 +30,7 @@ public class Traversal implements Algorithm {
 
     public static final int PREVENT_REQUEST = 1;
     public static final int SHORT_TIMEOUT = 2;
+    public static final int MAX_RESULT_COUNT = 100;
 
     public Traversal(final NodeImpl ni, final KadId t) {
         assert t != null;
@@ -73,7 +74,7 @@ public class Traversal implements Algorithm {
             Observer o = results.get(i);
             if (Utils.isBit(o.getFlags(), Observer.FLAG_ALIVE)) --resultsTarget;
             if (Utils.isBit(o.getFlags(), Observer.FLAG_QUERIED)) continue;
-            log.debug("traversal: {} nodes-left: {} invoke-count: {} branch-factor: {}",
+            log.debug("[traversal] {} nodes-left: {} invoke-count: {} branch-factor: {}",
                     getName(), results.size(), invokeCount, branchFactor);
 
             o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
@@ -162,10 +163,10 @@ public class Traversal implements Algorithm {
             results.add(((pos + 1)*-1), o);
         }
 
-        if (results.size() > 100) {
-            for (int i = 100; i < results.size(); ++i)
+        if (results.size() > MAX_RESULT_COUNT) {
+            for (int i = MAX_RESULT_COUNT; i < results.size(); ++i)
                 results.get(i).setWasAbandoned(true);
-            while(results.size() > 100) results.remove(results.size() - 1);
+            while(results.size() > MAX_RESULT_COUNT) results.remove(results.size() - 1);
         }
     }
 
@@ -226,8 +227,8 @@ public class Traversal implements Algorithm {
     @Override
     public void finished(final Observer o) {
         boolean contains = results.contains(o);
-        // we have this observer or it was abandoned(size > 100)
-        assert contains || results.size() == 100;
+        // we have this observer or it was abandoned(size > MAX_RESULTS_COUNT)
+        assert contains || results.size() == MAX_RESULT_COUNT;
 
         // if this flag is set, it means we increased the
         // branch factor for it, and we should restore it
