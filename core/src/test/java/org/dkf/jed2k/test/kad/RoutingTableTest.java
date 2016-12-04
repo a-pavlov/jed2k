@@ -134,4 +134,15 @@ public class RoutingTableTest {
         assertTrue(table.findNode(target, false, 1).isEmpty());
         assertEquals(1, entries2.size());
     }
+
+    @Test
+    public void stressTest() {
+        Random rnd = new Random();
+        RoutingTable table = new RoutingTable(target, 50);
+        for(int i = 0; i < 150000; ++i) {
+            table.addNode(new NodeEntry(new KadId(KadId.random(false)), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), rnd.nextBoolean()));
+        }
+
+        log.info("table buckets count {} total nodes {}", table.getBucketsCount(), table.getSize());
+    }
 }
