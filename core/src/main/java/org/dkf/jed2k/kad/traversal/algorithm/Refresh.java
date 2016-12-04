@@ -33,6 +33,6 @@ public class Refresh extends Traversal {
 
     @Override
     public String getName() {
-        return "Refresh";
+        return "[refresh]";
     }
 }

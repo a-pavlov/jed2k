@@ -38,6 +38,7 @@ public class Traversal implements Algorithm {
         assert ni != null;
         nodeImpl = ni;
         target = t;
+        numTargetNodes = nodeImpl.getTable().getBucketSize()*2;
     }
 
     @Override
@@ -54,6 +55,7 @@ public class Traversal implements Algorithm {
 
     @Override
     public void done() {
+        log.debug("[traversal] done, results size {}", results.size());
         results.clear();
         nodeImpl.removeTraversalAlgorithm(this);
     }
@@ -68,6 +70,7 @@ public class Traversal implements Algorithm {
 
     protected void addRequests() {
         int resultsTarget = numTargetNodes;
+        log.debug("[traversal] add requests to num targets {}", resultsTarget);
 
         // Find the first node that hasn't already been queried.
         for (int i = 0; i != results.size() && resultsTarget > 0 && invokeCount < branchFactor; ++i) {
@@ -101,6 +104,7 @@ public class Traversal implements Algorithm {
     }
 
     public void addEntry(final KadId id, final Endpoint addr, byte flags) {
+        log.debug("[traversal] add entry {} {}", id, addr);
         //TODO check this assert later
         //LIBED2K_ASSERT(m_node.m_rpc.allocation_size() >= sizeof(find_data_observer));
         /*
@@ -132,7 +136,10 @@ public class Traversal implements Algorithm {
             }
         });
 
-        if (pos < 0) {
+        log.debug("[traversal] position for entry {}", pos);
+        assert pos < results.size();
+
+        if (pos < 0 || !results.get(pos).equals(id)) {
 
             /*
             maybe add this later
@@ -159,7 +166,7 @@ public class Traversal implements Algorithm {
             }
             */
 
-            log.debug("[traversal] {} adding result: {} {} distance ", getName(), id, addr, KadId.distanceExp(target, o.getId()));
+            log.debug("[traversal] {} adding result: {} {} distance {}", getName(), id, addr, KadId.distanceExp(target, o.getId()));
             results.add(((pos + 1)*-1), o);
         }
 
@@ -218,6 +225,7 @@ public class Traversal implements Algorithm {
 
     @Override
     public void start() {
+        log.debug("[traversal] start");
         if (results.isEmpty()) addRouterEntries();
         init();
         addRequests();

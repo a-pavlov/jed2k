@@ -125,6 +125,8 @@ public class DhtTracker extends Thread {
                 r.run();
                 r = commands.poll();
             }
+
+            node.tick();
         }
     }
 

@@ -658,4 +658,8 @@ public class RoutingTable {
     public KadId getSelf() {
         return self;
     }
+
+    public int getBucketSize() {
+        return bucketSize;
+    }
 }

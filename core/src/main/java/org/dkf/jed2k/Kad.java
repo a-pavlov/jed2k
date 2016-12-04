@@ -3,12 +3,14 @@ package org.dkf.jed2k;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 
 /**
  * Created by inkpot on 22.11.2016.
@@ -39,8 +41,7 @@ public class Kad {
             }
             else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
                 log.info("bootstrap on {}:{}", parts[1], parts[2]);
-                InetSocketAddress address = new InetSocketAddress(parts[1], Integer.parseInt(parts[2]));
-                tracker.bootstrapTest(address);
+                tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
             }
             else if (parts[0].compareTo("search") == 0 && parts.length == 4) {
                 log.info("search on {}:{} for {}", parts[1], parts[2], parts[3]);

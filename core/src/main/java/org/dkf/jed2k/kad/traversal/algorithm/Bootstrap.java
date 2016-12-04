@@ -1,5 +1,6 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
+import org.dkf.jed2k.Time;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.BootstrapObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
@@ -24,12 +25,14 @@ public class Bootstrap extends Traversal {
     @Override
     public boolean invoke(final Observer o) {
         Kad2BootstrapReq ping = new Kad2BootstrapReq();
+        o.setTransactionId(ping.getTransactionId());
+        o.setSentTime(Time.currentTime());
         nodeImpl.invoke(ping, o.getEndpoint(), o);
         return true;
     }
 
     @Override
     public String getName() {
-        return "Bootstrap";
+        return "[bootstap]";
     }
 }

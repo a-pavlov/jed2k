@@ -28,11 +28,14 @@ public class RpcManager {
 
     public Observer incoming(final Transaction t, final Endpoint ep) {
         if (destructing) return null;
+        log.debug("[rpc] incoming {}", ep);
 
         Iterator<Observer> itr = transactions.iterator();
         Observer o = null;
         while(itr.hasNext()) {
             o = itr.next();
+            log.trace("[rpc] check our observer {}", o);
+
             assert o != null;
             /**
              * search for source observer using artificial transaction id, endpoint
