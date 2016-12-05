@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Data;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
@@ -24,12 +25,14 @@ public class KadEndpoint implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        return portTcp.get(portUdp.get(ip.get(src)));
+        portTcp.get(portUdp.get(ip.get(src)));
+        ip.assign(Utils.ntohl(ip.intValue()));
+        return src;
     }
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        return portTcp.put(portUdp.put(ip.put(dst)));
+        return portTcp.put(portUdp.put(dst.putInt(Utils.htonl(ip.intValue()))));
     }
 
     @Override

@@ -90,6 +90,21 @@ public class UtilsTest {
     }
 
     @Test
+    public void testIPOrderConversion() {
+        int v[] = {0, 1, 2, 3, 10, 19999493, -566656, 66789, -1, -2, -49};
+        for(int i: v) {
+            assertEquals(i, Utils.ntohl(Utils.htonl(i)));
+        }
+    }
+
+    @Test
+    public void testIPOrderTransformation() throws JED2KException {
+        Endpoint e = Endpoint.fromString("192.168.1.33", 4556);
+        int i = Utils.htonl(e.getIP());
+        assertEquals(new Endpoint(i, 4556), Endpoint.fromString("33.1.168.192", 4556));
+    }
+
+    @Test
     public void testIsLocal() throws UnknownHostException {
         assertTrue(Utils.isLocalAddress(new Endpoint(new InetSocketAddress("192.168.0.1", 7080))));
         assertTrue(Utils.isLocalAddress(new Endpoint(new InetSocketAddress("10.168.0.1", 7080))));

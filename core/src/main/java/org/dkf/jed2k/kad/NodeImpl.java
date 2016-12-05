@@ -115,10 +115,13 @@ public class NodeImpl {
     }
 
     public void invoke(final Transaction t, final Endpoint ep, final Observer o) {
+        log.debug("[node] {} invoke >> {} ", o, ep);
         try {
             if (tracker.write(t, ep.toInetSocketAddress())) {
                 // register transaction if packet was sent
                 rpc.invoke(t, ep, o);
+            } else {
+                log.debug("[node] invoke failed");
             }
         } catch(final JED2KException e) {
             log.error("[node] invoke {} with {} error {}", ep, t, e);

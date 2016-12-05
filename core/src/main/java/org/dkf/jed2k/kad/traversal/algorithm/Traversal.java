@@ -192,7 +192,7 @@ public class Traversal implements Algorithm {
             // we do get a late response, keep the handler
             // around for some more, but open up the slot
             // by increasing the branch factor
-            if ((o.getFlags() & Observer.FLAG_SHORT_TIMEOUT) == 0) ++branchFactor;
+            if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) ++branchFactor;
             o.setFlags(o.getFlags() | Observer.FLAG_SHORT_TIMEOUT);
             log.debug("[traversal] {} first chance timeout {} branch-factor: {} invoke-count: {}", getName(), o.getId(), branchFactor, invokeCount);
         }
@@ -201,7 +201,7 @@ public class Traversal implements Algorithm {
             // if this flag is set, it means we increased the
             // branch factor for it, and we should restore it
             if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
-            log.debug("[traversal] {} failed {} branch-factor: {} invoke-count: {}", getName(), branchFactor, invokeCount);
+            log.debug("[traversal] {} failed branch-factor: {} invoke-count: {}", getName(), branchFactor, invokeCount);
 
             // don't tell the routing table about
             // node ids that we just generated ourself

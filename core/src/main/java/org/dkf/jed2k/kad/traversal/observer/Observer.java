@@ -3,6 +3,7 @@ package org.dkf.jed2k.kad.traversal.observer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.algorithm.Algorithm;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
@@ -16,6 +17,7 @@ import org.dkf.jed2k.protocol.kad.Transaction;
 @Getter
 @Setter
 @ToString
+@Slf4j
 public abstract class Observer {
     public static final byte FLAG_QUERIED = 1;
     public static final byte FLAG_INITIAL = 2;
@@ -30,7 +32,7 @@ public abstract class Observer {
     protected KadId id;
     protected byte transactionId;
     protected long sentTime;
-    protected int flags;
+    protected int flags = 0;
 
     private boolean wasAbandoned = false;
     private boolean wasSent = false;
@@ -52,7 +54,11 @@ public abstract class Observer {
     }
 
     public void timeout() {
-        if (Utils.isBit(flags, FLAG_DONE)) return;
+        if (Utils.isBit(flags, FLAG_DONE)) {
+            log.debug("[observer] timeout already has DONE flag {}", this);
+            return;
+        }
+
         flags |= FLAG_DONE;
         algorithm.failed(this, 0);
     }
@@ -64,7 +70,10 @@ public abstract class Observer {
     }
 
     public void done() {
-        if (Utils.isBit(flags, FLAG_DONE)) return;
+        if (Utils.isBit(flags, FLAG_DONE)) {
+            log.debug("[observer] done already has DONE flag {}", this);
+            return;
+        }
         flags |= FLAG_DONE;
         algorithm.finished(this);
     }

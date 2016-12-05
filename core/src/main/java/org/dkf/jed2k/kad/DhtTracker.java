@@ -137,11 +137,12 @@ public class DhtTracker extends Thread {
             log.debug("[tracker] receive {} bytes from {}", incomingBuffer.capacity() - incomingBuffer.remaining(), address);
             incomingBuffer.flip();
             incomingHeader.get(incomingBuffer);
+
             incomingHeader.reset(incomingHeader.key(), incomingBuffer.remaining());
             Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
             Transaction t = (Transaction)s;
             assert t != null;
-            log.trace("[tracker] packet {}: {}", t.bytesCount(), t);
+            log.debug("[tracker] packet {}: {}", t.bytesCount(), t);
             node.incoming(t, Endpoint.fromInet(address));
         } catch (IOException e) {
             log.error("[tracker] I/O exception on reading packet {}", incomingHeader);
@@ -150,11 +151,17 @@ public class DhtTracker extends Thread {
         } catch (Exception e) {
             log.error("[tracker] unexpected error on parse packet {}", incomingHeader);
         } finally {
-            key.interestOps(SelectionKey.OP_READ);
+            incomingBuffer.clear();
+
+            if (outgoingOrder.isEmpty()) {
+                log.debug("[tracker] set interests to OP_READ since outgoing order is empty");
+                key.interestOps(SelectionKey.OP_READ);
+            }
         }
     }
 
     private boolean onWriteable() {
+        log.debug("[tracker] onWriteable, order size {}", outgoingOrder.size());
         if (outgoingOrder.isEmpty()) return false;
 
         Serializable packet = outgoingOrder.poll();
@@ -178,6 +185,7 @@ public class DhtTracker extends Thread {
         } finally {
             // go to wait bytes mode when output order becomes empty
             if (outgoingOrder.isEmpty()) {
+                log.debug("[tracker] set interests to OP_READ");
                 key.interestOps(SelectionKey.OP_READ);
             }
         }
@@ -194,6 +202,7 @@ public class DhtTracker extends Thread {
      */
     public boolean write(final Serializable packet, final InetSocketAddress ep) {
         boolean wasInProgress = !outgoingOrder.isEmpty();
+        log.debug("[tracker] write was in progress {}", wasInProgress);
         outgoingOrder.add(packet);
         outgoingAddresses.add(ep);
 
@@ -205,8 +214,9 @@ public class DhtTracker extends Thread {
         if (key.isWritable()) {
             // return actual write result
             boolean res = onWriteable();
-            log.trace("[tracker] actual write to {} is {}", ep, res);
+            log.debug("[tracker] actual write to {} is {}", ep, res);
         } else {
+            log.debug("[tracker] set interests to OP_WRITE");
             key.interestOps(SelectionKey.OP_WRITE);
         }
 

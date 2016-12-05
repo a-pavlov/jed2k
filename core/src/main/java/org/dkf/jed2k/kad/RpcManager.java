@@ -22,8 +22,10 @@ public class RpcManager {
     private List<Observer> transactions = new LinkedList<>();
 
     public void invoke(final Transaction t, final Endpoint ep, final Observer o) {
+        log.debug("[rpc] invoke {} >> {}", o, ep);
         transactions.add(o);
         o.setWasSent(true);
+        o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
     }
 
     public Observer incoming(final Transaction t, final Endpoint ep) {
@@ -41,7 +43,7 @@ public class RpcManager {
              * search for source observer using artificial transaction id, endpoint
              * and if available(packet contains target KAD id) target KAD id in observer and target KAD id in incoming packet
              */
-            if (o.getTransactionId() == t.getTransactionId() && o.getTarget().equals(ep)
+            if (o.getTransactionId() == t.getTransactionId() && o.getTarget().getIP() == ep.getIP()
                     && (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))) {
                 itr.remove();
                 break;
@@ -136,8 +138,8 @@ public class RpcManager {
             timeouts.add(o);
         }
 
-        for (Observer timeout : timeouts) {
-            timeout.shortTimeout();
+        for (Observer o : timeouts) {
+            o.shortTimeout();
         }
     }
 }

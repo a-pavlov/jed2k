@@ -23,8 +23,10 @@ public class PacketKey implements Comparable<PacketKey> {
      */
     @Override
     public int compareTo(PacketKey pk) {
-        if (pk.protocol != PacketCombiner.ProtocolType.OP_PACKEDPROT.value &&
-                protocol != PacketCombiner.ProtocolType.OP_PACKEDPROT.value) {
+        if (pk.protocol != PacketCombiner.ProtocolType.OP_PACKEDPROT.value
+                && protocol != PacketCombiner.ProtocolType.OP_PACKEDPROT.value
+                && pk.protocol != PacketCombiner.ProtocolType.OP_KAD_COMPRESSED_UDP.value
+                && protocol != PacketCombiner.ProtocolType.OP_KAD_COMPRESSED_UDP.value) {
             if (protocol > pk.protocol) return 1;
             if (protocol < pk.protocol) return -1;
         }

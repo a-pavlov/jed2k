@@ -105,13 +105,20 @@ public final class Utils {
      * @param order sequence of four bytes
      * @return host byte order integer
      */
-    public static int networkByteOrderToIp(byte[] order) {
+    public static int htonl(byte[] order) {
         assert(order.length == 4);
         int res =  ((int)order[0] << 24)
                 | (((int)order[1] << 16) & 0x00FF0000)
                 | (((int)order[2] << 8) & 0x0000FF00)
                 | (((int)order[3]) & 0xFF);
         return res;
+    }
+
+    public static int htonl(int ip) {
+        return ((ip & 0x000000FF) << 24)
+                | ((ip & 0x0000FF00) << 8)
+                | ((ip >> 8) & 0x0000FF00)
+                | ((ip >> 24) & 0xFF);
     }
 
     /**
@@ -135,7 +142,7 @@ public final class Utils {
      */
     public static int ntohl(int ip) {
         byte raw[] = { (byte)(ip & 0xff), (byte)((ip >> 8) & 0xff), (byte)((ip >> 16) & 0xff), (byte)((ip >> 24) & 0xff)};
-        return networkByteOrderToIp(raw);
+        return htonl(raw);
     }
 
     /**
