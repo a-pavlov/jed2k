@@ -30,21 +30,21 @@ public class RpcManager {
 
     public Observer incoming(final Transaction t, final Endpoint ep) {
         if (destructing) return null;
-        log.debug("[rpc] incoming {}", ep);
+        log.debug("[rpc] incoming {} tran size {}", ep, transactions.size());
 
         Iterator<Observer> itr = transactions.iterator();
         Observer o = null;
         while(itr.hasNext()) {
             o = itr.next();
-            log.trace("[rpc] check our observer {}", o);
-
             assert o != null;
+
             /**
              * search for source observer using artificial transaction id, endpoint
              * and if available(packet contains target KAD id) target KAD id in observer and target KAD id in incoming packet
              */
             if (o.getTransactionId() == t.getTransactionId() && o.getTarget().getIP() == ep.getIP()
                     && (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))) {
+                log.debug("[rpc] reply {} from {}", t, ep);
                 itr.remove();
                 break;
             }
@@ -52,10 +52,11 @@ public class RpcManager {
             o = null;
         }
 
+        log.debug("[rpc] transactions size {}", transactions.size());
+
         if (o == null) {
             log.debug("[rpc] reply with unknown transaction id: {} from {}", t, ep);
         } else {
-            log.debug("[rpc] reply {} from {}", t, ep);
             o.reply(t, ep);
         }
 
@@ -109,6 +110,7 @@ public class RpcManager {
             // also not have timed out yet
             long diff = now - o.getSentTime();
             if (diff < Time.seconds(TIMEOUT)) {
+                log.debug("[rpc] no timeout {} < {} time {}, send time {}", diff, Time.seconds(TIMEOUT), now, o.getSentTime());
                 break;
             }
 
@@ -141,5 +143,6 @@ public class RpcManager {
         for (Observer o : timeouts) {
             o.shortTimeout();
         }
+
     }
 }

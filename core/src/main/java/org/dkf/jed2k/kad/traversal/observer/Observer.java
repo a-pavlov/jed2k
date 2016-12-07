@@ -16,7 +16,7 @@ import org.dkf.jed2k.protocol.kad.Transaction;
  */
 @Getter
 @Setter
-@ToString
+@ToString(exclude="algorithm")
 @Slf4j
 public abstract class Observer {
     public static final byte FLAG_QUERIED = 1;
@@ -36,7 +36,6 @@ public abstract class Observer {
 
     private boolean wasAbandoned = false;
     private boolean wasSent = false;
-    private String flagsStr;
 
     public Observer(final Algorithm algorithm, final Endpoint ep, final KadId id) {
         this.algorithm = algorithm;
@@ -46,7 +45,7 @@ public abstract class Observer {
     }
 
     public void shortTimeout() {
-        if (Utils.isBit(flags, FLAG_SHORT_TIMEOUT)) return;
+        assert !Utils.isBit(flags, FLAG_SHORT_TIMEOUT);
         algorithm.failed(this, Traversal.SHORT_TIMEOUT);
     }
 
@@ -71,6 +70,7 @@ public abstract class Observer {
     }
 
     public void done() {
+        log.debug("[observer] done");
         if (Utils.isBit(flags, FLAG_DONE)) {
             log.debug("[observer] done already has DONE flag {}", this);
             return;
@@ -84,7 +84,7 @@ public abstract class Observer {
     }
 
     public String getFlagsStr() {
-        return Utils.isBit(flags, FLAG_QUERIED)?"|FLAG_QUERIED":""
+        return (Utils.isBit(flags, FLAG_QUERIED)?"|FLAG_QUERIED":"")
                 +  (Utils.isBit(flags, FLAG_INITIAL)?"|FLAG_INITIAL":"")
                 +  (Utils.isBit(flags, FLAG_NO_ID)?"|FLAG_NO_ID":"")
                 +  (Utils.isBit(flags, FLAG_SHORT_TIMEOUT)?"|FLAG_SHORT_TIMEOUT":"")

@@ -56,6 +56,7 @@ public class Traversal implements Algorithm {
     @Override
     public void done() {
         log.debug("[traversal] done, results size {}", results.size());
+        log.debug(toString());
         results.clear();
         nodeImpl.removeTraversalAlgorithm(this);
     }
@@ -70,8 +71,6 @@ public class Traversal implements Algorithm {
 
     protected void addRequests() {
         int resultsTarget = numTargetNodes;
-        log.debug("[traversal] add requests to num targets {}", resultsTarget);
-
         // Find the first node that hasn't already been queried.
         for (int i = 0; i != results.size() && resultsTarget > 0 && invokeCount < branchFactor; ++i) {
             Observer o = results.get(i);
@@ -84,6 +83,7 @@ public class Traversal implements Algorithm {
 
             if (invoke(o)) {
                 assert invokeCount >= 0;
+                log.debug("[traversal] add request {}", o);
                 ++invokeCount;
             } else {
                 o.setFlags(o.getFlags() | Observer.FLAG_FAILED);
@@ -136,7 +136,7 @@ public class Traversal implements Algorithm {
             }
         });
 
-        log.debug("[traversal] position for entry {}", pos);
+        log.trace("[traversal] position for entry {}", pos);
         assert pos < results.size();
 
         if (pos < 0 || !results.get(pos).equals(id)) {
@@ -166,8 +166,11 @@ public class Traversal implements Algorithm {
             }
             */
 
-            log.debug("[traversal] {} adding result: {} {} distance {}", getName(), id, addr, KadId.distanceExp(target, o.getId()));
-            results.add(((pos + 1)*-1), o);
+            log.trace("[traversal] {} adding result: {} {} distance {}", getName(), id, addr, KadId.distanceExp(target, o.getId()));
+            int insertPos = (pos < 0)?(pos + 1)*-1:pos;
+            assert insertPos >= 0;
+            assert insertPos <= results.size();
+            results.add(insertPos, o);
         }
 
         if (results.size() > MAX_RESULT_COUNT) {
@@ -179,6 +182,7 @@ public class Traversal implements Algorithm {
 
     @Override
     public void failed(final Observer o, int flags) {
+        log.debug("[traversal] failed {} flags {}", o, flags);
         assert invokeCount >= 0;
 
         if (results.isEmpty()) return;
@@ -192,7 +196,7 @@ public class Traversal implements Algorithm {
             // we do get a late response, keep the handler
             // around for some more, but open up the slot
             // by increasing the branch factor
-            if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) ++branchFactor;
+            if (!Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) ++branchFactor;
             o.setFlags(o.getFlags() | Observer.FLAG_SHORT_TIMEOUT);
             log.debug("[traversal] {} first chance timeout {} branch-factor: {} invoke-count: {}", getName(), o.getId(), branchFactor, invokeCount);
         }
@@ -201,7 +205,6 @@ public class Traversal implements Algorithm {
             // if this flag is set, it means we increased the
             // branch factor for it, and we should restore it
             if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
-            log.debug("[traversal] {} failed branch-factor: {} invoke-count: {}", getName(), branchFactor, invokeCount);
 
             // don't tell the routing table about
             // node ids that we just generated ourself
@@ -212,12 +215,16 @@ public class Traversal implements Algorithm {
             ++timeouts;
             --invokeCount;
             assert invokeCount >= 0;
+            log.debug("[traversal] {} {} failed branch-factor: {} invoke-count: {}", o, getName(), branchFactor, invokeCount);
         }
 
         if (Utils.isBit(flags, PREVENT_REQUEST)) {
             --branchFactor;
             if (branchFactor <= 0) branchFactor = 1;
+            log.debug("[traversal] prevent request branch-factor {}", branchFactor);
         }
+
+        log.debug("[traversal] failed end invoke-count {} branch-factor {}", invokeCount, branchFactor);
 
         addRequests();
         if (invokeCount == 0) done();
@@ -248,6 +255,7 @@ public class Traversal implements Algorithm {
 
         ++responses;
         --invokeCount;
+        log.debug("[traversal] finished invoke count {}", invokeCount);
         assert invokeCount >= 0;
         addRequests();
         if (invokeCount == 0) done();
@@ -294,9 +302,11 @@ public class Traversal implements Algorithm {
                 .append(timeouts)
                 .append(" num targets ")
                 .append(numTargetNodes);
-        if (!results.isEmpty()) sb.append("results: \n");
+        if (!results.isEmpty()) sb.append("\nresults:\n");
         for(final Observer o: results) {
-            sb.append(o.toString()).append(" ").append(o.getFlagsStr());
+            sb.append(o)
+                    .append(o.getFlagsStr())
+                    .append("\n");
         }
 
         return sb.toString();

@@ -65,15 +65,19 @@ public class DhtTracker extends Thread {
             combiner = new org.dkf.jed2k.protocol.kad.PacketCombiner();
             incomingHeader = new KadPacketHeader();
 
-            while(!aborted && !interrupted()) {
+            while (!aborted && !interrupted()) {
                 int channelCount = selector.select(1000);
                 // TODO - do not update global time here when we work in main session scope
                 Time.updateCachedTime();
                 tick(channelCount);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("[tracker] I/O exception on DHT starting {}", e.getMessage());
-        } finally {
+        } catch (Exception e) {
+            log.error("[tracker] unexpected error {}", e);
+            e.printStackTrace();
+        }
+        finally {
             log.debug("[tracker] stopping");
 
             try {
@@ -149,7 +153,8 @@ public class DhtTracker extends Thread {
         } catch (JED2KException e) {
             log.error("[tracker] exception on parse packet {}", incomingHeader);
         } catch (Exception e) {
-            log.error("[tracker] unexpected error on parse packet {}", incomingHeader);
+            e.printStackTrace();
+            log.error("[tracker] unexpected error on parse packet {} {}", incomingHeader, e);
         } finally {
             incomingBuffer.clear();
 
@@ -182,7 +187,12 @@ public class DhtTracker extends Thread {
         }
         catch (IOException e) {
             log.error("[tracker] I/O exception on send packet {}", packet);
-        } finally {
+        }
+        catch(Exception e) {
+            log.error("[tracker] unexpected error {}", e);
+            e.printStackTrace();
+        }
+        finally {
             // go to wait bytes mode when output order becomes empty
             if (outgoingOrder.isEmpty()) {
                 log.debug("[tracker] set interests to OP_READ");

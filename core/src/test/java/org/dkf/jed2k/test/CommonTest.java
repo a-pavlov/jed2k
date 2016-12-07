@@ -5,6 +5,9 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
@@ -68,5 +71,27 @@ public class CommonTest {
         assertTrue(converted < 0);
         long converted2 = (long)(converted) & 0xffffffffL;
         assertEquals(0xffffffffL, converted2);
+    }
+
+    @Test
+    public void testJavaIterator() {
+        List<Integer> list = new LinkedList<>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        Iterator<Integer> itr = list.iterator();
+        Integer i = null;
+        while(itr.hasNext()) {
+            i = itr.next();
+            if (i.intValue() == 3) {
+                itr.remove();
+                break;
+            }
+
+            i = null;
+        }
+
+        assertEquals(3, i.intValue());
     }
 }
