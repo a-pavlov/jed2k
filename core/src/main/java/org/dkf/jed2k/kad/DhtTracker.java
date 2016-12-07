@@ -269,4 +269,13 @@ public class DhtTracker extends Thread {
             }
         });
     }
+
+    public void status() {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                node.logStatus();
+            }
+        });
+    }
 }

@@ -22,7 +22,7 @@ public class RpcManager {
     private List<Observer> transactions = new LinkedList<>();
 
     public void invoke(final Transaction t, final Endpoint ep, final Observer o) {
-        log.debug("[rpc] invoke {} >> {}", o, ep);
+        log.debug("[rpc] invoke {}", o);
         transactions.add(o);
         o.setWasSent(true);
         o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);

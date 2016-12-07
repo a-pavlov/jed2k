@@ -130,4 +130,10 @@ public class NodeImpl {
 
         return false;
     }
+
+    public void logStatus() {
+        for(Traversal ta: runningRequests) {
+            log.info(ta.toString());
+        }
+    }
 }

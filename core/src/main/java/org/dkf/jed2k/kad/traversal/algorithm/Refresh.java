@@ -27,8 +27,7 @@ public class Refresh extends Traversal {
         hello.setKid(nodeImpl.getSelf());
         hello.getPortTcp().assign(nodeImpl.getPort());
         hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
-        nodeImpl.invoke(hello, o.getEndpoint(), o);
-        return true;
+        return nodeImpl.invoke(hello, o.getEndpoint(), o);
     }
 
     @Override

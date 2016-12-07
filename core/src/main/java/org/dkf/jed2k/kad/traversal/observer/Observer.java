@@ -27,15 +27,16 @@ public abstract class Observer {
     public static final byte FLAG_ALIVE = 32;
     public static final byte FLAG_DONE = 64;
 
-    protected Algorithm algorithm;
-    protected Endpoint endpoint;
+    protected final Algorithm algorithm;
+    protected final Endpoint endpoint;
     protected KadId id;
-    protected byte transactionId;
     protected long sentTime;
     protected int flags = 0;
+    protected byte transactionId;
 
     private boolean wasAbandoned = false;
     private boolean wasSent = false;
+    private String flagsStr;
 
     public Observer(final Algorithm algorithm, final Endpoint ep, final KadId id) {
         this.algorithm = algorithm;
@@ -80,6 +81,16 @@ public abstract class Observer {
 
     public Endpoint getTarget() {
         return endpoint;
+    }
+
+    public String getFlagsStr() {
+        return Utils.isBit(flags, FLAG_QUERIED)?"|FLAG_QUERIED":""
+                +  (Utils.isBit(flags, FLAG_INITIAL)?"|FLAG_INITIAL":"")
+                +  (Utils.isBit(flags, FLAG_NO_ID)?"|FLAG_NO_ID":"")
+                +  (Utils.isBit(flags, FLAG_SHORT_TIMEOUT)?"|FLAG_SHORT_TIMEOUT":"")
+                +  (Utils.isBit(flags, FLAG_FAILED)?"|FLAG_FAILED":"")
+                +  (Utils.isBit(flags, FLAG_ALIVE)?"|FLAG_ALIVE":"")
+                +  (Utils.isBit(flags, FLAG_DONE)?"|FLAG_DONE":"");
     }
 
     public abstract void reply(final Transaction t, final Endpoint endpoint);

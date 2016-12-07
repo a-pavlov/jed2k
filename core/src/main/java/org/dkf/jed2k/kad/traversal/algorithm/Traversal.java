@@ -100,7 +100,7 @@ public class Traversal implements Algorithm {
 
     @Override
     public String getName() {
-        return "TA";
+        return "[ta]";
     }
 
     public void addEntry(final KadId id, final Endpoint addr, byte flags) {
@@ -234,6 +234,7 @@ public class Traversal implements Algorithm {
 
     @Override
     public void finished(final Observer o) {
+        log.debug("[traversal] finished {} invoke-count {}", o, invokeCount);
         boolean contains = results.contains(o);
         // we have this observer or it was abandoned(size > MAX_RESULTS_COUNT)
         assert contains || results.size() == MAX_RESULT_COUNT;
@@ -276,5 +277,28 @@ public class Traversal implements Algorithm {
     @Override
     public int hashCode() {
         return target.hashCode() + getName().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Traversal: ")
+                .append(target)
+                .append(" invoke-count ")
+                .append(invokeCount)
+                .append(" branch-factor ")
+                .append(branchFactor)
+                .append(" responses ")
+                .append(responses)
+                .append(" timeouts ")
+                .append(timeouts)
+                .append(" num targets ")
+                .append(numTargetNodes);
+        if (!results.isEmpty()) sb.append("results: \n");
+        for(final Observer o: results) {
+            sb.append(o.toString()).append(" ").append(o.getFlagsStr());
+        }
+
+        return sb.toString();
     }
 }
