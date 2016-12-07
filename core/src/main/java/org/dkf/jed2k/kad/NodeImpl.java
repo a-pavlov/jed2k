@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.Time;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.traversal.algorithm.Bootstrap;
 import org.dkf.jed2k.kad.traversal.algorithm.Refresh;
@@ -118,7 +119,10 @@ public class NodeImpl {
         try {
             if (tracker.write(t, ep.toInetSocketAddress())) {
                 // register transaction if packet was sent
-                rpc.invoke(t, ep, o);
+                rpc.invoke(o);
+                o.setWasSent(true);
+                o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
+                o.setSentTime(Time.currentTime());
                 log.debug("[rpc] invoked {}", o);
                 return true;
             } else {

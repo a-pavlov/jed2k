@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Transaction;
@@ -21,11 +22,13 @@ public class RpcManager {
     private boolean destructing = false;
     private List<Observer> transactions = new LinkedList<>();
 
-    public void invoke(final Transaction t, final Endpoint ep, final Observer o) {
+    /**
+     *  register observer in RPC manager only for future processing responses and timeouts
+     *  @param o observer
+     */
+    public void invoke(final Observer o) {
         log.debug("[rpc] invoke {}", o);
         transactions.add(o);
-        o.setWasSent(true);
-        o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
     }
 
     public Observer incoming(final Transaction t, final Endpoint ep) {
@@ -37,6 +40,7 @@ public class RpcManager {
         while(itr.hasNext()) {
             o = itr.next();
             assert o != null;
+            assert Utils.isBit(o.getFlags(), Observer.FLAG_QUERIED);
 
             /**
              * search for source observer using artificial transaction id, endpoint

@@ -69,6 +69,10 @@ public class Traversal implements Algorithm {
         nodeImpl.addTraversalAlgorithm(this);
     }
 
+    /**
+     * run new requests using current results collection
+     * execute new requests until we have less than resultsTarget alive nodes or no new candidates
+     */
     protected void addRequests() {
         int resultsTarget = numTargetNodes;
         // Find the first node that hasn't already been queried.
@@ -196,7 +200,9 @@ public class Traversal implements Algorithm {
             // we do get a late response, keep the handler
             // around for some more, but open up the slot
             // by increasing the branch factor
-            if (!Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) ++branchFactor;
+            assert Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT) != true;
+            //if (!Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT))
+            ++branchFactor;
             o.setFlags(o.getFlags() | Observer.FLAG_SHORT_TIMEOUT);
             log.debug("[traversal] {} first chance timeout {} branch-factor: {} invoke-count: {}", getName(), o.getId(), branchFactor, invokeCount);
         }
