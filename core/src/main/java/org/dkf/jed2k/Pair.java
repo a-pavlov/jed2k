@@ -53,4 +53,10 @@ public class Pair<L,R> implements Comparable<Pair<L,R>> {
 
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return (left != null?left.hashCode():0) + ((right !=null)?right.hashCode():0);
+    }
+
 }

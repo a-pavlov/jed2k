@@ -27,12 +27,11 @@ public class Bootstrap extends Traversal {
         Kad2BootstrapReq ping = new Kad2BootstrapReq();
         o.setTransactionId(ping.getTransactionId());
         o.setSentTime(Time.currentTime());
-        nodeImpl.invoke(ping, o.getEndpoint(), o);
-        return true;
+        return nodeImpl.invoke(ping, o.getEndpoint(), o);
     }
 
     @Override
     public String getName() {
-        return "[bootstap]";
+        return "[bootstrap]";
     }
 }
