@@ -20,13 +20,11 @@ public class BootstrapObserver extends Observer {
 
     @Override
     public void reply(Transaction t, Endpoint endpoint) {
-        log.debug("[bootstrap observer] reply");
         Kad2BootstrapRes res = (Kad2BootstrapRes)t;
         assert t != null;
         for(KadEntry entry: res.getContacts()) {
             algorithm.traverse(entry.getKadEndpoint().getEndpoint(), entry.getKid());
         }
-        log.debug("[bootstrap observer] ready");
         done();
     }
 }

@@ -75,7 +75,7 @@ public class Traversal implements Algorithm {
      */
     protected void addRequests() {
         int resultsTarget = numTargetNodes;
-        // Find the first node that hasn't already been queried.
+        // FindData the first node that hasn't already been queried.
         for (int i = 0; i != results.size() && resultsTarget > 0 && invokeCount < branchFactor; ++i) {
             Observer o = results.get(i);
             if (Utils.isBit(o.getFlags(), Observer.FLAG_ALIVE)) --resultsTarget;
