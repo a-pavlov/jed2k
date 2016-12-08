@@ -17,6 +17,7 @@ import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.Kad2Ping;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
+import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
 
@@ -157,6 +158,7 @@ public class NodeImpl {
         Gson gson = new GsonBuilder().setPrettyPrinting()
                 .registerTypeAdapter(KadId.class, new KadIdSerializer())
                 .registerTypeAdapter(Hash.class, new HashSerializer())
+                .registerTypeAdapter(Endpoint.class, new EndpointSerializer())
                 .create();
 
         return gson.toJson(table);
