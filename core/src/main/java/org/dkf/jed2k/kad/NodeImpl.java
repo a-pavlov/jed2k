@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.traversal.algorithm.Bootstrap;
+import org.dkf.jed2k.kad.traversal.algorithm.Direct;
 import org.dkf.jed2k.kad.traversal.algorithm.Refresh;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.kad.traversal.observer.NullObserver;
@@ -43,7 +44,7 @@ public class NodeImpl {
     }
 
     public void addNode(final Endpoint ep, final KadId id) {
-        invoke(new Kad2Ping(), ep, new NullObserver(new Traversal(this, id), ep, id));
+        invoke(new Kad2Ping(), ep, new NullObserver(new Direct(this, id), ep, id));
     }
 
     public void addTraversalAlgorithm(final Traversal ta) {
@@ -108,10 +109,16 @@ public class NodeImpl {
         Observer o = rpc.incoming(t, ep);
 
         if (o != null) {
+            o.reply(t, ep);
             // if we have endpoint's KAD id in packet - use it
             // else use KAD id from observer
-            KadId originId = t.getSelfId().equals(new KadId())?o.getId():t.getSelfId();
-            table.nodeSeen(originId, ep);
+            Traversal ta = o.getAlgorithm();
+            assert ta != null;
+            // for all real traversers update routing table
+            if (ta.containsNewNodes()) {
+                KadId originId = t.getSelfId().equals(new KadId()) ? o.getId() : t.getSelfId();
+                table.nodeSeen(originId, ep);
+            }
         }
     }
 
@@ -123,7 +130,7 @@ public class NodeImpl {
                 o.setWasSent(true);
                 o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
                 o.setSentTime(Time.currentTime());
-                log.debug("[rpc] invoked {}", o);
+                log.debug("[node] invoked {}", o);
                 return true;
             } else {
                 log.debug("[node] invoke failed without error {}", o);

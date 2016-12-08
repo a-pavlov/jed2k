@@ -1,56 +1,29 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
+import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 /**
  * Created by inkpot on 30.11.2016.
- * this class designed to start search requests to nodes directly
+ * one shot algorithm just to run single observer
  */
-public class Direct implements Algorithm {
-    @Override
-    public void init() {
+public class Direct extends Traversal {
 
-    }
-
-    @Override
-    public void done() {
-
-    }
-
-    @Override
-    public boolean invoke(Observer o) {
-        return false;
-    }
-
-    @Override
-    public void finished(Observer o) {
-
-    }
-
-    @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void failed(Observer o, int flags) {
-
+    public Direct(NodeImpl ni, KadId t) {
+        super(ni, t);
     }
 
     @Override
     public Observer newObserver(Endpoint endpoint, KadId id) {
+        assert false;
         return null;
     }
 
     @Override
-    public void traverse(Endpoint ep, KadId id) {
-
+    public boolean invoke(Observer o) {
+        assert false;
+        return false;
     }
 }

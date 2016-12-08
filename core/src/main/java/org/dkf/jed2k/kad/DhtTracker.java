@@ -258,7 +258,7 @@ public class DhtTracker extends Thread {
         md4.update(key.getBytes());
         Hash h = Hash.fromBytes(md4.digest());
         Kad2SearchKeysReq req = new Kad2SearchKeysReq();
-        req.setKid(KadId.fromBytes(md4.digest()));
+        req.setTarget(KadId.fromBytes(md4.digest()));
         req.setStartPos(Unsigned.uint16(0));
         write(req, ep);
     }

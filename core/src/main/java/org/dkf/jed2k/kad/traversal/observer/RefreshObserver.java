@@ -1,6 +1,6 @@
 package org.dkf.jed2k.kad.traversal.observer;
 
-import org.dkf.jed2k.kad.traversal.algorithm.Algorithm;
+import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Kad2HelloRes;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -11,7 +11,7 @@ import org.dkf.jed2k.protocol.kad.Transaction;
  */
 public class RefreshObserver extends Observer {
 
-    public RefreshObserver(Algorithm algorithm, Endpoint ep, KadId id) {
+    public RefreshObserver(Traversal algorithm, Endpoint ep, KadId id) {
         super(algorithm, ep, id);
     }
 

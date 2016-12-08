@@ -12,6 +12,7 @@ public abstract class Transaction implements Serializable {
     public static final byte PING_PONG = 0x02;
     public static final byte HELLO = 0x03;
     public static final byte REQ_RES = 0x04;
+    public static final byte SEARCH = 0x05;
 
     public abstract byte getTransactionId();
 

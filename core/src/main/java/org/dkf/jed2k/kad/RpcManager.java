@@ -33,7 +33,7 @@ public class RpcManager {
 
     public Observer incoming(final Transaction t, final Endpoint ep) {
         if (destructing) return null;
-        log.debug("[rpc] incoming {} tran size {}", ep, transactions.size());
+        log.trace("[rpc] incoming {} tran size {}", ep, transactions.size());
 
         Iterator<Observer> itr = transactions.iterator();
         Observer o = null;
@@ -56,12 +56,8 @@ public class RpcManager {
             o = null;
         }
 
-        log.debug("[rpc] transactions size {}", transactions.size());
-
         if (o == null) {
             log.debug("[rpc] reply with unknown transaction id: {} from {}", t, ep);
-        } else {
-            o.reply(t, ep);
         }
 
         return o;

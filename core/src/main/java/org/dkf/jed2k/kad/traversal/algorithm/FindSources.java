@@ -8,12 +8,21 @@ import org.dkf.jed2k.protocol.kad.KadId;
  * Created by inkpot on 07.12.2016.
  */
 public class FindSources extends FindData {
-    public FindSources(NodeImpl ni, KadId t) {
+    private long size;
+
+    public FindSources(NodeImpl ni, KadId t, long size) {
         super(ni, t);
+        this.size = size;
     }
 
     @Override
     protected void update(Kad2Req req) {
         req.setSearchType(FindData.KADEMLIA_FIND_NODE);
+    }
+
+    @Override
+    public void done() {
+        // process results here
+        super.done();
     }
 }

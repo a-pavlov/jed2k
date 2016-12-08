@@ -1,7 +1,7 @@
 package org.dkf.jed2k.kad.traversal.observer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.dkf.jed2k.kad.traversal.algorithm.Algorithm;
+import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Kad2BootstrapRes;
 import org.dkf.jed2k.protocol.kad.KadEntry;
@@ -14,7 +14,7 @@ import org.dkf.jed2k.protocol.kad.Transaction;
 @Slf4j
 public class BootstrapObserver extends Observer {
 
-    public BootstrapObserver(final Algorithm algorithm, final Endpoint ep, final KadId id) {
+    public BootstrapObserver(final Traversal algorithm, final Endpoint ep, final KadId id) {
         super(algorithm, ep, id);
     }
 

@@ -17,7 +17,7 @@ import java.util.List;
  * Created by inkpot on 21.11.2016.
  */
 @Slf4j
-public class Traversal implements Algorithm {
+public abstract class Traversal {
     protected NodeImpl nodeImpl;
     protected KadId target;
     List<Observer> results = new ArrayList<>();
@@ -41,19 +41,14 @@ public class Traversal implements Algorithm {
         numTargetNodes = nodeImpl.getTable().getBucketSize()*2;
     }
 
-    @Override
-    public Observer newObserver(final Endpoint endpoint, final KadId id) {
-        assert false;
-        return null;
+    public abstract Observer newObserver(final Endpoint endpoint, final KadId id);
+
+    public abstract boolean invoke(final Observer o);
+
+    public boolean containsNewNodes() {
+        return true;
     }
 
-    @Override
-    public boolean invoke(final Observer o) {
-        assert false;
-        return false;
-    }
-
-    @Override
     public void done() {
         log.debug("[traversal] done, results size {}", results.size());
         log.debug(toString());
@@ -61,7 +56,6 @@ public class Traversal implements Algorithm {
         nodeImpl.removeTraversalAlgorithm(this);
     }
 
-    @Override
     public void init() {
         // update the last activity of this bucket
         nodeImpl.getTable().touchBucket(target);
@@ -102,7 +96,6 @@ public class Traversal implements Algorithm {
         }
     }
 
-    @Override
     public String getName() {
         return "[ta]";
     }
@@ -184,7 +177,6 @@ public class Traversal implements Algorithm {
         }
     }
 
-    @Override
     public void failed(final Observer o, int flags) {
         log.debug("[traversal] failed {} flags {}", o, flags);
         assert invokeCount >= 0;
@@ -236,7 +228,6 @@ public class Traversal implements Algorithm {
         if (invokeCount == 0) done();
     }
 
-    @Override
     public void start() {
         log.debug("[traversal] start");
         if (results.isEmpty()) addRouterEntries();
@@ -245,7 +236,6 @@ public class Traversal implements Algorithm {
         if (invokeCount == 0) done();
     }
 
-    @Override
     public void finished(final Observer o) {
         log.debug("[traversal] finished {} invoke-count {}", o, invokeCount);
         boolean contains = results.contains(o);
@@ -272,7 +262,6 @@ public class Traversal implements Algorithm {
      * @param id of new node
      * @param ep address of new node
      */
-    @Override
     public void traverse(final Endpoint ep, final KadId id) {
         nodeImpl.getTable().heardAbout(id, ep);
         addEntry(id, ep, (byte)0);

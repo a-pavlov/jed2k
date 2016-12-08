@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
-import org.dkf.jed2k.kad.traversal.algorithm.Algorithm;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -27,7 +26,7 @@ public abstract class Observer {
     public static final byte FLAG_ALIVE = 32;
     public static final byte FLAG_DONE = 64;
 
-    protected final Algorithm algorithm;
+    protected final Traversal algorithm;
     protected final Endpoint endpoint;
     protected KadId id;
     protected long sentTime;
@@ -37,7 +36,7 @@ public abstract class Observer {
     private boolean wasAbandoned = false;
     private boolean wasSent = false;
 
-    public Observer(final Algorithm algorithm, final Endpoint ep, final KadId id) {
+    public Observer(final Traversal algorithm, final Endpoint ep, final KadId id) {
         this.algorithm = algorithm;
         this.endpoint = ep;
         this.id = id;
