@@ -1,5 +1,7 @@
 package org.dkf.jed2k.kad;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
@@ -11,9 +13,12 @@ import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.kad.traversal.observer.NullObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.Kad2Ping;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.Transaction;
+import org.dkf.jed2k.util.HashSerializer;
+import org.dkf.jed2k.util.KadIdSerializer;
 
 import java.util.HashSet;
 import java.util.List;
@@ -146,5 +151,14 @@ public class NodeImpl {
         for(Traversal ta: runningRequests) {
             log.info(ta.toString());
         }
+    }
+
+    public String getRoutingTableStatus() {
+        Gson gson = new GsonBuilder().setPrettyPrinting()
+                .registerTypeAdapter(KadId.class, new KadIdSerializer())
+                .registerTypeAdapter(Hash.class, new HashSerializer())
+                .create();
+
+        return gson.toJson(table);
     }
 }
