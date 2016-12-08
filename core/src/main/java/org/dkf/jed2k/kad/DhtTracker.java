@@ -288,4 +288,8 @@ public class DhtTracker extends Thread {
             }
         });
     }
+
+    public synchronized String getRoutingTableStatus() {
+        return node.getRoutingTableStatus();
+    }
 }

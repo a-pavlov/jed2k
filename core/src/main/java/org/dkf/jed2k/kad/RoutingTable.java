@@ -1,5 +1,6 @@
 package org.dkf.jed2k.kad;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -26,8 +27,14 @@ public class RoutingTable {
     @EqualsAndHashCode
     @ToString
     public static class RoutingTableBucket {
+
+        @SerializedName("Replacements")
         private ArrayList<NodeEntry> replacements = new ArrayList<>();
+
+        @SerializedName("Live")
         private ArrayList<NodeEntry> liveNodes = new ArrayList<>();
+
+        @SerializedName("LastActive")
         private long lastActive = Time.currentTime();
 
         void removeEntry(final NodeEntry e) {
@@ -36,33 +43,42 @@ public class RoutingTable {
         }
     }
 
+    @SerializedName("Buckets")
     private ArrayList<RoutingTableBucket> buckets = new ArrayList<>();
+
+    @SerializedName("SelfKadId")
     private KadId self;
 
     // the last time need_bootstrap() returned true
+    @SerializedName("LastBootstrap")
     private long lastBootstrap = 0;
 
     // the last time the routing table was refreshed.
     // this is used to stagger buckets needing refresh
     // to be at least 45 seconds apart.
+    @SerializedName("LastRefresh")
     private long lastRefresh = 0;
 
     // the last time we refreshed our own bucket
     // refreshed every 15 minutes
+    @SerializedName("LastSelRefresh")
     private long lastSelfRefresh = 0;
 
     // this is a set of all the endpoints that have
     // been identified as router nodes. They will
     // be used in searches, but they will never
     // be added to the routing table.
+    @SerializedName("RouterNodes")
     Set<Endpoint> routerNodes = new HashSet<>();
 
     // these are all the IPs that are in the routing
     // table. It's used to only allow a single entry
     // per IP in the whole table. Currently only for
     // IPv4
+    @SerializedName("IPs")
     Set<Integer> ips = new HashSet<>();
 
+    @SerializedName("BucketSize")
     private int bucketSize;
 
 

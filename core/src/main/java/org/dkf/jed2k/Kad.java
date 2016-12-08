@@ -54,7 +54,7 @@ public class Kad {
                 tracker.hello(address);
             }
             else if (parts[0].compareTo("status") == 0) {
-                tracker.status();
+                log.info(tracker.getRoutingTableStatus());
             }
         }
 
