@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad.traversal.algorithm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -32,13 +33,16 @@ public abstract class Traversal {
     public static final int SHORT_TIMEOUT = 2;
     public static final int MAX_RESULT_COUNT = 100;
 
-    public Traversal(final NodeImpl ni, final KadId t) {
+    public Traversal(final NodeImpl ni, final KadId t) throws JED2KException {
         assert t != null;
         assert !t.isAllZeros();
         assert ni != null;
+        ni.addTraversalAlgorithm(this); // throws exception in case of duplicate of kad id in running requests
         nodeImpl = ni;
         target = t;
         numTargetNodes = nodeImpl.getTable().getBucketSize()*2;
+        nodeImpl.getTable().touchBucket(target);
+        branchFactor = nodeImpl.getSearchBranching();
     }
 
     public abstract Observer newObserver(final Endpoint endpoint, final KadId id);
@@ -54,13 +58,6 @@ public abstract class Traversal {
         log.debug(toString());
         results.clear();
         nodeImpl.removeTraversalAlgorithm(this);
-    }
-
-    public void init() {
-        // update the last activity of this bucket
-        nodeImpl.getTable().touchBucket(target);
-        branchFactor = nodeImpl.getSearchBranching();
-        nodeImpl.addTraversalAlgorithm(this);
     }
 
     /**
@@ -231,7 +228,6 @@ public abstract class Traversal {
     public void start() {
         log.debug("[traversal] start");
         if (results.isEmpty()) addRouterEntries();
-        init();
         addRequests();
         if (invokeCount == 0) done();
     }

@@ -5,11 +5,9 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.kad.traversal.algorithm.Bootstrap;
-import org.dkf.jed2k.kad.traversal.algorithm.Direct;
-import org.dkf.jed2k.kad.traversal.algorithm.Refresh;
-import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
+import org.dkf.jed2k.kad.traversal.algorithm.*;
 import org.dkf.jed2k.kad.traversal.observer.NullObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -49,11 +47,12 @@ public class NodeImpl {
         this.port = port;
     }
 
-    public void addNode(final Endpoint ep, final KadId id) {
+    public void addNode(final Endpoint ep, final KadId id) throws JED2KException {
         invoke(new Kad2Ping(), ep, new NullObserver(new Direct(this, id), ep, id));
     }
 
-    public void addTraversalAlgorithm(final Traversal ta) {
+    public void addTraversalAlgorithm(final Traversal ta) throws JED2KException {
+        if (runningRequests.contains(ta)) throw new JED2KException(ErrorCode.DHT_REQUEST_ALREADY_RUNNING);
         assert !runningRequests.contains(ta);
         runningRequests.add(ta);
     }
@@ -70,15 +69,23 @@ public class NodeImpl {
     public void tick() {
         rpc.tick();
         KadId target = table.needRefresh();
-        if (target != null) refresh(target);
+        try {
+            if (target != null) refresh(target);
+        } catch(JED2KException e) {
+            log.error("unable to refresh bucket with target {} due to error {}", target, e);
+        }
     }
 
-    public void searchSources(final KadId id) {
+    public void searchSources(final KadId id, long size) throws JED2KException {
         log.debug("[node] search sources {}", id);
+        Traversal ta = new SearchSources(this, id, size);
+        ta.start();
     }
 
-    public void searchKeywords(final KadId id) {
+    public void searchKeywords(final KadId id) throws JED2KException {
         log.debug("[node] search keywords {}", id);
+        Traversal ta = new SearchKeywords(this, id);
+        ta.start();
     }
 
     // not available now
@@ -86,7 +93,7 @@ public class NodeImpl {
         log.debug("[node] search notes {}", id);
     }
 
-    public void refresh(final KadId id) {
+    public void refresh(final KadId id) throws JED2KException {
         assert id != null;
         log.debug("[node] refresh on target {}", id);
         Traversal t = new Refresh(this, self);
@@ -97,7 +104,7 @@ public class NodeImpl {
         tracker = null;
     }
 
-    public void bootstrap(final List<Endpoint> nodes) {
+    public void bootstrap(final List<Endpoint> nodes) throws JED2KException {
         log.debug("[node] bootstrap with {} nodes", nodes.size());
         Traversal t = new Bootstrap(this, self);
         for(Endpoint ep: nodes) {

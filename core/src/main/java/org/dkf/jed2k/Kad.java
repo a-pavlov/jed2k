@@ -43,10 +43,9 @@ public class Kad {
                 log.info("bootstrap on {}:{}", parts[1], parts[2]);
                 tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
             }
-            else if (parts[0].compareTo("search") == 0 && parts.length == 4) {
-                log.info("search on {}:{} for {}", parts[1], parts[2], parts[3]);
-                InetSocketAddress address = new InetSocketAddress(parts[1], Integer.parseInt(parts[2]));
-                tracker.searchKey(address, parts[3]);
+            else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
+                log.info("search {}", parts[1]);    // temporary search only first keyword
+                tracker.searchKeywords(parts[1]);
             }
             else if (parts[0].compareTo("hello") == 0 && parts.length == 3) {
                 log.info("hello to {}:{}", parts[1], parts[2]);

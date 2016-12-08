@@ -1,5 +1,6 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.kad.traversal.observer.SearchObserver;
@@ -13,7 +14,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
  */
 public class SearchKeywords extends Traversal {
 
-    public SearchKeywords(NodeImpl ni, KadId t) {
+    public SearchKeywords(NodeImpl ni, KadId t) throws JED2KException {
         super(ni, t);
     }
 

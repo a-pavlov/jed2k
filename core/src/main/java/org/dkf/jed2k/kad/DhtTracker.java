@@ -245,7 +245,7 @@ public class DhtTracker extends Thread {
         });
     }
 
-    public synchronized void addNode(final Endpoint endpoint, final KadId id) {
+    public synchronized void addNode(final Endpoint endpoint, final KadId id) throws JED2KException {
         node.addNode(endpoint, id);
     }
 
@@ -253,14 +253,15 @@ public class DhtTracker extends Thread {
         write(new Kad2BootstrapReq(), ep);
     }
 
-    public synchronized void searchKey(final InetSocketAddress ep, final String key) {
+    public synchronized void searchKeywords(final String key) throws JED2KException {
         MD4 md4 = new MD4();
         md4.update(key.getBytes());
-        Hash h = Hash.fromBytes(md4.digest());
         Kad2SearchKeysReq req = new Kad2SearchKeysReq();
-        req.setTarget(KadId.fromBytes(md4.digest()));
-        req.setStartPos(Unsigned.uint16(0));
-        write(req, ep);
+        node.searchKeywords(KadId.fromBytes(md4.digest()));
+    }
+
+    public synchronized void searchSources(final Hash hash, final long fileSize) throws JED2KException {
+        node.searchSources(new KadId(hash), fileSize);
     }
 
     public synchronized void hello(final InetSocketAddress ep) {
@@ -271,13 +272,8 @@ public class DhtTracker extends Thread {
         write(hello, ep);
     }
 
-    public void bootstrap(final List<Endpoint> endpoints) {
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                node.bootstrap(endpoints);
-            }
-        });
+    public synchronized void bootstrap(final List<Endpoint> endpoints) throws JED2KException {
+        node.bootstrap(endpoints);
     }
 
     public void status() {
