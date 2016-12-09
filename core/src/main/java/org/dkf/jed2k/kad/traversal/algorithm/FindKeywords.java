@@ -11,7 +11,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
 public class FindKeywords extends FindData {
 
     public FindKeywords(NodeImpl ni, KadId t) throws JED2KException {
-        super(ni, t);
+        super(ni, t, 0);
     }
 
     @Override
@@ -20,8 +20,7 @@ public class FindKeywords extends FindData {
     }
 
     @Override
-    public void done() {
-        // process results and start search keywords algorithm here
-        super.done();
+    protected Direct newTraversal() throws JED2KException {
+        return new SearchKeywords(nodeImpl, target);
     }
 }

@@ -12,7 +12,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
  * Created by inkpot on 08.12.2016.
  * direct search keywords requests
  */
-public class SearchKeywords extends Traversal {
+public class SearchKeywords extends Direct {
 
     public SearchKeywords(NodeImpl ni, KadId t) throws JED2KException {
         super(ni, t);
@@ -28,18 +28,5 @@ public class SearchKeywords extends Traversal {
         Kad2SearchKeysReq ssk = new Kad2SearchKeysReq();
         ssk.setTarget(target);
         return nodeImpl.invoke(ssk, o.getEndpoint(), o);
-    }
-
-    @Override
-    public boolean containsNewNodes() {
-        return false;
-    }
-
-    @Override
-    public void finished(final Observer o) {
-        super.finished(o);
-        SearchObserver so = (SearchObserver)o;
-        assert so != null;
-        so.getEntries();
     }
 }

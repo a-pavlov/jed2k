@@ -48,7 +48,7 @@ public class NodeImpl {
     }
 
     public void addNode(final Endpoint ep, final KadId id) throws JED2KException {
-        invoke(new Kad2Ping(), ep, new NullObserver(new Direct(this, id), ep, id));
+        invoke(new Kad2Ping(), ep, new NullObserver(new Single(this, id), ep, id));
     }
 
     public void addTraversalAlgorithm(final Traversal ta) throws JED2KException {
@@ -170,4 +170,5 @@ public class NodeImpl {
 
         return gson.toJson(table);
     }
+
 }

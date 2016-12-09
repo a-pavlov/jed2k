@@ -12,7 +12,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
  * Created by inkpot on 08.12.2016.
  * direct search sources request
  */
-public class SearchSources extends Traversal {
+public class SearchSources extends Direct {
     private long size;
 
     public SearchSources(NodeImpl ni, KadId t, long size) throws JED2KException {
@@ -32,18 +32,5 @@ public class SearchSources extends Traversal {
         ssr.getSize().assign(size);
         ssr.getStartPos().assign(0);
         return nodeImpl.invoke(ssr, o.getEndpoint(), o);
-    }
-
-    @Override
-    public boolean containsNewNodes() {
-        return false;
-    }
-
-    @Override
-    public void finished(final Observer o) {
-        super.finished(o);
-        SearchObserver so = (SearchObserver)o;
-        assert so != null;
-        so.getEntries();
     }
 }
