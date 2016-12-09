@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad.traversal.algorithm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -13,8 +14,8 @@ import org.dkf.jed2k.protocol.kad.KadId;
 public class FindSources extends FindData {
     private long size;
 
-    public FindSources(NodeImpl ni, KadId t, long size) throws JED2KException {
-        super(ni, t, size);
+    public FindSources(NodeImpl ni, KadId t, long size, final Listener l) throws JED2KException {
+        super(ni, t, size, l);
     }
 
     @Override
@@ -24,6 +25,6 @@ public class FindSources extends FindData {
 
     @Override
     protected Direct newTraversal() throws JED2KException {
-        return new SearchSources(nodeImpl, target, size, null);
+        return new SearchSources(nodeImpl, target, size, sink);
     }
 }

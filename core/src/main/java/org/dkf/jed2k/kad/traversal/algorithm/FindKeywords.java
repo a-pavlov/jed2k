@@ -1,6 +1,7 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -10,8 +11,8 @@ import org.dkf.jed2k.protocol.kad.KadId;
  */
 public class FindKeywords extends FindData {
 
-    public FindKeywords(NodeImpl ni, KadId t) throws JED2KException {
-        super(ni, t, 0);
+    public FindKeywords(NodeImpl ni, KadId t, final Listener l) throws JED2KException {
+        super(ni, t, 0, l);
     }
 
     @Override
@@ -21,6 +22,6 @@ public class FindKeywords extends FindData {
 
     @Override
     protected Direct newTraversal() throws JED2KException {
-        return new SearchKeywords(nodeImpl, target, null);
+        return new SearchKeywords(nodeImpl, target, sink);
     }
 }

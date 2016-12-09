@@ -78,13 +78,13 @@ public class NodeImpl {
 
     public void searchSources(final KadId id, long size, final Listener l) throws JED2KException {
         log.debug("[node] search sources {}", id);
-        Traversal ta = new SearchSources(this, id, size, l);
+        Traversal ta = new FindSources(this, id, size, l);
         ta.start();
     }
 
     public void searchKeywords(final KadId id, final Listener l) throws JED2KException {
         log.debug("[node] search keywords {}", id);
-        Traversal ta = new SearchKeywords(this, id, l);
+        Traversal ta = new FindKeywords(this, id, l);
         ta.start();
     }
 
