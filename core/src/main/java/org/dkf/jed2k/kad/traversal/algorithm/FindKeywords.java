@@ -21,6 +21,6 @@ public class FindKeywords extends FindData {
 
     @Override
     protected Direct newTraversal() throws JED2KException {
-        return new SearchKeywords(nodeImpl, target);
+        return new SearchKeywords(nodeImpl, target, null);
     }
 }

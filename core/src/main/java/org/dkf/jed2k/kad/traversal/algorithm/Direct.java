@@ -1,6 +1,7 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.kad.traversal.observer.SearchObserver;
@@ -17,10 +18,11 @@ import java.util.List;
  */
 public abstract class Direct extends Traversal {
     protected List<KadSearchEntry> accum = new LinkedList<>();
+    protected Listener sink;
 
-    public Direct(NodeImpl ni, KadId t) throws JED2KException {
+    public Direct(NodeImpl ni, KadId t, final Listener listener) throws JED2KException {
         super(ni, t);
-
+        sink = listener;
     }
 
     /**
@@ -63,5 +65,11 @@ public abstract class Direct extends Traversal {
         }
 
         super.finished(o);
+    }
+
+    @Override
+    public void done() {
+        super.done();
+        if (sink != null) sink.process(accum);
     }
 }

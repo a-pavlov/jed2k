@@ -1,6 +1,7 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.kad.traversal.observer.SearchObserver;
@@ -15,8 +16,8 @@ import org.dkf.jed2k.protocol.kad.KadId;
 public class SearchSources extends Direct {
     private long size;
 
-    public SearchSources(NodeImpl ni, KadId t, long size) throws JED2KException {
-        super(ni, t);
+    public SearchSources(NodeImpl ni, KadId t, long size, final Listener listener) throws JED2KException {
+        super(ni, t, listener);
         this.size = size;
     }
 

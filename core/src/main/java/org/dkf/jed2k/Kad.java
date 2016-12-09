@@ -45,7 +45,7 @@ public class Kad {
             }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 log.info("search {}", parts[1]);    // temporary search only first keyword
-                tracker.searchKeywords(parts[1]);
+                tracker.searchKeywords(parts[1], null);
             }
             else if (parts[0].compareTo("hello") == 0 && parts.length == 3) {
                 log.info("hello to {}:{}", parts[1], parts[2]);

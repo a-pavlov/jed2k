@@ -24,6 +24,6 @@ public class FindSources extends FindData {
 
     @Override
     protected Direct newTraversal() throws JED2KException {
-        return new SearchSources(nodeImpl, target, size);
+        return new SearchSources(nodeImpl, target, size, null);
     }
 }

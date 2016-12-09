@@ -253,15 +253,15 @@ public class DhtTracker extends Thread {
         write(new Kad2BootstrapReq(), ep);
     }
 
-    public synchronized void searchKeywords(final String key) throws JED2KException {
+    public synchronized void searchKeywords(final String key, final Listener l) throws JED2KException {
         MD4 md4 = new MD4();
         md4.update(key.getBytes());
         Kad2SearchKeysReq req = new Kad2SearchKeysReq();
-        node.searchKeywords(KadId.fromBytes(md4.digest()));
+        node.searchKeywords(KadId.fromBytes(md4.digest()), l);
     }
 
-    public synchronized void searchSources(final Hash hash, final long fileSize) throws JED2KException {
-        node.searchSources(new KadId(hash), fileSize);
+    public synchronized void searchSources(final Hash hash, final long fileSize, final Listener l) throws JED2KException {
+        node.searchSources(new KadId(hash), fileSize, l);
     }
 
     public synchronized void hello(final InetSocketAddress ep) {
