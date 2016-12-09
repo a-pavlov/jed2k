@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.tag;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -8,14 +9,13 @@ import org.dkf.jed2k.protocol.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.logging.Logger;
+import java.util.Collection;
 
 import static org.dkf.jed2k.Utils.sizeof;
 import static org.dkf.jed2k.protocol.Unsigned.*;
 
+@Slf4j
 public final class Tag implements Serializable {
-
-    private static Logger log = Logger.getLogger(Tag.class.getName());
 
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
     public static final byte TAGTYPE_HASH16       = (byte)0x01;
@@ -372,7 +372,8 @@ public final class Tag implements Serializable {
             try {
                 return stringValue();
             } catch (JED2KException e){
-                log.warning(e.getMessage());
+                log.error("[tag] to string failed {}", e);
+                e.printStackTrace();
             }
 
             return new String();
@@ -485,7 +486,7 @@ public final class Tag implements Serializable {
             value = new Hash();
             break;
         default:
-            log.warning("Unknown tag type: " + Utils.byte2String(type));
+            log.warn("[tag] unknown tag type {}", Utils.byte2String(type));
             throw new JED2KException(ErrorCode.TAG_TYPE_UNKNOWN);
         };
 
@@ -544,6 +545,8 @@ public final class Tag implements Serializable {
         try {
             return stringValue();
         } catch(JED2KException e) {
+            log.error("[tag] as string failed {}", e);
+            e.printStackTrace();
             return "";
         }
     }
@@ -564,6 +567,8 @@ public final class Tag implements Serializable {
         try {
             return intValue();
         } catch(JED2KException e) {
+            log.error("[tag] as int value failed {}", e);
+            e.printStackTrace();
             return 0;
         }
     }
@@ -579,6 +584,8 @@ public final class Tag implements Serializable {
         try {
             return longValue();
         } catch(JED2KException e) {
+            log.error("[tag] as long value failed {}", e);
+            e.printStackTrace();
             return 0;
         }
     }
@@ -659,5 +666,13 @@ public final class Tag implements Serializable {
     @Override
     public String toString() {
         return type2String(type) + " " + ((name!=null)?name:id2String(id)) + " " + value.toString();
+    }
+
+    public static Tag getTagById(final byte id, final Collection<Tag> tags) {
+        for(final Tag t: tags) {
+            if (t.id() == id) return t;
+        }
+
+        return null;
     }
 }
