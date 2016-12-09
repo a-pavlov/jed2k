@@ -11,7 +11,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
  */
 public class FindKeywords extends FindData {
 
-    public FindKeywords(NodeImpl ni, KadId t, final Listener l) throws JED2KException {
+    public FindKeywords(NodeImpl ni, KadId t, final Listener l) {
         super(ni, t, 0, l);
     }
 

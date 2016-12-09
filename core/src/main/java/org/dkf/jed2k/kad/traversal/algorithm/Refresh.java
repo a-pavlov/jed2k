@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
-import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.kad.traversal.observer.RefreshObserver;
@@ -13,7 +12,7 @@ import org.dkf.jed2k.protocol.kad.PacketCombiner;
  * Created by inkpot on 03.12.2016.
  */
 public class Refresh extends Traversal {
-    public Refresh(NodeImpl ni, KadId t) throws JED2KException {
+    public Refresh(NodeImpl ni, KadId t) {
         super(ni, t);
     }
 

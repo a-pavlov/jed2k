@@ -14,7 +14,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
 public class FindSources extends FindData {
     private long size;
 
-    public FindSources(NodeImpl ni, KadId t, long size, final Listener l) throws JED2KException {
+    public FindSources(NodeImpl ni, KadId t, long size, final Listener l) {
         super(ni, t, size, l);
     }
 

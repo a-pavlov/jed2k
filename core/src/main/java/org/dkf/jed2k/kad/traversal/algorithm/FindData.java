@@ -23,7 +23,7 @@ public abstract class FindData extends Traversal {
     protected long size = 0;
     protected final Listener sink;
 
-    public FindData(NodeImpl ni, KadId t, long size, Listener l) throws JED2KException {
+    public FindData(NodeImpl ni, KadId t, long size, Listener l) {
         super(ni, t);
         this.size = size;
         this.sink = l;

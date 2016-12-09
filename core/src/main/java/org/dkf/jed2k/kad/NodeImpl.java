@@ -40,6 +40,8 @@ public class NodeImpl {
     private int port;
 
     public NodeImpl(final DhtTracker tracker, final KadId id, int port) {
+        assert tracker != null;
+        assert id != null;
         this.tracker = tracker;
         this.rpc = new RpcManager();
         this.self = id;

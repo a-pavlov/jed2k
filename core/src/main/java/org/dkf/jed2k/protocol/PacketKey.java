@@ -40,12 +40,19 @@ public class PacketKey implements Comparable<PacketKey> {
         return "PK {" + byte2String(protocol) + ":" + byte2String(packet) + "}";
     }
 
+    public byte normalizedProtocol() {
+        if (protocol == PacketCombiner.ProtocolType.OP_EDONKEYHEADER.value) return PacketCombiner.ProtocolType.OP_PACKEDPROT.value;
+        if (protocol == PacketCombiner.ProtocolType.OP_EMULEPROT.value) return PacketCombiner.ProtocolType.OP_PACKEDPROT.value;
+        if (protocol == PacketCombiner.ProtocolType.OP_KADEMLIAHEADER.value) return PacketCombiner.ProtocolType.OP_KAD_COMPRESSED_UDP.value;
+        return protocol;
+    }
+
     @Override
     public int hashCode() {
         /**
          * full hash code value*max(hi byte) + lo byte
          */
-        return (int)protocol*255 + (int)packet;
+        return (int)normalizedProtocol()*255 + (int)packet;
     }
 
     @Override

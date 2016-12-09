@@ -33,16 +33,27 @@ public abstract class Traversal {
     public static final int SHORT_TIMEOUT = 2;
     public static final int MAX_RESULT_COUNT = 100;
 
-    public Traversal(final NodeImpl ni, final KadId t) throws JED2KException {
+    public Traversal(final NodeImpl ni, final KadId t) {
         assert t != null;
         assert !t.isAllZeros();
         assert ni != null;
-        ni.addTraversalAlgorithm(this); // throws exception in case of duplicate of kad id in running requests
         nodeImpl = ni;
         target = t;
+    }
+
+    /**
+     * start algorithm execution
+     * @throws JED2KException
+     */
+    public void start() throws JED2KException {
+        log.debug("[traversal] start");
+        nodeImpl.addTraversalAlgorithm(this); // throws exception in case of duplicate of kad id in running requests
         numTargetNodes = nodeImpl.getTable().getBucketSize()*2;
         nodeImpl.getTable().touchBucket(target);
         branchFactor = nodeImpl.getSearchBranching();
+        if (results.isEmpty()) addRouterEntries();
+        addRequests();
+        if (invokeCount == 0) done();
     }
 
     public abstract Observer newObserver(final Endpoint endpoint, final KadId id);
@@ -221,13 +232,6 @@ public abstract class Traversal {
 
         log.debug("[traversal] failed end invoke-count {} branch-factor {}", invokeCount, branchFactor);
 
-        addRequests();
-        if (invokeCount == 0) done();
-    }
-
-    public void start() {
-        log.debug("[traversal] start");
-        if (results.isEmpty()) addRouterEntries();
         addRequests();
         if (invokeCount == 0) done();
     }

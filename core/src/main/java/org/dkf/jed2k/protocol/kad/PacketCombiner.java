@@ -6,6 +6,7 @@ import org.dkf.jed2k.protocol.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 
 public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
@@ -103,7 +104,7 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
     }
 
     static {
-        supportedPacketsKad = new HashMap<PacketKey, Class<? extends Serializable>>();
+        supportedPacketsKad = new TreeMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyKad = new HashMap<Class<? extends Serializable>, PacketKey>();
 
 

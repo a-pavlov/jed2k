@@ -19,7 +19,8 @@ public abstract class PacketCombiner {
         OP_EDONKEYPROT(0xE3),
         OP_PACKEDPROT(0xD4),
         OP_EMULEPROT(0xC5),
-    	OP_KAD_COMPRESSED_UDP(0xE5);
+    	OP_KAD_COMPRESSED_UDP(0xE5),
+        OP_KADEMLIAHEADER(0xE4);
 
         public final byte value;
 
