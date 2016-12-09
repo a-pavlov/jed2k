@@ -620,9 +620,21 @@ public class RoutingTable {
         }
     }
 
+    public List<NodeEntry> findNode(final KadId target, boolean includeFailed, int count) {
+        List<NodeEntry> res = findNodeImpl(target, includeFailed, count);
+        Collections.sort(res, new Comparator<NodeEntry>() {
+            @Override
+            public int compare(NodeEntry o1, NodeEntry o2) {
+                return KadId.compareRef(o1.getId(), o2.getId(), target)*-1;
+            }
+        });
+
+        return res;
+    }
+
     // fills the vector with the k nodes from our buckets that
     // are nearest to the given id.
-    public List<NodeEntry> findNode(final KadId target, boolean includeFailed, int count) {
+    private List<NodeEntry> findNodeImpl(final KadId target, boolean includeFailed, int count) {
         List<NodeEntry> res = new LinkedList<>();
         if (count == 0) count = bucketSize;
 
@@ -657,7 +669,6 @@ public class RoutingTable {
             if (res.size() >= count) return res;
         }
         while (j > 0 && res.size() < count);
-
         return res;
     }
 

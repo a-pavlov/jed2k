@@ -254,6 +254,7 @@ public class DhtTracker extends Thread {
     }
 
     public synchronized void searchKeywords(final String key, final Listener l) throws JED2KException {
+        log.debug("[tracker] search keyword {}", key);
         MD4 md4 = new MD4();
         md4.update(key.getBytes());
         Kad2SearchKeysReq req = new Kad2SearchKeysReq();

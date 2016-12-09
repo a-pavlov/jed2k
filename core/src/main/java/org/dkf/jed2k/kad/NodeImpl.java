@@ -132,7 +132,7 @@ public class NodeImpl {
             // for all real traversers update routing table
             if (ta.containsNewNodes()) {
                 KadId originId = t.getSelfId().equals(new KadId()) ? o.getId() : t.getSelfId();
-                table.nodeSeen(originId, ep);
+                table.nodeSeen(originId, o.getEndpoint());  // do not use incoming endpoint here due to incorrect port!
             }
         }
     }

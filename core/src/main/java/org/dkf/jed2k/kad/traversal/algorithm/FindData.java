@@ -4,12 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.Listener;
+import org.dkf.jed2k.kad.NodeEntry;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.FindDataObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
+
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by inkpot on 07.12.2016.
@@ -23,10 +27,25 @@ public abstract class FindData extends Traversal {
     protected long size = 0;
     protected final Listener sink;
 
-    public FindData(NodeImpl ni, KadId t, long size, Listener l) {
+    public FindData(final NodeImpl ni, final KadId t, long size, final Listener l) {
         super(ni, t);
         this.size = size;
         this.sink = l;
+        List<NodeEntry> nodes = ni.getTable().findNode(t, false, 50);
+        for(final NodeEntry e: nodes) {
+            results.add(newObserver(e.getEndpoint(), e.getId()));
+        }
+
+        boolean sorted = Utils.isSorted(results, new Comparator<Observer>() {
+            @Override
+            public int compare(Observer o1, Observer o2) {
+                return KadId.compareRef(o1.getId(), o2.getId(), t)*-1;
+            }
+        });
+
+        assert sorted;
+
+        log.debug("[find data] initial size {}", results.size());
     }
 
     /**

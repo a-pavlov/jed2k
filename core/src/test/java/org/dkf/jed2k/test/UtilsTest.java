@@ -14,9 +14,7 @@ import org.junit.Test;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static junit.framework.Assert.*;
 import static org.dkf.jed2k.Utils.*;
@@ -208,6 +206,33 @@ public class UtilsTest {
             @Override
             public boolean check(Node node) {
                 return !node.isPinged();
+            }
+        }));
+    }
+
+    @Test
+    public void testIsSorted() {
+        List<Integer> empty = new LinkedList<Integer>();
+        List<Integer> sorted = new LinkedList<Integer>(Arrays.asList(1,2,3,4,5,6,7));
+        List<Integer> unsorted = new LinkedList<Integer>(Arrays.asList(1,2,7,4,5,6,7));
+        assertTrue(Utils.isSorted(empty, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1.compareTo(o2);
+            }
+        }));
+
+        assertTrue(Utils.isSorted(sorted, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1.compareTo(o2);
+            }
+        }));
+
+        assertFalse(Utils.isSorted(unsorted, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1.compareTo(o2);
             }
         }));
     }

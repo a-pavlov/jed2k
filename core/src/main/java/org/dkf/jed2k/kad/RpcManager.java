@@ -33,7 +33,7 @@ public class RpcManager {
 
     public Observer incoming(final Transaction t, final Endpoint ep) {
         if (destructing) return null;
-        log.trace("[rpc] incoming {} tran size {}", ep, transactions.size());
+        log.trace("[rpc] incoming {} {}", ep, t);
 
         Iterator<Observer> itr = transactions.iterator();
         Observer o = null;
@@ -42,12 +42,14 @@ public class RpcManager {
             assert o != null;
             assert Utils.isBit(o.getFlags(), Observer.FLAG_QUERIED);
 
+            log.trace("[rpc] check observer {}", o);
+
             /**
              * search for source observer using artificial transaction id, endpoint
              * and if available(packet contains target KAD id) target KAD id in observer and target KAD id in incoming packet
              */
             if (o.getTransactionId() == t.getTransactionId() && o.getTarget().getIP() == ep.getIP()
-                    && (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))) {
+                    /*&& (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))*/) {
                 log.debug("[rpc] reply {} from {}", t, ep);
                 itr.remove();
                 break;

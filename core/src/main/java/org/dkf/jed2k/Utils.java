@@ -9,6 +9,8 @@ import org.dkf.jed2k.protocol.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
 
 public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -247,5 +249,23 @@ public final class Utils {
         }
 
         return -1;
+    }
+
+    public static <T>
+    boolean isSorted(Iterable<T> iterable, final Comparator<T> cmp) {
+        Iterator<T> iter = iterable.iterator();
+
+        if (!iter.hasNext()) {
+            return true;
+        }
+
+        T t = iter.next();
+        while (iter.hasNext()) {
+            T t2 = iter.next();
+            if (cmp.compare(t, t2) > 0) return false;
+            t = t2;
+        }
+
+        return true;
     }
 }

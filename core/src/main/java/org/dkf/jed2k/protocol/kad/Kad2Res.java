@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.UInt8;
@@ -11,6 +12,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 21.11.2016.
  */
 @Getter
+@ToString
 public class Kad2Res extends Transaction {
     private KadId target = new KadId();
     private Container<UInt8, KadEntry> results = Container.makeByte(KadEntry.class);

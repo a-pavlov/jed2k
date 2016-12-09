@@ -1,6 +1,7 @@
 package org.dkf.jed2k.test.kad;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.NodeEntry;
 import org.dkf.jed2k.kad.RoutingTable;
@@ -73,7 +74,15 @@ public class RoutingTableTest {
         }
 
         int liveNodesCount = table.getSize().getLeft();
-        List<NodeEntry> nodes = table.findNode(table.getSelf(), false, liveNodesCount/2);
+        List<NodeEntry> nodes = table.findNode(target, false, liveNodesCount/2);
+
+        assertTrue(Utils.isSorted(nodes, new Comparator<NodeEntry>() {
+            @Override
+            public int compare(NodeEntry o1, NodeEntry o2) {
+                return KadId.compareRef(o1.getId(), o2.getId(), target)*-1;
+            }
+        }));
+
         assertEquals(liveNodesCount/2, nodes.size());
     }
 
