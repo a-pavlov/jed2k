@@ -479,6 +479,9 @@ public final class Tag implements Serializable {
         case TAGTYPE_BLOB:
             value = new ByteContainer<UInt32>(uint32());
             break;
+        case TAGTYPE_BSOB:
+            value = new ByteContainer<UInt8>(uint8());
+            break;
         case TAGTYPE_BOOLARRAY:
             value = new BoolArraySerial();
             break;
