@@ -45,7 +45,7 @@ public class Kad2ResTest {
     public void testKad2SearchResTestLarge() throws IOException, JED2KException {
         Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("dump98").getFile());
+        File file = new File(classLoader.getResource("kad2_search_res_2.dat").getFile());
         assertTrue(file != null);
         RandomAccessFile reader = new RandomAccessFile(file, "r");
         FileChannel inChannel = reader.getChannel();
@@ -60,6 +60,6 @@ public class Kad2ResTest {
         Kad2SearchRes res = new Kad2SearchRes();
         res.get(buffer);
         assertFalse(buffer.hasRemaining());
-        assertEquals(9, res.getResults().size());
+        assertEquals(8, res.getResults().size());
     }
 }
