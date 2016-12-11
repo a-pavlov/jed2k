@@ -24,7 +24,6 @@ public class Bootstrap extends Traversal {
     @Override
     public boolean invoke(final Observer o) {
         Kad2BootstrapReq ping = new Kad2BootstrapReq();
-        o.setTransactionId(ping.getTransactionId());
         return nodeImpl.invoke(ping, o.getEndpoint(), o);
     }
 

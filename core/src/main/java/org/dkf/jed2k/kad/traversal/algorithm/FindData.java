@@ -62,7 +62,6 @@ public abstract class FindData extends Traversal {
         Kad2Req req = new Kad2Req();
         req.setReceiver(o.getId());
         req.setTarget(target);
-        o.setTransactionId(req.getTransactionId());
         update(req);
         return nodeImpl.invoke(req, o.getEndpoint(), o);
     }

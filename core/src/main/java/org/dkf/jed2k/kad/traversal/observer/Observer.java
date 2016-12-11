@@ -93,4 +93,11 @@ public abstract class Observer {
     }
 
     public abstract void reply(final Transaction t, final Endpoint endpoint);
+
+    /**
+     * checks transaction is expected by this observer
+     * @param t
+     * @return
+     */
+    public abstract boolean isExpectedTransaction(final Transaction t);
 }

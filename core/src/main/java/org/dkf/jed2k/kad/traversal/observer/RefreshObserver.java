@@ -21,4 +21,9 @@ public class RefreshObserver extends Observer {
         assert res != null;
         done();
     }
+
+    @Override
+    public boolean isExpectedTransaction(Transaction t) {
+        return t instanceof Kad2HelloRes;
+    }
 }

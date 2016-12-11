@@ -27,4 +27,9 @@ public class BootstrapObserver extends Observer {
         }
         done();
     }
+
+    @Override
+    public boolean isExpectedTransaction(Transaction t) {
+        return t instanceof Kad2BootstrapRes;
+    }
 }

@@ -46,7 +46,7 @@ public class RpcManager {
              * search for source observer using artificial transaction id, endpoint
              * and if available(packet contains target KAD id) target KAD id in observer and target KAD id in incoming packet
              */
-            if (o.getTransactionId() == t.getTransactionId() && o.getTarget().getIP() == ep.getIP()
+            if (o.isExpectedTransaction(t) && o.getTarget().getIP() == ep.getIP()
                     /*&& (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))*/) {
                 log.debug("[rpc] reply {} from {}", t, ep);
                 itr.remove();

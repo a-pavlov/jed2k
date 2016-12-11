@@ -18,4 +18,9 @@ public class NullObserver extends Observer {
     public void reply(Transaction t, Endpoint endpoint) {
         done();
     }
+
+    @Override
+    public boolean isExpectedTransaction(Transaction t) {
+        return true;
+    }
 }
