@@ -11,8 +11,8 @@ import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.ObserverCompareRef;
 
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -36,12 +36,7 @@ public abstract class FindData extends Traversal {
             results.add(newObserver(e.getEndpoint(), e.getId()));
         }
 
-        boolean sorted = Utils.isSorted(results, new Comparator<Observer>() {
-            @Override
-            public int compare(Observer o1, Observer o2) {
-                return KadId.compareRef(o1.getId(), o2.getId(), t)*-1;
-            }
-        });
+        boolean sorted = Utils.isSorted(results, new ObserverCompareRef(t));
 
         assert sorted;
 
