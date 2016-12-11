@@ -81,7 +81,7 @@ public abstract class FindData extends Traversal {
             }
 
             d.start();
-
+            log.debug("[find data] direct search started {}", target);
         } catch(JED2KException e) {
             log.error("[traversal] unable to start search sources algorithm {}", e);
         } finally {
