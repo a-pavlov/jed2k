@@ -4,11 +4,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * Created by inkpot on 23.11.2016.
@@ -16,11 +19,16 @@ import java.net.InetSocketAddress;
 @Getter
 @ToString
 @EqualsAndHashCode(exclude = {"timeoutCount", "firstSeen"})
-public class NodeEntry {
-    private Endpoint endpoint;
+public class NodeEntry implements Serializable {
     private KadId id;
+    private Endpoint endpoint;
     private int timeoutCount;
     private long firstSeen;
+
+    public NodeEntry() {
+        id = new KadId();
+        endpoint = new Endpoint(0, 0);
+    }
 
     public NodeEntry(final KadId id_, final Endpoint address, boolean pinged) {
         this.id = id_;
@@ -46,4 +54,19 @@ public class NodeEntry {
     public int failCount() { return isPinged() ? timeoutCount : 0; }
     public void resetFailCount() { if (isPinged()) timeoutCount = 0; }
     public boolean isConfirmed() { return timeoutCount == 0; }
+
+    @Override
+    public ByteBuffer get(ByteBuffer src) throws JED2KException {
+        return endpoint.get(id.get(src));
+    }
+
+    @Override
+    public ByteBuffer put(ByteBuffer dst) throws JED2KException {
+        return endpoint.put(id.put(dst));
+    }
+
+    @Override
+    public int bytesCount() {
+        return id.bytesCount() + endpoint.bytesCount();
+    }
 }

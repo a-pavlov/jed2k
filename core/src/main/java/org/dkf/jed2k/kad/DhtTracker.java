@@ -93,7 +93,6 @@ public class DhtTracker extends Thread {
             }
 
             node.abort();
-            node = null;
 
             log.debug("[tracker] tracker finished");
         }
@@ -288,5 +287,15 @@ public class DhtTracker extends Thread {
 
     public synchronized String getRoutingTableStatus() {
         return node.getRoutingTableStatus();
+    }
+
+    /**
+     *
+     * @return current routing table status
+     */
+    public synchronized Container<UInt32, NodeEntry> getTrackerState() {
+        DhtState stateCollector = new DhtState();
+        node.getTable().forEach(stateCollector);
+        return stateCollector.getEntries();
     }
 }

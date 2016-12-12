@@ -212,11 +212,7 @@ public abstract class Traversal {
             // branch factor for it, and we should restore it
             if (Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT)) --branchFactor;
 
-            // don't tell the routing table about
-            // node ids that we just generated ourself
-            if ((o.getFlags() & Observer.FLAG_NO_ID) == 0) {
-                nodeImpl.getTable().nodeFailed(o.getId(), o.getEndpoint());
-            }
+            writeFailedObserverToRoutingTable(o);
 
             ++timeouts;
             --invokeCount;
@@ -234,6 +230,14 @@ public abstract class Traversal {
 
         addRequests();
         if (invokeCount == 0) done();
+    }
+
+    public void writeFailedObserverToRoutingTable(final Observer o) {
+        // don't tell the routing table about
+        // node ids that we just generated ourself
+        if ((o.getFlags() & Observer.FLAG_NO_ID) == 0) {
+            nodeImpl.getTable().nodeFailed(o.getId(), o.getEndpoint());
+        }
     }
 
     public void finished(final Observer o) {

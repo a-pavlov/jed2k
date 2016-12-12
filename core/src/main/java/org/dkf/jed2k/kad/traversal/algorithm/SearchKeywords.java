@@ -29,4 +29,9 @@ public class SearchKeywords extends Direct {
         ssk.setTarget(target);
         return nodeImpl.invoke(ssk, o.getEndpoint(), o);
     }
+
+    @Override
+    public void writeFailedObserverToRoutingTable(final Observer o) {
+        // do nothing since peer possibly has no information for us
+    }
 }

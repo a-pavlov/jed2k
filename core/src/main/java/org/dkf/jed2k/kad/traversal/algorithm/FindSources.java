@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeImpl;
+import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
 
@@ -26,5 +27,10 @@ public class FindSources extends FindData {
     @Override
     protected Direct newTraversal() throws JED2KException {
         return new SearchSources(nodeImpl, target, size, sink);
+    }
+
+    @Override
+    public void writeFailedObserverToRoutingTable(final Observer o) {
+        // do nothing since peer possibly has no information for us
     }
 }

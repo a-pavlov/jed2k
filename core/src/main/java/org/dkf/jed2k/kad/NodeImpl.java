@@ -134,6 +134,8 @@ public class NodeImpl {
                 KadId originId = t.getSelfId().equals(new KadId()) ? o.getId() : t.getSelfId();
                 table.nodeSeen(originId, o.getEndpoint());  // do not use incoming endpoint here due to incorrect port!
             }
+        } else {
+            // process incoming requests here
         }
     }
 
