@@ -249,6 +249,7 @@ public class DhtTracker extends Thread {
     }
 
     public void addEntries(final List<NodeEntry> entries) {
+        assert entries != null;
         commands.add(new Runnable() {
             @Override
             public void run() {

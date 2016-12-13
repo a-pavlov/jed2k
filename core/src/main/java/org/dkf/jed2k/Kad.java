@@ -83,7 +83,11 @@ public class Kad {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         DhtTracker tracker = new DhtTracker(9999, target);
         tracker.start();
-        tracker.addEntries(entries.getList());
+        if (entries.getList() != null) {
+            tracker.addEntries(entries.getList());
+        } else {
+            log.debug("[KAD] previous nodes list is empty");
+        }
 
         while ((command = in.readLine()) != null) {
             String[] parts = command.split("\\s+");
