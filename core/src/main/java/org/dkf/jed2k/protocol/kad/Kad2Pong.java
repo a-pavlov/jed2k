@@ -29,9 +29,4 @@ public class Kad2Pong extends Transaction {
     public int bytesCount() {
         return portUdp.bytesCount();
     }
-
-    @Override
-    public byte getTransactionId() {
-        return Transaction.PING_PONG;
-    }
 }

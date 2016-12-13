@@ -15,6 +15,14 @@ public class KadEntry implements Serializable {
     private KadEndpoint kadEndpoint = new KadEndpoint();
     private byte version;
 
+    public KadEntry() {
+
+    }
+
+    public KadEntry(final KadId id, final KadEndpoint endpoint) {
+
+    }
+
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         version = kadEndpoint.get(kid.get(src)).get();

@@ -43,11 +43,6 @@ public class Kad2Hello extends Transaction {
     }
 
     @Override
-    public byte getTransactionId() {
-        return Transaction.HELLO;
-    }
-
-    @Override
     public KadId getSelfId() {
         return kid;
     }

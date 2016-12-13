@@ -22,9 +22,4 @@ public class Kad2BootstrapReq extends Transaction {
     public int bytesCount() {
         return 0;
     }
-
-    @Override
-    public byte getTransactionId() {
-        return Transaction.BOOTSTRAP;
-    }
 }

@@ -34,11 +34,6 @@ public class Kad2SearchSourcesReq extends Transaction {
     }
 
     @Override
-    public byte getTransactionId() {
-        return Transaction.SEARCH;
-    }
-
-    @Override
     public KadId getTargetId() {
         return target;
     }

@@ -146,7 +146,7 @@ public class DhtTracker extends Thread {
             Transaction t = (Transaction)s;
             assert t != null;
             log.debug("[tracker] packet {}: {}", t.bytesCount(), t);
-            node.incoming(t, Endpoint.fromInet(address));
+            node.incoming(t, address);
         } catch (IOException e) {
             log.error("[tracker] I/O exception {} on reading packet {}", e, incomingHeader);
         } catch (JED2KException e) {

@@ -22,9 +22,4 @@ public class Kad2Ping extends Transaction {
     public int bytesCount() {
         return 0;
     }
-
-    @Override
-    public byte getTransactionId() {
-        return Transaction.PING_PONG;
-    }
 }

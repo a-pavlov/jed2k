@@ -12,13 +12,12 @@ import org.dkf.jed2k.kad.traversal.observer.NullObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.kad.Kad2Ping;
-import org.dkf.jed2k.protocol.kad.KadId;
-import org.dkf.jed2k.protocol.kad.Transaction;
+import org.dkf.jed2k.protocol.kad.*;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
 
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -120,7 +119,10 @@ public class NodeImpl {
         return SEARCH_BRANCHING;
     }
 
-    public void incoming(final Transaction t, final Endpoint ep) {
+    public void incoming(final Transaction t, final InetSocketAddress address) {
+        final Endpoint ep = Endpoint.fromInet(address);
+        log.trace("[node] << {}: {}", address, t);
+
         Observer o = rpc.incoming(t, ep);
 
         if (o != null) {
@@ -136,6 +138,50 @@ public class NodeImpl {
             }
         } else {
             // process incoming requests here
+            if (t instanceof Kad2Ping) {
+                Kad2Pong pong = new Kad2Pong();
+                pong.getPortUdp().assign(port);
+                tracker.write(pong, address);
+                log.debug("[node] >> {}: {}", ep, pong);
+            }
+            else if (t instanceof Kad2HelloReq) {
+                Kad2HelloRes hello = new Kad2HelloRes();
+                hello.setKid(getSelf());
+                hello.getPortTcp().assign(getPort());
+                hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+                tracker.write(hello, address);
+                log.debug("[node] >> {}: {}", ep, hello);
+            }
+            else if (t instanceof Kad2SearchKeysReq) {
+                log.debug("[node] temporary ignore kad search key request");
+            }
+            else if (t instanceof Kad2SearchSourcesReq) {
+                log.debug("[node] temporary ignore kad search sources request");
+            }
+            else if (t instanceof Kad2SearchNotesReq) {
+                log.debug("[node] temporary ignore kad search notes request");
+            }
+            else if (t instanceof Kad2Req) {
+                Kad2Req req = (Kad2Req)t;
+                if (req.getSearchType() != FindData.KADEMLIA_FIND_NODE
+                        && req.getSearchType() != FindData.KADEMLIA_FIND_VALUE
+                        && req.getSearchType() != FindData.KADEMLIA_STORE) {
+                    log.warn("[node] << {} incorrect search type in packet {}", ep, t);
+                }
+                else {
+                    Kad2Res res = new Kad2Res();
+                    List<NodeEntry> entries = table.findNode(req.getTarget(), false, (int)req.getSearchType());
+                    res.setTarget(req.getTarget());
+                    for(final NodeEntry e: entries) {
+                        //res.getResults().add(new KadEntry())
+                    }
+
+                    log.debug("[node] temporary do nothing on kad request");
+                }
+            }
+            else {
+                log.debug("[node] temporary skip unhandled packet");
+            }
         }
     }
 

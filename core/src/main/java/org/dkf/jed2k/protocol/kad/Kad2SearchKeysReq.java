@@ -30,9 +30,4 @@ public class Kad2SearchKeysReq extends Transaction {
     public int bytesCount() {
         return target.bytesCount() + startPos.bytesCount();
     }
-
-    @Override
-    public byte getTransactionId() {
-        return Transaction.SEARCH;
-    }
 }

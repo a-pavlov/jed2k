@@ -36,9 +36,4 @@ public class Kad2BootstrapRes extends Transaction {
     public int bytesCount() {
         return kid.bytesCount() + portTcp.bytesCount() + version.bytesCount() + contacts.bytesCount();
     }
-
-    @Override
-    public byte getTransactionId() {
-        return Transaction.BOOTSTRAP;
-    }
 }

@@ -19,11 +19,6 @@ public class Kad2Req extends Transaction {
     private KadId receiver = new KadId();
 
     @Override
-    public byte getTransactionId() {
-        return Transaction.REQ_RES;
-    }
-
-    @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         searchType = src.get();
         return receiver.get(target.get(src));

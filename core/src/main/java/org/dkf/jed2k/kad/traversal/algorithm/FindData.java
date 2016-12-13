@@ -23,6 +23,7 @@ public abstract class FindData extends Traversal {
 
     public static final byte KADEMLIA_FIND_NODE = (byte)0x0b;
     public static final byte KADEMLIA_FIND_VALUE = (byte)0x02;
+    public static final byte KADEMLIA_STORE = (byte)0x04;
 
     protected long size = 0;
     protected final Listener sink;
