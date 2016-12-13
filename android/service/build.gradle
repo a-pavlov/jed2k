@@ -32,6 +32,7 @@ android {
             java {
                 srcDirs += '../../core/src/main/java'
                 exclude '**/Conn.java'
+                exclude '**/Kad.java'
                 //include '../../core/src/main/resources/server.met'
             }
 
