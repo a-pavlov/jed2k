@@ -131,6 +131,13 @@ public class NodeImpl {
             // else use KAD id from observer
             Traversal ta = o.getAlgorithm();
             assert ta != null;
+            //KadId originId = o.getId();
+
+            //if (t instanceof Kad2HelloRes) {
+            //    originId = ((Kad2HelloRes)t).getKid();
+            //}
+            //else if (t instanceof Kad2BootstrapRes) {
+            //}
             // for all real traversers update routing table
             if (ta.containsNewNodes()) {
                 KadId originId = t.getSelfId().equals(new KadId()) ? o.getId() : t.getSelfId();
