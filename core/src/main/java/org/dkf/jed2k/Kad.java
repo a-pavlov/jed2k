@@ -3,11 +3,13 @@ package org.dkf.jed2k;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeEntry;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,12 +22,30 @@ import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by inkpot on 22.11.2016.
  */
 @Slf4j
 public class Kad {
+
+    private static class SearchReport implements Listener {
+        private final KadId target;
+
+        public SearchReport(final KadId id) {
+            target = id;
+        }
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            log.info("[KAD] search for {} finished, results {}", target, data.size());
+            for(final KadSearchEntry e: data) {
+                log.info("[KAD] {}", e);
+            }
+            log.info("[KAD] report done.");
+        }
+    }
 
     public static void main(String[] args) throws IOException, JED2KException {
         log.info("[KAD] starting");
@@ -83,7 +103,7 @@ public class Kad {
             }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 log.info("search {}", parts[1]);    // temporary search only first keyword
-                tracker.searchKeywords(parts[1], null);
+                tracker.searchKeywords(parts[1], new SearchReport(new KadId()));    // target id is not important here
             }
             else if (parts[0].compareTo("hello") == 0 && parts.length == 3) {
                 log.info("[KAD] hello to {}:{}", parts[1], parts[2]);
