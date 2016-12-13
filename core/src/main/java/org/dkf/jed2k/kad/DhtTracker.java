@@ -248,6 +248,21 @@ public class DhtTracker extends Thread {
         node.addNode(endpoint, id);
     }
 
+    public void addEntries(final List<NodeEntry> entries) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                for(final NodeEntry e: entries) {
+                    try {
+                        node.addNode(e.getEndpoint(), e.getId());
+                    } catch(JED2KException ex) {
+                        log.error("[tracker] unable to add node {} due to error {}", e, ex);
+                    }
+                }
+            }
+        });
+    }
+
     public synchronized void bootstrapTest(final InetSocketAddress ep) {
         write(new Kad2BootstrapReq(), ep);
     }

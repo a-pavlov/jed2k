@@ -83,6 +83,7 @@ public class Kad {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         DhtTracker tracker = new DhtTracker(9999, target);
         tracker.start();
+        tracker.addEntries(entries.getList());
 
         while ((command = in.readLine()) != null) {
             String[] parts = command.split("\\s+");
