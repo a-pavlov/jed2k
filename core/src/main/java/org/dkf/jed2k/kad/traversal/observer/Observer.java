@@ -29,6 +29,10 @@ public abstract class Observer {
     protected final Traversal algorithm;
     protected final Endpoint endpoint;
     protected KadId id;
+    // TODO - for future usage
+    protected int portTcp;
+    protected byte version;
+    // end
     protected long sentTime;
     protected int flags = 0;
     protected byte transactionId;
@@ -36,10 +40,17 @@ public abstract class Observer {
     private boolean wasAbandoned = false;
     private boolean wasSent = false;
 
-    public Observer(final Traversal algorithm, final Endpoint ep, final KadId id) {
+    public Observer(final Traversal algorithm
+            , final Endpoint ep
+            , final KadId id
+            //, int portTcp
+            //, byte version
+    ) {
         this.algorithm = algorithm;
         this.endpoint = ep;
         this.id = id;
+        //this.portTcp = portTcp;
+        //this.version = version;
         this.sentTime = 0;
     }
 

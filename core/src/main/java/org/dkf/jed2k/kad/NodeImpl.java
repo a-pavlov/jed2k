@@ -131,17 +131,25 @@ public class NodeImpl {
             // else use KAD id from observer
             Traversal ta = o.getAlgorithm();
             assert ta != null;
-            //KadId originId = o.getId();
+            KadId originId = o.getId();
 
-            //if (t instanceof Kad2HelloRes) {
-            //    originId = ((Kad2HelloRes)t).getKid();
-            //}
-            //else if (t instanceof Kad2BootstrapRes) {
-            //}
-            // for all real traversers update routing table
-            if (ta.containsNewNodes()) {
-                KadId originId = t.getSelfId().equals(new KadId()) ? o.getId() : t.getSelfId();
-                table.nodeSeen(originId, o.getEndpoint());  // do not use incoming endpoint here due to incorrect port!
+            if (t instanceof Kad2HelloRes) {
+                Kad2HelloRes res = (Kad2HelloRes)t;
+                table.nodeSeen(res.getKid()
+                        , o.getEndpoint()
+                        , res.getPortTcp().intValue()
+                        , res.getVersion().byteValue());
+            }
+            else if (t instanceof Kad2BootstrapRes) {
+                for(final KadEntry e: ((Kad2BootstrapRes)t).getContacts()) {
+                    table.nodeSeen(e.getKid()
+                            , e.getKadEndpoint().getEndpoint()
+                            , e.getKadEndpoint().getPortTcp().intValue()
+                            , e.getVersion());
+                }
+            } else if (t instanceof Kad2Pong) {
+                // takes data directly from observer here
+
             }
         } else {
             // process incoming requests here

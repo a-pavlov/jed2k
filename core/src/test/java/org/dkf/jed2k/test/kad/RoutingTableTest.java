@@ -43,7 +43,7 @@ public class RoutingTableTest {
         Set<NodeEntry> aliveNodes = new HashSet<>();
         List<NodeEntry> allNodes = new ArrayList<>();
         for(int i = 0; i < 200; ++i) {
-            NodeEntry entry = new NodeEntry(new KadId(KadId.random(false)), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), rnd.nextBoolean());
+            NodeEntry entry = new NodeEntry(new KadId(KadId.random(false)), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), rnd.nextBoolean(), 0, (byte)0);
             table.addNode(entry);
             allNodes.add(entry);
             if (entry.isPinged()) aliveNodes.add(entry);
@@ -95,7 +95,7 @@ public class RoutingTableTest {
             while(true) {
                 KadId id = getDistinctId();
                 entries.add(id);
-                table.addNode(new NodeEntry(id, new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true));
+                table.addNode(new NodeEntry(id, new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true, 0, (byte)0));
                 break;
             }
         }
@@ -103,25 +103,25 @@ public class RoutingTableTest {
         assertEquals(10, table.getSize().left.intValue());
         assertEquals(1, table.getBucketsCount());
 
-        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false, 0, (byte)0));
         assertEquals(10, table.getSize().left.intValue());
         assertEquals(1, table.getSize().right.intValue());
         for(int i = 0; i < 9; ++i) {
-            table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
+            table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false, 0, (byte)0));
         }
 
         assertEquals(10, table.getSize().left.intValue());
         assertEquals(10, table.getSize().right.intValue());
         assertEquals(1, table.getBucketsCount());
 
-        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
-        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false));
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false, 0, (byte)0));
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), false, 0, (byte)0));
 
         assertEquals(10, table.getSize().left.intValue());
         assertEquals(10, table.getSize().right.intValue());
         assertEquals(1, table.getBucketsCount());
 
-        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true));
+        table.addNode(new NodeEntry(getDistinctId(), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true, 0, (byte)0));
         assertEquals(2, table.getBucketsCount());
         assertTrue(table.getSize().left.intValue() > 10);
         assertTrue(table.getSize().left.intValue() <= 20);
@@ -132,7 +132,7 @@ public class RoutingTableTest {
     @Test
     public void testFindNodeAndTimeout() throws JED2KException {
         RoutingTable table = new RoutingTable(target, 4);
-        NodeEntry entry = new NodeEntry(getDistinctId(), Endpoint.fromString("88.22.0.33", 1020), true);
+        NodeEntry entry = new NodeEntry(getDistinctId(), Endpoint.fromString("88.22.0.33", 1020), true, 0, (byte)0);
         table.addNode(entry);
         List<NodeEntry> entries = table.findNode(target, false, 1);
         assertEquals(1, entries.size());
@@ -149,7 +149,7 @@ public class RoutingTableTest {
         Random rnd = new Random();
         RoutingTable table = new RoutingTable(target, 50);
         for(int i = 0; i < 150000; ++i) {
-            table.addNode(new NodeEntry(new KadId(KadId.random(false)), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), rnd.nextBoolean()));
+            table.addNode(new NodeEntry(new KadId(KadId.random(false)), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), rnd.nextBoolean(), 0, (byte)0));
         }
 
         log.info("table buckets count {} total nodes {}", table.getBucketsCount(), table.getSize());

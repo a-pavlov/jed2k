@@ -595,7 +595,7 @@ public class RoutingTable {
 
     // was spoofed or not (i.e. pinged == false)
     public void heardAbout(final KadId id, final Endpoint ep) {
-        addNode(new NodeEntry(id, ep, false));
+        addNode(new NodeEntry(id, ep, false, 0, (byte)0));
     }
 
     // this function is called every time the node sees
@@ -605,8 +605,8 @@ public class RoutingTable {
     // the return value indicates if the table needs a refresh.
     // if true, the node should refresh the table (i.e. do a find_node
     // on its own id)
-    public boolean nodeSeen(final KadId id, final Endpoint ep) {
-        return addNode(new NodeEntry(id, ep, true));
+    public boolean nodeSeen(final KadId id, final Endpoint ep, int tcpPort, byte version) {
+        return addNode(new NodeEntry(id, ep, true, tcpPort, version));
     }
 
     private void copy(int bucketIndex, List<NodeEntry> res, boolean includeFailed, int count) {

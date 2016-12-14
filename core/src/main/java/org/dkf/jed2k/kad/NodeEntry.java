@@ -22,6 +22,8 @@ import java.nio.ByteBuffer;
 public class NodeEntry implements Serializable {
     private KadId id;
     private Endpoint endpoint;
+    private int portTcp = 0;
+    private byte version = 0;
     private int timeoutCount;
     private long firstSeen;
 
@@ -30,10 +32,12 @@ public class NodeEntry implements Serializable {
         endpoint = new Endpoint(0, 0);
     }
 
-    public NodeEntry(final KadId id_, final Endpoint address, boolean pinged) {
+    public NodeEntry(final KadId id_, final Endpoint address, boolean pinged, int portTcp, byte version) {
         this.id = id_;
         this.endpoint = address;
         this.timeoutCount = (pinged)?0:0xffff;
+        this.portTcp = portTcp;
+        this.version = version;
         firstSeen = Time.currentTime();
     }
 

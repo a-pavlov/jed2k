@@ -14,7 +14,12 @@ import org.dkf.jed2k.protocol.kad.Transaction;
 @Slf4j
 public class BootstrapObserver extends Observer {
 
-    public BootstrapObserver(final Traversal algorithm, final Endpoint ep, final KadId id) {
+    public BootstrapObserver(final Traversal algorithm
+            , final Endpoint ep
+            , final KadId id
+            //, int portTcp
+            //, byte version
+    ) {
         super(algorithm, ep, id);
     }
 
