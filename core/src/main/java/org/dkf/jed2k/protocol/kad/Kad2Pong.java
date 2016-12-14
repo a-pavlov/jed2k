@@ -3,6 +3,7 @@ package org.dkf.jed2k.protocol.kad;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 
 import java.nio.ByteBuffer;
@@ -12,7 +13,7 @@ import java.nio.ByteBuffer;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Kad2Pong extends Transaction {
+public class Kad2Pong implements Serializable {
     private UInt16 portUdp = new UInt16();
 
     @Override

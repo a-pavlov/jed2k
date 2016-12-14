@@ -12,6 +12,7 @@ import org.dkf.jed2k.kad.traversal.observer.NullObserver;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.*;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
@@ -126,36 +127,36 @@ public class NodeImpl {
         return SEARCH_BRANCHING;
     }
 
-    public void incoming(final Transaction t, final InetSocketAddress address) {
+    public void incoming(final Serializable s, final InetSocketAddress address) {
         final Endpoint ep = Endpoint.fromInet(address);
-        log.trace("[node] << {}: {}", address, t);
+        log.trace("[node] << {}: {}", address, s);
 
-        Observer o = rpc.incoming(t, ep);
+        Observer o = rpc.incoming(s, ep);
 
         if (o != null) {
-            o.reply(t, ep);
+            o.reply(s, ep);
             // if we have endpoint's KAD id in packet - use it
             // else use KAD id from observer
             Traversal ta = o.getAlgorithm();
             assert ta != null;
             KadId originId = o.getId();
 
-            if (t instanceof Kad2HelloRes) {
-                Kad2HelloRes res = (Kad2HelloRes)t;
+            if (s instanceof Kad2HelloRes) {
+                Kad2HelloRes res = (Kad2HelloRes)s;
                 table.nodeSeen(res.getKid()
                         , o.getEndpoint()
                         , res.getPortTcp().intValue()
                         , res.getVersion().byteValue());
             }
-            else if (t instanceof Kad2BootstrapRes) {
+            else if (s instanceof Kad2BootstrapRes) {
                 // update self in routing table
-                table.nodeSeen(((Kad2BootstrapRes)t).getKid()
+                table.nodeSeen(((Kad2BootstrapRes)s).getKid()
                     , o.getEndpoint()
-                    , ((Kad2BootstrapRes)t).getPortTcp().intValue()
-                    , ((Kad2BootstrapRes)t).getVersion().byteValue());
+                    , ((Kad2BootstrapRes)s).getPortTcp().intValue()
+                    , ((Kad2BootstrapRes)s).getVersion().byteValue());
 
                 // register sources
-                for(final KadEntry e: ((Kad2BootstrapRes)t).getContacts()) {
+                for(final KadEntry e: ((Kad2BootstrapRes)s).getContacts()) {
                     table.nodeSeen(e.getKid()
                             , e.getKadEndpoint().getEndpoint()
                             , e.getKadEndpoint().getPortTcp().intValue()
@@ -167,13 +168,13 @@ public class NodeImpl {
             }
         } else {
             // process incoming requests here
-            if (t instanceof Kad2Ping) {
+            if (s instanceof Kad2Ping) {
                 Kad2Pong pong = new Kad2Pong();
                 pong.getPortUdp().assign(port);
                 tracker.write(pong, address);
                 log.debug("[node] >> {}: {}", ep, pong);
             }
-            else if (t instanceof Kad2HelloReq) {
+            else if (s instanceof Kad2HelloReq) {
                 Kad2HelloRes hello = new Kad2HelloRes();
                 hello.setKid(getSelf());
                 hello.getPortTcp().assign(getPort());
@@ -181,21 +182,21 @@ public class NodeImpl {
                 tracker.write(hello, address);
                 log.debug("[node] >> {}: {}", ep, hello);
             }
-            else if (t instanceof Kad2SearchKeysReq) {
+            else if (s instanceof Kad2SearchKeysReq) {
                 log.debug("[node] temporary ignore kad search key request");
             }
-            else if (t instanceof Kad2SearchSourcesReq) {
+            else if (s instanceof Kad2SearchSourcesReq) {
                 log.debug("[node] temporary ignore kad search sources request");
             }
-            else if (t instanceof Kad2SearchNotesReq) {
+            else if (s instanceof Kad2SearchNotesReq) {
                 log.debug("[node] temporary ignore kad search notes request");
             }
-            else if (t instanceof Kad2Req) {
-                Kad2Req req = (Kad2Req)t;
+            else if (s instanceof Kad2Req) {
+                Kad2Req req = (Kad2Req)s;
                 if (req.getSearchType() != FindData.KADEMLIA_FIND_NODE
                         && req.getSearchType() != FindData.KADEMLIA_FIND_VALUE
                         && req.getSearchType() != FindData.KADEMLIA_STORE) {
-                    log.warn("[node] << {} incorrect search type in packet {}", ep, t);
+                    log.warn("[node] << {} incorrect search type in packet {}", ep, s);
                 }
                 else {
                     Kad2Res res = new Kad2Res();
@@ -209,14 +210,14 @@ public class NodeImpl {
                 }
             }
             else {
-                log.debug("[node] temporary skip unhandled packet {}", t);
+                log.debug("[node] temporary skip unhandled packet {}", s);
             }
         }
     }
 
-    public boolean invoke(final Transaction t, final Endpoint ep, final Observer o) {
+    public boolean invoke(final Serializable s, final Endpoint ep, final Observer o) {
         try {
-            if (tracker.write(t, ep.toInetSocketAddress())) {
+            if (tracker.write(s, ep.toInetSocketAddress())) {
                 // register transaction if packet was sent
                 rpc.invoke(o);
                 o.setWasSent(true);

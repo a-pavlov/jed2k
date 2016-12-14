@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.KadId;
-import org.dkf.jed2k.protocol.kad.Transaction;
 
 /**
  * Created by inkpot on 21.11.2016.
@@ -103,12 +103,12 @@ public abstract class Observer {
                 +  (Utils.isBit(flags, FLAG_DONE)?"|FLAG_DONE":"");
     }
 
-    public abstract void reply(final Transaction t, final Endpoint endpoint);
+    public abstract void reply(final Serializable s, final Endpoint endpoint);
 
     /**
      * checks transaction is expected by this observer
-     * @param t
+     * @param s
      * @return
      */
-    public abstract boolean isExpectedTransaction(final Transaction t);
+    public abstract boolean isExpectedTransaction(final Serializable s);
 }

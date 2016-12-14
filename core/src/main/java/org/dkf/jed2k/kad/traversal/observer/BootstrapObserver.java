@@ -3,10 +3,10 @@ package org.dkf.jed2k.kad.traversal.observer;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.Kad2BootstrapRes;
 import org.dkf.jed2k.protocol.kad.KadEntry;
 import org.dkf.jed2k.protocol.kad.KadId;
-import org.dkf.jed2k.protocol.kad.Transaction;
 
 /**
  * Created by inkpot on 01.12.2016.
@@ -24,9 +24,9 @@ public class BootstrapObserver extends Observer {
     }
 
     @Override
-    public void reply(Transaction t, Endpoint endpoint) {
-        Kad2BootstrapRes res = (Kad2BootstrapRes)t;
-        assert t != null;
+    public void reply(Serializable s, Endpoint endpoint) {
+        Kad2BootstrapRes res = (Kad2BootstrapRes)s;
+        assert s != null;
         for(KadEntry entry: res.getContacts()) {
             algorithm.traverse(entry.getKadEndpoint().getEndpoint()
                     , entry.getKid()
@@ -37,7 +37,7 @@ public class BootstrapObserver extends Observer {
     }
 
     @Override
-    public boolean isExpectedTransaction(Transaction t) {
+    public boolean isExpectedTransaction(final Serializable t) {
         return t instanceof Kad2BootstrapRes;
     }
 }

@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt8;
 
 import java.nio.ByteBuffer;
@@ -15,7 +16,7 @@ import java.nio.ByteBuffer;
 @Getter
 @Setter
 @ToString
-public class Kad2Res extends Transaction {
+public class Kad2Res implements Serializable {
     private KadId target = new KadId();
     private Container<UInt8, KadEntry> results = Container.makeByte(KadEntry.class);
 
@@ -34,8 +35,9 @@ public class Kad2Res extends Transaction {
         return target.bytesCount() + results.bytesCount();
     }
 
-    @Override
-    public KadId getTargetId() {
-        return target;
-    }
+    // TODO - move to rpc manager
+    //@Override
+    //public KadId getTargetId() {
+    //    return target;
+    //}
 }

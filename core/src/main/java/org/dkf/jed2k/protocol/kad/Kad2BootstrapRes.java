@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.UInt8;
 
@@ -16,7 +17,7 @@ import java.nio.ByteBuffer;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public class Kad2BootstrapRes extends Transaction {
+public class Kad2BootstrapRes implements Serializable {
     private KadId kid = new KadId();
     private UInt16 portTcp = new UInt16();
     private UInt8 version = new UInt8();

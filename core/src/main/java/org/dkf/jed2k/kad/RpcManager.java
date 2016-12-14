@@ -5,7 +5,7 @@ import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.kad.Transaction;
+import org.dkf.jed2k.protocol.Serializable;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -31,9 +31,9 @@ public class RpcManager {
         transactions.add(o);
     }
 
-    public Observer incoming(final Transaction t, final Endpoint ep) {
+    public Observer incoming(final Serializable s, final Endpoint ep) {
         if (destructing) return null;
-        log.trace("[rpc] incoming {} {}", ep, t);
+        log.trace("[rpc] incoming {} {}", ep, s);
 
         Iterator<Observer> itr = transactions.iterator();
         Observer o = null;
@@ -46,9 +46,9 @@ public class RpcManager {
              * search for source observer using artificial transaction id, endpoint
              * and if available(packet contains target KAD id) target KAD id in observer and target KAD id in incoming packet
              */
-            if (o.isExpectedTransaction(t) && o.getTarget().getIP() == ep.getIP()
+            if (o.isExpectedTransaction(s) && o.getTarget().getIP() == ep.getIP()
                     /*&& (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))*/) {
-                log.debug("[rpc] reply {} from {}", t, ep);
+                log.debug("[rpc] reply {} from {}", s, ep);
                 itr.remove();
                 break;
             }
@@ -57,7 +57,7 @@ public class RpcManager {
         }
 
         if (o == null) {
-            log.debug("[rpc] reply with unknown transaction id: {} from {}", t, ep);
+            log.debug("[rpc] reply with unknown transaction id: {} from {}", s, ep);
         }
 
         for(final Observer dump: transactions) {

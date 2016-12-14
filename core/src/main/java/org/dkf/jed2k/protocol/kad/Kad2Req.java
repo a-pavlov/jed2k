@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Serializable;
 
 import java.nio.ByteBuffer;
 
@@ -13,7 +14,7 @@ import java.nio.ByteBuffer;
 @Getter
 @Setter
 @ToString
-public class Kad2Req extends Transaction {
+public class Kad2Req implements Serializable {
     private byte searchType;
     private KadId target = new KadId();
     private KadId receiver = new KadId();

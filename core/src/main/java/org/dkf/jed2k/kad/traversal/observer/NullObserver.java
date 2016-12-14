@@ -3,8 +3,8 @@ package org.dkf.jed2k.kad.traversal.observer;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.KadId;
-import org.dkf.jed2k.protocol.kad.Transaction;
 
 /**
  * Created by inkpot on 28.11.2016.
@@ -21,13 +21,13 @@ public class NullObserver extends Observer {
     }
 
     @Override
-    public void reply(Transaction t, Endpoint endpoint) {
+    public void reply(Serializable s, Endpoint endpoint) {
         log.trace("[null] reply");
         flags |= Observer.FLAG_DONE;
     }
 
     @Override
-    public boolean isExpectedTransaction(Transaction t) {
+    public boolean isExpectedTransaction(final Serializable s) {
         return true;
     }
 }

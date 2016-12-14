@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.UInt8;
 import org.dkf.jed2k.protocol.tag.Tag;
@@ -17,7 +18,7 @@ import java.nio.ByteBuffer;
 @Getter
 @Setter
 @ToString
-public class Kad2Hello extends Transaction {
+public class Kad2Hello implements Serializable {
     private KadId kid = new KadId();
     private UInt16 portTcp = new UInt16();
     private UInt8 version = new UInt8();
@@ -42,8 +43,9 @@ public class Kad2Hello extends Transaction {
         return kid.bytesCount() + portTcp.bytesCount() + version.bytesCount() + info.bytesCount();
     }
 
-    @Override
-    public KadId getSelfId() {
-        return kid;
-    }
+    // TODO - move to rpc manager
+    //@Override
+    //public KadId getSelfId() {
+    //    return kid;
+    //}
 }

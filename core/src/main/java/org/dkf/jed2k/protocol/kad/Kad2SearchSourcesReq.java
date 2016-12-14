@@ -3,6 +3,7 @@ package org.dkf.jed2k.protocol.kad;
 import lombok.Getter;
 import lombok.Setter;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.UInt64;
 
@@ -13,7 +14,7 @@ import java.nio.ByteBuffer;
  */
 @Getter
 @Setter
-public class Kad2SearchSourcesReq extends Transaction {
+public class Kad2SearchSourcesReq implements Serializable {
     private KadId target = new KadId();
     private UInt16 startPos = new UInt16();
     private UInt64 size = new UInt64();
@@ -33,8 +34,9 @@ public class Kad2SearchSourcesReq extends Transaction {
         return target.bytesCount() + startPos.bytesCount() + size.bytesCount();
     }
 
-    @Override
-    public KadId getTargetId() {
-        return target;
-    }
+    // TODO - move to rpc manager
+    //@Override
+    //public KadId getTargetId() {
+    //    return target;
+    //}
 }

@@ -143,10 +143,9 @@ public class DhtTracker extends Thread {
 
             incomingHeader.reset(incomingHeader.key(), incomingBuffer.remaining());
             Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
-            Transaction t = (Transaction)s;
-            assert t != null;
-            log.debug("[tracker] packet {}: {}", t.bytesCount(), t);
-            node.incoming(t, address);
+            assert s != null;
+            log.debug("[tracker] packet {}: {}", s.bytesCount(), s);
+            node.incoming(s, address);
         } catch (IOException e) {
             log.error("[tracker] I/O exception {} on reading packet {}", e, incomingHeader);
         } catch (JED2KException e) {
