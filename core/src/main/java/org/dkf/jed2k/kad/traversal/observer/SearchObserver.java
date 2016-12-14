@@ -17,8 +17,12 @@ import java.util.List;
 public class SearchObserver extends Observer {
     private List<KadSearchEntry> entries = null;
 
-    public SearchObserver(Traversal algorithm, Endpoint ep, KadId id) {
-        super(algorithm, ep, id);
+    public SearchObserver(Traversal algorithm
+            , Endpoint ep
+            , KadId id
+            , int portTcp
+            , byte version) {
+        super(algorithm, ep, id, portTcp, version);
     }
 
     @Override

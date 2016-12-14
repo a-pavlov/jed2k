@@ -60,6 +60,10 @@ public class RpcManager {
             log.debug("[rpc] reply with unknown transaction id: {} from {}", t, ep);
         }
 
+        for(final Observer dump: transactions) {
+            log.trace("[rpc] still in list {}", dump);
+        }
+
         return o;
     }
 
@@ -91,6 +95,7 @@ public class RpcManager {
     public void tick() {
         //	look for observers that have timed out
         if (transactions.isEmpty()) return;
+        log.trace("[rpc] transactions size {}", transactions.size());
 
         List<Observer> timeouts = new LinkedList<>();
 

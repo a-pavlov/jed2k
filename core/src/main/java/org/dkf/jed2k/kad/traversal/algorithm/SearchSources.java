@@ -21,8 +21,8 @@ public class SearchSources extends Direct {
     }
 
     @Override
-    public Observer newObserver(Endpoint endpoint, KadId id) {
-        return new SearchObserver(this, endpoint, id);
+    public Observer newObserver(Endpoint endpoint, KadId id, int portTcp, byte version) {
+        return new SearchObserver(this, endpoint, id, portTcp, version);
     }
 
     @Override

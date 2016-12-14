@@ -34,7 +34,7 @@ public abstract class FindData extends Traversal {
         this.sink = l;
         List<NodeEntry> nodes = ni.getTable().findNode(t, false, 50);
         for(final NodeEntry e: nodes) {
-            results.add(newObserver(e.getEndpoint(), e.getId()));
+            results.add(newObserver(e.getEndpoint(), e.getId(), e.getPortTcp(), e.getVersion()));
         }
 
         boolean sorted = Utils.isSorted(results, new ObserverCompareRef(t));
@@ -53,8 +53,8 @@ public abstract class FindData extends Traversal {
     protected abstract Direct newTraversal() throws JED2KException;
 
     @Override
-    public Observer newObserver(final Endpoint endpoint, final KadId id) {
-        return new FindDataObserver(this, endpoint, id);
+    public Observer newObserver(final Endpoint endpoint, final KadId id, int portTcp, byte version) {
+        return new FindDataObserver(this, endpoint, id, portTcp, version);
     }
 
     @Override
@@ -76,7 +76,7 @@ public abstract class FindData extends Traversal {
             for(final Observer o: results) {
                 // do not request failed nodes now
                 if (!Utils.isBit(o.getFlags(), Observer.FLAG_FAILED)) {
-                    d.addNode(o.getEndpoint(), o.getId());
+                    d.addNode(o.getEndpoint(), o.getId(), o.getPortTcp(), o.getVersion());
                 }
             }
 

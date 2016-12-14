@@ -53,7 +53,7 @@ public class NodeImpl {
         hello.setKid(getSelf());
         hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
         hello.getPortTcp().assign(port);
-        invoke(hello, ep, new NullObserver(new Single(this, id), ep, id));
+        invoke(hello, ep, new NullObserver(new Single(this, id), ep, id, 0, (byte)0));
     }
 
     public void addTraversalAlgorithm(final Traversal ta) throws JED2KException {
@@ -73,6 +73,9 @@ public class NodeImpl {
 
     public void tick() {
         rpc.tick();
+        if (!runningRequests.isEmpty()) {
+            log.trace("[node] running requests {}", runningRequests.size());
+        }
         KadId target = table.needRefresh();
         try {
             if (target != null) refresh(target);
@@ -113,7 +116,7 @@ public class NodeImpl {
         log.debug("[node] bootstrap with {} nodes", nodes.size());
         Traversal t = new Bootstrap(this, self);
         for(Endpoint ep: nodes) {
-            t.addEntry(new KadId(), ep, Observer.FLAG_INITIAL);
+            t.addEntry(new KadId(), ep, Observer.FLAG_INITIAL, 0, (byte)0);
         }
 
         t.start();
@@ -145,6 +148,13 @@ public class NodeImpl {
                         , res.getVersion().byteValue());
             }
             else if (t instanceof Kad2BootstrapRes) {
+                // update self in routing table
+                table.nodeSeen(((Kad2BootstrapRes)t).getKid()
+                    , o.getEndpoint()
+                    , ((Kad2BootstrapRes)t).getPortTcp().intValue()
+                    , ((Kad2BootstrapRes)t).getVersion().byteValue());
+
+                // register sources
                 for(final KadEntry e: ((Kad2BootstrapRes)t).getContacts()) {
                     table.nodeSeen(e.getKid()
                             , e.getKadEndpoint().getEndpoint()
@@ -152,7 +162,8 @@ public class NodeImpl {
                             , e.getVersion());
                 }
             } else {
-                // update node here using information from observer
+                // update routing table with information from observer due to can't find this information in incoming packet
+                table.nodeSeen(o.getId(), o.getEndpoint(), o.getPortTcp(), o.getVersion());
             }
         } else {
             // process incoming requests here
@@ -198,7 +209,7 @@ public class NodeImpl {
                 }
             }
             else {
-                log.debug("[node] temporary skip unhandled packet");
+                log.debug("[node] temporary skip unhandled packet {}", t);
             }
         }
     }

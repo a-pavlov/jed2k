@@ -16,7 +16,7 @@ public class Single extends Traversal {
     }
 
     @Override
-    public Observer newObserver(Endpoint endpoint, KadId id) {
+    public Observer newObserver(Endpoint endpoint, KadId id, int portTcp, byte version) {
         assert false;
         return null;
     }

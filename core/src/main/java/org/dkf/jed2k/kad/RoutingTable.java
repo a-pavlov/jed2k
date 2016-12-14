@@ -330,6 +330,7 @@ public class RoutingTable {
             // can split the bucket, and we can only split
             // the last bucket
             canSplit = (bucketIndex == buckets.size() - 1) && (buckets.size() < KadId.TOTAL_BITS);
+            log.trace("[table] can split {} bucket index {} buckets size {}", canSplit?"true":"false", bucketIndex, buckets.size());
 
             // if the node we're trying to insert is considered pinged,
             // we may replace other nodes that aren't pinged

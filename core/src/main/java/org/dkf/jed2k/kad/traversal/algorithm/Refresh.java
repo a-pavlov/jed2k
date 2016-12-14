@@ -23,7 +23,7 @@ public class Refresh extends Traversal {
 
         List<NodeEntry> nodes = ni.getTable().findNode(t, false, 50);
         for(final NodeEntry e: nodes) {
-            results.add(newObserver(e.getEndpoint(), e.getId()));
+            results.add(newObserver(e.getEndpoint(), e.getId(), e.getPortTcp(), e.getVersion()));
         }
         boolean sorted = Utils.isSorted(results, new ObserverCompareRef(t));
         assert sorted;
@@ -31,8 +31,8 @@ public class Refresh extends Traversal {
     }
 
     @Override
-    public Observer newObserver(final Endpoint endpoint, final KadId id) {
-        return new RefreshObserver(this, endpoint, id);
+    public Observer newObserver(final Endpoint endpoint, final KadId id, int portTcp, byte version) {
+        return new RefreshObserver(this, endpoint, id, portTcp, version);
     }
 
     @Override

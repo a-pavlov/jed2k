@@ -17,10 +17,10 @@ public class BootstrapObserver extends Observer {
     public BootstrapObserver(final Traversal algorithm
             , final Endpoint ep
             , final KadId id
-            //, int portTcp
-            //, byte version
+            , int portTcp
+            , byte version
     ) {
-        super(algorithm, ep, id);
+        super(algorithm, ep, id, portTcp, version);
     }
 
     @Override
@@ -28,7 +28,10 @@ public class BootstrapObserver extends Observer {
         Kad2BootstrapRes res = (Kad2BootstrapRes)t;
         assert t != null;
         for(KadEntry entry: res.getContacts()) {
-            algorithm.traverse(entry.getKadEndpoint().getEndpoint(), entry.getKid());
+            algorithm.traverse(entry.getKadEndpoint().getEndpoint()
+                    , entry.getKid()
+                    , entry.getKadEndpoint().getPortTcp().intValue()
+                    , entry.getVersion());
         }
         done();
     }

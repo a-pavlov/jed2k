@@ -12,8 +12,12 @@ import org.dkf.jed2k.protocol.kad.Transaction;
  */
 public class FindDataObserver extends Observer {
 
-    public FindDataObserver(final Traversal t, final Endpoint ep, final KadId id) {
-        super(t, ep, id);
+    public FindDataObserver(final Traversal t
+            , final Endpoint ep
+            , final KadId id
+            , int portTcp
+            , byte version) {
+        super(t, ep, id, portTcp, version);
     }
 
     @Override
@@ -21,7 +25,10 @@ public class FindDataObserver extends Observer {
         Kad2Res res = (Kad2Res)t;
         assert res != null;
         for(final KadEntry entry: res.getResults()) {
-            algorithm.traverse(entry.getKadEndpoint().getEndpoint(), entry.getKid());
+            algorithm.traverse(entry.getKadEndpoint().getEndpoint()
+                    , entry.getKid()
+                    , entry.getKadEndpoint().getPortTcp().intValue()
+                    , entry.getVersion());
         }
 
         done();

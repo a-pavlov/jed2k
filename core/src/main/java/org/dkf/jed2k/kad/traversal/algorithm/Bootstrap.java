@@ -21,8 +21,8 @@ public class Bootstrap extends Traversal {
     }
 
     @Override
-    public Observer newObserver(final Endpoint endpoint, final KadId id) {
-        return new BootstrapObserver(this, endpoint, id);
+    public Observer newObserver(final Endpoint endpoint, final KadId id, int portTcp, byte version) {
+        return new BootstrapObserver(this, endpoint, id, portTcp, version);
     }
 
     @Override

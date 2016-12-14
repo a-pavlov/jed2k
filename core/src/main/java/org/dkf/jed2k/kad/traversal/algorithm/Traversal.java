@@ -56,7 +56,7 @@ public abstract class Traversal {
         if (invokeCount == 0) done();
     }
 
-    public abstract Observer newObserver(final Endpoint endpoint, final KadId id);
+    public abstract Observer newObserver(final Endpoint endpoint, final KadId id, int portTcp, byte version);
 
     public abstract boolean invoke(final Observer o);
 
@@ -100,7 +100,7 @@ public abstract class Traversal {
     protected void addRouterEntries() {
         log.debug("[traversal] using router nodes to initiate traversal algorithm. count {}", nodeImpl.getTable().getRouterNodes().size());
         for(final Endpoint ep: nodeImpl.getTable().getRouterNodes()) {
-            addEntry(new KadId(), ep, Observer.FLAG_INITIAL);
+            addEntry(new KadId(), ep, Observer.FLAG_INITIAL, 0, (byte)0);
         }
     }
 
@@ -108,7 +108,7 @@ public abstract class Traversal {
         return "[ta]";
     }
 
-    public void addEntry(final KadId id, final Endpoint addr, byte flags) {
+    public void addEntry(final KadId id, final Endpoint addr, byte flags, int portTcp, byte version) {
         log.debug("[traversal] add entry {} {}", id, addr);
         //TODO check this assert later
         //LIBED2K_ASSERT(m_node.m_rpc.allocation_size() >= sizeof(find_data_observer));
@@ -125,7 +125,7 @@ public abstract class Traversal {
             return;
         }
         */
-        Observer o = newObserver(addr, id);
+        Observer o = newObserver(addr, id, portTcp, version);
 
         if (id.isAllZeros()) {
             o.setId(new KadId(Hash.random(false)));
@@ -266,9 +266,9 @@ public abstract class Traversal {
      * @param id of new node
      * @param ep address of new node
      */
-    public void traverse(final Endpoint ep, final KadId id) {
+    public void traverse(final Endpoint ep, final KadId id, int portTcp, byte version) {
         nodeImpl.getTable().heardAbout(id, ep);
-        addEntry(id, ep, (byte)0);
+        addEntry(id, ep, (byte)0, portTcp, version);
     }
 
     @Override

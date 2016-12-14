@@ -79,6 +79,7 @@ public class Kad {
             target = new KadId(KadId.random(false));
         }
 
+
         String command;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         DhtTracker tracker = new DhtTracker(9999, target);

@@ -56,7 +56,7 @@ public class DhtTracker extends Thread {
             channel.socket().bind(new InetSocketAddress(listenPort));
             channel.configureBlocking(false);
             key = channel.register(selector, SelectionKey.OP_READ);
-            incomingBuffer = ByteBuffer.allocate(4096);
+            incomingBuffer = ByteBuffer.allocate(8128);
             outgoingBuffer = ByteBuffer.allocate(4096);
             incomingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingBuffer.order(ByteOrder.LITTLE_ENDIAN);

@@ -43,14 +43,14 @@ public abstract class Observer {
     public Observer(final Traversal algorithm
             , final Endpoint ep
             , final KadId id
-            //, int portTcp
-            //, byte version
+            , int portTcp
+            , byte version
     ) {
         this.algorithm = algorithm;
         this.endpoint = ep;
         this.id = id;
-        //this.portTcp = portTcp;
-        //this.version = version;
+        this.portTcp = portTcp;
+        this.version = version;
         this.sentTime = 0;
     }
 

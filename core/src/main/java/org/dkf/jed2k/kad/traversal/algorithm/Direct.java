@@ -40,7 +40,7 @@ public abstract class Direct extends Traversal {
      * @param flags
      */
     @Override
-    public void addEntry(final KadId id, final Endpoint addr, byte flags) {
+    public void addEntry(final KadId id, final Endpoint addr, byte flags, int portTcp, byte version) {
         assert false;
     }
 
@@ -49,8 +49,8 @@ public abstract class Direct extends Traversal {
      * @param ep endpoint ip+port
      * @param id kad id of node
      */
-    public void addNode(final Endpoint ep, final KadId id) {
-        results.add(newObserver(ep, id));
+    public void addNode(final Endpoint ep, final KadId id, int portTcp, byte version) {
+        results.add(newObserver(ep, id, portTcp, version));
         numTargetNodes = results.size();    // make sure we will request all results
     }
 

@@ -11,8 +11,12 @@ import org.dkf.jed2k.protocol.kad.Transaction;
  */
 public class RefreshObserver extends Observer {
 
-    public RefreshObserver(Traversal algorithm, Endpoint ep, KadId id) {
-        super(algorithm, ep, id);
+    public RefreshObserver(Traversal algorithm
+            , Endpoint ep
+            , KadId id
+            , int portTcp
+            , byte version) {
+        super(algorithm, ep, id, portTcp, version);
     }
 
     @Override
