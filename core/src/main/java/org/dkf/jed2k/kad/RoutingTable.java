@@ -237,16 +237,18 @@ public class RoutingTable {
                 // and be done with it
                 log.debug("[table] node {} the same, just update it", e);
                 existing.left.setTimeoutCount(0);
+                existing.left.setPortTcp(e.getPortTcp());
+                existing.left.setVersion(e.getVersion());
                 return ret;
             }
             else if (existing != null) {
                 assert !existing.left.getId().equals(e.getId());
+                log.debug("[table] node {} exists but hash is not match, remove it", e);
                 // this is the same IP and port, but with
                 // a new node ID. remove the old entry and
                 // replace it with this new ID
                 existing.right.removeEntry(existing.left);
                 ips.remove(existing.left.getEndpoint().getIP());
-                //remove_node(existing, existing_bucket);
             }
         }
 

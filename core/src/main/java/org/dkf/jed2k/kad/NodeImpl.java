@@ -49,7 +49,11 @@ public class NodeImpl {
     }
 
     public void addNode(final Endpoint ep, final KadId id) throws JED2KException {
-        invoke(new Kad2Ping(), ep, new NullObserver(new Single(this, id), ep, id));
+        Kad2HelloReq hello = new Kad2HelloReq();
+        hello.setKid(getSelf());
+        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getPortTcp().assign(port);
+        invoke(hello, ep, new NullObserver(new Single(this, id), ep, id));
     }
 
     public void addTraversalAlgorithm(final Traversal ta) throws JED2KException {
@@ -147,9 +151,8 @@ public class NodeImpl {
                             , e.getKadEndpoint().getPortTcp().intValue()
                             , e.getVersion());
                 }
-            } else if (t instanceof Kad2Pong) {
-                // takes data directly from observer here
-
+            } else {
+                // update node here using information from observer
             }
         } else {
             // process incoming requests here

@@ -73,4 +73,12 @@ public class NodeEntry implements Serializable {
     public int bytesCount() {
         return id.bytesCount() + endpoint.bytesCount();
     }
+
+    public void setPortTcp(int port) {
+        portTcp = port;
+    }
+
+    public void setVersion(byte v) {
+        version = v;
+    }
 }
