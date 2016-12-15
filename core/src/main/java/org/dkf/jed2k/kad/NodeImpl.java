@@ -203,10 +203,13 @@ public class NodeImpl {
                     List<NodeEntry> entries = table.findNode(req.getTarget(), false, (int)req.getSearchType());
                     res.setTarget(req.getTarget());
                     for(final NodeEntry e: entries) {
-                        //res.getResults().add(new KadEntry())
+                        res.getResults().add(new KadEntry(e.getId()
+                                , new KadEndpoint(e.getEndpoint().getIP(), e.getEndpoint().getPort(), e.getPortTcp())
+                                , e.getVersion()));
                     }
 
-                    log.debug("[node] temporary do nothing on kad request");
+                    tracker.write(res, address);
+                    log.debug("[node] >> {}: {}", ep, res);
                 }
             }
             else {

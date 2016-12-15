@@ -11,16 +11,19 @@ import java.nio.ByteBuffer;
  */
 @Data
 public class KadEntry implements Serializable {
-    private KadId kid = new KadId();
-    private KadEndpoint kadEndpoint = new KadEndpoint();
+    private KadId kid = null;
+    private KadEndpoint kadEndpoint = null;
     private byte version;
 
     public KadEntry() {
-
+        kid = new KadId();
+        kadEndpoint = new KadEndpoint();
     }
 
-    public KadEntry(final KadId id, final KadEndpoint endpoint) {
-
+    public KadEntry(final KadId id, final KadEndpoint endpoint, byte version) {
+        kid = id;
+        this.kadEndpoint = endpoint;
+        this.version = version;
     }
 
     @Override

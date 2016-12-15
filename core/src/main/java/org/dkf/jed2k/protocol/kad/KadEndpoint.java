@@ -19,6 +19,16 @@ public class KadEndpoint implements Serializable {
     private UInt16 portUdp = new UInt16();
     private UInt16 portTcp = new UInt16();
 
+    public KadEndpoint() {
+
+    }
+
+    public KadEndpoint(int ip, int port, int portTcp) {
+        this.ip.assign(ip);
+        this.portUdp.assign(port);
+        this.portTcp.assign(portTcp);
+    }
+
     public Endpoint getEndpoint() {
         return new Endpoint(ip.intValue(), portUdp.intValue());
     }
