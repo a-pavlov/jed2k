@@ -11,10 +11,7 @@ import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -117,7 +114,9 @@ public class Kad {
                 tracker.hello(address);
             }
             else if (parts[0].compareTo("status") == 0) {
-                log.info(tracker.getRoutingTableStatus());
+                try (PrintWriter pw = new PrintWriter(dir.resolve("status.json").toString())) {
+                    pw.write(tracker.getRoutingTableStatus());
+                }
             }
         }
 

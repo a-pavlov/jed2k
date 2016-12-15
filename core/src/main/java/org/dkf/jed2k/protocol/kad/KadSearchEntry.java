@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.SearchEntry;
@@ -14,6 +15,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Getter
+@ToString
 public class KadSearchEntry implements Serializable, SearchEntry {
     private KadId kid = new KadId();
     private Container<UInt8, Tag> info = Container.makeByte(Tag.class);
