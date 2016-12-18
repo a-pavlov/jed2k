@@ -5,10 +5,12 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.dkf.jed2k.protocol.tag.Tag;
+import org.dkf.jed2k.util.FUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,6 +204,17 @@ public class Conn {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
+
+        DhtInitialData idata = new DhtInitialData();
+        try {
+            FUtils.read(idata, new File(incomingDirectory.resolve("dht_status.dat").toString()));
+        } catch(JED2KException e) {
+            log.warn("[CONN] read initial data failed {}", e);
+        }
+
+        if (idata.getTarget().isAllZeros()) {
+            idata.setTarget(new KadId(Hash.random(false)));
+        }
 
         while ((command = in.readLine()) != null) {
             String[] parts = command.split("\\s+");
@@ -404,6 +417,22 @@ public class Conn {
             else if (parts[0].compareTo("stopupnp") == 0) {
                 s.stopUPnP();
             }
+            else if (parts[0].compareTo("startdht") == 0) {
+                s.dhtStart(idata.getTarget());
+                if (idata.getEntries().getList() != null) {
+                    s.dhtAddNodes(idata.getEntries().getList());
+                }
+            }
+            else if (parts[0].compareTo("stopdht") == 0) {
+                idata.setEntries(s.dhtGetState());
+                s.dhtStop();
+            }
+            else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
+                s.dhtBootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+            }
+            else {
+                log.warn("[CONN] unknown command started from {}", parts[0]);
+            }
         }
 
         for(TransferHandle handle: handles) {
@@ -420,6 +449,7 @@ public class Conn {
         }
 
         scheduledExecutorService.shutdown();
+        FUtils.write(idata, new File(incomingDirectory.resolve("dht_status.dat").toString()));
         log.info("Conn finished");
     }
 }

@@ -10,8 +10,10 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeEntry;
+import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -829,6 +831,7 @@ public class Session extends Thread {
             public void run() {
                 stopDht();
                 dhtTracker = new DhtTracker(getListenPort(), id);
+                dhtTracker.start();
             }
         });
     }
@@ -880,5 +883,15 @@ public class Session extends Thread {
 
     public synchronized boolean isDhtRunning() {
         return dhtTracker != null && !dhtTracker.isAborted();
+    }
+
+    /**
+     * return empty collection if tracker is not running
+     * @return state of dht tracker
+     */
+    public synchronized Container<UInt32, NodeEntry> dhtGetState() {
+        // check twice lock here
+        if (dhtTracker != null) dhtTracker.getTrackerState();
+        return Container.makeInt(NodeEntry.class);
     }
 }

@@ -4,18 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Listener;
-import org.dkf.jed2k.kad.NodeEntry;
-import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
+import org.dkf.jed2k.util.FUtils;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -44,6 +39,7 @@ public class Kad {
         }
     }
 
+
     public static void main(String[] args) throws IOException, JED2KException {
         log.info("[KAD] starting");
         if (args.length < 1) {
@@ -53,35 +49,24 @@ public class Kad {
 
         Path dir = FileSystems.getDefault().getPath(args[0]);
 
-        KadId target = new KadId();
-        Container<UInt32, NodeEntry> entries = Container.makeInt(NodeEntry.class);
+        DhtInitialData idata = new DhtInitialData();
 
-        // read state
-        try (RandomAccessFile reader = new RandomAccessFile(dir.resolve("dht_status.dat").toString(), "r");
-             FileChannel inChannel = reader.getChannel();) {
-            long fileSize = inChannel.size();
-            ByteBuffer buffer = ByteBuffer.allocate((int) fileSize);
-            inChannel.read(buffer);
-            buffer.flip();
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            entries.get(target.get(buffer));
-            log.info("[KAD] load {} nodes", entries.size());
-        } catch(IOException e) {
-            log.info("[KAD] unable to load dht_status.dat");
+        try {
+            FUtils.read(idata, new File(dir.resolve("dht_status.dat").toString()));
         } catch(JED2KException e) {
-            log.error("[KAD] unable to load nodes {}", e);
+            log.error("[KAD] unable to load initial data {}", e);
         }
 
-        if (target.isAllZeros()) {
-            target = new KadId(KadId.random(false));
+        if (idata.getTarget().isAllZeros()) {
+            idata.setTarget(new KadId(KadId.random(false)));
         }
 
         String command;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        DhtTracker tracker = new DhtTracker(9999, target);
+        DhtTracker tracker = new DhtTracker(9999, idata.getTarget());
         tracker.start();
-        if (entries.getList() != null) {
-            tracker.addEntries(entries.getList());
+        if (idata.getEntries().getList() != null) {
+            tracker.addEntries(idata.getEntries().getList());
         } else {
             log.debug("[KAD] previous nodes list is empty");
         }
@@ -119,25 +104,8 @@ public class Kad {
             }
         }
 
-        // write state
-        try (RandomAccessFile reader = new RandomAccessFile(dir.resolve("dht_status.dat").toString(), "rw");
-             FileChannel inChannel = reader.getChannel();) {
-            entries = tracker.getTrackerState();
-            long fileSize = entries.bytesCount() + target.bytesCount();
-            assert fileSize > 0;
-            ByteBuffer buffer = ByteBuffer.allocate((int) fileSize);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            entries.put(target.put(buffer));
-            buffer.flip();
-            inChannel.write(buffer);
-            log.info("[KAD] load {} nodes", entries.size());
-        } catch(IOException e) {
-            log.info("[KAD] unable to load dht_status.dat");
-        } catch(JED2KException e) {
-            log.error("[KAD] unable to write nodes to buffer {}", e);
-        }
-
-
+        idata.setEntries(tracker.getTrackerState());
+        FUtils.write(idata, new File(dir.resolve("dht_status.dat").toString()));
         log.info("[KAD] finished");
     }
 }
