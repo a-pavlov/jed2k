@@ -113,7 +113,7 @@ public class Session extends Thread {
                         assert transfer != null;
                         if (ip != 0 && sourcePort != 0) {
                             try {
-                                transfer.addPeer(new Endpoint(ip, sourcePort));
+                                transfer.addPeer(new Endpoint(ip, sourcePort), Peer.SourceFlag.SF_DHT.value);
                             } catch(JED2KException e) {
                                 log.error("[session] unable to add peer {}:{} to transfer {} with error {}", ip, sourcePort, transfer, e);
                             }

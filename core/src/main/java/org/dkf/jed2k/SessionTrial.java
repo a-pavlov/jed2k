@@ -32,7 +32,7 @@ public class SessionTrial extends Session {
         if (transfer != null) {
             for(final Endpoint endpoint: fileSources) {
                 try {
-                    transfer.addPeer(endpoint);
+                    transfer.addPeer(endpoint, 0);
                 } catch(JED2KException e) {
                     log.error("add peer to transfer {} error {}", h, e);
                 }

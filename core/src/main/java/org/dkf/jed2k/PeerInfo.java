@@ -1,11 +1,13 @@
 package org.dkf.jed2k;
 
+import lombok.ToString;
 import org.dkf.jed2k.protocol.BitField;
 import org.dkf.jed2k.protocol.Endpoint;
 
 /**
  * Created by inkpot on 25.08.2016.
  */
+@ToString
 public class PeerInfo {
     public int downloadSpeed   = 0;
     public int payloadDownloadSpeed = 0;
@@ -18,21 +20,5 @@ public class PeerInfo {
     public int version;
     public int modVersion;
     public String strModVersion;
-
-    @Override
-    public String toString() {
-        return "PeerInfo{" +
-                "downloadSpeed=" + downloadSpeed +
-                ", payloadDownloadSpeed=" + payloadDownloadSpeed +
-                ", downloadPayload=" + downloadPayload +
-                ", downloadProtocol=" + downloadProtocol +
-                ", remotePieces=" + remotePieces +
-                ", failCount=" + failCount +
-                ", endpoint=" + endpoint +
-                ", modName='" + modName + '\'' +
-                ", version=" + version +
-                ", modVersion=" + modVersion +
-                ", strModVersion='" + strModVersion + '\'' +
-                '}';
-    }
+    public int sourceFlag;
 }

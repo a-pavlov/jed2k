@@ -232,8 +232,8 @@ public class Transfer {
         stat.add(s);
     }
 
-    final void addPeer(Endpoint endpoint) throws JED2KException {
-        policy.addPeer(new Peer(endpoint, true));
+    final void addPeer(Endpoint endpoint, int sourceFlag) throws JED2KException {
+        policy.addPeer(new Peer(endpoint, true, sourceFlag));
     }
 
     final void removePeerConnection(PeerConnection c) {

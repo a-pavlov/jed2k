@@ -23,10 +23,10 @@ import static org.mockito.Mockito.when;
  * Created by inkpot on 05.07.2016.
  */
 public class PolicyTest {
-    Peer p1 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.1", 7081)), true);
-    Peer p2 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.2", 7082)), true);
-    Peer p3 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.3", 7083)), true);
-    Peer p4 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.4", 7084)), true);
+    Peer p1 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.1", 7081)), true, 0);
+    Peer p2 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.2", 7082)), true, 0);
+    Peer p3 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.3", 7083)), true, 0);
+    Peer p4 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.4", 7084)), true, 0);
 
     private Transfer transfer = null;
     private PeerConnection connection = null;
@@ -135,7 +135,7 @@ public class PolicyTest {
         LinkedList<Peer> peers = new LinkedList<>();
         Policy p = new Policy(transfer);
         for(int i = 0; i < Policy.MAX_PEER_LIST_SIZE; ++i) {
-            peers.add(new Peer(new Endpoint(new InetSocketAddress("192.168.0." + new Integer(i+1).toString(), i+2000)), true));
+            peers.add(new Peer(new Endpoint(new InetSocketAddress("192.168.0." + new Integer(i+1).toString(), i+2000)), true, 0));
             p.addPeer(peers.peekLast());
         }
 

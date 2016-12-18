@@ -279,7 +279,7 @@ public class Policy extends AbstractCollection<Peer> {
             }
         }
         else {
-            p = new Peer(c.getEndpoint(), false);
+            p = new Peer(c.getEndpoint(), false, 0);
             if (!addPeer(p)) {
                 throw new JED2KException(ErrorCode.DUPLICATE_PEER);
             }

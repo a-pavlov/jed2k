@@ -33,9 +33,10 @@ public class Peer implements Comparable<Peer> {
         endpoint = ep;
     }
 
-    public Peer(Endpoint ep, boolean conn) {
-        endpoint = ep;
-        connectable = conn;
+    public Peer(Endpoint ep, boolean conn, int sourceFlag) {
+        this.endpoint = ep;
+        this.connectable = conn;
+        this.source = sourceFlag;
     }
 
     @Override
