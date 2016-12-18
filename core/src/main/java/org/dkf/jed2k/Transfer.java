@@ -63,9 +63,14 @@ public class Transfer {
     private HashSet<PeerConnection> connections = new HashSet<PeerConnection>();
 
     /**
-     * session time when new peers request will executed
+     * session time when new peers request will be executed
      */
     private long nextTimeForSourcesRequest = 0;
+
+    /**
+     * session time when new peers request to KAD will be executed
+     */
+    private long nextTimeForDhtSourcesRequest = 0;
 
     /**
      * disk io
@@ -227,14 +232,6 @@ public class Transfer {
         stat.add(s);
     }
 
-    /**
-     * request sources from server, kad, etc
-     */
-    final void requestSources() {
-        // server request
-        session.sendSourcesRequest(hash, size);
-    }
-
     final void addPeer(Endpoint endpoint) throws JED2KException {
         policy.addPeer(new Peer(endpoint, true));
     }
@@ -287,10 +284,19 @@ public class Transfer {
     }
 
 	void secondTick(final Statistics accumulator, long tickIntervalMS) {
-        if (nextTimeForSourcesRequest < Time.currentTime() && !isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
-            log.debug("Request peers {}", hash);
-            session.sendSourcesRequest(hash, size);
-            nextTimeForSourcesRequest = Time.currentTime() + 1000*60;   // one request per minute
+        if (!isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
+
+            if (nextTimeForSourcesRequest < Time.currentTime()) {
+                log.debug("[transfer] request peers on server {}", hash);
+                session.sendSourcesRequest(hash, size);
+                nextTimeForSourcesRequest = Time.currentTime() + Time.minutes(1);
+            }
+
+            if (nextTimeForDhtSourcesRequest < Time.currentTime()) {
+                log.debug("[transfer] request peers on KAD {}", hash);
+                session.sendDhtSourcesRequest(hash, size);
+                nextTimeForDhtSourcesRequest = Time.currentTime() + Time.minutes(10);
+            }
         }
 
         Iterator<PeerConnection> itr = connections.iterator();

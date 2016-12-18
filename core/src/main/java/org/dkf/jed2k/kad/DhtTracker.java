@@ -234,13 +234,13 @@ public class DhtTracker extends Thread {
     /**
      * soft stop dht thread
      */
-    public void abort() {
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                aborted = true;
-            }
-        });
+    public synchronized void abort() {
+        if (aborted) return;
+        aborted = true;
+    }
+
+    public synchronized boolean isAborted() {
+        return aborted;
     }
 
     public synchronized void addNode(final Endpoint endpoint, final KadId id) throws JED2KException {
@@ -275,8 +275,17 @@ public class DhtTracker extends Thread {
         node.searchKeywords(KadId.fromBytes(md4.digest()), l);
     }
 
+    /**
+     * search file sources by hash
+     * if tracker aborted simply returns empty list
+     * @param hash of file
+     * @param fileSize size of file
+     * @param l callback interface
+     * @throws JED2KException when problems occurred during start
+     */
     public synchronized void searchSources(final Hash hash, final long fileSize, final Listener l) throws JED2KException {
-        node.searchSources(new KadId(hash), fileSize, l);
+        if (aborted) l.process(new LinkedList<KadSearchEntry>());
+        else node.searchSources(new KadId(hash), fileSize, l);
     }
 
     public synchronized void hello(final InetSocketAddress ep) {

@@ -7,9 +7,15 @@ import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.Listener;
+import org.dkf.jed2k.kad.NodeEntry;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -50,7 +56,71 @@ public class Session extends Thread {
     private Statistics accumulator = new Statistics();
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
+    private DhtTracker dhtTracker = null;
 
+    /**
+     * sources search result callback
+     */
+    private static class DhtSourcesCallback implements Listener {
+        final Session session;
+
+        public DhtSourcesCallback(final Session session) {
+            this.session = session;
+        }
+
+        @Override
+        public void process(final List<KadSearchEntry> data) {
+            session.commands.add(new Runnable() {
+                @Override
+                public void run() {
+                    for(final KadSearchEntry kse: data) {
+                        KadId target = kse.getKid();
+                        assert target != null; // actually impossible
+
+                        Transfer transfer = session.transfers.get(target);  // TODO - cache this value instead of search every time
+                        if (transfer == null) {
+                            log.debug("[session] transfer for {} not exists", target);
+                        };
+
+                        int ip = 0;
+                        int sourceType = 0;
+                        int sourcePort = 0;
+                        int lowId = 0;
+
+                        try {
+                            for (final Tag t : kse.getInfo()) {
+                                switch (t.id()) {
+                                    case Tag.TAG_SOURCETYPE:
+                                        sourceType = t.intValue();
+                                        break;
+                                    case Tag.TAG_SOURCEIP:
+                                        ip = Utils.ntohl(t.intValue());
+                                        break;
+                                    case Tag.TAG_SOURCEPORT:
+                                        sourcePort = t.intValue();
+                                        break;
+                                    case Tag.TAG_CLIENTLOWID:
+                                        lowId = t.intValue();
+                                        break;
+                                }
+                            }
+                        } catch(JED2KException e) {
+                            log.error("[session] processing kad search sources result failed {}", e);
+                        }
+
+                        assert transfer != null;
+                        if (ip != 0 && sourcePort != 0) {
+                            try {
+                                transfer.addPeer(new Endpoint(ip, sourcePort));
+                            } catch(JED2KException e) {
+                                log.error("[session] unable to add peer {}:{} to transfer {} with error {}", ip, sourcePort, transfer, e);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
 
     // from last established server connection
     int clientId    = 0;
@@ -215,6 +285,9 @@ public class Session extends Thread {
             // stop server connection
             if (serverConection != null) serverConection.close(ErrorCode.SESSION_STOPPING);
 
+            // stop dht if it is running
+            stopDht();
+
             // abort all transfers
             for(final Transfer t: transfers.values()) {
                 t.abort();
@@ -234,7 +307,6 @@ public class Session extends Thread {
             stopUPnPImpl();
             log.info("Session finished");
             finished.set(true);
-
         }
     }
 
@@ -482,6 +554,16 @@ public class Session extends Thread {
         if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
     }
 
+    void sendDhtSourcesRequest(final Hash h, final long size) {
+        if (dhtTracker != null) {
+            try {
+                dhtTracker.searchSources(h, size, new DhtSourcesCallback(this));
+            } catch(JED2KException e) {
+                log.error("[session] dht search sources error {}", e);
+            }
+        }
+    }
+
     /**
      * executes each second
      * traverse transfers list and try to connect new peers if limits not exceeded and transfer want more peers
@@ -717,5 +799,86 @@ public class Session extends Thread {
                 device = null;
             }
         }
+    }
+
+    /**
+     * stop dht tracker and wait thread exit
+     */
+    private void stopDht() {
+        try {
+            // if dht tracker != null stop it now
+            if (dhtTracker != null) {
+                dhtTracker.abort();
+                dhtTracker.join();
+            }
+        } catch(InterruptedException e) {
+            log.info("[session] dht tracker abort error {}", e);
+            e.printStackTrace();
+        } finally {
+            dhtTracker = null;
+        }
+    }
+
+    /**
+     * start dht tracker
+     * @param id our KAD id
+     */
+    public void dhtStart(final KadId id) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                stopDht();
+                dhtTracker = new DhtTracker(getListenPort(), id);
+            }
+        });
+    }
+
+    /**
+     * stop dht tracker - doesn't wait actually thread exit
+     */
+    public void dhtStop() {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                dhtTracker.abort();
+            }
+        });
+    }
+
+    public void dhtAddNodes(final List<NodeEntry> entries) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                assert dhtTracker != null;
+                if (dhtTracker != null) {
+                    dhtTracker.addEntries(entries);
+                }
+                else {
+                    log.warn("[session] add dht entries when dht is not running");
+                }
+            }
+        });
+    }
+
+    public void dhtBootstrap(final List<Endpoint> endpoints) {
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                assert dhtTracker != null;
+                if (dhtTracker != null) {
+                    try {
+                        dhtTracker.bootstrap(endpoints);
+                    } catch(JED2KException e) {
+                        log.error("[session] unable to start bootstrapping {}", e);
+                    }
+                } else {
+                    log.warn("[session] bootstrap request when dht is not running");
+                }
+            }
+        });
+    }
+
+    public synchronized boolean isDhtRunning() {
+        return dhtTracker != null && !dhtTracker.isAborted();
     }
 }
