@@ -33,6 +33,7 @@ android {
                 srcDirs += '../../core/src/main/java'
                 exclude '**/Conn.java'
                 exclude '**/Kad.java'
+                exclude '**/FUtils.java'
                 //include '../../core/src/main/resources/server.met'
             }
 
@@ -45,6 +46,7 @@ android {
         androidTest {
             java {
                 srcDirs += '../../core/src/test/java'
+                exclude '**/FUtilsTest.java'
             }
 
             resources {
