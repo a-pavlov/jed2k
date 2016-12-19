@@ -628,7 +628,7 @@ public class RoutingTable {
         Collections.sort(res, new Comparator<NodeEntry>() {
             @Override
             public int compare(NodeEntry o1, NodeEntry o2) {
-                return KadId.compareRef(o1.getId(), o2.getId(), target)*-1;
+                return KadId.compareRef(o1.getId(), o2.getId(), target);
             }
         });
 

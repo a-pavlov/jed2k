@@ -26,7 +26,9 @@ public class KadFunctionsTest {
         KadId ref = KadId.fromString("514d5f30f05328a05b94c140aa412fd3");
         KadId n1 = KadId.fromString("514d5f30f05328a05b94c140aa412fd3");
         KadId n2 = KadId.fromString("524d5f30f05328a05b94c140aa412fd3");
-        assertEquals(1, KadId.compareRef(n1, n2, ref));
-        assertEquals(1, KadId.compareRef(n2, KadId.fromString("624d5f30f05328a05b94c140aa412fd3"), ref));
+        assertEquals(-1, KadId.compareRef(n1, n2, ref));
+        assertEquals(-1, KadId.compareRef(n2, KadId.fromString("624d5f30f05328a05b94c140aa412fd3"), ref));
+        assertEquals(0, KadId.compareRef(n1, n1, ref));
+        assertEquals(1, KadId.compareRef(n2, n1, ref));
     }
 }

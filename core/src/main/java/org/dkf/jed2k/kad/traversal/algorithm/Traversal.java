@@ -137,7 +137,7 @@ public abstract class Traversal {
         int pos = Collections.binarySearch(results, o, new Comparator<Observer>() {
             @Override
             public int compare(Observer o1, Observer o2) {
-                return KadId.compareRef(o1.getId(), o2.getId(), target)*-1;
+                return KadId.compareRef(o1.getId(), o2.getId(), target);
             }
         });
 

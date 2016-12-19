@@ -16,6 +16,6 @@ public class ObserverCompareRef implements Comparator<Observer> {
 
     @Override
     public int compare(Observer o1, Observer o2) {
-        return -1* KadId.compareRef(o1.getId(), o2.getId(), target);
+        return KadId.compareRef(o1.getId(), o2.getId(), target);
     }
 }

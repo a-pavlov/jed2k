@@ -14,6 +14,6 @@ public class CompareRef implements Comparator<KadId> {
 
     @Override
     public int compare(KadId o1, KadId o2) {
-        return KadId.compareRef(o1, o2, target)*-1;
+        return KadId.compareRef(o1, o2, target);
     }
 }
