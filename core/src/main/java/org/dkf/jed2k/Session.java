@@ -124,6 +124,17 @@ public class Session extends Thread {
         }
     }
 
+    private static class DhtDebugCallback implements Listener {
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            log.info("[session] DHT debug callback results size {}", data.size());
+            for(final KadSearchEntry e: data) {
+                log.info("entry: {}", e);
+            }
+        }
+    }
+
     // from last established server connection
     int clientId    = 0;
     int tcpFlags    = 0;
@@ -893,5 +904,17 @@ public class Session extends Thread {
         // check twice lock here
         if (dhtTracker != null) dhtTracker.getTrackerState();
         return Container.makeInt(NodeEntry.class);
+    }
+
+    public synchronized void dhtDebugSearch(final Hash h, long size) {
+        try {
+            if (dhtTracker != null) {
+                dhtTracker.searchSources(h, size, new DhtDebugCallback());
+            } else {
+                log.warn("[session] DHT is not running, but search sources requested");
+            }
+        } catch(JED2KException e) {
+            log.error("[session] unable to start debug search {}", e);
+        }
     }
 }

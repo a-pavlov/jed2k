@@ -299,13 +299,13 @@ public final class Tag implements Serializable {
             case CT_EMULE_RESERVED7: return "CT_EMULE_RESERVED7";
             case CT_EMULE_RESERVED8: return "CT_EMULE_RESERVED8";
             case CT_EMULE_RESERVED9: return "CT_EMULE_RESERVED9";
-            case CT_EMULE_UDPPORTS: return "CT_EMULE_UDPPORTS";
+            case CT_EMULE_UDPPORTS: return "[CT_EMULE_UDPPORTS/TAG_CLIENTLOWID]";
             case CT_EMULE_MISCOPTIONS1: return "CT_EMULE_MISCOPTIONS1";
             case CT_EMULE_VERSION: return "CT_EMULE_VERSION";
             case CT_EMULE_BUDDYIP: return "CT_EMULE_BUDDYIP";
-            case CT_EMULE_BUDDYUDP: return "CT_EMULE_BUDDYUDP";
-            case CT_EMULE_MISCOPTIONS2: return "CT_EMULE_MISCOPTIONS2";
-            case CT_EMULE_RESERVED13: return "CT_EMULE_RESERVED13";
+            case CT_EMULE_BUDDYUDP: return "[CT_EMULE_BUDDYUDP/TAG_SOURCEPORT]";
+            case CT_EMULE_MISCOPTIONS2: return "[CT_EMULE_MISCOPTIONS2/TAG_SOURCEIP]";
+            case CT_EMULE_RESERVED13: return "[CT_EMULE_RESERVED13/TAG_SOURCETYPE]";
             case CT_MOD_VERSION: return "CT_MOD_VERSION";
             default: return "UNKNOWN";
         }

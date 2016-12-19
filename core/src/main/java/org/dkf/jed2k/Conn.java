@@ -262,7 +262,37 @@ public class Conn {
                 } catch(JED2KException e) {
                     log.error(e.getMessage());
                 }
-            } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
+            }
+            else if (parts[0].compareTo("dsearch") == 0 && parts.length == 2) {
+                int index = Integer.parseInt(parts[1]);
+                if (index >= globalSearchRes.files.size() || index < 0) {
+                    log.warn("[CONN] specified index {} out of last search result bounds {}"
+                            , index
+                            , globalSearchRes.files.size());
+                } else {
+                    SharedFileEntry sfe = globalSearchRes.files.get(index);
+                    long filesize = 0;
+
+                    for (final Tag t : sfe.properties) {
+                        if (t.id() == Tag.FT_FILESIZE) {
+                            try {
+                                filesize = t.longValue();
+                                break;
+                            } catch (JED2KException e) {
+                                log.warn("[CONN] unable to extract filesize {}", e);
+                            }
+                        }
+                    }
+
+                    if (filesize != 0) {
+                        log.debug("[CONN] start search {}/{}", sfe.hash, filesize);
+                        s.dhtDebugSearch(sfe.hash, filesize);
+                    } else {
+                        log.warn("[CONN] unable to start DHT debug search due to zero file size");
+                    }
+                }
+            }
+            else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new Endpoint(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
 
@@ -276,7 +306,9 @@ public class Conn {
                 if (eml == null) {
                     int index = Integer.parseInt(parts[1]);
                     if (index >= globalSearchRes.files.size() || index < 0) {
-                        System.out.println("Specified index out of last search result bounds");
+                        log.warn("[CONN] specified index {} out of last search result bounds {}"
+                            , index
+                            , globalSearchRes.files.size());
                     } else {
                         SharedFileEntry sfe = globalSearchRes.files.get(index);
                         Path filepath = null;
