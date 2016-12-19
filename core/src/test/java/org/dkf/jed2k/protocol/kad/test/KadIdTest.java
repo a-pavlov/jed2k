@@ -4,12 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashSet;
+import java.util.Set;
 
 import static junit.framework.Assert.*;
 
@@ -98,5 +101,17 @@ public class KadIdTest {
             assertEquals(KadId.TOTAL_BITS - 1 - i, KadId.distanceExp(target, id));
             log.debug("{} <-- {}", id, i);
         }
+    }
+
+    @Test
+    public void testWithHashUsage() {
+        Set<Hash> data = new HashSet<>();
+        data.add(Hash.EMULE);
+        data.add(Hash.TERMINAL);
+        data.add(Hash.LIBED2K);
+        assertTrue(data.contains(new KadId(Hash.EMULE)));
+        assertTrue(data.contains(new KadId(Hash.TERMINAL)));
+        assertTrue(data.contains(new KadId(Hash.LIBED2K)));
+        assertFalse(data.contains(new KadId(Hash.random(false))));
     }
 }
