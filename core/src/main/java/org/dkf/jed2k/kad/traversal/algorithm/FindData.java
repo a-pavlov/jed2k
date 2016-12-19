@@ -3,6 +3,7 @@ package org.dkf.jed2k.kad.traversal.algorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.Filter;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeEntry;
 import org.dkf.jed2k.kad.NodeImpl;
@@ -13,6 +14,8 @@ import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.ObserverCompareRef;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -32,8 +35,24 @@ public abstract class FindData extends Traversal {
         super(ni, t);
         this.size = size;
         this.sink = l;
-        List<NodeEntry> nodes = ni.getTable().findNode(t, false, 50);
-        for(final NodeEntry e: nodes) {
+
+        // TODO - remove duplicate code with refresh algorithm
+        List<NodeEntry> nodes = ni.getTable().forEach(new Filter<NodeEntry>() {
+            @Override
+            public boolean allow(NodeEntry nodeEntry) {
+                return true;
+            }
+        }, null);
+
+        Collections.sort(nodes, new Comparator<NodeEntry>() {
+            @Override
+            public int compare(NodeEntry o1, NodeEntry o2) {
+                return KadId.compareRef(o1.getId(), o2.getId(), target);
+            }
+        });
+
+        for(int i = 0; i < Math.min(50, nodes.size()); ++i) {
+            final NodeEntry e = nodes.get(i);
             results.add(newObserver(e.getEndpoint(), e.getId(), e.getPortTcp(), e.getVersion()));
         }
 

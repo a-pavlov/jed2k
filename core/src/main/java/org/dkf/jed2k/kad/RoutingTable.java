@@ -165,8 +165,15 @@ public class RoutingTable {
         assert i >= 0;
         assert i < buckets.size();
 
-        if (now - bucket.getLastActive() < Time.minutes(15)) return null;
-        if (now - lastRefresh < Time.seconds(45)) return null;
+        if (now - bucket.getLastActive() < Time.minutes(15)) {
+            log.debug("[table] bucket {} has too recent last active is {}", i, now - bucket.getLastActive());
+            return null;
+        }
+
+        if (now - lastRefresh < Time.seconds(45)) {
+            log.debug("[table] bucket {} has last refresh too recently {}", i, now - lastRefresh);
+            return null;
+        }
 
         KadId target = KadId.generateRandomWithinBucket(i, self);
         log.debug("[table] need_refresh [ bucket: {} target: {} ]", i, target);
@@ -613,6 +620,8 @@ public class RoutingTable {
     }
 
     private void copy(int bucketIndex, List<NodeEntry> res, boolean includeFailed, int count) {
+        assert bucketIndex >= 0;
+        assert bucketIndex < buckets.size();
         RoutingTableBucket bucket = buckets.get(bucketIndex);
         assert bucket != null;
         for(NodeEntry e: bucket.getLiveNodes()) {
@@ -672,6 +681,25 @@ public class RoutingTable {
             if (res.size() >= count) return res;
         }
         while (j > 0 && res.size() < count);
+        return res;
+    }
+
+    public List<NodeEntry> forEach(final Filter<NodeEntry> liveFilter, final Filter<NodeEntry> replacementFilter) {
+        List<NodeEntry> res = new ArrayList<>();
+        for(final RoutingTableBucket b: buckets) {
+            if (liveFilter != null) {
+                for (final NodeEntry e: b.getLiveNodes()) {
+                    if (liveFilter.allow(e)) res.add(e);
+                }
+            }
+
+            if (replacementFilter != null) {
+                for(final NodeEntry e: b.getReplacements()) {
+                    if (replacementFilter.allow(e)) res.add(e);
+                }
+            }
+        }
+
         return res;
     }
 

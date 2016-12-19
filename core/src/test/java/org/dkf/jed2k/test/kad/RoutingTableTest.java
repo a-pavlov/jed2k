@@ -3,9 +3,11 @@ package org.dkf.jed2k.test.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.Filter;
 import org.dkf.jed2k.kad.NodeEntry;
 import org.dkf.jed2k.kad.RoutingTable;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.junit.Test;
 
@@ -153,5 +155,72 @@ public class RoutingTableTest {
         }
 
         log.info("table buckets count {} total nodes {}", table.getBucketsCount(), table.getSize());
+    }
+
+    @Test
+    public void testFindNodeForArbitraryTarget() {
+        RoutingTable table = new RoutingTable(target, 5);
+        Random rnd = new Random();
+
+        // fills table while table has less than ten live nodes
+        while(table.getSize().getLeft().intValue() < 10) {
+            table.addNode(new NodeEntry(new KadId(KadId.random(false)), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true, 0, (byte)0));
+        }
+
+        // for arbitrary kad id we will find at least ten nodes
+        for(int i = 0; i < 100; ++i) {
+            KadId id = new KadId(Hash.random(false));
+            List<NodeEntry> entries = table.findNode(id, false, 10);
+            assertEquals(10, entries.size());
+        }
+    }
+
+    @Test
+    public void testForEach() {
+        Random rnd = new Random();
+        RoutingTable table = new RoutingTable(target, 10);
+        while(table.getSize().getLeft().intValue() < 30 || table.getSize().getRight().intValue() < 10) {
+            table.addNode(new NodeEntry(new KadId(KadId.random(false)), new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), rnd.nextBoolean(), 0, (byte)0));
+        }
+
+        List<NodeEntry> res1 = table.forEach(new Filter<NodeEntry>() {
+            @Override
+            public boolean allow(NodeEntry nodeEntry) {
+                return true;
+            }
+        }, null);
+
+        Collections.sort(res1, new Comparator<NodeEntry>() {
+            @Override
+            public int compare(NodeEntry o1, NodeEntry o2) {
+                return KadId.compareRef(o1.getId(), o2.getId(), target);
+            }
+        });
+
+        assertTrue(res1.size() >= 30);
+
+        List<NodeEntry> res2 = table.forEach(null, new Filter<NodeEntry>() {
+            @Override
+            public boolean allow(NodeEntry nodeEntry) {
+                return true;
+            }
+        });
+
+        assertTrue(res2.size() >= 10);
+
+        List<NodeEntry> res3 = table.forEach(new Filter<NodeEntry>() {
+            @Override
+            public boolean allow(NodeEntry nodeEntry) {
+                return true;
+            }
+        },
+        new Filter<NodeEntry>() {
+            @Override
+            public boolean allow(NodeEntry nodeEntry) {
+                return true;
+            }
+        });
+
+        assertTrue(res3.size() >= 40);
     }
 }
