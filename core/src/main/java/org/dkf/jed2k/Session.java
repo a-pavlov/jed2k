@@ -87,7 +87,12 @@ public class Session extends Thread {
                         int ip = 0;
                         int sourceType = 0;
                         int sourcePort = 0;
+                        int sourceUPort = 0;
                         int lowId = 0;
+                        int serverIp = 0;
+                        int serverPort = 0;
+                        KadId id = null;
+                        int cryptOptions = 0;
 
                         try {
                             for (final Tag t : kse.getInfo()) {
@@ -104,6 +109,28 @@ public class Session extends Thread {
                                     case Tag.TAG_CLIENTLOWID:
                                         lowId = t.intValue();
                                         break;
+                                    case Tag.TAG_SOURCEUPORT:
+                                        sourceUPort = t.intValue();
+                                        break;
+                                    case Tag.TAG_SERVERIP:
+                                        serverIp = t.intValue();
+                                        break;
+                                    case Tag.TAG_SERVERPORT:
+                                        serverPort = t.intValue();
+                                        break;
+                                    case Tag.TAG_BUDDYHASH:
+                                        try {
+                                            id = new KadId(Hash.fromString(t.stringValue()));
+                                        } catch(JED2KException e) {
+                                            log.warn("[session] unable to extract buddy hash {}", e);
+                                        }
+                                        break;
+                                    case Tag.TAG_ENCRYPTION:
+                                        cryptOptions = t.intValue();
+                                        break;
+                                    default:
+                                        log.debug("[session] unhandled KAD search tag {}", t);
+                                        break;
                                 }
                             }
                         } catch(JED2KException e) {
@@ -111,7 +138,8 @@ public class Session extends Thread {
                         }
 
                         assert transfer != null;
-                        if (ip != 0 && sourcePort != 0) {
+                        // process here only non-firewalled sources
+                        if (ip != 0 && sourcePort != 0 && (sourceType == 1 || sourceType == 4)) {
                             try {
                                 transfer.addPeer(new Endpoint(ip, sourcePort), Peer.SourceFlag.SF_DHT.value);
                             } catch(JED2KException e) {

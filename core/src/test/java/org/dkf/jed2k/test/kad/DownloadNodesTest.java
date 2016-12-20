@@ -19,7 +19,7 @@ import static junit.framework.Assert.assertTrue;
  */
 public class DownloadNodesTest {
 
-    private String[] links = {"http://www.nodes-dat.com/dl.php?load=nodes&trace=41173279.4444"};
+    private String[] links = {"http://www.nodes-dat.com/dl.php?load=nodes&trace=41173982.9444"};
 
     @Test
     public void downloadAndParseNodesIntegrationTest() throws JED2KException {
