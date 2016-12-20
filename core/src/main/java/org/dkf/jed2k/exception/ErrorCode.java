@@ -52,7 +52,8 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_CONFIG_ERROR(45, "Configuration exception on port mapping"),
     PORT_MAPPING_EXCEPTION(46, "Unknown exception on port mapping"),
     DHT_REQUEST_ALREADY_RUNNING(47, "DHT request with the same hash already in progress"),
-    FAIL(48, "Fail");
+    URI_SYNTAX_ERROR(48, "URI has incorrect syntax"),
+    FAIL(49, "Fail");
 
     private final int code;
     private final String description;
