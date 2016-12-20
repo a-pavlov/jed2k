@@ -57,6 +57,24 @@ public class NodeImpl {
         invoke(hello, ep, new NullObserver(new Single(this, id), ep, id, 0, (byte)0));
     }
 
+    /**
+     * adds new KAD entry to our table with ping(hello request)
+     * @param entry - KAD entry item
+     * @throws JED2KException
+     */
+    public void addKadNode(final KadEntry entry) throws JED2KException {
+        Kad2HelloReq hello = new Kad2HelloReq();
+        hello.setKid(getSelf());
+        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getPortTcp().assign(port);
+        invoke(hello, entry.getKadEndpoint().getEndpoint()
+                , new NullObserver(new Single(this, entry.getKid())
+                        , entry.getKadEndpoint().getEndpoint()
+                        , entry.getKid()
+                        , entry.getKadEndpoint().getPortTcp().intValue()
+                        , entry.getVersion()));
+    }
+
     public void addTraversalAlgorithm(final Traversal ta) throws JED2KException {
         if (runningRequests.contains(ta)) throw new JED2KException(ErrorCode.DHT_REQUEST_ALREADY_RUNNING);
         assert !runningRequests.contains(ta);

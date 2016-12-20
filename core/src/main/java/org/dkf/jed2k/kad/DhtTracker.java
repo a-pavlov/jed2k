@@ -247,6 +247,10 @@ public class DhtTracker extends Thread {
         node.addNode(endpoint, id);
     }
 
+    /**
+     * adds initial nodes
+     * @param entries
+     */
     public void addEntries(final List<NodeEntry> entries) {
         assert entries != null;
         commands.add(new Runnable() {
@@ -257,6 +261,29 @@ public class DhtTracker extends Thread {
                         node.addNode(e.getEndpoint(), e.getId());
                     } catch(JED2KException ex) {
                         log.error("[tracker] unable to add node {} due to error {}", e, ex);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * add initial nodes
+     * @param entries - KAD entries from nodes.dat file usually
+     */
+    public void addKadEntries(final List<KadEntry> entries) {
+        assert entries != null;
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                int i = 0;
+                for(final KadEntry e: entries) {
+                    try {
+                        node.addKadNode(e);
+                        ++i;
+                        //if (i > 100) break;
+                    } catch(JED2KException ex) {
+                        log.error("[tracker] unable to add kad node {} due to error {}", e, ex);
                     }
                 }
             }

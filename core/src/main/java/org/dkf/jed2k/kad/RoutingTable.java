@@ -166,7 +166,7 @@ public class RoutingTable {
         assert i < buckets.size();
 
         if (now - bucket.getLastActive() < Time.minutes(15)) {
-            log.debug("[table] bucket {} has too recent last active is {}", i, now - bucket.getLastActive());
+            log.trace("[table] bucket {} has too recent last active is {}", i, now - bucket.getLastActive());
             return null;
         }
 
