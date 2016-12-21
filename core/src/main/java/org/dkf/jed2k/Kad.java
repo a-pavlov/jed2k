@@ -182,13 +182,14 @@ public class Kad {
                 } else {
                     log.info("[KAD] downloading nodes.dat from inet and bootstrap dht");
                     try {
-                        byte[] data = IOUtils.toByteArray(new URI("www.nodes-dat.com/dl.php?load=nodes&trace=41173982.9444"));
+                        byte[] data = IOUtils.toByteArray(new URI("http://server-met.emulefuture.de/download.php?file=nodes.dat"));
                         ByteBuffer buffer = ByteBuffer.wrap(data);
                         log.debug("[KAD] downloaded nodes.dat size {}", buffer.remaining());
                         buffer.order(ByteOrder.LITTLE_ENDIAN);
                         KadNodesDat nodes = new KadNodesDat();
                         nodes.get(buffer);
                         tracker.addKadEntries(nodes.getContacts());
+                        tracker.addKadEntries(nodes.getBootstrapEntries().getList());
                     } catch (Exception e) {
                         log.error("[KAD] unable to initialize DHT from inet: {}", e);
                     }

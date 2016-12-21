@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertTrue;
 @Slf4j
 public class DownloadNodesTest {
 
-    private String[] links = {"http://www.nodes-dat.com/dl.php?load=nodes&trace=41173982.9444"};
+    private String[] links = {"http://server-met.emulefuture.de/download.php?file=nodes.dat"};
 
     @Test
     public void downloadAndParseNodesIntegrationTest() throws JED2KException {
@@ -41,7 +41,11 @@ public class DownloadNodesTest {
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 KadNodesDat nodes = new KadNodesDat();
                 nodes.get(buffer);
-                assertTrue(!nodes.getContacts().isEmpty());
+                assertTrue(!nodes.getContacts().isEmpty() || !nodes.getBootstrapEntries().isEmpty());
+                int bs = nodes.getBootstrapEntries().size();
+                int es = nodes.getExtContacts().size();
+                int sz = nodes.getContacts().size();
+                log.info("[DonwloadNodesTest] bootstrap {} contacts {} ext contacts {}", bs, es, sz);
             } catch(URISyntaxException e) {
                 throw new JED2KException(ErrorCode.URI_SYNTAX_ERROR);
             } catch(IOException e) {

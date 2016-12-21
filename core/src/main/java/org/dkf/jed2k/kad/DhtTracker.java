@@ -148,8 +148,10 @@ public class DhtTracker extends Thread {
             node.incoming(s, address);
         } catch (IOException e) {
             log.error("[tracker] I/O exception {} on reading packet {}", e, incomingHeader);
+            e.printStackTrace();
         } catch (JED2KException e) {
             log.error("[tracker] exception {} on parse packet {}", e, incomingHeader);
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
             log.error("[tracker] unexpected error on parse packet {} {}", incomingHeader, e);
