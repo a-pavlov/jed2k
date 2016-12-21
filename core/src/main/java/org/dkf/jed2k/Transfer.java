@@ -294,7 +294,7 @@ public class Transfer {
 
             if (nextTimeForDhtSourcesRequest < Time.currentTime()) {
                 log.debug("[transfer] request peers on KAD {}", hash);
-                session.sendDhtSourcesRequest(hash, size);
+                session.sendDhtSourcesRequest(hash, size, this);
                 nextTimeForDhtSourcesRequest = Time.currentTime() + Time.minutes(10);
             }
         }

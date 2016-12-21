@@ -24,6 +24,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -65,9 +66,11 @@ public class Session extends Thread {
      */
     private static class DhtSourcesCallback implements Listener {
         final Session session;
+        final WeakReference<Transfer> weakTransfer;
 
-        public DhtSourcesCallback(final Session session) {
+        public DhtSourcesCallback(final Session session, final Transfer t) {
             this.session = session;
+            this.weakTransfer = new WeakReference<Transfer>(t);
         }
 
         @Override
@@ -75,13 +78,19 @@ public class Session extends Thread {
             session.commands.add(new Runnable() {
                 @Override
                 public void run() {
+                    Transfer transfer = weakTransfer.get();
+                    if (transfer == null) {
+                        log.debug("[session] transfer not exists for searched result, just skip it");
+                        return;
+                    }
+
                     for(final KadSearchEntry kse: data) {
                         KadId target = kse.getKid();
                         assert target != null; // actually impossible
 
-                        Transfer transfer = session.transfers.get(target);  // TODO - cache this value instead of search every time
                         if (transfer == null) {
                             log.debug("[session] transfer for {} not exists", target);
+                            continue;
                         };
 
                         int ip = 0;
@@ -595,10 +604,10 @@ public class Session extends Thread {
         if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
     }
 
-    void sendDhtSourcesRequest(final Hash h, final long size) {
+    void sendDhtSourcesRequest(final Hash h, final long size, final Transfer t) {
         if (dhtTracker != null) {
             try {
-                dhtTracker.searchSources(h, size, new DhtSourcesCallback(this));
+                dhtTracker.searchSources(h, size, new DhtSourcesCallback(this, t));
             } catch(JED2KException e) {
                 log.error("[session] dht search sources error {}", e);
             }
