@@ -239,7 +239,7 @@ public class ServerConnection extends Connection {
                 } else {
                     log.debug("to hash {} added endpoint {}", value.hash, endpoint);
                     try {
-                        transfer.addPeer(endpoint, Peer.SourceFlag.SF_SERVER.value);
+                        transfer.addPeer(endpoint, Peer.SERVER);
                     } catch(JED2KException e) {
                         e.printStackTrace();
                         break;

@@ -1,10 +1,9 @@
 package org.dkf.jed2k;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -12,9 +11,10 @@ import java.util.*;
  * peers management class - choose peer for connection
  * extends AbstractCollection for unit testing purposes
  */
+@Slf4j
 public class Policy extends AbstractCollection<Peer> {
-    private final Logger log = LoggerFactory.getLogger(Policy.class);
     public static final int MAX_PEER_LIST_SIZE = 100;
+    public static final int MIN_RECONNECT_TIMEOUT = 10;
     private int roundRobin = 0;
     private ArrayList<Peer> peers = new ArrayList<Peer>();
     private Transfer transfer = null;
@@ -27,18 +27,18 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean isConnectCandidate(final Peer pe) {
         assert(pe != null);
         // TODO - use fail count parameter here
-        if (pe.hasConnection() || !pe.isConnectable() || pe.failCount > 10) return false;
+        if (pe.hasConnection() || !pe.isConnectable() || pe.getFailCount() > 10) return false;
         return true;
     }
 
     public boolean isEraseCandidate(Peer pe) {
         if (pe.hasConnection() || isConnectCandidate(pe)) return false;
-        return pe.failCount > 0;
+        return pe.getFailCount() > 0;
     }
 
     Peer get(Endpoint endpoint) {
         for(Peer p: peers) {
-            if (p.endpoint.equals(endpoint)) return p;
+            if (p.getEndpoint().equals(endpoint)) return p;
         }
 
         return null;
@@ -47,15 +47,19 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean addPeer(Peer p) throws JED2KException {
         assert(p != null);
 
-        int maxPeerlistSize = 100;
-
-        if (maxPeerlistSize != 0 && peers.size() >= maxPeerlistSize) {
+        if (MAX_PEER_LIST_SIZE != 0 && peers.size() >= MAX_PEER_LIST_SIZE) {
             erasePeers();
-            if (peers.size() >= maxPeerlistSize) throw new JED2KException(ErrorCode.PEER_LIMIT_EXEEDED);
+            if (peers.size() >= MAX_PEER_LIST_SIZE) throw new JED2KException(ErrorCode.PEER_LIMIT_EXEEDED);
         }
 
         int insertPos = Collections.binarySearch(peers, p);
-        if (insertPos >= 0) return false;   // endpoint was found, do not insert duplicates
+
+        // update peer source flag
+        if (insertPos >= 0) {
+            peers.get(insertPos).setSourceFlag(peers.get(insertPos).getSourceFlag() | p.getSourceFlag());
+            return false;
+        }
+
         peers.add(((insertPos + 1)*-1), p);
         return true;
     }
@@ -112,23 +116,27 @@ public class Policy extends AbstractCollection<Peer> {
      */
     boolean comparePeers(Peer lhs, Peer rhs) {
         // prefer peers with lower failcount
-        if (lhs.failCount != rhs.failCount)
-            return lhs.failCount < rhs.failCount;
+        if (lhs.getFailCount() != rhs.getFailCount())
+            return lhs.getFailCount() < rhs.getFailCount();
 
         // Local peers should always be tried first
-        boolean lhs_local = Utils.isLocalAddress(lhs.endpoint);
-        boolean rhs_local = Utils.isLocalAddress(rhs.endpoint);
-        if (lhs_local != rhs_local) {
-            if (lhs_local) return true;
+        boolean lhsLocal = Utils.isLocalAddress(lhs.getEndpoint());
+        boolean rhsLocal = Utils.isLocalAddress(rhs.getEndpoint());
+        if (lhsLocal != rhsLocal) {
+            if (lhsLocal) return true;
             return false;
         }
 
-        if (lhs.lastConnected != rhs.lastConnected)
-            return lhs.lastConnected < rhs.lastConnected;
+        if (lhs.getLastConnected() != rhs.getLastConnected())
+            return lhs.getLastConnected() < rhs.getLastConnected();
 
 
-        if (lhs.nextConnection != rhs.nextConnection)
-            return lhs.nextConnection < rhs.nextConnection;
+        if (lhs.getNextConnection() != rhs.getNextConnection())
+            return lhs.getNextConnection() < rhs.getNextConnection();
+
+        int lhsRank = getSourceRank(lhs.getSourceFlag());
+        int rhsRank = getSourceRank(rhs.getSourceFlag());
+        if (lhsRank != rhsRank) return lhsRank > rhsRank;
 
         return false;
     }
@@ -144,15 +152,15 @@ public class Policy extends AbstractCollection<Peer> {
         assert(!rhs.hasConnection());
 
         // primarily, prefer getting rid of peers we've already tried and failed
-        if (lhs.failCount != rhs.failCount)
-            return lhs.failCount > rhs.failCount;
+        if (lhs.getFailCount() != rhs.getFailCount())
+            return lhs.getFailCount() > rhs.getFailCount();
 
-        boolean lhs_resume_data_source = lhs.source == Peer.SourceFlag.SF_RESUME_DATA.value;
-        boolean rhs_resume_data_source = rhs.source == Peer.SourceFlag.SF_RESUME_DATA.value;
+        boolean lhsResumeDataSource = (lhs.getSourceFlag() & Peer.RESUME) == Peer.RESUME;
+        boolean rhsResumeDataSource = (rhs.getSourceFlag() & Peer.RESUME) == Peer.RESUME;
 
         // prefer to drop peers whose only source is resume data
-        if (lhs_resume_data_source != rhs_resume_data_source) {
-            if (lhs_resume_data_source) return true;
+        if (lhsResumeDataSource != rhsResumeDataSource) {
+            if (lhsResumeDataSource) return true;
             return false;
         }
 
@@ -179,8 +187,7 @@ public class Policy extends AbstractCollection<Peer> {
             assert(pe != null);
             int current = roundRobin;
 
-            // TODO - use parameter here as max peer list dataSize
-            if (peers.size() > 100) {
+            if (peers.size() > MAX_PEER_LIST_SIZE) {
                 if (isEraseCandidate(pe) && (eraseCandidate == -1 || !comparePeerErase(peers.get(eraseCandidate), pe))) {
                     if (shouldEraseImmediately(pe)) {
                         if (eraseCandidate > current) --eraseCandidate;
@@ -195,10 +202,9 @@ public class Policy extends AbstractCollection<Peer> {
             ++roundRobin;
             if (!isConnectCandidate(pe)) continue;
             if (candidate != -1 && comparePeers(peers.get(candidate), pe)) continue;
-            if (pe.nextConnection != 0 && pe.nextConnection < sessionTime) continue;
-            // TODO - use min reconnect time parameter here
+            if (pe.getNextConnection() != 0 && pe.getNextConnection() < sessionTime) continue;
             // 10 seconds timeout for each fail
-            if (pe.lastConnected != 0 && (sessionTime < pe.lastConnected + (pe.failCount + 1)*10*1000)) continue;
+            if (pe.getLastConnected() != 0 && (sessionTime < pe.getLastConnected() + Time.seconds(pe.getFailCount() + 1)*MIN_RECONNECT_TIMEOUT)) continue;
             candidate = current;
         }
 
@@ -215,7 +221,7 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean connectOnePeer(long sessionTime) throws JED2KException {
         Peer peerInfo = findConnectCandidate(sessionTime);
         if (peerInfo != null) {
-            log.debug("connect peer {}", peerInfo);
+            log.debug("[policy] connect peer {}", peerInfo);
             assert isConnectCandidate(peerInfo);
             assert peerInfo.isConnectable();
             transfer.connectoToPeer(peerInfo);
@@ -229,8 +235,8 @@ public class Policy extends AbstractCollection<Peer> {
         Peer p = c.getPeer();
         if (p == null) return;
         p.setConnection(null);
-        p.lastConnected = sessionTime;
-        if (c.isFailed()) p.failCount++;
+        p.setLastConnected(sessionTime);
+        if (c.isFailed()) p.setFailCount(p.getFailCount() + 1);
         if (!p.isConnectable()) peers.remove(p);
     }
 
@@ -241,7 +247,7 @@ public class Policy extends AbstractCollection<Peer> {
     }
 
     private boolean shouldEraseImmediately(Peer p) {
-        return p.source == Peer.SourceFlag.SF_RESUME_DATA.value;
+        return (p.getSourceFlag() & Peer.RESUME) == Peer.RESUME;
     }
 
     @Override
@@ -290,6 +296,15 @@ public class Policy extends AbstractCollection<Peer> {
         c.setPeer(p);
     }
 
+    public int getSourceRank(int sourceBitmask) {
+        int ret = 0;
+        if (Utils.isBit(sourceBitmask,Peer.SERVER)) ret |= 1 << 5;
+        if (Utils.isBit(sourceBitmask, Peer.DHT)) ret |= 1 << 4;
+        if (Utils.isBit(sourceBitmask, Peer.INCOMING)) ret |= 1 << 3;
+        if (Utils.isBit(sourceBitmask, Peer.RESUME)) ret |= 1 << 2;
+        return ret;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -299,6 +314,12 @@ public class Policy extends AbstractCollection<Peer> {
         }
 
         return sb.toString();
+    }
+
+    public Peer findPeer(final Endpoint ep) {
+        int pos = Collections.binarySearch(peers, new Peer(ep));
+        if (pos >= 0) return peers.get(pos);
+        return null;
     }
 }
 

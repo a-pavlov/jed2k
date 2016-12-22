@@ -244,9 +244,9 @@ public class Transfer {
     }
 
     public PeerConnection connectoToPeer(Peer peerInfo) throws JED2KException {
-        peerInfo.lastConnected = Time.currentTime();
-        peerInfo.nextConnection = 0;
-        PeerConnection c = PeerConnection.make(session, peerInfo.endpoint, this, peerInfo);
+        peerInfo.setLastConnected(Time.currentTime());
+        peerInfo.setNextConnection(0);
+        PeerConnection c = PeerConnection.make(session, peerInfo.getEndpoint(), this, peerInfo);
         session.connections.add(c);
         connections.add(c);
         policy.setConnection(peerInfo, c);

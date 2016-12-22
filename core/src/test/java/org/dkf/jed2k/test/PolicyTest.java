@@ -1,9 +1,6 @@
 package org.dkf.jed2k.test;
 
-import org.dkf.jed2k.Peer;
-import org.dkf.jed2k.PeerConnection;
-import org.dkf.jed2k.Policy;
-import org.dkf.jed2k.Transfer;
+import org.dkf.jed2k.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.junit.Assume;
@@ -40,6 +37,7 @@ public class PolicyTest {
         when(transfer.connectoToPeer(any(Peer.class))).thenReturn(connection);
         when(transfer.isFinished()).thenReturn(false);
         Mockito.doCallRealMethod().when(transfer).callPolicy(any(Peer.class), any(PeerConnection.class));
+        Time.updateCachedTime();
     }
 
     @Test
@@ -206,5 +204,31 @@ public class PolicyTest {
                 assertFalse(p2.equals(itr.next()));
             }
         }
+    }
+
+    @Test
+    public void testPeerSourceFlagUpdate() throws JED2KException {
+        Policy p = new Policy(transfer);
+        assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, Peer.SERVER)));
+        long currentTime = Time.currentTime();
+        Peer candidate = p.findConnectCandidate(currentTime);
+        assertTrue(candidate != null);
+        assertEquals(Peer.SERVER, candidate.getSourceFlag());
+        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, Peer.DHT)));
+        candidate = p.findConnectCandidate(currentTime + Time.minutes(1));
+        assertTrue(candidate != null);
+        assertEquals(Peer.SERVER | Peer.DHT, candidate.getSourceFlag());
+        for(int i = 0; i < 30; ++i) {
+            assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", i+6000), true, Peer.SERVER)));
+        }
+
+        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", 6004), true, Peer.DHT)));
+        Peer peer = p.findPeer(Endpoint.fromString("192.168.2.233", 6004));
+        assertTrue(peer != null);
+        assertEquals(Peer.SERVER | Peer.DHT, peer.getSourceFlag());
+        candidate.setLastConnected(currentTime + Time.minutes(1) + Time.seconds(1));
+        candidate = p.findConnectCandidate(currentTime + Time.minutes(1) + Time.seconds(2));
+        assertTrue(candidate != null);
+        assertEquals(new Peer(Endpoint.fromString("192.168.2.233", 6004)), candidate);
     }
 }

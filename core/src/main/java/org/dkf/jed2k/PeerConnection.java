@@ -1088,7 +1088,7 @@ public class PeerConnection extends Connection {
         i.downloadSpeed = (int)statistics().downloadRate();
         i.payloadDownloadSpeed = (int)statistics().downloadPayloadRate();
         i.remotePieces = remotePieces;
-        i.failCount = ((getPeer()!=null)?getPeer().failCount:0);
+        i.failCount = ((getPeer()!=null)?getPeer().getFailCount():0);
         i.modName = remotePeerInfo.modName;
         i.version = remotePeerInfo.version;
         i.modVersion = remotePeerInfo.modNumber;
