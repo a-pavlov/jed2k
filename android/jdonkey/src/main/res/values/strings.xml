@@ -224,4 +224,7 @@
     <string name="wizard_previous">Previous</string>
     <string name="wizard_next">Next</string>
     <string name="wizard_finish">Finish</string>
+
+    <string name="dht_enable_summary">DHT(Kademlia) for search keywords and sources</string>
+    <string name="dht_enable_title">Kademlia</string>
 </resources>

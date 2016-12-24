@@ -32,6 +32,7 @@ import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.android.ED2KService;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.util.ThreadPool;
 import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.core.Constants;
@@ -283,11 +284,23 @@ public final class Engine implements AlertListener {
                     if (userAgent == null || userAgent.isEmpty()) {
                         userAgent = Hash.random(true).toString();
                         ConfigurationManager.instance().setString(Constants.PREF_KEY_USER_AGENT, userAgent);
-                        log.info("previous user aget not found, generate new {}", userAgent);
+                        log.info("previous user agent was not found, generate new {}", userAgent);
                     }
 
                     log.info("user agent {}", userAgent);
                     setUserAgent(userAgent);
+
+                    // KAD id section
+                    String kadId = ConfigurationManager.instance().getString(Constants.PREF_KEY_KAD_ID);
+                    if (kadId == null || kadId.isEmpty()) {
+                        kadId = new KadId(Hash.random(true)).toString();
+                        ConfigurationManager.instance().setString(Constants.PREF_KEY_KAD_ID, kadId);
+                        log.info("previous kad id was not found, generate new {}", kadId);
+                    }
+
+                    log.info("kad id {}", kadId);
+                    setKadId(kadId);
+
 
                     configureServices();
 
@@ -296,6 +309,7 @@ public final class Engine implements AlertListener {
                     }
 
                     forwardPorts(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
+                    startDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_START_DHT));
 
                     //registerStatusReceiver(context);
                 } else {
@@ -384,11 +398,18 @@ public final class Engine implements AlertListener {
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
+    public void startDht(boolean dht) { if (service != null) service.setDht(dht); }
 
     public void setUserAgent(final String s) {
         assert s != null;
         assert !s.isEmpty();
         if (service != null) service.setUserAgent(Hash.fromString(s));
+    }
+
+    public void setKadId(final String s) {
+        assert s != null;
+        assert !s.isEmpty();
+        if (service != null) service.setKadId(KadId.fromString(s));
     }
 
     public void configureServices() {

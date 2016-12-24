@@ -18,6 +18,7 @@ import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,8 @@ public class ED2KService extends Service {
 
     private boolean vibrateOnDownloadCompleted = false;
     private boolean forwardPorts = false;
+    private boolean dht = false;
+    private KadId kadId = null;
 
     /**
      * run notifications in ui thread
@@ -63,7 +66,7 @@ public class ED2KService extends Service {
     private Session session;
 
     /**
-     * cached hashes of transfers to provide informaion about hashes we have
+     * cached hashes of transfers to provide information about hashes we have
      */
     private Map<Hash, Integer> localHashes = Collections.synchronizedMap(new HashMap<Hash, Integer>());
 
@@ -198,6 +201,7 @@ public class ED2KService extends Service {
         startBackgroundOperations();
         startingInProgress = false;
         if (forwardPorts) session.startUPnP(); else session.stopUPnP();
+        if (dht) session.dhtStart(kadId); else session.dhtStop();
         log.info("session started!");
     }
 
@@ -741,6 +745,17 @@ public class ED2KService extends Service {
         }
     }
 
+    public void setDht(boolean dht) {
+        this.dht = dht;
+        if (session != null) {
+            if (dht) {
+                session.dhtStart(kadId);
+            } else {
+                session.dhtStop();
+            }
+        }
+    }
+
     public void setListenPort(int port) {
         settings.listenPort = port;
     }
@@ -751,6 +766,10 @@ public class ED2KService extends Service {
 
     public void setUserAgent(Hash hash) {
         settings.userAgent = hash;
+    }
+
+    public void setKadId(final KadId id) {
+        kadId = id;
     }
 
     public Pair<Long, Long> getDownloadUploadRate() {

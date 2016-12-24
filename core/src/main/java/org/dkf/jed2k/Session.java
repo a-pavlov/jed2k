@@ -891,7 +891,7 @@ public class Session extends Thread {
         commands.add(new Runnable() {
             @Override
             public void run() {
-                dhtTracker.abort();
+                if (dhtTracker != null && !dhtTracker.isAborted()) dhtTracker.abort();
             }
         });
     }
