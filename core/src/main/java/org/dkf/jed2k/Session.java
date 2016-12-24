@@ -354,7 +354,8 @@ public class Session extends Thread {
             // stop service
             diskIOService.shutdown();
             upnpService.shutdown();
-            stopUPnPImpl();
+            stopUPnPImpl("TCP");
+            stopUPnPImpl("UDP");
             log.info("Session finished");
             finished.set(true);
         }
@@ -783,22 +784,25 @@ public class Session extends Thread {
                     discover.discover();
                     device = discover.getValidGateway();
                     if (device != null) {
-                        PortMappingEntry portMapping = new PortMappingEntry();
-                        if (!device.getSpecificPortMappingEntry(port, "TCP",portMapping)) {
-                            InetAddress localAddress = device.getLocalAddress();
-                            if (device.addPortMapping(port, port, localAddress.getHostAddress(),"TCP","JED2K")) {
-                                // ok, mapping added
-                                log.info("port mapped {}", port);
+                        final String[] protocols = {"TCP", "UDP"};
+                        for(final String protocol: protocols) {
+                            PortMappingEntry portMapping = new PortMappingEntry();
+                            if (!device.getSpecificPortMappingEntry(port, protocol, portMapping)) {
+                                InetAddress localAddress = device.getLocalAddress();
+                                if (device.addPortMapping(port, port, localAddress.getHostAddress(), protocol, "JED2K")) {
+                                    // ok, mapping added
+                                    log.info("[session] port mapped {} for {}", port, protocol);
+                                } else {
+                                    log.info("[session] port {} mapping error for {}", port, protocol);
+                                    ec = ErrorCode.PORT_MAPPING_ERROR;
+                                }
                             } else {
-                                log.info("mapping error for port {}", port);
-                                ec = ErrorCode.PORT_MAPPING_ERROR;
+                                log.debug("[session] port {} already mapped for {}", port, protocol);
+                                ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                             }
-                        } else {
-                            log.debug("port {} already mapped", port);
-                            ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                         }
                     } else {
-                        log.debug("can not find gateway device");
+                        log.debug("[session] can not find gateway device");
                         ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
                     }
                 } catch (IOException e) {
@@ -824,29 +828,31 @@ public class Session extends Thread {
         upnpService.submit(new Runnable() {
             @Override
             public void run() {
-                stopUPnPImpl();
+                stopUPnPImpl("TCP");
+                stopUPnPImpl("UDP");
+                device = null;
             }
         });
     }
 
-    private void stopUPnPImpl() {
+    private void stopUPnPImpl(final String protocol) {
         if (device != null) {
             try {
-                if (device.deletePortMapping(settings.listenPort, "TCP")) {
+                if (device.deletePortMapping(settings.listenPort, protocol)) {
                     log.info("port mapping removed {}", settings.listenPort);
                 } else {
                     log.error("port mapping removing failed");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                log.error("[session] unmap port I/O error {}", e);
             } catch (SAXException e) {
                 e.printStackTrace();
+                log.error("[session] unmap port SAX error {}", e);
             }
             catch(Exception e) {
                 e.printStackTrace();
-            }
-            finally {
-                device = null;
+                log.error("[session] unmap port error {}", e);
             }
         }
     }
