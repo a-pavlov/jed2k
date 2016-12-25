@@ -150,7 +150,7 @@ public class Session extends Thread {
                         // process here only non-firewalled sources
                         if (ip != 0 && sourcePort != 0 && (sourceType == 1 || sourceType == 4)) {
                             try {
-                                transfer.addPeer(new Endpoint(ip, sourcePort), Peer.DHT);
+                                transfer.addPeer(new Endpoint(ip, sourcePort), PeerInfo.DHT);
                             } catch(JED2KException e) {
                                 log.error("[session] unable to add peer {}:{} to transfer {} with error {}", ip, sourcePort, transfer, e);
                             }

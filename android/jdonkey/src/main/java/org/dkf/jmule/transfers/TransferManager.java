@@ -251,12 +251,12 @@ public final class TransferManager {
 
         PeerInfo generatePeer() {
             PeerInfo pi = new PeerInfo();
-            pi.endpoint = new Endpoint(rnd.nextInt(), (short)rnd.nextInt(30000));
-            pi.modName = "mod";
-            pi.modVersion = rnd.nextInt(22);
-            pi.strModVersion = Integer.toString(rnd.nextInt(33));
-            pi.downloadPayload = rnd.nextInt(555656);
-            pi.downloadSpeed = rnd.nextInt(30000);
+            pi.setEndpoint(new Endpoint(rnd.nextInt(), (short)rnd.nextInt(30000)));
+            pi.setModName("mod");
+            pi.setModVersion(rnd.nextInt(22));
+            pi.setStrModVersion(Integer.toString(rnd.nextInt(33)));
+            pi.setDownloadPayload(rnd.nextInt(555656));
+            pi.setDownloadSpeed(rnd.nextInt(30000));
             return pi;
         }
 

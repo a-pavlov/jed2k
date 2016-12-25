@@ -209,23 +209,23 @@ public class PolicyTest {
     @Test
     public void testPeerSourceFlagUpdate() throws JED2KException {
         Policy p = new Policy(transfer);
-        assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, Peer.SERVER)));
+        assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, PeerInfo.SERVER)));
         long currentTime = Time.currentTime();
         Peer candidate = p.findConnectCandidate(currentTime);
         assertTrue(candidate != null);
-        assertEquals(Peer.SERVER, candidate.getSourceFlag());
-        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, Peer.DHT)));
+        assertEquals(PeerInfo.SERVER, candidate.getSourceFlag());
+        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, PeerInfo.DHT)));
         candidate = p.findConnectCandidate(currentTime + Time.minutes(1));
         assertTrue(candidate != null);
-        assertEquals(Peer.SERVER | Peer.DHT, candidate.getSourceFlag());
+        assertEquals(PeerInfo.SERVER | PeerInfo.DHT, candidate.getSourceFlag());
         for(int i = 0; i < 30; ++i) {
-            assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", i+6000), true, Peer.SERVER)));
+            assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", i+6000), true, PeerInfo.SERVER)));
         }
 
-        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", 6004), true, Peer.DHT)));
+        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", 6004), true, PeerInfo.DHT)));
         Peer peer = p.findPeer(Endpoint.fromString("192.168.2.233", 6004));
         assertTrue(peer != null);
-        assertEquals(Peer.SERVER | Peer.DHT, peer.getSourceFlag());
+        assertEquals(PeerInfo.SERVER | PeerInfo.DHT, peer.getSourceFlag());
         candidate.setLastConnected(currentTime + Time.minutes(1) + Time.seconds(1));
         candidate = p.findConnectCandidate(currentTime + Time.minutes(1) + Time.seconds(2));
         assertTrue(candidate != null);

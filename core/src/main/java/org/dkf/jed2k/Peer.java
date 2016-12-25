@@ -11,12 +11,6 @@ import org.dkf.jed2k.protocol.Endpoint;
 @Data
 @ToString
 public class Peer implements Comparable<Peer> {
-
-    public static final byte INCOMING = 0x1;
-    public static final byte SERVER = 0x2;
-    public static final byte DHT = 0x4;
-    public static final byte RESUME = 0x8;
-
     private long    lastConnected   = 0;
     private long    nextConnection  = 0;
     private int     failCount       = 0;

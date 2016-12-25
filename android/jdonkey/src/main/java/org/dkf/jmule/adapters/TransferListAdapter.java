@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.TransferStatus;
+import org.dkf.jed2k.Utils;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.adapters.menu.*;
@@ -395,20 +396,28 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
     }
 
     private void populatePeerItem(View view, PeerInfo item) {
-        //ImageView icon = findView(view, R.id.view_transfer_item_list_item_icon);
+        ImageView icon = findView(view, R.id.view_transfer_item_list_item_icon);
         TextView title = findView(view, R.id.view_transfer_item_list_item_title);
         TextView summary = findView(view, R.id.view_transfer_item_list_item_summary);
         TextView totalBytes = findView(view, R.id.view_transfer_item_list_item_total_bytes);
         TextView speed = findView(view, R.id.view_transfer_item_list_item_speed);
+
+        // for DHT set swap icon and computer icon for all other cases
+        if (Utils.isBit(item.getSourceFlag(), PeerInfo.DHT)) {
+            icon.setImageResource(R.drawable.ic_swap_calls_black_24dp);
+        } else {
+            icon.setImageResource(R.drawable.ic_computer_black_24dp);
+        }
+
         //ImageButton buttonPlay = findView(view, R.id.view_transfer_item_list_item_button_play);
 
         //icon.setImageResource(MediaType.getFileTypeIconId(FilenameUtils.getExtension(item.getFilePath().getAbsolutePath())));
-        title.setText(item.endpoint.toString());
+        title.setText(item.getEndpoint().toString());
         String templateTotalBytes = view.getResources().getString(R.string.peer_total_bytes_download);
         String templateSpeed = view.getResources().getString(R.string.peer_speed);
-        String strTotalBytes = String.format(templateTotalBytes, UIUtils.getBytesInHuman(item.downloadPayload + item.downloadProtocol));
-        String strSpeed = String.format(templateSpeed, UIUtils.rate2speed(item.downloadSpeed / 1024));
-        String strSummary = String.format("[%s] %s", item.strModVersion != null?item.strModVersion:"", item.modName);
+        String strTotalBytes = String.format(templateTotalBytes, UIUtils.getBytesInHuman(item.getDownloadPayload() + item.getDownloadProtocol()));
+        String strSpeed = String.format(templateSpeed, UIUtils.rate2speed(item.getDownloadSpeed() / 1024));
+        String strSummary = String.format("[%s] %s", item.getStrModVersion() != null?item.getStrModVersion():"", item.getModName());
         totalBytes.setText(strTotalBytes);
         speed.setText(strSpeed);
         summary.setText(strSummary);

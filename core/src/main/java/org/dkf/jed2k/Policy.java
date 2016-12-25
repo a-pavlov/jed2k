@@ -155,8 +155,8 @@ public class Policy extends AbstractCollection<Peer> {
         if (lhs.getFailCount() != rhs.getFailCount())
             return lhs.getFailCount() > rhs.getFailCount();
 
-        boolean lhsResumeDataSource = (lhs.getSourceFlag() & Peer.RESUME) == Peer.RESUME;
-        boolean rhsResumeDataSource = (rhs.getSourceFlag() & Peer.RESUME) == Peer.RESUME;
+        boolean lhsResumeDataSource = (lhs.getSourceFlag() & PeerInfo.RESUME) == PeerInfo.RESUME;
+        boolean rhsResumeDataSource = (rhs.getSourceFlag() & PeerInfo.RESUME) == PeerInfo.RESUME;
 
         // prefer to drop peers whose only source is resume data
         if (lhsResumeDataSource != rhsResumeDataSource) {
@@ -247,7 +247,7 @@ public class Policy extends AbstractCollection<Peer> {
     }
 
     private boolean shouldEraseImmediately(Peer p) {
-        return (p.getSourceFlag() & Peer.RESUME) == Peer.RESUME;
+        return (p.getSourceFlag() & PeerInfo.RESUME) == PeerInfo.RESUME;
     }
 
     @Override
@@ -298,10 +298,10 @@ public class Policy extends AbstractCollection<Peer> {
 
     public int getSourceRank(int sourceBitmask) {
         int ret = 0;
-        if (Utils.isBit(sourceBitmask,Peer.SERVER)) ret |= 1 << 5;
-        if (Utils.isBit(sourceBitmask, Peer.DHT)) ret |= 1 << 4;
-        if (Utils.isBit(sourceBitmask, Peer.INCOMING)) ret |= 1 << 3;
-        if (Utils.isBit(sourceBitmask, Peer.RESUME)) ret |= 1 << 2;
+        if (Utils.isBit(sourceBitmask, PeerInfo.SERVER)) ret |= 1 << 5;
+        if (Utils.isBit(sourceBitmask, PeerInfo.DHT)) ret |= 1 << 4;
+        if (Utils.isBit(sourceBitmask, PeerInfo.INCOMING)) ret |= 1 << 3;
+        if (Utils.isBit(sourceBitmask, PeerInfo.RESUME)) ret |= 1 << 2;
         return ret;
     }
 

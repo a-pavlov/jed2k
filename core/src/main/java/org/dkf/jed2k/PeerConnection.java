@@ -1083,17 +1083,18 @@ public class PeerConnection extends Connection {
      */
     public final PeerInfo getInfo() {
         PeerInfo i = new PeerInfo();
-        i.downloadPayload = statistics().totalPayloadDownload();
-        i.downloadProtocol = statistics().totalProtocolDownload();
-        i.downloadSpeed = (int)statistics().downloadRate();
-        i.payloadDownloadSpeed = (int)statistics().downloadPayloadRate();
-        i.remotePieces = remotePieces;
-        i.failCount = ((getPeer()!=null)?getPeer().getFailCount():0);
-        i.modName = remotePeerInfo.modName;
-        i.version = remotePeerInfo.version;
-        i.modVersion = remotePeerInfo.modNumber;
-        i.endpoint = getEndpoint();
-        i.strModVersion = remotePeerInfo.modVersion;
+        i.setDownloadPayload(statistics().totalPayloadDownload());
+        i.setDownloadProtocol(statistics().totalProtocolDownload());
+        i.setDownloadSpeed((int)statistics().downloadRate());
+        i.setPayloadDownloadSpeed((int)statistics().downloadPayloadRate());
+        i.setRemotePieces(remotePieces);
+        i.setFailCount((getPeer()!=null)?getPeer().getFailCount():0);
+        i.setModName(remotePeerInfo.modName);
+        i.setVersion(remotePeerInfo.version);
+        i.setModVersion(remotePeerInfo.modNumber);
+        i.setEndpoint(getEndpoint());
+        i.setStrModVersion(remotePeerInfo.modVersion);
+        i.setSourceFlag((getPeer()!=null)?getPeer().getSourceFlag():0);
         return i;
     }
 
