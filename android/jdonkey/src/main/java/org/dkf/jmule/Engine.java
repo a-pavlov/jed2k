@@ -301,7 +301,6 @@ public final class Engine implements AlertListener {
                     log.info("kad id {}", kadId);
                     setKadId(kadId);
 
-
                     configureServices();
 
                     if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_AUTO_START_SERVICE) && isStopped()) {
@@ -419,6 +418,11 @@ public final class Engine implements AlertListener {
     public Pair<Long, Long> getDownloadUploadBandwidth() {
         if (service != null) return service.getDownloadUploadRate();
         return Pair.make(0l, 0l);
+    }
+
+    public int getTotalDhtNodes() {
+        if (service != null) return service.getTotalDhtNodes();
+        return -1;
     }
 
     public void setPermanentNotification(boolean v) {

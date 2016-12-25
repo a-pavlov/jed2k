@@ -960,4 +960,13 @@ public class Session extends Thread {
             log.error("[session] unable to start debug search {}", e);
         }
     }
+
+    /**
+     * TODO - check deadlock dangerous - sequential blocking of session and tracker!
+     * @return routing table size of current tracker
+     */
+    public synchronized Pair<Integer, Integer> getDhtRoutingTableSize() {
+        if (dhtTracker != null) return dhtTracker.getRoutingTableSize();
+        return Pair.make(new Integer(0), new Integer(0));
+    }
 }

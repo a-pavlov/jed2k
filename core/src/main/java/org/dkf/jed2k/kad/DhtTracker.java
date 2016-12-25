@@ -1,6 +1,7 @@
 package org.dkf.jed2k.kad;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
@@ -350,5 +351,13 @@ public class DhtTracker extends Thread {
         DhtState stateCollector = new DhtState();
         node.getTable().forEach(stateCollector);
         return stateCollector.getEntries();
+    }
+
+    /**
+     *
+     * @return routing table size of alive and replacements nodes
+     */
+    public synchronized Pair<Integer, Integer> getRoutingTableSize() {
+        return node.getTable().getSize();
     }
 }

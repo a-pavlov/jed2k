@@ -780,6 +780,15 @@ public class ED2KService extends Service {
         return Pair.make(0l, 0l);
     }
 
+    public int getTotalDhtNodes() {
+        if (session != null) {
+            Pair<Integer, Integer> sz = session.getDhtRoutingTableSize();
+            return sz.getLeft() + sz.getRight();
+        }
+
+        return -1;
+    }
+
     private static long[] buildVenezuelanVibe() {
 
         long shortVibration = 80;
