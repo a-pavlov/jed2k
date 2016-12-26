@@ -40,6 +40,7 @@ public class Conn {
     private static Path incomingDirectory;
     private static Path resumeDataDirectory;
     private static int GLOBAL_PORT = 9999;
+    private static final String DHT_STATUS_FILENAME = "conn_dht_status.dat";
 
     private static String report(final Session s) {
         StringBuilder sb = new StringBuilder();
@@ -165,7 +166,6 @@ public class Conn {
         s.start();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        ScheduledFuture dhtInitFuture = null;
 
         ScheduledFuture scheduledFuture =
             scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
@@ -212,7 +212,7 @@ public class Conn {
 
         DhtInitialData idata = new DhtInitialData();
         try {
-            FUtils.read(idata, new File(incomingDirectory.resolve("dht_status.dat").toString()));
+            FUtils.read(idata, new File(incomingDirectory.resolve(DHT_STATUS_FILENAME).toString()));
         } catch(JED2KException e) {
             log.warn("[CONN] read initial data failed {}", e);
         }
@@ -226,6 +226,7 @@ public class Conn {
 
             if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
                 if (tracker != null) {
+                    idata.setEntries(tracker.getTrackerState());
                     tracker.abort();
                     try {
                         tracker.join();
@@ -467,21 +468,19 @@ public class Conn {
             else if (parts[0].compareTo("startdht") == 0) {
                 if (tracker != null) {
                     log.info("[CONN] stop previously running DHT tracker");
-                    if (dhtInitFuture != null) dhtInitFuture.cancel(false);
                     tracker.abort();
                 }
 
                 tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget());
                 tracker.start();
                 s.setDhtTracker(tracker);
-                dhtInitFuture = scheduledExecutorService.scheduleWithFixedDelay(new Initiator(tracker), 0, 1, TimeUnit.MINUTES);
+                scheduledExecutorService.scheduleWithFixedDelay(new Initiator(s), 0, 1, TimeUnit.MINUTES);
 
                 if (idata.getEntries().getList() != null) {
                     tracker.addEntries(idata.getEntries().getList());
                 }
             }
             else if (parts[0].compareTo("stopdht") == 0) {
-                if (scheduledFuture != null) scheduledFuture.cancel(false);
 
                 if (tracker != null) {
                     idata.setEntries(tracker.getTrackerState());
@@ -495,6 +494,11 @@ public class Conn {
                     tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
                 } else {
                     log.warn("[CONN] DHT tracker is null, but bootstrap command issued");
+                }
+            }
+            else if (parts[0].compareTo("status") == 0) {
+                try (PrintWriter pw = new PrintWriter(incomingDirectory.resolve("conn_dht_status.json").toString())) {
+                    pw.write(tracker.getRoutingTableStatus());
                 }
             }
             else {
@@ -516,7 +520,7 @@ public class Conn {
         }
 
         scheduledExecutorService.shutdown();
-        FUtils.write(idata, new File(incomingDirectory.resolve("dht_status.dat").toString()));
+        FUtils.write(idata, new File(incomingDirectory.resolve(DHT_STATUS_FILENAME).toString()));
         log.info("Conn finished");
     }
 }

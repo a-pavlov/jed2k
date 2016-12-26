@@ -881,4 +881,8 @@ public class Session extends Thread {
     public synchronized void setDhtTracker(final DhtTracker tracker) {
         dhtTracker = new WeakReference<DhtTracker>(tracker);
     }
+
+    public synchronized DhtTracker getDhtTracker() {
+        return dhtTracker.get();
+    }
 }
