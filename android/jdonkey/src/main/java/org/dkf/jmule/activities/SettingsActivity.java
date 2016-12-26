@@ -288,7 +288,7 @@ public class SettingsActivity extends PreferenceActivity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final boolean newStatus = ((Boolean) newValue).booleanValue();
                     LOG.info("setup DHT switch listener {}", newStatus?"ON":"OFF");
-                    Engine.instance().startDht(newStatus);
+                    Engine.instance().useDht(newStatus);
                     return true;
                 }
             });

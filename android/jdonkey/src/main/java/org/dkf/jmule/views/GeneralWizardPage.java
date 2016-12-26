@@ -41,6 +41,7 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     private CheckBox checkSeedFinishedTorrents;
     private CheckBox checkSeedFinishedTorrentsWifiOnly;
     private CheckBox checkUpnp;
+    private CheckBox checkDht;
 
     public GeneralWizardPage(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -60,12 +61,14 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     public void load() {
         textStoragePath.setText(ConfigurationManager.instance().getStoragePath());
         checkUpnp.setChecked(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
+        checkDht.setChecked(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_START_DHT));
         validate();
     }
 
     @Override
     public void finish() {
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_FORWARD_PORTS, checkUpnp.isChecked());
+        ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_START_DHT, checkDht.isChecked());
     }
 
     @Override
@@ -97,6 +100,13 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
 
         checkUpnp = (CheckBox) findViewById(R.id.view_general_wizard_page_check_upnp);
         checkUpnp.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                validate();
+            }
+        });
+
+        checkDht = (CheckBox) findViewById(R.id.view_general_wizard_page_check_dht);
+        checkDht.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 validate();
             }

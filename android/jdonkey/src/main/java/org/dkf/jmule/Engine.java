@@ -308,7 +308,7 @@ public final class Engine implements AlertListener {
                     }
 
                     forwardPorts(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
-                    startDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_START_DHT));
+                    useDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_START_DHT));
 
                     //registerStatusReceiver(context);
                 } else {
@@ -397,7 +397,7 @@ public final class Engine implements AlertListener {
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
-    public void startDht(boolean dht) { if (service != null) service.setUseDht(dht); }
+    public void useDht(boolean dht) { if (service != null) service.useDht(dht); }
 
     public void setUserAgent(final String s) {
         assert s != null;

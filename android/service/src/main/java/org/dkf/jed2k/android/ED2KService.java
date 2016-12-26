@@ -210,6 +210,7 @@ public class ED2KService extends Service {
         session.start();
         startBackgroundOperations();
         startingInProgress = false;
+        // TODO - useless call here, fix behaviour
         if (forwardPorts) session.startUPnP(); else session.stopUPnP();
         log.info("session started!");
     }
@@ -256,19 +257,19 @@ public class ED2KService extends Service {
      * synchronized methods to avoid simultaneous unsynchronized access to dhtTracker variable from different threads
      */
     synchronized void startDht() {
-        useDht = true;
-        dhtTracker = new DhtTracker(settings.listenPort, kadId);
-        dhtTracker.start();
-        Container<UInt32, NodeEntry> entries = loadDhtEntries();
-        if (entries != null) {
-            dhtTracker.addEntries(entries.getList());
+        if (useDht) {
+            dhtTracker = new DhtTracker(settings.listenPort, kadId);
+            dhtTracker.start();
+            Container<UInt32, NodeEntry> entries = loadDhtEntries();
+            if (entries != null) {
+                dhtTracker.addEntries(entries.getList());
+            }
+            session.setDhtTracker(dhtTracker);
         }
-        session.setDhtTracker(dhtTracker);
     }
 
     synchronized void stopDht() {
         if (dhtTracker != null) {
-            useDht = false;
             saveDhtEntries(dhtTracker.getTrackerState());
             dhtTracker.abort();
             session.setDhtTracker(null);
@@ -894,13 +895,14 @@ public class ED2KService extends Service {
         }
     }
 
-    public void setUseDht(boolean useDht) {
+    public void useDht(boolean useDht) {
         this.useDht = useDht;
         if (session != null) {
             if (useDht) {
-                stopDht();
                 startDht();
-            } else stopDht();
+            } else {
+                stopDht();
+            }
         }
     }
 
