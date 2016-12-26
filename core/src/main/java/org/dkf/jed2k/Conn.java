@@ -4,6 +4,7 @@ import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -164,6 +165,7 @@ public class Conn {
         s.start();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        ScheduledFuture dhtInitFuture = null;
 
         ScheduledFuture scheduledFuture =
             scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
@@ -465,18 +467,22 @@ public class Conn {
             else if (parts[0].compareTo("startdht") == 0) {
                 if (tracker != null) {
                     log.info("[CONN] stop previously running DHT tracker");
+                    if (dhtInitFuture != null) dhtInitFuture.cancel(false);
                     tracker.abort();
                 }
 
                 tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget());
                 tracker.start();
                 s.setDhtTracker(tracker);
+                dhtInitFuture = scheduledExecutorService.scheduleWithFixedDelay(new Initiator(tracker), 0, 1, TimeUnit.MINUTES);
 
                 if (idata.getEntries().getList() != null) {
                     tracker.addEntries(idata.getEntries().getList());
                 }
             }
             else if (parts[0].compareTo("stopdht") == 0) {
+                if (scheduledFuture != null) scheduledFuture.cancel(false);
+
                 if (tracker != null) {
                     idata.setEntries(tracker.getTrackerState());
                     tracker.abort();
