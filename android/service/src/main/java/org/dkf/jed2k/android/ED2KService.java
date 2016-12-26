@@ -19,7 +19,10 @@ import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
+import org.dkf.jed2k.kad.NodeEntry;
+import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
@@ -27,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -42,6 +47,7 @@ public class ED2KService extends Service {
     public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jmule.android.ACTION_SHOW_TRANSFERS";
     public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN";
     public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
+    private static final String DHT_NODES_FILENAME = "dht_nodes.dat";
 
     private final static long[] VENEZUELAN_VIBE = buildVenezuelanVibe();
 
@@ -246,28 +252,140 @@ public class ED2KService extends Service {
         }
     }
 
-    void startDht() {
-        if (useDht)
-        stopDht();
+    /**
+     * synchronized methods to avoid simultaneous unsynchronized access to dhtTracker variable from different threads
+     */
+    synchronized void startDht() {
+        useDht = true;
         dhtTracker = new DhtTracker(settings.listenPort, kadId);
         dhtTracker.start();
+        Container<UInt32, NodeEntry> entries = loadDhtEntries();
+        if (entries != null) {
+            dhtTracker.addEntries(entries.getList());
+        }
         session.setDhtTracker(dhtTracker);
     }
 
-    void stopDht() {
+    synchronized void stopDht() {
         if (dhtTracker != null) {
+            useDht = false;
+            saveDhtEntries(dhtTracker.getTrackerState());
             dhtTracker.abort();
             session.setDhtTracker(null);
             try {
                 dhtTracker.join();
-            } catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.error("[ed2k service] stop DHT tracker interrupted {}", e);
-            }
-            finally {
+            } finally {
                 dhtTracker = null;
             }
         }
     }
+
+    /**
+     * synchronized save call to avoid racing on access to dhtTracker variable from
+     * main thread(start/stop dht) and background service(save)
+     */
+    synchronized void saveDhtState() {
+        if (dhtTracker != null) {
+            saveDhtEntries(dhtTracker.getTrackerState());
+        }
+    }
+
+    /**
+     *
+     * @return loaded entries from config file or null
+     */
+    private Container<UInt32, NodeEntry> loadDhtEntries() {
+        FileInputStream stream = null;
+        FileChannel channel = null;
+        try {
+            stream = openFileInput(DHT_NODES_FILENAME);
+            channel = stream.getChannel();
+            ByteBuffer buffer = ByteBuffer.allocate((int)channel.size());
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            channel.read(buffer);
+            buffer.flip();
+            Container<UInt32, NodeEntry> entries = Container.makeInt(NodeEntry.class);
+            entries.get(buffer);
+            return entries;
+        } catch(FileNotFoundException e) {
+            log.info("[ed2k service] dht nodes not found {}", e);
+        } catch(IOException e) {
+            log.error("[ed2k service] i/o exception on load dht nodes {}", e);
+        } catch(JED2KException e) {
+            log.error("[ed2k service] internal error on load dht nodes {}", e);
+        } catch(Exception e) {
+            log.error("[ed2k service] unexpected error on load dht nodes {}", e);
+        }
+        finally {
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (IOException e) {
+                    //just ignore it
+                }
+            }
+
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // just ignore it
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * saves DHT nodes to config file
+     * @param entries from DHT tracker
+     */
+    private void saveDhtEntries(final Container<UInt32, NodeEntry> entries) {
+        if (entries != null) {
+            FileOutputStream stream = null;
+            FileChannel channel = null;
+            try {
+                stream = openFileOutput(DHT_NODES_FILENAME, 0);
+                channel = stream.getChannel();
+                ByteBuffer buffer = ByteBuffer.allocate(entries.bytesCount());
+                buffer.order(ByteOrder.LITTLE_ENDIAN);
+                entries.put(buffer);
+                buffer.flip();
+                channel.write(buffer);
+                log.info("[edk2 service] save dht entries {}", entries.size());
+            } catch(FileNotFoundException e) {
+                log.error("[ed2k service] unable to open output stream for dht nodes {}", e);
+            } catch(JED2KException e) {
+                log.error("[ed2k service] internal error on save dht nodes {}", e);
+            } catch(IOException e) {
+                log.error("[ed2k service] i/o error {}", e);
+            } catch(Exception e) {
+                log.error("[ed2k service] unexpected error {}", e);
+            }
+            finally {
+                if (channel != null) {
+                    try {
+                        channel.close();
+                    } catch(IOException e) {
+                        //just ignore it
+                    }
+                }
+
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch(IOException e) {
+                        // just ignore it
+                    }
+                }
+            }
+        }
+    }
+
+
 
     public boolean isStarting() {
         return startingInProgress;
@@ -444,6 +562,7 @@ public class ED2KService extends Service {
             @Override
             public void run() {
                 session.saveResumeData();
+                saveDhtState();
             }
         }, 60, 200, TimeUnit.SECONDS);
 
@@ -520,7 +639,6 @@ public class ED2KService extends Service {
                             }
                         }
                     }
-
                 }
             }
         });
@@ -779,7 +897,10 @@ public class ED2KService extends Service {
     public void setUseDht(boolean useDht) {
         this.useDht = useDht;
         if (session != null) {
-            if (useDht) startDht(); else stopDht();
+            if (useDht) {
+                stopDht();
+                startDht();
+            } else stopDht();
         }
     }
 
