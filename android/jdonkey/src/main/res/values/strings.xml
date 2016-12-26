@@ -228,7 +228,7 @@
     <string name="wizard_next">Next</string>
     <string name="wizard_finish">Finish</string>
 
-    <string name="dht_enable_summary">DHT(Kademlia) for search keywords and sources</string>
+    <string name="dht_enable_summary">DHT(Kademlia) for search more sources</string>
     <string name="dht_enable_title">Kademlia</string>
-    <string name="dht_nodes">KAD: %1$s</string>
+    <string name="dht_nodes" translatable="false">KAD: %1$s</string>
 </resources>
