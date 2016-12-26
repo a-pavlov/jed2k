@@ -89,7 +89,7 @@ public class Session extends Thread {
                         KadId target = kse.getKid();
                         assert target != null; // actually impossible
 
-                        if (transfer == null) {
+                        if (transfer == null && transfer.wantMorePeers()) {
                             log.debug("[session] transfer for {} not exists", target);
                             continue;
                         };

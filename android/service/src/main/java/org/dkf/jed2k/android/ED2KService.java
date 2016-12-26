@@ -18,6 +18,7 @@ import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -261,6 +262,9 @@ public class ED2KService extends Service {
                 dhtTracker.join();
             } catch(InterruptedException e) {
                 log.error("[ed2k service] stop DHT tracker interrupted {}", e);
+            }
+            finally {
+                dhtTracker = null;
             }
         }
     }
@@ -520,6 +524,9 @@ public class ED2KService extends Service {
                 }
             }
         });
+
+        // every 1 minute execute bootstrapping check
+        scheduledExecutorService.scheduleWithFixedDelay(new Initiator(session), 1, 1, TimeUnit.MINUTES);
     }
 
     private void updatePermanentStatusNotification() {
