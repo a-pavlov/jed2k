@@ -17,6 +17,7 @@ import android.widget.RemoteViews;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -47,7 +48,7 @@ public class ED2KService extends Service {
 
     private boolean vibrateOnDownloadCompleted = false;
     private boolean forwardPorts = false;
-    private boolean dht = false;
+    private boolean useDht = false;
     private KadId kadId = null;
 
     /**
@@ -64,6 +65,8 @@ public class ED2KService extends Service {
      * main ed2k session
      */
     private Session session;
+
+    private DhtTracker dhtTracker;
 
     /**
      * cached hashes of transfers to provide information about hashes we have
@@ -201,7 +204,6 @@ public class ED2KService extends Service {
         startBackgroundOperations();
         startingInProgress = false;
         if (forwardPorts) session.startUPnP(); else session.stopUPnP();
-        if (dht) session.dhtStart(kadId); else session.dhtStop();
         log.info("session started!");
     }
 
@@ -240,6 +242,26 @@ public class ED2KService extends Service {
 
             stoppingInProgress = false;
             log.info("session stopped!");
+        }
+    }
+
+    void startDht() {
+        if (useDht)
+        stopDht();
+        dhtTracker = new DhtTracker(settings.listenPort, kadId);
+        dhtTracker.start();
+        session.setDhtTracker(dhtTracker);
+    }
+
+    void stopDht() {
+        if (dhtTracker != null) {
+            dhtTracker.abort();
+            session.setDhtTracker(null);
+            try {
+                dhtTracker.join();
+            } catch(InterruptedException e) {
+                log.error("[ed2k service] stop DHT tracker interrupted {}", e);
+            }
         }
     }
 
@@ -677,9 +699,11 @@ public class ED2KService extends Service {
 
     public void startServices() {
         startSession();
+        startDht();
     }
 
     public void stopServices() {
+        stopDht();
         stopSession();
     }
 
@@ -745,14 +769,10 @@ public class ED2KService extends Service {
         }
     }
 
-    public void setDht(boolean dht) {
-        this.dht = dht;
+    public void setUseDht(boolean useDht) {
+        this.useDht = useDht;
         if (session != null) {
-            if (dht) {
-                session.dhtStart(kadId);
-            } else {
-                session.dhtStop();
-            }
+            if (useDht) startDht(); else stopDht();
         }
     }
 
@@ -781,8 +801,8 @@ public class ED2KService extends Service {
     }
 
     public int getTotalDhtNodes() {
-        if (session != null) {
-            Pair<Integer, Integer> sz = session.getDhtRoutingTableSize();
+        if (dhtTracker != null) {
+            Pair<Integer, Integer> sz = dhtTracker.getRoutingTableSize();
             return sz.getLeft() + sz.getRight();
         }
 

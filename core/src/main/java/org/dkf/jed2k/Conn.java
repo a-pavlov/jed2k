@@ -3,6 +3,7 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -37,6 +38,7 @@ public class Conn {
     private static Set<TransferHandle> handles = new HashSet<>();
     private static Path incomingDirectory;
     private static Path resumeDataDirectory;
+    private static int GLOBAL_PORT = 9999;
 
     private static String report(final Session s) {
         StringBuilder sb = new StringBuilder();
@@ -123,6 +125,7 @@ public class Conn {
 
         assert incomingDirectory != null;
         assert resumeDataDirectory != null;
+        DhtTracker tracker = null;
 
         System.out.println("Conn started");
         final Settings startSettings = new Settings();
@@ -130,7 +133,7 @@ public class Conn {
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
         startSettings.serverPingTimeout = 0;
-        startSettings.listenPort = 6991;
+        startSettings.listenPort = GLOBAL_PORT;
 
         LinkedList<Endpoint> systemPeers = new LinkedList<Endpoint>();
         String sp = System.getProperty("session.peers");
@@ -220,10 +223,20 @@ public class Conn {
             String[] parts = command.split("\\s+");
 
             if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
+                if (tracker != null) {
+                    tracker.abort();
+                    try {
+                        tracker.join();
+                        log.info("[CONN] DHT tracker finished");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 s.abort();
                 try {
                     s.join();
-                    log.info("session finished");
+                    log.info("[CONN] session finished");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -450,17 +463,33 @@ public class Conn {
                 s.stopUPnP();
             }
             else if (parts[0].compareTo("startdht") == 0) {
-                s.dhtStart(idata.getTarget());
+                if (tracker != null) {
+                    log.info("[CONN] stop previously running DHT tracker");
+                    tracker.abort();
+                }
+
+                tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget());
+                tracker.start();
+                s.setDhtTracker(tracker);
+
                 if (idata.getEntries().getList() != null) {
-                    s.dhtAddNodes(idata.getEntries().getList());
+                    tracker.addEntries(idata.getEntries().getList());
                 }
             }
             else if (parts[0].compareTo("stopdht") == 0) {
-                idata.setEntries(s.dhtGetState());
-                s.dhtStop();
+                if (tracker != null) {
+                    idata.setEntries(tracker.getTrackerState());
+                    tracker.abort();
+                } else {
+                    log.warn("[CONN] DHT tracker is null, but shtstop command issued");
+                }
             }
             else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
-                s.dhtBootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+                if (tracker != null) {
+                    tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+                } else {
+                    log.warn("[CONN] DHT tracker is null, but bootstrap command issued");
+                }
             }
             else {
                 log.warn("[CONN] unknown command started from {}", parts[0]);

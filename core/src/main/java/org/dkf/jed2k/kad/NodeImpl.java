@@ -271,5 +271,4 @@ public class NodeImpl {
 
         return gson.toJson(table);
     }
-
 }

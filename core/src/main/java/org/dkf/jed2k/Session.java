@@ -9,11 +9,8 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Listener;
-import org.dkf.jed2k.kad.NodeEntry;
-import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -59,7 +56,11 @@ public class Session extends Thread {
     private Statistics accumulator = new Statistics();
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
-    private DhtTracker dhtTracker = null;
+
+    /**
+     * external DHT tracker object
+     */
+    private WeakReference<DhtTracker> dhtTracker = null;
 
     /**
      * sources search result callback
@@ -335,9 +336,6 @@ public class Session extends Thread {
             // stop server connection
             if (serverConection != null) serverConection.close(ErrorCode.SESSION_STOPPING);
 
-            // stop dht if it is running
-            stopDht();
-
             // abort all transfers
             for(final Transfer t: transfers.values()) {
                 t.abort();
@@ -608,7 +606,8 @@ public class Session extends Thread {
     void sendDhtSourcesRequest(final Hash h, final long size, final Transfer t) {
         if (dhtTracker != null) {
             try {
-                dhtTracker.searchSources(h, size, new DhtSourcesCallback(this, t));
+                DhtTracker dht = dhtTracker.get();
+                if (dht != null) dht.searchSources(h, size, new DhtSourcesCallback(this, t));
             } catch(JED2KException e) {
                 log.error("[session] dht search sources error {}", e);
             }
@@ -858,101 +857,15 @@ public class Session extends Thread {
     }
 
     /**
-     * stop dht tracker and wait thread exit
+     * debug only method to run search source from external process
+     * @param h hash of file
+     * @param size size of file
      */
-    private void stopDht() {
-        try {
-            // if dht tracker != null stop it now
-            if (dhtTracker != null) {
-                dhtTracker.abort();
-                dhtTracker.join();
-            }
-        } catch(InterruptedException e) {
-            log.info("[session] dht tracker abort error {}", e);
-            e.printStackTrace();
-        } finally {
-            dhtTracker = null;
-        }
-    }
-
-    /**
-     * start dht tracker
-     * @param id our KAD id
-     */
-    public void dhtStart(final KadId id) {
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                stopDht();
-                dhtTracker = new DhtTracker(getListenPort(), id);
-                dhtTracker.start();
-            }
-        });
-    }
-
-    /**
-     * stop dht tracker - doesn't wait actually thread exit
-     */
-    public void dhtStop() {
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                if (dhtTracker != null && !dhtTracker.isAborted()) dhtTracker.abort();
-            }
-        });
-    }
-
-    public void dhtAddNodes(final List<NodeEntry> entries) {
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                assert dhtTracker != null;
-                if (dhtTracker != null) {
-                    dhtTracker.addEntries(entries);
-                }
-                else {
-                    log.warn("[session] add dht entries when dht is not running");
-                }
-            }
-        });
-    }
-
-    public void dhtBootstrap(final List<Endpoint> endpoints) {
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                assert dhtTracker != null;
-                if (dhtTracker != null) {
-                    try {
-                        dhtTracker.bootstrap(endpoints);
-                    } catch(JED2KException e) {
-                        log.error("[session] unable to start bootstrapping {}", e);
-                    }
-                } else {
-                    log.warn("[session] bootstrap request when dht is not running");
-                }
-            }
-        });
-    }
-
-    public synchronized boolean isDhtRunning() {
-        return dhtTracker != null && !dhtTracker.isAborted();
-    }
-
-    /**
-     * return empty collection if tracker is not running
-     * @return state of dht tracker
-     */
-    public synchronized Container<UInt32, NodeEntry> dhtGetState() {
-        // check twice lock here
-        if (dhtTracker != null) dhtTracker.getTrackerState();
-        return Container.makeInt(NodeEntry.class);
-    }
-
     public synchronized void dhtDebugSearch(final Hash h, long size) {
         try {
-            if (dhtTracker != null) {
-                dhtTracker.searchSources(h, size, new DhtDebugCallback());
+            DhtTracker tracker = dhtTracker.get();
+            if (tracker != null) {
+                tracker.searchSources(h, size, new DhtDebugCallback());
             } else {
                 log.warn("[session] DHT is not running, but search sources requested");
             }
@@ -962,11 +875,10 @@ public class Session extends Thread {
     }
 
     /**
-     * TODO - check deadlock dangerous - sequential blocking of session and tracker!
-     * @return routing table size of current tracker
+     * add or remove DHT tracker from session
+     * @param tracker external DHT tracker object or null
      */
-    public synchronized Pair<Integer, Integer> getDhtRoutingTableSize() {
-        if (dhtTracker != null) return dhtTracker.getRoutingTableSize();
-        return Pair.make(new Integer(0), new Integer(0));
+    public synchronized void setDhtTracker(final DhtTracker tracker) {
+        dhtTracker = new WeakReference<DhtTracker>(tracker);
     }
 }

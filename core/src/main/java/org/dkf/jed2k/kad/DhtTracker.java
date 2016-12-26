@@ -360,4 +360,8 @@ public class DhtTracker extends Thread {
     public synchronized Pair<Integer, Integer> getRoutingTableSize() {
         return node.getTable().getSize();
     }
+
+    public synchronized boolean needBootstrap() {
+        return node.getTable().needBootstrap();
+    }
 }

@@ -397,7 +397,7 @@ public final class Engine implements AlertListener {
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
-    public void startDht(boolean dht) { if (service != null) service.setDht(dht); }
+    public void startDht(boolean dht) { if (service != null) service.setUseDht(dht); }
 
     public void setUserAgent(final String s) {
         assert s != null;
@@ -423,7 +423,7 @@ public final class Engine implements AlertListener {
     public int getTotalDhtNodes() {
         if (service != null) return service.getTotalDhtNodes();
         return -1;
-    }
+}
 
     public void setPermanentNotification(boolean v) {
         if (service != null) service.setPermanentNotification(v);
