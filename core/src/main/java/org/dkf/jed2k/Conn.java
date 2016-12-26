@@ -308,6 +308,12 @@ public class Conn {
                     }
                 }
             }
+            else if (parts[0].compareTo("dhtsearch") == 0 && parts.length == 3) {
+                Hash fileHash = Hash.fromString(parts[1]);
+                long fileSize = Long.parseLong(parts[2]);
+                log.debug("[CONN] DHT search sources for {} with size {}", fileHash, fileSize);
+                s.dhtDebugSearch(fileHash, fileSize);
+            }
             else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new Endpoint(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
@@ -365,11 +371,15 @@ public class Conn {
                 }
             }
             else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
-                Path filepath = Paths.get(args[0], parts[3]);
-                long size = Long.parseLong(parts[2]);
-                Hash hash = Hash.fromString(parts[1]);
-                log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
-                handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
+                try {
+                    Path filepath = Paths.get(args[0], parts[3]);
+                    long size = Long.parseLong(parts[2]);
+                    Hash hash = Hash.fromString(parts[1]);
+                    log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
+                    handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
+                } catch(Exception e) {
+                    log.error("[CONN] unable to start loading {}", e);
+                }
             }
             else if (parts[0].compareTo("link") == 0) {
                 for(int i = 1; i < parts.length; ++i) {
@@ -474,11 +484,12 @@ public class Conn {
                 tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget());
                 tracker.start();
                 s.setDhtTracker(tracker);
-                scheduledExecutorService.scheduleWithFixedDelay(new Initiator(s), 0, 1, TimeUnit.MINUTES);
 
                 if (idata.getEntries().getList() != null) {
                     tracker.addEntries(idata.getEntries().getList());
                 }
+
+                scheduledExecutorService.scheduleWithFixedDelay(new Initiator(s), 1, 1, TimeUnit.MINUTES);
             }
             else if (parts[0].compareTo("stopdht") == 0) {
 
@@ -497,8 +508,10 @@ public class Conn {
                 }
             }
             else if (parts[0].compareTo("status") == 0) {
-                try (PrintWriter pw = new PrintWriter(incomingDirectory.resolve("conn_dht_status.json").toString())) {
-                    pw.write(tracker.getRoutingTableStatus());
+                if (tracker != null) {
+                    try (PrintWriter pw = new PrintWriter(incomingDirectory.resolve("conn_dht_status.json").toString())) {
+                        pw.write(tracker.getRoutingTableStatus());
+                    }
                 }
             }
             else {
