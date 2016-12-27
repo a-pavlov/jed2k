@@ -138,9 +138,11 @@
     </PreferenceScreen>
 
     <PreferenceCategory android:key="jmule.prefs.dht">
-        <SwitchPreference android:key="jmule.prefs.connect_dht"
-                          android:summary="@string/dht_enable_summary"
-                          android:title="@string/dht_enable_title"/>
+        <CheckBoxPreference
+                android:key="jmule.prefs.connect_dht"
+                android:title="@string/dht_enable_title"
+                android:summary="@string/dht_enable_summary"
+                android:enabled="true" />
     </PreferenceCategory>
 
     <Preference
