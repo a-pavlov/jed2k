@@ -26,6 +26,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by inkpot on 22.11.2016.
@@ -108,6 +110,8 @@ public class Kad {
             log.warn("[KAD] please provide working directory");
             return;
         }
+
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
         Path dir = FileSystems.getDefault().getPath(args[0]);
 
