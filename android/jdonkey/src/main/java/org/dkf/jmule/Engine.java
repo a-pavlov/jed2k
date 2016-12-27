@@ -397,7 +397,9 @@ public final class Engine implements AlertListener {
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
-    public void useDht(boolean dht) { if (service != null) service.useDht(dht); }
+    public void useDht(boolean dht) {
+        log.info("[engine] use dht {}", dht);
+        if (service != null) service.useDht(dht); }
 
     public void setUserAgent(final String s) {
         assert s != null;

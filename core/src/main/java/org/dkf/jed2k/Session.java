@@ -60,7 +60,7 @@ public class Session extends Thread {
     /**
      * external DHT tracker object
      */
-    private WeakReference<DhtTracker> dhtTracker = null;
+    private WeakReference<DhtTracker> dhtTracker = new WeakReference<DhtTracker>(null);
 
     /**
      * sources search result callback

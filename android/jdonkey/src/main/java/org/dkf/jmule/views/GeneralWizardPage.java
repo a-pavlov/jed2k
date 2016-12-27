@@ -29,13 +29,15 @@ import org.dkf.jmule.core.AndroidPlatform;
 import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.views.preference.StoragePreference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author gubatron
  * @author aldenml
  */
 public class GeneralWizardPage extends RelativeLayout implements WizardPageView {
-
+    private Logger log = LoggerFactory.getLogger(GeneralWizardPage.class);
     private OnCompleteListener listener;
     private TextView textStoragePath;
     private CheckBox checkSeedFinishedTorrents;
@@ -69,6 +71,7 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     public void finish() {
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_FORWARD_PORTS, checkUpnp.isChecked());
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_START_DHT, checkDht.isChecked());
+        log.info("[wizard] upnp {}, dht {}", checkUpnp.isChecked(), checkDht.isChecked());
     }
 
     @Override
