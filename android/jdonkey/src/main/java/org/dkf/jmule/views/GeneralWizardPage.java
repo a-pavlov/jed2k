@@ -24,6 +24,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.core.AndroidPlatform;
 import org.dkf.jmule.core.ConfigurationManager;
@@ -72,6 +73,8 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_FORWARD_PORTS, checkUpnp.isChecked());
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_START_DHT, checkDht.isChecked());
         log.info("[wizard] upnp {}, dht {}", checkUpnp.isChecked(), checkDht.isChecked());
+        Engine.instance().forwardPorts(checkUpnp.isChecked());
+        Engine.instance().useDht(checkDht.isChecked());
     }
 
     @Override
