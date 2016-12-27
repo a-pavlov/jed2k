@@ -27,16 +27,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
-import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.adapters.SearchResultListAdapter;
 import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.core.Constants;
@@ -71,10 +67,9 @@ public final class SearchFragment extends AbstractFragment implements
     private ListView list;
     private String currentQuery;
     private final FileTypeCounter fileTypeCounter;
-    private final SparseArray<Byte> toTheRightOf = new SparseArray<>(6);
-    private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(6);
+    private final SparseArray<Byte> toTheRightOf = new SparseArray<>(9);
+    private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(9);
     private int searchCount = 0;
-
     private boolean awaitingResults = false;
 
     public SearchFragment() {

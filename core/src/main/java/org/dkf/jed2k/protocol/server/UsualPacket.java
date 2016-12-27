@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 public class UsualPacket implements Serializable {
     public Hash    hash = new Hash();
-    public NetworkIdentifier   point = new NetworkIdentifier();
+    public Endpoint point = new Endpoint();
     public Container<UInt32, Tag> properties = Container.makeInt(Tag.class);
 
     @Override

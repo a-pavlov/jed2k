@@ -14,12 +14,13 @@ In GUI part used source code and design from [FrostWire](https://github.com/fros
 ## Implemented Features
 
 * Search files on servers
+* Search file sources using KAD.
 * Download files
+* Internationalization
 
 ## Features in plans
 
-* Internationalization
-* KAD support
+* Completed KAD support including firewalled checking and buddy system
 * Playing file during downloading
 
 ## Screenshots
@@ -60,12 +61,14 @@ Main goal - native application for Android platform. Lighter, faster, more user 
 * Connections policy
 * Naive piece picker optimized to download fist and last pieces first for preview feature
 * Naive piece manager - online pieces hash calculation and hash verification during downloading
+* KAD search for keywords and file sources
 
 ## What next
 
 * Stable code, fixing bugs, increase performance
 * Advandced piece picker and piece manager
-* KAD support
+* Completed KAD support including firewalled usage and buddy system.
+* Support publishing in KAD and responses to search requests
 
 ## Building Maven/Gradle
 Few dependencies in pom.xml - Mockito for unit tests and slf4j logging facade.
@@ -78,7 +81,7 @@ If you prefer Gradle - use gradle build on second step.
 ## Testing
 You can use simple console downloader class org.jed2k.Conn. Before usage you have to set incoming directory as first parameter.
 Do not use double quotes in commands below - there are for mark parameters.
-Commands:
+Some commands(much more available - see in code):
 
 * connect to server, default port 4661: connect "server_address_or_ip" [port]
 * search on server: search "search_phrase"
@@ -91,6 +94,8 @@ Commands:
 * create transfer: load "number of search"
 * delete transfer: delete "hash"
 * exit application: quit
+
+Additional tool for testing DHT: Kad.java application with own commands system
 
 Special case - trial session - fixed sources addresses. Setup -Dsession.trial=true, -Dsession.peers=a.b.c.d:port,....
 

@@ -194,4 +194,10 @@
     <string name="server_add_host">Host</string>
     <string name="server_add_port">Port</string>
     <string name="your_installation_is_complete">L\'installazione è completa.</string>
+    <string name="dht_enable_title">Kademlia</string>
+    <string name="dht_enable_summary">Utilizzare DHT(Kademlia) per ulteriore ricerca di fonti</string>
+    <string name="wizard_dht">Utilizzare DHT(Kademlia)</string>
+    <string name="wizard_dht_summary">Utilizzare Kademlia per trovare più fonti. Attenzione, genera il traffico di
+        servizio.
+    </string>
 </resources>

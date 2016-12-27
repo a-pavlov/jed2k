@@ -7,10 +7,10 @@ import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.protocol.Unsigned.uint8;
 
-public class ServerList extends Container<UInt8, NetworkIdentifier> implements Dispatchable {
+public class ServerList extends Container<UInt8, Endpoint> implements Dispatchable {
 
     public ServerList() {
-        super(uint8(), NetworkIdentifier.class);
+        super(uint8(), Endpoint.class);
     }
 
     @Override

@@ -194,4 +194,10 @@
     <string name="welcome_to_mule">Bienvenido a un Mule para Android</string>
     <string name="server_add_host">Host</string>
     <string name="server_add_port">Port</string>
+    <string name="dht_enable_title">Kademlia</string>
+    <string name="dht_enable_summary">Utilizar la DHT(Kademlia) para ampliar la búsqueda de las fuentes de</string>
+    <string name="wizard_dht">El uso de la DHT(Kademlia)</string>
+    <string name="wizard_dht_summary">El uso de Kademlia a encontrar más fuentes. Tenga cuidado - genera tráfico de
+        servicio.
+    </string>
 </resources>

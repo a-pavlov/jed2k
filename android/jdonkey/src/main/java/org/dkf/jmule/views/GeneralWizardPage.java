@@ -24,23 +24,27 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.core.AndroidPlatform;
 import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.views.preference.StoragePreference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author gubatron
  * @author aldenml
  */
 public class GeneralWizardPage extends RelativeLayout implements WizardPageView {
-
+    private Logger log = LoggerFactory.getLogger(GeneralWizardPage.class);
     private OnCompleteListener listener;
     private TextView textStoragePath;
     private CheckBox checkSeedFinishedTorrents;
     private CheckBox checkSeedFinishedTorrentsWifiOnly;
     private CheckBox checkUpnp;
+    private CheckBox checkDht;
 
     public GeneralWizardPage(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -60,12 +64,17 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     public void load() {
         textStoragePath.setText(ConfigurationManager.instance().getStoragePath());
         checkUpnp.setChecked(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
+        checkDht.setChecked(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CONNECT_DHT));
         validate();
     }
 
     @Override
     public void finish() {
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_FORWARD_PORTS, checkUpnp.isChecked());
+        ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_CONNECT_DHT, checkDht.isChecked());
+        log.info("[wizard] upnp {}, dht {}", checkUpnp.isChecked(), checkDht.isChecked());
+        Engine.instance().forwardPorts(checkUpnp.isChecked());
+        Engine.instance().useDht(checkDht.isChecked());
     }
 
     @Override
@@ -97,6 +106,13 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
 
         checkUpnp = (CheckBox) findViewById(R.id.view_general_wizard_page_check_upnp);
         checkUpnp.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                validate();
+            }
+        });
+
+        checkDht = (CheckBox) findViewById(R.id.view_general_wizard_page_check_dht);
+        checkDht.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 validate();
             }

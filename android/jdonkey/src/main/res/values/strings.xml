@@ -213,6 +213,9 @@
     <string name="upnp">Forward port on my router</string>
     <string name="upnp_summary">If you have router you can forward incoming port on your router. It will help to get HiID on servers and find more sources. Please check UPnP feature is activated on your router</string>
 
+    <string name="wizard_dht">Use DHT(Kademlia)</string>
+    <string name="wizard_dht_summary">Use Kademlia to find more sources. Be careful - generates service traffic.</string>
+
     <string name="usage_notes_title">Usage notes</string>
     <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service) if it is
         stopped. Application supports downloading in background using service. Two types of exit - shutdown all and
@@ -228,4 +231,8 @@
     <string name="wizard_previous">Previous</string>
     <string name="wizard_next">Next</string>
     <string name="wizard_finish">Finish</string>
+
+    <string name="dht_enable_summary">DHT(Kademlia) for search more sources</string>
+    <string name="dht_enable_title">Kademlia</string>
+    <string name="dht_nodes" translatable="false">KAD: %1$s</string>
 </resources>

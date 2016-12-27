@@ -14,9 +14,9 @@ public class PacketHeader implements Serializable {
     public static byte OP_EMULEPROT     = (byte)0xC5;
     public static int SIZE = 6;
 
-    private byte protocol    = OP_UNDEFINED;
-    private int size         = 0;
-    private byte packet      = 0;
+    protected byte protocol    = OP_UNDEFINED;
+    protected int size         = 0;
+    protected byte packet      = 0;
 
     public final boolean isDefined() {
         return protocol != OP_UNDEFINED && packet != OP_UNDEFINED;
@@ -52,11 +52,11 @@ public class PacketHeader implements Serializable {
         return dst.put(protocol).putInt(size).put(packet);
     }
 
-    public final int bytesCount() {
+    public int bytesCount() {
         return 6;
     }
 
-    public final int sizePacket() {
+    public int sizePacket() {
         return size - 1;
     }
 
@@ -64,4 +64,4 @@ public class PacketHeader implements Serializable {
         assert(isDefined());
         return new PacketKey(protocol, packet);
     }
-};
+}

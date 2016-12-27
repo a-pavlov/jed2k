@@ -111,6 +111,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void setupComponents() {
         setupConnectSwitch();
+        useDhtCheckbox();
         setupNickname();
         setupListenPort();
         setupStorageOption();
@@ -273,6 +274,19 @@ public class SettingsActivity extends PreferenceActivity {
                     } else if (newStatus && (Engine.instance().isStopped())) {
                         connect();
                     }
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void useDhtCheckbox() {
+        final CheckBoxPreference useDht = (CheckBoxPreference) findPreference(Constants.PREF_KEY_CONNECT_DHT);
+        if (useDht != null) {
+            useDht.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().useDht((boolean) newValue);
                     return true;
                 }
             });

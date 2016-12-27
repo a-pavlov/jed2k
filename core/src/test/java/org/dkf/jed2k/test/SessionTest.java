@@ -5,8 +5,8 @@ import org.dkf.jed2k.SessionTrial;
 import org.dkf.jed2k.Settings;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class SessionTest {
     public void setupSession() {
         settings = new Settings();
         settings.listenPort = -1;
-        session = new SessionTrial(settings, new LinkedList<NetworkIdentifier>());
+        session = new SessionTrial(settings, new LinkedList<Endpoint>());
     }
 
     @Test

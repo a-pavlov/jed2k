@@ -7,8 +7,8 @@ import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.BitField;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.client.*;
 import org.dkf.jed2k.protocol.server.*;
@@ -181,9 +181,9 @@ public class PeerConnection extends Connection {
     /**
      * network endpoint for outgoing connections
      */
-    private NetworkIdentifier endpoint;
+    private Endpoint endpoint;
 
-    PeerConnection(NetworkIdentifier point,
+    PeerConnection(Endpoint point,
             ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer,
             PacketCombiner packetCombiner,
@@ -201,7 +201,7 @@ public class PeerConnection extends Connection {
             Session session,
             SocketChannel socket) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session, socket);
-        endpoint = new NetworkIdentifier();
+        endpoint = new Endpoint();
         peerInfo = null;
     }
 
@@ -217,7 +217,7 @@ public class PeerConnection extends Connection {
         }
     }
 
-    public static PeerConnection make(Session ses, final NetworkIdentifier point, Transfer transfer, Peer peerInfo) throws JED2KException {
+    public static PeerConnection make(Session ses, final Endpoint point, Transfer transfer, Peer peerInfo) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(8128);
             ByteBuffer obuff = ByteBuffer.allocate(MAX_OUTGOING_BUFFER_SIZE);
@@ -244,7 +244,7 @@ public class PeerConnection extends Connection {
     }
 
     @Override
-    public NetworkIdentifier getEndpoint() {
+    public Endpoint getEndpoint() {
         return endpoint;
     }
 
@@ -344,7 +344,7 @@ public class PeerConnection extends Connection {
     }
 
     public class RemotePeerInfo {
-        public NetworkIdentifier point = new NetworkIdentifier();
+        public Endpoint point = new Endpoint();
         public String modName;
         public int version = 0;
         public String modVersion;
@@ -1083,17 +1083,18 @@ public class PeerConnection extends Connection {
      */
     public final PeerInfo getInfo() {
         PeerInfo i = new PeerInfo();
-        i.downloadPayload = statistics().totalPayloadDownload();
-        i.downloadProtocol = statistics().totalProtocolDownload();
-        i.downloadSpeed = (int)statistics().downloadRate();
-        i.payloadDownloadSpeed = (int)statistics().downloadPayloadRate();
-        i.remotePieces = remotePieces;
-        i.failCount = ((getPeer()!=null)?getPeer().failCount:0);
-        i.modName = remotePeerInfo.modName;
-        i.version = remotePeerInfo.version;
-        i.modVersion = remotePeerInfo.modNumber;
-        i.endpoint = getEndpoint();
-        i.strModVersion = remotePeerInfo.modVersion;
+        i.setDownloadPayload(statistics().totalPayloadDownload());
+        i.setDownloadProtocol(statistics().totalProtocolDownload());
+        i.setDownloadSpeed((int)statistics().downloadRate());
+        i.setPayloadDownloadSpeed((int)statistics().downloadPayloadRate());
+        i.setRemotePieces(remotePieces);
+        i.setFailCount((getPeer()!=null)?getPeer().getFailCount():0);
+        i.setModName(remotePeerInfo.modName);
+        i.setVersion(remotePeerInfo.version);
+        i.setModVersion(remotePeerInfo.modNumber);
+        i.setEndpoint(getEndpoint());
+        i.setStrModVersion(remotePeerInfo.modVersion);
+        i.setSourceFlag((getPeer()!=null)?getPeer().getSourceFlag():0);
         return i;
     }
 

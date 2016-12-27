@@ -3,12 +3,16 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.Initiator;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.dkf.jed2k.protocol.tag.Tag;
+import org.dkf.jed2k.util.FUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +39,8 @@ public class Conn {
     private static Set<TransferHandle> handles = new HashSet<>();
     private static Path incomingDirectory;
     private static Path resumeDataDirectory;
+    private static int GLOBAL_PORT = 9999;
+    private static final String DHT_STATUS_FILENAME = "conn_dht_status.dat";
 
     private static String report(final Session s) {
         StringBuilder sb = new StringBuilder();
@@ -121,6 +127,7 @@ public class Conn {
 
         assert incomingDirectory != null;
         assert resumeDataDirectory != null;
+        DhtTracker tracker = null;
 
         System.out.println("Conn started");
         final Settings startSettings = new Settings();
@@ -128,9 +135,9 @@ public class Conn {
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
         startSettings.serverPingTimeout = 0;
-        startSettings.listenPort = 6991;
+        startSettings.listenPort = GLOBAL_PORT;
 
-        LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
+        LinkedList<Endpoint> systemPeers = new LinkedList<Endpoint>();
         String sp = System.getProperty("session.peers");
         if (sp != null) {
             String[] strP = sp.split(",");
@@ -138,7 +145,7 @@ public class Conn {
                 String[] strEndpoint = s.split(":");
 
                 if (strEndpoint.length == 2) {
-                    NetworkIdentifier ep = new NetworkIdentifier(new InetSocketAddress(strEndpoint[0], (short) Integer.parseInt(strEndpoint[1])));
+                    Endpoint ep = new Endpoint(new InetSocketAddress(strEndpoint[0], (short) Integer.parseInt(strEndpoint[1])));
                     systemPeers.addLast(ep);
                     log.debug("add system peer: {}", ep);
                 } else {
@@ -203,14 +210,36 @@ public class Conn {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
 
+        DhtInitialData idata = new DhtInitialData();
+        try {
+            FUtils.read(idata, new File(incomingDirectory.resolve(DHT_STATUS_FILENAME).toString()));
+        } catch(JED2KException e) {
+            log.warn("[CONN] read initial data failed {}", e);
+        }
+
+        if (idata.getTarget().isAllZeros()) {
+            idata.setTarget(new KadId(Hash.random(false)));
+        }
+
         while ((command = in.readLine()) != null) {
             String[] parts = command.split("\\s+");
 
             if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
+                if (tracker != null) {
+                    idata.setEntries(tracker.getTrackerState());
+                    tracker.abort();
+                    try {
+                        tracker.join();
+                        log.info("[CONN] DHT tracker finished");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 s.abort();
                 try {
                     s.join();
-                    log.info("session finished");
+                    log.info("[CONN] session finished");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -219,7 +248,7 @@ public class Conn {
 
             if (parts[0].compareTo("listen") == 0 && parts.length == 2) {
             	Settings settings = new Settings();
-            	settings.listenPort = (short)Integer.parseInt(parts[1]);
+            	settings.listenPort = Integer.parseInt(parts[1]);
             	s.configureSession(settings);
             }
             if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
@@ -249,8 +278,44 @@ public class Conn {
                 } catch(JED2KException e) {
                     log.error(e.getMessage());
                 }
-            } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
-                s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
+            }
+            else if (parts[0].compareTo("dsearch") == 0 && parts.length == 2) {
+                int index = Integer.parseInt(parts[1]);
+                if (index >= globalSearchRes.files.size() || index < 0) {
+                    log.warn("[CONN] specified index {} out of last search result bounds {}"
+                            , index
+                            , globalSearchRes.files.size());
+                } else {
+                    SharedFileEntry sfe = globalSearchRes.files.get(index);
+                    long filesize = 0;
+
+                    for (final Tag t : sfe.properties) {
+                        if (t.id() == Tag.FT_FILESIZE) {
+                            try {
+                                filesize = t.longValue();
+                                break;
+                            } catch (JED2KException e) {
+                                log.warn("[CONN] unable to extract filesize {}", e);
+                            }
+                        }
+                    }
+
+                    if (filesize != 0) {
+                        log.debug("[CONN] start search {}/{}", sfe.hash, filesize);
+                        s.dhtDebugSearch(sfe.hash, filesize);
+                    } else {
+                        log.warn("[CONN] unable to start DHT debug search due to zero file size");
+                    }
+                }
+            }
+            else if (parts[0].compareTo("dhtsearch") == 0 && parts.length == 3) {
+                Hash fileHash = Hash.fromString(parts[1]);
+                long fileSize = Long.parseLong(parts[2]);
+                log.debug("[CONN] DHT search sources for {} with size {}", fileHash, fileSize);
+                s.dhtDebugSearch(fileHash, fileSize);
+            }
+            else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
+                s.connectToPeer(new Endpoint(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
 
                 EMuleLink eml = null;
@@ -263,7 +328,9 @@ public class Conn {
                 if (eml == null) {
                     int index = Integer.parseInt(parts[1]);
                     if (index >= globalSearchRes.files.size() || index < 0) {
-                        System.out.println("Specified index out of last search result bounds");
+                        log.warn("[CONN] specified index {} out of last search result bounds {}"
+                            , index
+                            , globalSearchRes.files.size());
                     } else {
                         SharedFileEntry sfe = globalSearchRes.files.get(index);
                         Path filepath = null;
@@ -304,11 +371,15 @@ public class Conn {
                 }
             }
             else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
-                Path filepath = Paths.get(args[0], parts[3]);
-                long size = Long.parseLong(parts[2]);
-                Hash hash = Hash.fromString(parts[1]);
-                log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
-                handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
+                try {
+                    Path filepath = Paths.get(args[0], parts[3]);
+                    long size = Long.parseLong(parts[2]);
+                    Hash hash = Hash.fromString(parts[1]);
+                    log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
+                    handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
+                } catch(Exception e) {
+                    log.error("[CONN] unable to start loading {}", e);
+                }
             }
             else if (parts[0].compareTo("link") == 0) {
                 for(int i = 1; i < parts.length; ++i) {
@@ -404,6 +475,48 @@ public class Conn {
             else if (parts[0].compareTo("stopupnp") == 0) {
                 s.stopUPnP();
             }
+            else if (parts[0].compareTo("startdht") == 0) {
+                if (tracker != null) {
+                    log.info("[CONN] stop previously running DHT tracker");
+                    tracker.abort();
+                }
+
+                tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget());
+                tracker.start();
+                s.setDhtTracker(tracker);
+
+                if (idata.getEntries().getList() != null) {
+                    tracker.addEntries(idata.getEntries().getList());
+                }
+
+                scheduledExecutorService.scheduleWithFixedDelay(new Initiator(s), 1, 1, TimeUnit.MINUTES);
+            }
+            else if (parts[0].compareTo("stopdht") == 0) {
+
+                if (tracker != null) {
+                    idata.setEntries(tracker.getTrackerState());
+                    tracker.abort();
+                } else {
+                    log.warn("[CONN] DHT tracker is null, but shtstop command issued");
+                }
+            }
+            else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
+                if (tracker != null) {
+                    tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+                } else {
+                    log.warn("[CONN] DHT tracker is null, but bootstrap command issued");
+                }
+            }
+            else if (parts[0].compareTo("status") == 0) {
+                if (tracker != null) {
+                    try (PrintWriter pw = new PrintWriter(incomingDirectory.resolve("conn_dht_status.json").toString())) {
+                        pw.write(tracker.getRoutingTableStatus());
+                    }
+                }
+            }
+            else {
+                log.warn("[CONN] unknown command started from {}", parts[0]);
+            }
         }
 
         for(TransferHandle handle: handles) {
@@ -420,6 +533,7 @@ public class Conn {
         }
 
         scheduledExecutorService.shutdown();
+        FUtils.write(idata, new File(incomingDirectory.resolve(DHT_STATUS_FILENAME).toString()));
         log.info("Conn finished");
     }
 }
