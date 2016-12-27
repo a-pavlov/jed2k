@@ -1,7 +1,6 @@
 package org.dkf.jed2k.test;
 
 import org.dkf.jed2k.BufferPool;
-import org.junit.Assume;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;

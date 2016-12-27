@@ -14,7 +14,7 @@ public class TransferResumeData implements Serializable {
     public Container<UInt16, Hash> hashes  = Container.makeShort(Hash.class);
     public BitField pieces = new BitField();
     public Container<UInt16, PieceBlock> downloadedBlocks = Container.makeShort(PieceBlock.class);
-    public Container<UInt16, NetworkIdentifier> peers = Container.makeShort(NetworkIdentifier.class);
+    public Container<UInt16, Endpoint> peers = Container.makeShort(Endpoint.class);
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

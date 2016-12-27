@@ -111,6 +111,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void setupComponents() {
         setupConnectSwitch();
+        setupDhtSwitch();
         setupNickname();
         setupListenPort();
         setupStorageOption();
@@ -273,6 +274,21 @@ public class SettingsActivity extends PreferenceActivity {
                     } else if (newStatus && (Engine.instance().isStopped())) {
                         connect();
                     }
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void setupDhtSwitch() {
+        SwitchPreference preference = (SwitchPreference) findPreference("jmule.prefs.connect_dht");
+        if (preference != null) {
+            preference.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    final boolean newStatus = ((Boolean) newValue).booleanValue();
+                    LOG.info("setup DHT switch listener {}", newStatus?"ON":"OFF");
+                    Engine.instance().useDht(newStatus);
                     return true;
                 }
             });

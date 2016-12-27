@@ -3,7 +3,7 @@ package org.dkf.jed2k;
 
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.PacketHeader;
 import org.dkf.jed2k.protocol.Serializable;
@@ -26,8 +26,8 @@ public class UDPConnection {
     private static Logger log = Logger.getLogger(UDPConnection.class.getName());
     private ByteBuffer bufferIncoming;
     private ByteBuffer bufferOutgoing;
-    private LinkedList<Pair<Serializable, NetworkIdentifier>> outgoingOrder =
-            new LinkedList<Pair<Serializable, NetworkIdentifier> >();
+    private LinkedList<Pair<Serializable, Endpoint>> outgoingOrder =
+            new LinkedList<Pair<Serializable, Endpoint> >();
     private boolean writeInProgress = false;
     private SelectionKey key = null;
     private Statistics stat = new Statistics();
@@ -81,7 +81,7 @@ public class UDPConnection {
     public void onWriteable() {
         try {
             bufferOutgoing.clear();
-            Pair<Serializable, NetworkIdentifier> point = outgoingOrder.poll();
+            Pair<Serializable, Endpoint> point = outgoingOrder.poll();
             writeInProgress = point != null;
             if (point != null) {
                 writeInProgress = true;

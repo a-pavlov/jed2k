@@ -86,4 +86,20 @@
         android:layout_marginLeft="16dp"
         android:text="@string/upnp_summary" />
 
+    <CheckBox
+            android:id="@+id/view_general_wizard_page_check_dht"
+            style="@style/WizardSubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="@string/wizard_dht" />
+
+    <TextView
+            style="@style/WizardText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="16dp"
+            android:text="@string/wizard_dht_summary" />
+
 </LinearLayout>

@@ -2,7 +2,7 @@ package org.dkf.jed2k.protocol.test;
 
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.UInt8;
 import org.junit.Test;
@@ -22,17 +22,17 @@ public class ContainerHolderTest {
                 (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x00,   // net identifier 1
                 (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x06, (byte)0x00};  // net identifier 2
 
-        Container<UInt8, NetworkIdentifier> cni = Container.makeByte(NetworkIdentifier.class);
+        Container<UInt8, Endpoint> cni = Container.makeByte(Endpoint.class);
         ByteBuffer nb = ByteBuffer.wrap(source);
         nb.order(ByteOrder.LITTLE_ENDIAN);
         cni.get(nb);
         assertEquals(2, cni.size());
 
-        Iterator<NetworkIdentifier> itr = cni.iterator();
+        Iterator<Endpoint> itr = cni.iterator();
         assertTrue(itr.hasNext());
-        assertEquals(new NetworkIdentifier(1, (short)5), itr.next());
+        assertEquals(new Endpoint(1, (short)5), itr.next());
         assertTrue(itr.hasNext());
-        assertEquals(new NetworkIdentifier(2, (short)6), itr.next());
+        assertEquals(new Endpoint(2, (short)6), itr.next());
         assertFalse(itr.hasNext());
     }
 
@@ -49,14 +49,14 @@ public class ContainerHolderTest {
 
     @Test
     public void testContainerRemoveItems() {
-        Container<UInt16, NetworkIdentifier> c = Container.makeShort(NetworkIdentifier.class);
+        Container<UInt16, Endpoint> c = Container.makeShort(Endpoint.class);
         c.remove(null);
         assertTrue(c.isEmpty());
-        c.add(new NetworkIdentifier(10, 20));
-        c.add(new NetworkIdentifier(30, 50));
+        c.add(new Endpoint(10, 20));
+        c.add(new Endpoint(30, 50));
         assertEquals(2, c.size());
-        c.remove(new NetworkIdentifier(10, 20));
+        c.remove(new Endpoint(10, 20));
         assertEquals(1, c.size());
-        assertEquals(c.get(0), new NetworkIdentifier(30, 50));
+        assertEquals(c.get(0), new Endpoint(30, 50));
     }
 }

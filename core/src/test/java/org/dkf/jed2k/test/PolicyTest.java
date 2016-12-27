@@ -1,11 +1,8 @@
 package org.dkf.jed2k.test;
 
-import org.dkf.jed2k.Peer;
-import org.dkf.jed2k.PeerConnection;
-import org.dkf.jed2k.Policy;
-import org.dkf.jed2k.Transfer;
+import org.dkf.jed2k.*;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,10 +20,10 @@ import static org.mockito.Mockito.when;
  * Created by inkpot on 05.07.2016.
  */
 public class PolicyTest {
-    Peer p1 = new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0.1", 7081)), true);
-    Peer p2 = new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0.2", 7082)), true);
-    Peer p3 = new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0.3", 7083)), true);
-    Peer p4 = new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0.4", 7084)), true);
+    Peer p1 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.1", 7081)), true, 0);
+    Peer p2 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.2", 7082)), true, 0);
+    Peer p3 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.3", 7083)), true, 0);
+    Peer p4 = new Peer(new Endpoint(new InetSocketAddress("192.168.0.4", 7084)), true, 0);
 
     private Transfer transfer = null;
     private PeerConnection connection = null;
@@ -40,6 +37,7 @@ public class PolicyTest {
         when(transfer.connectoToPeer(any(Peer.class))).thenReturn(connection);
         when(transfer.isFinished()).thenReturn(false);
         Mockito.doCallRealMethod().when(transfer).callPolicy(any(Peer.class), any(PeerConnection.class));
+        Time.updateCachedTime();
     }
 
     @Test
@@ -95,12 +93,12 @@ public class PolicyTest {
     public void testNewConnection() throws JED2KException {
         Assume.assumeTrue(notAndroidPlatform);
         PeerConnection c = Mockito.mock(PeerConnection.class);
-        when(c.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
+        when(c.getEndpoint()).thenReturn(new Endpoint(10, (short)4661));
         Policy p = new Policy(transfer);
         p.newConnection(c);
         assertEquals(1, p.size());
         PeerConnection c2 = Mockito.mock(PeerConnection.class);
-        when(c2.getEndpoint()).thenReturn(new NetworkIdentifier(11, (short)6789));
+        when(c2.getEndpoint()).thenReturn(new Endpoint(11, (short)6789));
         p.newConnection(c2);
         assertEquals(2, p.size());
         assertEquals(0, p.numConnectCandidates());
@@ -111,9 +109,9 @@ public class PolicyTest {
         Assume.assumeTrue(notAndroidPlatform);
         PeerConnection c = Mockito.mock(PeerConnection.class);
         Policy p = new Policy(transfer);
-        when(c.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
+        when(c.getEndpoint()).thenReturn(new Endpoint(10, (short)4661));
         PeerConnection c2 = Mockito.mock(PeerConnection.class);
-        when(c2.getEndpoint()).thenReturn(new NetworkIdentifier(10, (short)4661));
+        when(c2.getEndpoint()).thenReturn(new Endpoint(10, (short)4661));
         p.newConnection(c);
         p.newConnection(c2);
     }
@@ -135,7 +133,7 @@ public class PolicyTest {
         LinkedList<Peer> peers = new LinkedList<>();
         Policy p = new Policy(transfer);
         for(int i = 0; i < Policy.MAX_PEER_LIST_SIZE; ++i) {
-            peers.add(new Peer(new NetworkIdentifier(new InetSocketAddress("192.168.0." + new Integer(i+1).toString(), i+2000)), true));
+            peers.add(new Peer(new Endpoint(new InetSocketAddress("192.168.0." + new Integer(i+1).toString(), i+2000)), true, 0));
             p.addPeer(peers.peekLast());
         }
 
@@ -206,5 +204,31 @@ public class PolicyTest {
                 assertFalse(p2.equals(itr.next()));
             }
         }
+    }
+
+    @Test
+    public void testPeerSourceFlagUpdate() throws JED2KException {
+        Policy p = new Policy(transfer);
+        assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, PeerInfo.SERVER)));
+        long currentTime = Time.currentTime();
+        Peer candidate = p.findConnectCandidate(currentTime);
+        assertTrue(candidate != null);
+        assertEquals(PeerInfo.SERVER, candidate.getSourceFlag());
+        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.0.233", 5677), true, PeerInfo.DHT)));
+        candidate = p.findConnectCandidate(currentTime + Time.minutes(1));
+        assertTrue(candidate != null);
+        assertEquals(PeerInfo.SERVER | PeerInfo.DHT, candidate.getSourceFlag());
+        for(int i = 0; i < 30; ++i) {
+            assertTrue(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", i+6000), true, PeerInfo.SERVER)));
+        }
+
+        assertFalse(p.addPeer(new Peer(Endpoint.fromString("192.168.2.233", 6004), true, PeerInfo.DHT)));
+        Peer peer = p.findPeer(Endpoint.fromString("192.168.2.233", 6004));
+        assertTrue(peer != null);
+        assertEquals(PeerInfo.SERVER | PeerInfo.DHT, peer.getSourceFlag());
+        candidate.setLastConnected(currentTime + Time.minutes(1) + Time.seconds(1));
+        candidate = p.findConnectCandidate(currentTime + Time.minutes(1) + Time.seconds(2));
+        assertTrue(candidate != null);
+        assertEquals(new Peer(Endpoint.fromString("192.168.2.233", 6004)), candidate);
     }
 }

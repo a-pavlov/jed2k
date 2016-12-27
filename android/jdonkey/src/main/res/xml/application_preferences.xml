@@ -137,6 +137,12 @@
 
     </PreferenceScreen>
 
+    <PreferenceCategory android:key="jmule.prefs.dht">
+        <SwitchPreference android:key="jmule.prefs.connect_dht"
+                          android:summary="@string/dht_enable_summary"
+                          android:title="@string/dht_enable_title"/>
+    </PreferenceCategory>
+
     <Preference
             android:key="jmule.prefs.show_about"
             android:title="@string/about">

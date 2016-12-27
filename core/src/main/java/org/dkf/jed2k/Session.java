@@ -7,15 +7,21 @@ import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.Listener;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -51,6 +57,121 @@ public class Session extends Thread {
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
 
+    /**
+     * external DHT tracker object
+     */
+    private WeakReference<DhtTracker> dhtTracker = new WeakReference<DhtTracker>(null);
+
+    /**
+     * sources search result callback
+     */
+    private static class DhtSourcesCallback implements Listener {
+        final Session session;
+        final WeakReference<Transfer> weakTransfer;
+
+        public DhtSourcesCallback(final Session session, final Transfer t) {
+            this.session = session;
+            this.weakTransfer = new WeakReference<Transfer>(t);
+        }
+
+        @Override
+        public void process(final List<KadSearchEntry> data) {
+            session.commands.add(new Runnable() {
+                @Override
+                public void run() {
+                    Transfer transfer = weakTransfer.get();
+                    if (transfer == null) {
+                        log.debug("[session] transfer not exists for searched result, just skip it");
+                        return;
+                    }
+
+                    for(final KadSearchEntry kse: data) {
+                        KadId target = kse.getKid();
+                        assert target != null; // actually impossible
+
+                        if (transfer == null && transfer.wantMorePeers()) {
+                            log.debug("[session] transfer for {} not exists", target);
+                            continue;
+                        };
+
+                        int ip = 0;
+                        int sourceType = 0;
+                        int sourcePort = 0;
+                        int sourceUPort = 0;
+                        int lowId = 0;
+                        int serverIp = 0;
+                        int serverPort = 0;
+                        KadId id = null;
+                        int cryptOptions = 0;
+
+                        try {
+                            for (final Tag t : kse.getInfo()) {
+                                switch (t.id()) {
+                                    case Tag.TAG_SOURCETYPE:
+                                        sourceType = t.intValue();
+                                        break;
+                                    case Tag.TAG_SOURCEIP:
+                                        ip = Utils.ntohl(t.intValue());
+                                        break;
+                                    case Tag.TAG_SOURCEPORT:
+                                        sourcePort = t.intValue();
+                                        break;
+                                    case Tag.TAG_CLIENTLOWID:
+                                        lowId = t.intValue();
+                                        break;
+                                    case Tag.TAG_SOURCEUPORT:
+                                        sourceUPort = t.intValue();
+                                        break;
+                                    case Tag.TAG_SERVERIP:
+                                        serverIp = t.intValue();
+                                        break;
+                                    case Tag.TAG_SERVERPORT:
+                                        serverPort = t.intValue();
+                                        break;
+                                    case Tag.TAG_BUDDYHASH:
+                                        try {
+                                            id = new KadId(Hash.fromString(t.stringValue()));
+                                        } catch(JED2KException e) {
+                                            log.warn("[session] unable to extract buddy hash {}", e);
+                                        }
+                                        break;
+                                    case Tag.TAG_ENCRYPTION:
+                                        cryptOptions = t.intValue();
+                                        break;
+                                    default:
+                                        log.debug("[session] unhandled KAD search tag {}", t);
+                                        break;
+                                }
+                            }
+                        } catch(JED2KException e) {
+                            log.error("[session] processing kad search sources result failed {}", e);
+                        }
+
+                        assert transfer != null;
+                        // process here only non-firewalled sources
+                        if (ip != 0 && sourcePort != 0 && (sourceType == 1 || sourceType == 4)) {
+                            try {
+                                transfer.addPeer(new Endpoint(ip, sourcePort), PeerInfo.DHT);
+                            } catch(JED2KException e) {
+                                log.error("[session] unable to add peer {}:{} to transfer {} with error {}", ip, sourcePort, transfer, e);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private static class DhtDebugCallback implements Listener {
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            log.info("[session] DHT debug callback results size {}", data.size());
+            for(final KadSearchEntry e: data) {
+                log.info("entry: {}", e);
+            }
+        }
+    }
 
     // from last established server connection
     int clientId    = 0;
@@ -85,6 +206,7 @@ public class Session extends Thread {
 
         try {
             if (settings.listenPort > 0) {
+                assert selector != null;
                 log.info("Start listening on port {}", settings.listenPort);
                 ssc = ServerSocketChannel.open();
                 ssc.socket().bind(new InetSocketAddress(settings.listenPort));
@@ -195,7 +317,7 @@ public class Session extends Thread {
 
             while(!aborted && !interrupted()) {
                 int channelCount = selector.select(1000);
-                Time.currentCachedTime = Time.currentTimeHiRes();
+                Time.updateCachedTime();
                 on_tick(ErrorCode.NO_ERROR, channelCount);
             }
         }
@@ -240,10 +362,10 @@ public class Session extends Thread {
             // stop service
             diskIOService.shutdown();
             upnpService.shutdown();
-            stopUPnPImpl();
+            stopUPnPImpl("TCP");
+            stopUPnPImpl("UDP");
             log.info("Session finished");
             finished.set(true);
-
         }
     }
 
@@ -268,7 +390,7 @@ public class Session extends Thread {
         connections.remove(p);
     }
 
-    void openConnection(NetworkIdentifier point) throws JED2KException {
+    void openConnection(Endpoint point) throws JED2KException {
         if (findPeerConnection(point) == null) {
             PeerConnection p = PeerConnection.make(Session.this, point, null, null);
             if (p != null) connections.add(p);
@@ -287,7 +409,7 @@ public class Session extends Thread {
                 try {
                     serverConection = ServerConnection.makeConnection(id, Session.this);
                     serverConection.connect(point);
-                    NetworkIdentifier endpoint = new NetworkIdentifier(point);
+                    Endpoint endpoint = new Endpoint(point);
                     log.debug("connect to server {}", endpoint);
                 } catch(JED2KException e) {
                     // emit alert - connect to server failed
@@ -311,7 +433,7 @@ public class Session extends Thread {
                     try {
                         serverConection = ServerConnection.makeConnection(id, Session.this);
                         serverConection.connect(addr);
-                        NetworkIdentifier endpoint = new NetworkIdentifier(addr);
+                        Endpoint endpoint = new Endpoint(addr);
                         pushAlert(new ServerConnectionAlert(id));
                         log.debug("connect to server {}", endpoint);
                     } catch(JED2KException e) {
@@ -366,7 +488,7 @@ public class Session extends Thread {
     }
 
     // TODO - remove only
-    public void connectToPeer(final NetworkIdentifier point) {
+    public void connectToPeer(final Endpoint point) {
         commands.add(new Runnable() {
             @Override
             public void run() {
@@ -381,7 +503,7 @@ public class Session extends Thread {
         });
     }
 
-    private PeerConnection findPeerConnection(NetworkIdentifier endpoint) {
+    private PeerConnection findPeerConnection(Endpoint endpoint) {
         for(PeerConnection p: connections) {
             if (p.hasEndpoint() && endpoint.compareTo(p.getEndpoint()) == 0) return p;
         }
@@ -489,6 +611,17 @@ public class Session extends Thread {
 
     void sendSourcesRequest(final Hash h, final long size) {
         if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
+    }
+
+    void sendDhtSourcesRequest(final Hash h, final long size, final Transfer t) {
+        if (dhtTracker != null) {
+            try {
+                DhtTracker dht = dhtTracker.get();
+                if (dht != null) dht.searchSources(h, size, new DhtSourcesCallback(this, t));
+            } catch(JED2KException e) {
+                log.error("[session] dht search sources error {}", e);
+            }
+        }
     }
 
     /**
@@ -660,22 +793,25 @@ public class Session extends Thread {
                     discover.discover();
                     device = discover.getValidGateway();
                     if (device != null) {
-                        PortMappingEntry portMapping = new PortMappingEntry();
-                        if (!device.getSpecificPortMappingEntry(port, "TCP",portMapping)) {
-                            InetAddress localAddress = device.getLocalAddress();
-                            if (device.addPortMapping(port, port, localAddress.getHostAddress(),"TCP","JED2K")) {
-                                // ok, mapping added
-                                log.info("port mapped {}", port);
+                        final String[] protocols = {"TCP", "UDP"};
+                        for(final String protocol: protocols) {
+                            PortMappingEntry portMapping = new PortMappingEntry();
+                            if (!device.getSpecificPortMappingEntry(port, protocol, portMapping)) {
+                                InetAddress localAddress = device.getLocalAddress();
+                                if (device.addPortMapping(port, port, localAddress.getHostAddress(), protocol, "JED2K")) {
+                                    // ok, mapping added
+                                    log.info("[session] port mapped {} for {}", port, protocol);
+                                } else {
+                                    log.info("[session] port {} mapping error for {}", port, protocol);
+                                    ec = ErrorCode.PORT_MAPPING_ERROR;
+                                }
                             } else {
-                                log.info("mapping error for port {}", port);
-                                ec = ErrorCode.PORT_MAPPING_ERROR;
+                                log.debug("[session] port {} already mapped for {}", port, protocol);
+                                ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                             }
-                        } else {
-                            log.debug("port {} already mapped", port);
-                            ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                         }
                     } else {
-                        log.debug("can not find gateway device");
+                        log.debug("[session] can not find gateway device");
                         ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
                     }
                 } catch (IOException e) {
@@ -701,30 +837,62 @@ public class Session extends Thread {
         upnpService.submit(new Runnable() {
             @Override
             public void run() {
-                stopUPnPImpl();
+                stopUPnPImpl("TCP");
+                stopUPnPImpl("UDP");
+                device = null;
             }
         });
     }
 
-    private void stopUPnPImpl() {
+    private void stopUPnPImpl(final String protocol) {
         if (device != null) {
             try {
-                if (device.deletePortMapping(settings.listenPort, "TCP")) {
+                if (device.deletePortMapping(settings.listenPort, protocol)) {
                     log.info("port mapping removed {}", settings.listenPort);
                 } else {
                     log.error("port mapping removing failed");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                log.error("[session] unmap port I/O error {}", e);
             } catch (SAXException e) {
                 e.printStackTrace();
+                log.error("[session] unmap port SAX error {}", e);
             }
             catch(Exception e) {
                 e.printStackTrace();
-            }
-            finally {
-                device = null;
+                log.error("[session] unmap port error {}", e);
             }
         }
+    }
+
+    /**
+     * debug only method to run search source from external process
+     * @param h hash of file
+     * @param size size of file
+     */
+    public synchronized void dhtDebugSearch(final Hash h, long size) {
+        try {
+            DhtTracker tracker = dhtTracker.get();
+            if (tracker != null) {
+                tracker.searchSources(h, size, new DhtDebugCallback());
+            } else {
+                log.warn("[session] DHT is not running, but search sources requested");
+            }
+        } catch(JED2KException e) {
+            log.error("[session] unable to start debug search {}", e);
+        }
+    }
+
+    /**
+     * add or remove DHT tracker from session
+     * @param tracker external DHT tracker object or null
+     */
+    public synchronized void setDhtTracker(final DhtTracker tracker) {
+        dhtTracker = new WeakReference<DhtTracker>(tracker);
+    }
+
+    public synchronized DhtTracker getDhtTracker() {
+        return dhtTracker.get();
     }
 }

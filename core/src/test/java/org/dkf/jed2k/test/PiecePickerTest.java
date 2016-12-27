@@ -3,7 +3,7 @@ package org.dkf.jed2k.test;
 
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.data.PieceBlock;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,8 +26,8 @@ public class PiecePickerTest {
 
     @Before
     public void setUp() {
-        peer = new Peer(new NetworkIdentifier(100, 3444));
-        peer2 = new Peer(new NetworkIdentifier(222, 55456));
+        peer = new Peer(new Endpoint(100, 3444));
+        peer2 = new Peer(new Endpoint(222, 55456));
         rnd = new Random();
     }
 
@@ -97,7 +97,7 @@ public class PiecePickerTest {
         assertEquals(0, picker.numHave());
         assertEquals(1, picker.totalPieces());
         List<PieceBlock> rq = new LinkedList<>();
-        Peer peer = new Peer(new NetworkIdentifier(111, 555));
+        Peer peer = new Peer(new Endpoint(111, 555));
         picker.pickPieces(rq, Constants.REQUEST_QUEUE_SIZE, peer, PeerConnection.PeerSpeed.SLOW);
         assertEquals(Constants.REQUEST_QUEUE_SIZE, rq.size());
         for(final PieceBlock b: rq) {
@@ -264,7 +264,7 @@ public class PiecePickerTest {
         }
 
         // slow request returns nothing
-        Peer peer3 = new Peer(new NetworkIdentifier(29990, 5678));
+        Peer peer3 = new Peer(new Endpoint(29990, 5678));
         List<PieceBlock> rq3 = new LinkedList<>();
         pp.pickPieces(rq3, Constants.REQUEST_QUEUE_SIZE, peer3, PeerConnection.PeerSpeed.SLOW);
         assertTrue(rq3.isEmpty());
@@ -338,7 +338,7 @@ public class PiecePickerTest {
         final PiecePicker picker;
         PeerConnection.PeerSpeed speed;
         private LinkedList<PieceBlock> blocks = new LinkedList<>();
-        private final Peer peer = new Peer(new NetworkIdentifier(rnd.nextInt(), rnd.nextInt(30000)));
+        private final Peer peer = new Peer(new Endpoint(rnd.nextInt(), rnd.nextInt(30000)));
         private final PieceManager mgr;
         private int counter = 0;
 

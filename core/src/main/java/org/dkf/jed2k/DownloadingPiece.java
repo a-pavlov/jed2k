@@ -54,7 +54,7 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
         }
 
         public void abort(Peer p) {
-            assert state != BlockState.STATE_NONE;
+            assert state != BlockState.STATE_NONE; // TODO - check this expression due to failed unit test
             assert state == BlockState.STATE_WRITING || p != null;
             assert downloadersCount >= 0;
 

@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.tag;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -8,14 +9,13 @@ import org.dkf.jed2k.protocol.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.logging.Logger;
+import java.util.Collection;
 
 import static org.dkf.jed2k.Utils.sizeof;
 import static org.dkf.jed2k.protocol.Unsigned.*;
 
+@Slf4j
 public final class Tag implements Serializable {
-
-    private static Logger log = Logger.getLogger(Tag.class.getName());
 
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
     public static final byte TAGTYPE_HASH16       = (byte)0x01;
@@ -167,6 +167,53 @@ public final class Tag implements Serializable {
     public static final byte ST_TCPPORTOBFUSCATION = (byte)0x97; // <uint16>
     public static final byte ST_UDPPORTOBFUSCATION = (byte)0x98; // <uint16>
 
+    // Kad search + some unused tags to mirror the ed2k ones.
+    public static final byte TAG_FILENAME        = (byte)0x01;  // <string>
+    public static final byte TAG_FILESIZE        = (byte)0x02;  // <uint32>
+    public static final byte TAG_FILESIZE_HI     = (byte)0x3A;  // <uint32>
+    public static final byte TAG_FILETYPE        = (byte)0x03;  // <string>
+    public static final byte TAG_FILEFORMAT      = (byte)0x04;  // <string>
+    public static final byte TAG_COLLECTION      = (byte)0x05;
+    public static final byte TAG_PART_PATH       = (byte)0x06;  // <string>
+    public static final byte TAG_PART_HASH       = (byte)0x07;
+    public static final byte TAG_COPIED          = (byte)0x08;  // <uint32>
+    public static final byte TAG_GAP_START       = (byte)0x09;  // <uint32>
+    public static final byte TAG_GAP_END         = (byte)0x0A;  // <uint32>
+    public static final byte TAG_DESCRIPTION     = (byte)0x0B;  // <string>
+    public static final byte TAG_PING            = (byte)0x0C;
+    public static final byte TAG_FAIL            = (byte)0x0D;
+    public static final byte TAG_PREFERENCE      = (byte)0x0E;
+    public static final byte TAG_PORT            = (byte)0x0F;
+    public static final byte TAG_IP_ADDRESS      = (byte)0x10;
+    public static final byte TAG_VERSION         = (byte)0x11;  // <string>
+    public static final byte TAG_TEMPFILE        = (byte)0x12;  // <string>
+    public static final byte TAG_PRIORITY        = (byte)0x13;  // <uint32>
+    public static final byte TAG_STATUS          = (byte)0x14;  // <uint32>
+    public static final byte TAG_SOURCES         = (byte)0x15;  // <uint32>
+    public static final byte TAG_AVAILABILITY    = (byte)0x15;  // <uint32>
+    public static final byte TAG_PERMISSIONS     = (byte)0x16;
+    public static final byte TAG_QTIME           = (byte)0x16;
+    public static final byte TAG_PARTS           = (byte)0x17;
+    public static final byte TAG_PUBLISHINFO     = (byte)0x33;  // <uint32>
+    public static final byte TAG_MEDIA_ARTIST    = (byte)0xD0;  // <string>
+    public static final byte TAG_MEDIA_ALBUM     = (byte)0xD1;  // <string>
+    public static final byte TAG_MEDIA_TITLE     = (byte)0xD2;  // <string>
+    public static final byte TAG_MEDIA_LENGTH    = (byte)0xD3;  // <uint32> !!!
+    public static final byte TAG_MEDIA_BITRATE   = (byte)0xD4;  // <uint32>
+    public static final byte TAG_MEDIA_CODEC     = (byte)0xD5;  // <string>
+    public static final byte TAG_KADMISCOPTIONS  = (byte)0xF2;  // <uint8>
+    public static final byte TAG_ENCRYPTION      = (byte)0xF3;  // <uint8>
+    public static final byte TAG_FILERATING      = (byte)0xF7;  // <uint8>
+    public static final byte TAG_BUDDYHASH       = (byte)0xF8;  // <string>
+    public static final byte TAG_CLIENTLOWID     = (byte)0xF9;  // <uint32>
+    public static final byte TAG_SERVERPORT      = (byte)0xFA;  // <uint16>
+    public static final byte TAG_SERVERIP        = (byte)0xFB;  // <uint32>
+    public static final byte TAG_SOURCEUPORT     = (byte)0xFC;  // <uint16>
+    public static final byte TAG_SOURCEPORT      = (byte)0xFD;  // <uint16>
+    public static final byte TAG_SOURCEIP        = (byte)0xFE;  // <uint32>
+    public static final byte TAG_SOURCETYPE      = (byte)0xFF;  // <uint8>
+
+
     public static String type2String(byte id) {
         switch(id) {
             case TAGTYPE_UNDEFINED: return "TAGTYPE_UNDEFINED";
@@ -246,19 +293,19 @@ public final class Tag implements Serializable {
             case CT_EMULE_RESERVED1: return "CT_EMULE_RESERVED1";
             case CT_EMULE_RESERVED2: return "CT_EMULE_RESERVED2";
             case CT_EMULE_RESERVED3: return "CT_EMULE_RESERVED3";
-            case CT_EMULE_RESERVED4: return "CT_EMULE_RESERVED4";
+            case CT_EMULE_RESERVED4: return "[CT_EMULE_RESERVED4/TAG_ENCRYPTION]";
             case CT_EMULE_RESERVED5: return "CT_EMULE_RESERVED5";
             case CT_EMULE_RESERVED6: return "CT_EMULE_RESERVED6";
             case CT_EMULE_RESERVED7: return "CT_EMULE_RESERVED7";
             case CT_EMULE_RESERVED8: return "CT_EMULE_RESERVED8";
-            case CT_EMULE_RESERVED9: return "CT_EMULE_RESERVED9";
-            case CT_EMULE_UDPPORTS: return "CT_EMULE_UDPPORTS";
-            case CT_EMULE_MISCOPTIONS1: return "CT_EMULE_MISCOPTIONS1";
-            case CT_EMULE_VERSION: return "CT_EMULE_VERSION";
-            case CT_EMULE_BUDDYIP: return "CT_EMULE_BUDDYIP";
-            case CT_EMULE_BUDDYUDP: return "CT_EMULE_BUDDYUDP";
-            case CT_EMULE_MISCOPTIONS2: return "CT_EMULE_MISCOPTIONS2";
-            case CT_EMULE_RESERVED13: return "CT_EMULE_RESERVED13";
+            case CT_EMULE_RESERVED9: return "[CT_EMULE_RESERVED9/TAG_BUDDYHASH]";
+            case CT_EMULE_UDPPORTS: return "[CT_EMULE_UDPPORTS/TAG_CLIENTLOWID]";
+            case CT_EMULE_MISCOPTIONS1: return "[CT_EMULE_MISCOPTIONS1/TAG_SERVERPORT]";
+            case CT_EMULE_VERSION: return "[CT_EMULE_VERSION/TAG_SERVERIP]";
+            case CT_EMULE_BUDDYIP: return "[CT_EMULE_BUDDYIP/TAG_SOURCEUPORT]";
+            case CT_EMULE_BUDDYUDP: return "[CT_EMULE_BUDDYUDP/TAG_SOURCEPORT]";
+            case CT_EMULE_MISCOPTIONS2: return "[CT_EMULE_MISCOPTIONS2/TAG_SOURCEIP]";
+            case CT_EMULE_RESERVED13: return "[CT_EMULE_RESERVED13/TAG_SOURCETYPE]";
             case CT_MOD_VERSION: return "CT_MOD_VERSION";
             default: return "UNKNOWN";
         }
@@ -372,7 +419,8 @@ public final class Tag implements Serializable {
             try {
                 return stringValue();
             } catch (JED2KException e){
-                log.warning(e.getMessage());
+                log.error("[tag] to string failed {}", e);
+                e.printStackTrace();
             }
 
             return new String();
@@ -478,6 +526,9 @@ public final class Tag implements Serializable {
         case TAGTYPE_BLOB:
             value = new ByteContainer<UInt32>(uint32());
             break;
+        case TAGTYPE_BSOB:
+            value = new ByteContainer<UInt8>(uint8());
+            break;
         case TAGTYPE_BOOLARRAY:
             value = new BoolArraySerial();
             break;
@@ -485,7 +536,7 @@ public final class Tag implements Serializable {
             value = new Hash();
             break;
         default:
-            log.warning("Unknown tag type: " + Utils.byte2String(type));
+            log.warn("[tag] unknown tag type {}", Utils.byte2String(type));
             throw new JED2KException(ErrorCode.TAG_TYPE_UNKNOWN);
         };
 
@@ -544,6 +595,8 @@ public final class Tag implements Serializable {
         try {
             return stringValue();
         } catch(JED2KException e) {
+            log.error("[tag] as string failed {}", e);
+            e.printStackTrace();
             return "";
         }
     }
@@ -564,6 +617,8 @@ public final class Tag implements Serializable {
         try {
             return intValue();
         } catch(JED2KException e) {
+            log.error("[tag] as int value failed {}", e);
+            e.printStackTrace();
             return 0;
         }
     }
@@ -579,6 +634,8 @@ public final class Tag implements Serializable {
         try {
             return longValue();
         } catch(JED2KException e) {
+            log.error("[tag] as long value failed {}", e);
+            e.printStackTrace();
             return 0;
         }
     }
@@ -659,5 +716,13 @@ public final class Tag implements Serializable {
     @Override
     public String toString() {
         return type2String(type) + " " + ((name!=null)?name:id2String(id)) + " " + value.toString();
+    }
+
+    public static Tag getTagById(final byte id, final Collection<Tag> tags) {
+        for(final Tag t: tags) {
+            if (t.id() == id) return t;
+        }
+
+        return null;
     }
 }

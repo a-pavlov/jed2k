@@ -5,6 +5,7 @@ import org.dkf.jed2k.protocol.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
 	enum StandardClientTcp
@@ -130,7 +131,7 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
     private static PacketKey pkClientSendingCompPart64 = PacketKey.pk(ProtocolType.OP_EMULEPROT.value, ExtendedClientTcp.OP_COMPRESSEDPART_I64.value);
 
     static {
-        supportedPacketsClient = new HashMap<PacketKey, Class<? extends Serializable>>();
+        supportedPacketsClient = new TreeMap<PacketKey, Class<? extends Serializable>>();
         struct2KeyClient = new HashMap<Class<? extends Serializable>, PacketKey>();
 
         // client <-> client tcp messages section

@@ -6,8 +6,8 @@ import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.BitField;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.TransferResumeData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +63,14 @@ public class Transfer {
     private HashSet<PeerConnection> connections = new HashSet<PeerConnection>();
 
     /**
-     * session time when new peers request will executed
+     * session time when new peers request will be executed
      */
     private long nextTimeForSourcesRequest = 0;
+
+    /**
+     * session time when new peers request to KAD will be executed
+     */
+    private long nextTimeForDhtSourcesRequest = 0;
 
     /**
      * disk io
@@ -227,16 +232,8 @@ public class Transfer {
         stat.add(s);
     }
 
-    /**
-     * request sources from server, kad, etc
-     */
-    final void requestSources() {
-        // server request
-        session.sendSourcesRequest(hash, size);
-    }
-
-    final void addPeer(NetworkIdentifier endpoint) throws JED2KException {
-        policy.addPeer(new Peer(endpoint, true));
+    final void addPeer(Endpoint endpoint, int sourceFlag) throws JED2KException {
+        policy.addPeer(new Peer(endpoint, true, sourceFlag));
     }
 
     final void removePeerConnection(PeerConnection c) {
@@ -247,9 +244,9 @@ public class Transfer {
     }
 
     public PeerConnection connectoToPeer(Peer peerInfo) throws JED2KException {
-        peerInfo.lastConnected = Time.currentTime();
-        peerInfo.nextConnection = 0;
-        PeerConnection c = PeerConnection.make(session, peerInfo.endpoint, this, peerInfo);
+        peerInfo.setLastConnected(Time.currentTime());
+        peerInfo.setNextConnection(0);
+        PeerConnection c = PeerConnection.make(session, peerInfo.getEndpoint(), this, peerInfo);
         session.connections.add(c);
         connections.add(c);
         policy.setConnection(peerInfo, c);
@@ -287,10 +284,19 @@ public class Transfer {
     }
 
 	void secondTick(final Statistics accumulator, long tickIntervalMS) {
-        if (nextTimeForSourcesRequest < Time.currentTime() && !isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
-            log.debug("Request peers {}", hash);
-            session.sendSourcesRequest(hash, size);
-            nextTimeForSourcesRequest = Time.currentTime() + 1000*60;   // one request per minute
+        if (!isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
+
+            if (nextTimeForSourcesRequest < Time.currentTime()) {
+                log.debug("[transfer] request peers on server {}", hash);
+                session.sendSourcesRequest(hash, size);
+                nextTimeForSourcesRequest = Time.currentTime() + Time.minutes(1);
+            }
+
+            if (nextTimeForDhtSourcesRequest < Time.currentTime()) {
+                log.debug("[transfer] request peers on KAD {}", hash);
+                session.sendDhtSourcesRequest(hash, size, this);
+                nextTimeForDhtSourcesRequest = Time.currentTime() + Time.minutes(10);
+            }
         }
 
         Iterator<PeerConnection> itr = connections.iterator();

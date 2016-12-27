@@ -69,14 +69,16 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private ExpandableListView list;
     private TextView textDownloads;
     private TextView textUploads;
+    private TextView textDht;
     private ClearableEditTextView addTransferUrlTextView;
     private TransferListAdapter adapter;
     private TransferStatus selectedStatus;
     private TimerSubscription subscription;
-    private int delayedDHTUpdateTimeElapsed;
+    private int delayedDHTUpdateTimeElapsed = 0;
     private boolean isVPNactive;
     private static boolean firstTimeShown = true;
     private Handler vpnRichToastHandler;
+    private int totalDhtNodes = -1;
 
     private boolean showTorrentSettingsOnClick;
 
@@ -154,12 +156,20 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         int downloads = TransferManager.instance().getActiveDownloads();
         int uploads = TransferManager.instance().getActiveUploads();
 
+        delayedDHTUpdateTimeElapsed += UI_UPDATE_INTERVAL_IN_SECS;
+
+        if (delayedDHTUpdateTimeElapsed >= DHT_STATUS_UPDATE_INTERVAL_IN_SECS) {
+            delayedDHTUpdateTimeElapsed = 0;
+            totalDhtNodes = Engine.instance().getTotalDhtNodes();
+        }
+
         updateStatusBar(sDown, sUp, downloads, uploads);
     }
 
     private void updateStatusBar(String sDown, String sUp, int downloads, int uploads) {
         textDownloads.setText(downloads + " @ " + sDown);
         textUploads.setText(uploads + " @ " + sUp);
+        textDht.setText(getString(R.string.dht_nodes, (totalDhtNodes>=0)?new Integer(totalDhtNodes).toString():"???"));
     }
 
     @Override
@@ -250,6 +260,8 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         textDownloads = findView(v, R.id.fragment_transfers_text_downloads);
         textUploads = findView(v, R.id.fragment_transfers_text_uploads);
+        textDht = findView(v, R.id.fragment_transfers_dht);
+        textDht.setText(getString(R.string.dht_nodes, "???"));
     }
 
     public void initStorageRelatedRichNotifications(View v) {
