@@ -51,7 +51,7 @@
             android:summary="@string/listen_port_summary"
             android:title="@string/listen_port"
             jdonkey:picker_defaultValue="30000"
-            jdonkey:picker_endRange="99999"
+            jdonkey:picker_endRange="65535"
             jdonkey:picker_startRange="1000"/>
     </PreferenceCategory>
 
@@ -138,9 +138,11 @@
     </PreferenceScreen>
 
     <PreferenceCategory android:key="jmule.prefs.dht">
-        <SwitchPreference android:key="jmule.prefs.connect_dht"
-                          android:summary="@string/dht_enable_summary"
-                          android:title="@string/dht_enable_title"/>
+        <CheckBoxPreference
+                android:key="jmule.prefs.connect_dht"
+                android:title="@string/dht_enable_title"
+                android:summary="@string/dht_enable_summary"
+                android:enabled="true" />
     </PreferenceCategory>
 
     <Preference

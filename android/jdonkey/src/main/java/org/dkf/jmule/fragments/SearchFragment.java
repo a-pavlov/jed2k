@@ -66,8 +66,8 @@ public final class SearchFragment extends AbstractFragment implements
     private ListView list;
     private String currentQuery;
     private final FileTypeCounter fileTypeCounter;
-    private final SparseArray<Byte> toTheRightOf = new SparseArray<>(6);
-    private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(6);
+    private final SparseArray<Byte> toTheRightOf = new SparseArray<>(9);
+    private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(9);
 
     private boolean awaitingResults = false;
 
@@ -81,14 +81,21 @@ public final class SearchFragment extends AbstractFragment implements
         toTheRightOf.put(Constants.FILE_TYPE_VIDEOS, Constants.FILE_TYPE_PICTURES);
         toTheRightOf.put(Constants.FILE_TYPE_PICTURES, Constants.FILE_TYPE_APPLICATIONS);
         toTheRightOf.put(Constants.FILE_TYPE_APPLICATIONS, Constants.FILE_TYPE_DOCUMENTS);
-        toTheRightOf.put(Constants.FILE_TYPE_DOCUMENTS, Constants.FILE_TYPE_TORRENTS);
-        toTheRightOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_AUDIO);
-        toTheLeftOf.put(Constants.FILE_TYPE_AUDIO, Constants.FILE_TYPE_TORRENTS);
+        toTheRightOf.put(Constants.FILE_TYPE_DOCUMENTS, Constants.FILE_TYPE_ARCHIVE);
+        toTheRightOf.put(Constants.FILE_TYPE_ARCHIVE, Constants.FILE_TYPE_CD_IMAGE);
+        toTheRightOf.put(Constants.FILE_TYPE_CD_IMAGE, Constants.FILE_TYPE_TORRENTS);
+        toTheRightOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_OTHERS);
+        toTheRightOf.put(Constants.FILE_TYPE_OTHERS, Constants.FILE_TYPE_AUDIO);
+
+        toTheLeftOf.put(Constants.FILE_TYPE_AUDIO, Constants.FILE_TYPE_OTHERS);
         toTheLeftOf.put(Constants.FILE_TYPE_VIDEOS, Constants.FILE_TYPE_AUDIO);
         toTheLeftOf.put(Constants.FILE_TYPE_PICTURES, Constants.FILE_TYPE_VIDEOS);
         toTheLeftOf.put(Constants.FILE_TYPE_APPLICATIONS, Constants.FILE_TYPE_PICTURES);
         toTheLeftOf.put(Constants.FILE_TYPE_DOCUMENTS, Constants.FILE_TYPE_APPLICATIONS);
-        toTheLeftOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_DOCUMENTS);
+        toTheLeftOf.put(Constants.FILE_TYPE_ARCHIVE, Constants.FILE_TYPE_DOCUMENTS);
+        toTheLeftOf.put(Constants.FILE_TYPE_CD_IMAGE, Constants.FILE_TYPE_ARCHIVE);
+        toTheLeftOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_CD_IMAGE);
+        toTheLeftOf.put(Constants.FILE_TYPE_OTHERS, Constants.FILE_TYPE_TORRENTS);
     }
 
     @Override

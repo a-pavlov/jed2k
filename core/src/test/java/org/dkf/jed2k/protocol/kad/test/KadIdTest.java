@@ -114,4 +114,14 @@ public class KadIdTest {
         assertTrue(data.contains(new KadId(Hash.LIBED2K)));
         assertFalse(data.contains(new KadId(Hash.random(false))));
     }
+
+    @Test
+    public void testEquals() {
+        KadId id = new KadId(Hash.EMULE);
+        assertEquals(id, id);
+        assertEquals(new KadId(), new KadId());
+        assertFalse(id.equals(new KadId()));
+        assertEquals((new KadId(Hash.fromString("963663108FE8541EF2CD0280167F2021"))), new KadId(Hash.fromString("963663108FE8541EF2CD0280167F2021")));
+        assertFalse(new KadId(Hash.fromString("963663108FE8541EF2CD0280167F2021")).equals(new KadId(Hash.fromString("963663108FE8541EF2CD0280167F2020"))));
+    }
 }

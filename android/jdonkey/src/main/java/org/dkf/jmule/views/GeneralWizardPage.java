@@ -64,14 +64,14 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     public void load() {
         textStoragePath.setText(ConfigurationManager.instance().getStoragePath());
         checkUpnp.setChecked(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
-        checkDht.setChecked(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_START_DHT));
+        checkDht.setChecked(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CONNECT_DHT));
         validate();
     }
 
     @Override
     public void finish() {
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_FORWARD_PORTS, checkUpnp.isChecked());
-        ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_START_DHT, checkDht.isChecked());
+        ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_CONNECT_DHT, checkDht.isChecked());
         log.info("[wizard] upnp {}, dht {}", checkUpnp.isChecked(), checkDht.isChecked());
         Engine.instance().forwardPorts(checkUpnp.isChecked());
         Engine.instance().useDht(checkDht.isChecked());

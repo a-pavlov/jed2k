@@ -93,7 +93,7 @@ public final class Constants {
     public static final String PREF_KEY_NETWORK_USE_MOBILE_DATA = "jmule.prefs.network.use_mobile_data";
 
     // ed2k DHT settings
-    public static final String PREF_KEY_START_DHT = "jmule.prefs.connect_dht";
+    public static final String PREF_KEY_CONNECT_DHT = "jmule.prefs.connect_dht";
     public static final String PREF_KEY_KAD_ID = "jmule.prefs.kad_id";
 
 

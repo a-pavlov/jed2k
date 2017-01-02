@@ -308,7 +308,7 @@ public final class Engine implements AlertListener {
                     }
 
                     forwardPorts(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
-                    useDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_START_DHT));
+                    useDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CONNECT_DHT));
 
                     //registerStatusReceiver(context);
                 } else {

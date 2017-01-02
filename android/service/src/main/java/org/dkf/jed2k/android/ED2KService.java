@@ -261,7 +261,7 @@ public class ED2KService extends Service {
             dhtTracker = new DhtTracker(settings.listenPort, kadId);
             dhtTracker.start();
             Container<UInt32, NodeEntry> entries = loadDhtEntries();
-            if (entries != null) {
+            if (entries != null && entries.getList() != null) {
                 dhtTracker.addEntries(entries.getList());
             }
             session.setDhtTracker(dhtTracker);

@@ -248,7 +248,7 @@ public class Conn {
 
             if (parts[0].compareTo("listen") == 0 && parts.length == 2) {
             	Settings settings = new Settings();
-            	settings.listenPort = (short)Integer.parseInt(parts[1]);
+            	settings.listenPort = Integer.parseInt(parts[1]);
             	s.configureSession(settings);
             }
             if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
