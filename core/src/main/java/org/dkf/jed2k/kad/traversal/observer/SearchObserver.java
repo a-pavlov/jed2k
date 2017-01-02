@@ -16,6 +16,7 @@ import java.util.List;
 @Getter
 public class SearchObserver extends Observer {
     private List<KadSearchEntry> entries = null;
+    private int processedResponsesCount = 0;
 
     public SearchObserver(Traversal algorithm
             , Endpoint ep
@@ -30,7 +31,19 @@ public class SearchObserver extends Observer {
         Kad2SearchRes res = (Kad2SearchRes)s;
         assert res != null;
         entries = res.getResults().getList();
-        done();
+        processedResponsesCount++;
+        // do not call done here since this observers expects more than one response and will "done" in timeout
+    }
+
+    @Override
+    public void timeout() {
+        if (processedResponsesCount == 0) {
+            // real timeout - no one responses were processed
+            super.timeout();
+        } else {
+            // processed some responses - actual done here
+            done();
+        }
     }
 
     @Override
@@ -43,5 +56,10 @@ public class SearchObserver extends Observer {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean expectMultipleResponses() {
+        return true;
     }
 }

@@ -6,6 +6,7 @@ import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.kad.Kad2SearchRes;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -49,7 +50,13 @@ public class RpcManager {
             if (o.isExpectedTransaction(s) && o.getTarget().getIP() == ep.getIP()
                     /*&& (t.getTargetId().isAllZeros() || o.getTarget().equals(t.getTargetId()))*/) {
                 log.debug("[rpc] reply {} from {}", s, ep);
-                itr.remove();
+
+                // remove observer as finished in case it is not for multiple responses
+                // all responses must be in one timeout range - doesn't matter how many responses we got - start time wont be changed
+                if (!o.expectMultipleResponses()) {
+                    itr.remove();
+                }
+
                 break;
             }
 
