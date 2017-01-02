@@ -7,12 +7,10 @@ import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.client.HashSetAnswer;
 import org.dkf.jed2k.protocol.kad.KadId;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by inkpot on 21.11.2016.
@@ -108,6 +106,16 @@ public abstract class Traversal {
         return "[ta]";
     }
 
+    private boolean hasDuplicates() {
+        Set<KadId> dict = new HashSet();
+        for(final Observer o: results) {
+            if (dict.contains(o.getId())) return true;
+            dict.add(o.getId());
+        }
+
+        return false;
+    }
+
     public void addEntry(final KadId id, final Endpoint addr, byte flags, int portTcp, byte version) {
         log.debug("[traversal] add entry {} {}", id, addr);
         //TODO check this assert later
@@ -144,8 +152,7 @@ public abstract class Traversal {
         log.trace("[traversal] position for entry {}", pos);
         assert pos < results.size();
 
-        if (pos < 0 || !results.get(pos).equals(id)) {
-
+        if (pos < 0 || !results.get(pos).getId().equals(id)) {
             /*
             maybe add this later
             if (m_node.settings().restrict_search_ips
@@ -176,6 +183,7 @@ public abstract class Traversal {
             assert insertPos >= 0;
             assert insertPos <= results.size();
             results.add(insertPos, o);
+            assert(!hasDuplicates());
         }
 
         if (results.size() > MAX_RESULT_COUNT) {
