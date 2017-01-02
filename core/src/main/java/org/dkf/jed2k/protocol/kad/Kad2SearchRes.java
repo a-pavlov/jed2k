@@ -31,13 +31,6 @@ public class Kad2SearchRes implements Serializable {
 
     @Override
     public int bytesCount() {
-        return source.bytesCount()*2 + results.bytesCount();
+        return source.bytesCount() * 2 + results.bytesCount();
     }
-
-
-    // TODO - move to rpc manager
-    //@Override
-    //public KadId getTargetId() {
-    //    return target;
-    //}
 }

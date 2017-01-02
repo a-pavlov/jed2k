@@ -310,4 +310,8 @@ public abstract class Traversal {
 
         return sb.toString();
     }
+
+    public KadId getTarget() {
+        return target;
+    }
 }

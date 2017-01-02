@@ -35,6 +35,13 @@ public class SearchObserver extends Observer {
 
     @Override
     public boolean isExpectedTransaction(final Serializable s) {
-        return s instanceof Kad2SearchRes;
+        if (s instanceof Kad2SearchRes) {
+            /**
+             * response contains target hash - check it here to choose correct observer
+             */
+            return algorithm.getTarget().compareTo(((Kad2SearchRes)s).getTarget()) == 0;
+        }
+
+        return false;
     }
 }
