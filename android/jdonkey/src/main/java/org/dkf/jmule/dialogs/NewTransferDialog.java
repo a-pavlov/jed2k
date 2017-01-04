@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.R;
 import org.dkf.jmule.core.ConfigurationManager;
@@ -48,19 +49,19 @@ public class NewTransferDialog extends AbstractDialog {
     private static final String SEARCH_RESULT_DATA_KEY = "search_result_data";
     private static final String HIDE_CHECK_SHOW_KEY = "hide_check_show";
 
-    public static SharedFileEntry entry;
+    public static SearchEntry entry;
     private boolean hideCheckShow;
 
     public NewTransferDialog() {
         super(R.layout.dialog_default_checkbox);
     }
 
-    void setArgument(final SharedFileEntry entry, boolean hideCheckShow) {
+    void setArgument(final SearchEntry entry, boolean hideCheckShow) {
         this.entry = entry;
         this.hideCheckShow = hideCheckShow;
     }
 
-    public static NewTransferDialog newInstance(SharedFileEntry entry, boolean hideCheckShow) {
+    public static NewTransferDialog newInstance(SearchEntry entry, boolean hideCheckShow) {
         NewTransferDialog f = new NewTransferDialog();
         f.setArgument(entry, hideCheckShow);
 

@@ -21,6 +21,7 @@ package org.dkf.jmule.tasks;
 import android.app.Activity;
 import android.content.Context;
 import org.dkf.jed2k.EMuleLink;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.transfers.TransferManager;
@@ -39,10 +40,10 @@ public class StartDownloadTask extends ContextTask<Transfer> {
 
     private static final Logger LOG = LoggerFactory.getLogger(StartDownloadTask.class);
     private final String message;
-    private SharedFileEntry entry;
+    private SearchEntry entry;
     private String link = null;
 
-    public StartDownloadTask(Context ctx, SharedFileEntry entry, String link, String message) {
+    public StartDownloadTask(Context ctx, SearchEntry entry, String link, String message) {
         super(ctx);
         assert entry != null || link != null;
         this.entry = entry;
@@ -60,7 +61,7 @@ public class StartDownloadTask extends ContextTask<Transfer> {
         try {
             UIUtils.showTransfersOnDownloadStart(getContext());
             if (entry != null) {
-                transfer = TransferManager.instance().download(entry.hash, entry.getFileSize(), entry.getFileName());
+                transfer = TransferManager.instance().download(entry.getHash(), entry.getFileSize(), entry.getFileName());
             } else {
                 EMuleLink el = EMuleLink.fromString(link);
                 transfer = TransferManager.instance().download(el.hash, el.size, el.filepath);

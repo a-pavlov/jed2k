@@ -30,6 +30,7 @@ import android.widget.*;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
@@ -221,7 +222,7 @@ public final class SearchFragment extends AbstractFragment implements
         if (adapter == null) {
             adapter = new SearchResultListAdapter(getActivity()) {
                 @Override
-                protected void searchResultClicked(SharedFileEntry sr) {
+                protected void searchResultClicked(SearchEntry sr) {
                     LOG.info("start transfer {}", sr.getFileName());
                     startTransfer(sr, getString(R.string.download_added_to_queue));
                 }
@@ -294,10 +295,10 @@ public final class SearchFragment extends AbstractFragment implements
     private void searchCompleted(final SearchResultAlert alert) {
         if (awaitingResults) {
             awaitingResults = false;
-            adapter.addResults(alert.results);
+            adapter.addResults(alert.getResults(), alert.isHasMoreResults());
 
             // temporary solution, next use filter by hash to support related search
-            for (SharedFileEntry entry : alert.results.files) {
+            for (SearchEntry entry : alert.getResults()) {
                 fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
             }
         }
@@ -336,7 +337,7 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    private void startTransfer(final SharedFileEntry sr, final String toastMessage) {
+    private void startTransfer(final SearchEntry sr, final String toastMessage) {
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG)) {
             try {
                 NewTransferDialog dlg = NewTransferDialog.newInstance(sr, false);
@@ -351,7 +352,7 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    public static void startDownload(Context ctx, SharedFileEntry entry, String message) {
+    public static void startDownload(Context ctx, SearchEntry entry, String message) {
         StartDownloadTask task = new StartDownloadTask(ctx, entry, null, message);
         Tasks.executeParallel(task);
     }
@@ -389,7 +390,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onSearchResult(final SearchResultAlert alert) {
-        LOG.info("search result size {} more {}", alert.results.files.size(), alert.results.hasMoreResults()?"YES":"NO");
+        LOG.info("search result size {} more {}", alert.getResults().size(), alert.isHasMoreResults()?"YES":"NO");
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

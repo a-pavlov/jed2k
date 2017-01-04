@@ -3,10 +3,7 @@ package org.dkf.jed2k.protocol.kad;
 import lombok.Getter;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.SearchEntry;
-import org.dkf.jed2k.protocol.Serializable;
-import org.dkf.jed2k.protocol.UInt8;
+import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.tag.Tag;
 
 import java.nio.ByteBuffer;
@@ -33,6 +30,11 @@ public class KadSearchEntry implements Serializable, SearchEntry {
     @Override
     public int bytesCount() {
         return kid.bytesCount() + info.bytesCount();
+    }
+
+    @Override
+    public Hash getHash() {
+        return kid;
     }
 
     @Override

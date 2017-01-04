@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 import org.apache.commons.io.FilenameUtils;
-import org.dkf.jed2k.protocol.server.SharedFileEntry;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
@@ -51,7 +51,7 @@ import java.util.List;
  * @author gubatron
  * @author aldenml
  */
-public abstract class SearchResultListAdapter extends AbstractListAdapter<SharedFileEntry> {
+public abstract class SearchResultListAdapter extends AbstractListAdapter<SearchEntry> {
 
     private static final Logger log = LoggerFactory.getLogger(SearchResultListAdapter.class);
     private static final int NO_FILE_TYPE = -1;
@@ -59,7 +59,7 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
     private final OnLinkClickListener linkListener;
     private final PreviewClickListener previewClickListener;
     private boolean moreResults = false;
-    private Comparator<SharedFileEntry> sourcesCountComparator = new SourcesCountComparator();
+    private Comparator<SearchEntry> sourcesCountComparator = new SourcesCountComparator();
 
     private int fileType;
 
@@ -79,10 +79,10 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
         filter();
     }
 
-    public void addResults(final SearchResult sr) {
-        log.debug("results {} more {}", sr.files.size(), sr.hasMoreResults()?"yes":"no");
-        moreResults = sr.hasMoreResults();
-        list.addAll(sr.files);
+    public void addResults(final List<SearchEntry> entries, boolean hasMoreResults) {
+        log.debug("results {} more {}", entries.size(), hasMoreResults?"yes":"no");
+        moreResults = hasMoreResults;
+        list.addAll(entries);
         Collections.sort(list, Collections.reverseOrder(sourcesCountComparator));
         visualList.addAll(list);
         notifyDataSetChanged();
@@ -90,25 +90,25 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
 
 
     @Override
-    protected void populateView(View view, final SharedFileEntry entry) {
+    protected void populateView(View view, final SearchEntry entry) {
         maybeMarkTitleOpened(view, entry);
         populateFilePart(view, entry);
     }
 
-    private void maybeMarkTitleOpened(View view, SharedFileEntry sr) {
+    private void maybeMarkTitleOpened(View view, SearchEntry se) {
         int clickedColor = getContext().getResources().getColor(R.color.browse_peer_listview_item_inactive_foreground);
         int unclickedColor = getContext().getResources().getColor(R.color.app_text_primary);
         TextView title = findView(view, R.id.view_bittorrent_search_result_list_item_title);
         //title.setTextColor(LocalSearchEngine.instance().hasBeenOpened(sr) ? clickedColor : unclickedColor);
     }
 
-    private void populateFilePart(View view, final SharedFileEntry entry) {
+    private void populateFilePart(View view, final SearchEntry entry) {
         TextView adIndicator = findView(view, R.id.view_bittorrent_search_result_list_item_ad_indicator);
         adIndicator.setVisibility(View.GONE);
 
         TextView title = findView(view, R.id.view_bittorrent_search_result_list_item_title);
         title.setText(entry.getFileName());
-        if (Engine.instance().hasTransfer(entry.hash)) {
+        if (Engine.instance().hasTransfer(entry.getHash())) {
             title.setTextColor(ContextCompat.getColor(view.getContext(), R.color.warning_red));
         } else {
             title.setTextColor(ContextCompat.getColor(view.getContext(), R.color.app_text_primary));
@@ -133,35 +133,35 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
 
     @Override
     protected void onItemClicked(View v) {
-        SharedFileEntry sr = (SharedFileEntry) v.getTag();
-        if (!Engine.instance().hasTransfer(sr.hash)) {
-            searchResultClicked(sr);
+        SearchEntry se = (SearchEntry) v.getTag();
+        if (!Engine.instance().hasTransfer(se.getHash())) {
+            searchResultClicked(se);
         }
     }
 
-    abstract protected void searchResultClicked(SharedFileEntry sr);
+    abstract protected void searchResultClicked(SearchEntry se);
 
     private void filter() {
         this.visualList = filter(list);
         notifyDataSetInvalidated();
     }
 
-    public List<SharedFileEntry> filter(List<SharedFileEntry> results) {
-        ArrayList<SharedFileEntry> l = new ArrayList<>();
-        for (SharedFileEntry sr : results) {
+    public List<SearchEntry> filter(List<SearchEntry> results) {
+        ArrayList<SearchEntry> l = new ArrayList<>();
+        for (SearchEntry se : results) {
             MediaType mt;
-            String extension = FilenameUtils.getExtension(sr.getFileName());
+            String extension = FilenameUtils.getExtension(se.getFileName());
             mt = MediaType.getMediaTypeForExtension(extension);
 
-            if (accept(sr, mt)) {
-                l.add(sr);
+            if (accept(se, mt)) {
+                l.add(se);
             }
         }
 
         return l;
     }
 
-    private boolean accept(SharedFileEntry sr, MediaType mt) {
+    private boolean accept(SearchEntry se, MediaType mt) {
         return (mt != null && mt.getId() == fileType) ||
                 (mt == null && fileType == Constants.FILE_TYPE_OTHERS);
     }
@@ -208,12 +208,12 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
                 return;
             }
 
-            SharedFileEntry entry = (SharedFileEntry) v.getTag();
+            SearchEntry entry = (SearchEntry) v.getTag();
             log.info("request preview for {}", entry);
         }
     }
 
-    void populateMenuActions(SharedFileEntry entry, List<MenuAction> actions) {
+    void populateMenuActions(SearchEntry entry, List<MenuAction> actions) {
         // HACK!
         // TODO - replace it with appropriate solution
         MainActivity a = (MainActivity)getContext();
@@ -226,12 +226,12 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Shared
         Object tag = view.getTag();
         String title = "";
         List<MenuAction> items = new ArrayList<>();
-        populateMenuActions((SharedFileEntry)tag, items);
+        populateMenuActions((SearchEntry)tag, items);
         return items.size() > 0 ? new MenuAdapter(view.getContext(), title, items) : null;
     }
 
-    private static final class SourcesCountComparator implements Comparator<SharedFileEntry> {
-        public int compare(final SharedFileEntry lhs, SharedFileEntry rhs) {
+    private static final class SourcesCountComparator implements Comparator<SearchEntry> {
+        public int compare(final SearchEntry lhs, SearchEntry rhs) {
             try {
                 return Integer.signum(lhs.getSources() - rhs.getSources());
             } catch (Exception e) {
