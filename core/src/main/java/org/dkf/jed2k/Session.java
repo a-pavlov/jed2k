@@ -8,6 +8,7 @@ import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.KadSearchEntryDistinct;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
@@ -173,6 +174,19 @@ public class Session extends Thread {
         }
     }
 
+    private static class DhtKeywordsCallback implements Listener {
+        final Session session;
+
+        public DhtKeywordsCallback(final Session session) {
+            this.session = session;
+        }
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            session.pushAlert(new SearchResultAlert(KadSearchEntryDistinct.distinct(data), false));
+        }
+    }
+
     // from last established server connection
     int clientId    = 0;
     int tcpFlags    = 0;
@@ -326,6 +340,7 @@ public class Session extends Thread {
         }
         finally {
             log.info("Session is closing");
+            commands.clear();
 
             try {
                 if (selector != null) selector.close();
@@ -470,6 +485,23 @@ public class Session extends Thread {
             public void run() {
                 if (serverConection != null) {
                     serverConection.search(value);
+                }
+            }
+        });
+    }
+
+    public void searchDhtKeyword(final String keyword) {
+        final Session s = this;
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                DhtTracker tracker = dhtTracker.get();
+                if (tracker != null && !tracker.isAborted()) {
+                    try {
+                        tracker.searchKeywords(keyword, new DhtKeywordsCallback(s));
+                    } catch(JED2KException e) {
+                        log.error("[session] unable to start search keyword {} in DHT {}", keyword, e);
+                    }
                 }
             }
         });

@@ -334,6 +334,10 @@ public final class Engine implements AlertListener {
         }
     }
 
+    public void performSearchDhtKeyword(final String keyword) {
+        if (service != null) service.startSearchDhtKeyword(keyword);
+    }
+
     public void performSearchMore() {
         if (service != null) service.searchMore();
     }

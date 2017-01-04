@@ -263,6 +263,7 @@ public final class SearchFragment extends AbstractFragment implements
                     , 0
                     , 0
                     , query);
+            // TODO - add DHT search here
             searchProgress.setProgressEnabled(true);
             showSearchView(getView());
         }

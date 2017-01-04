@@ -816,6 +816,11 @@ public class ED2KService extends Service {
         }
     }
 
+    public void startSearchDhtKeyword(final String keyword) {
+        if (session == null) return;
+        session.searchDhtKeyword(keyword);
+    }
+
     /**
      * search more results, run only if search result has flag more results
      */
