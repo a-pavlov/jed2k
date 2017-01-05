@@ -62,10 +62,10 @@ public class Conn {
         if (globalSearchRes == null) return;
         int index = 0;
         for(SearchEntry entry: globalSearchRes) {
-            System.out.println(String.format("%03d ", index++) + entry.toString());
+            log.info("-> {} {}", String.format("%03d ", index++), entry.toString());
         }
 
-        System.out.println("More results: " + (hasMoreResults?"yes":"no"));
+        log.info("more results: {}", (hasMoreResults?"yes":"no"));
     }
 
     static TransferHandle addTransfer(final Session s, final Hash hash, final long size, final String filepath) {
@@ -302,6 +302,11 @@ public class Conn {
                 long fileSize = Long.parseLong(parts[2]);
                 log.debug("[CONN] DHT search sources for {} with size {}", fileHash, fileSize);
                 s.dhtDebugSearch(fileHash, fileSize);
+            }
+            else if (parts[0].compareTo("dhtsearchkeyword") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    s.searchDhtKeyword(parts[i]);
+                }
             }
             else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new Endpoint(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
