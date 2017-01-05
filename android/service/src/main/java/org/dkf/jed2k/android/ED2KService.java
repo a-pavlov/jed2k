@@ -283,6 +283,10 @@ public class ED2KService extends Service {
         }
     }
 
+    public synchronized boolean isDhtEnabled() {
+        return dhtTracker != null;
+    }
+
     /**
      * synchronized save call to avoid racing on access to dhtTracker variable from
      * main thread(start/stop dht) and background service(save)

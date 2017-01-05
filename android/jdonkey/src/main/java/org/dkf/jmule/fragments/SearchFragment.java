@@ -31,7 +31,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
 import org.dkf.jed2k.protocol.SearchEntry;
-import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.adapters.SearchResultListAdapter;
@@ -129,6 +128,9 @@ public final class SearchFragment extends AbstractFragment implements
         if (adapter != null && (adapter.getCount() > 0 || adapter.getTotalCount() > 0)) {
             refreshFileTypeCounters(true);
         }
+
+        searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
+        LOG.info("[SearchFragment] resume {}", !Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
     @Override
@@ -146,6 +148,8 @@ public final class SearchFragment extends AbstractFragment implements
     @Override
     public void onShow() {
         warnServerNotConnected(getView());
+        searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
+        LOG.info("[SearchFragment] show {}", !Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
     @Override
@@ -246,7 +250,13 @@ public final class SearchFragment extends AbstractFragment implements
 
     private void performSearch(String query) {
         warnServerNotConnected(getView());
-        if (!Engine.instance().getCurrentServerId().isEmpty()) {
+        String expression = query.trim();
+        if (expression.isEmpty()) return;
+
+        // server search when one server connected and user chose server search or dht is not enabled
+        if (!Engine.instance().getCurrentServerId().isEmpty()
+                && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
+            LOG.info("perform search on servers");
             awaitingResults = true;
             adapter.clear();
             fileTypeCounter.clear();
@@ -262,8 +272,22 @@ public final class SearchFragment extends AbstractFragment implements
                     , ""
                     , 0
                     , 0
-                    , query);
-            // TODO - add DHT search here
+                    , expression);
+
+            searchProgress.setProgressEnabled(true);
+            showSearchView(getView());
+        }
+        // DHT search when dht enabled and user chose kad or no one server connected
+        else if (Engine.instance().isDhtEnabled()
+                && (!searchParametersView.isSearchByServer() || Engine.instance().getCurrentServerId().isEmpty())) {
+            LOG.info("perform search on DHT");
+            awaitingResults = true;
+            adapter.clear();
+            fileTypeCounter.clear();
+            refreshFileTypeCounters(false);
+            currentQuery = query;
+            // takes first item in search expression for DHT search
+            Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]);
             searchProgress.setProgressEnabled(true);
             showSearchView(getView());
         }

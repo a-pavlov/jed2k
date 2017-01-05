@@ -429,7 +429,12 @@ public final class Engine implements AlertListener {
     public int getTotalDhtNodes() {
         if (service != null) return service.getTotalDhtNodes();
         return -1;
-}
+    }
+
+    public boolean isDhtEnabled() {
+        if (service != null) return service.isDhtEnabled();
+        return false;
+    }
 
     public void setPermanentNotification(boolean v) {
         if (service != null) service.setPermanentNotification(v);

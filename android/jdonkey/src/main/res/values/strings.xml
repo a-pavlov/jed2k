@@ -231,4 +231,7 @@
     <string name="dht_enable_summary">DHT(Kademlia) for search more sources</string>
     <string name="dht_enable_title">Kademlia</string>
     <string name="dht_nodes" translatable="false">KAD: %1$s</string>
+
+    <string name="search_source_type_server">Servers</string>
+    <string name="search_source_type_dht">Kademlia</string>
 </resources>
