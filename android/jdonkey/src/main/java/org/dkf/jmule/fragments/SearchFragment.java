@@ -147,7 +147,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onShow() {
-        warnServerNotConnected(getView());
+        warnNoServerNoDhtConnections(getView());
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
         LOG.info("[SearchFragment] show {}", !Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
@@ -249,7 +249,7 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void performSearch(String query) {
-        warnServerNotConnected(getView());
+        warnNoServerNoDhtConnections(getView());
         String expression = query.trim();
         if (expression.isEmpty()) return;
 
@@ -382,7 +382,7 @@ public final class SearchFragment extends AbstractFragment implements
         Tasks.executeParallel(task);
     }
 
-    private void warnServerNotConnected(View v) {
+    private void warnNoServerNoDhtConnections(View v) {
         if (Engine.instance().getCurrentServerId().isEmpty()) {
             LOG.info("server is not connected");
             serverConnectionWarning.setVisibility(View.VISIBLE);

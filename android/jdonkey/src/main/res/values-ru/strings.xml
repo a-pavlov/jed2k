@@ -136,7 +136,7 @@
     <string name="server_connect_action">Соединить с %1$s</string>
     <string name="server_disconnect_action">Отсоединить от %1$s</string>
     <string name="server_not_connected">Нет соединения с сервером</string>
-    <string name="server_not_connected_det">Для поиска установите соединение с сервером</string>
+    <string name="server_not_connected_det">Для поиска установите соединение с сервером или включите Кадемлию</string>
     <string name="server_remove_action">Удалить %1$s</string>
     <string name="servers">Серверы</string>
     <string name="servers_settings">Настройки серверов</string>
@@ -189,6 +189,8 @@
     <string name="wizard_dht_summary">Использовать Кадемлтю чтобы находить больше источников. Осторожно - генерирует
         служебный траффик.
     </string>
+    <string name="search_source_type_dht">Кадемлия</string>
+    <string name="search_source_type_server">Сервер</string>
 
     <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
 </resources>
