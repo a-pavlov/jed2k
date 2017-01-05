@@ -176,9 +176,11 @@ public class Kad {
                 log.info("[KAD] bootstrap on {}:{}", parts[1], parts[2]);
                 tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
             }
-            else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
-                log.info("search {}", parts[1]);    // temporary search only first keyword
-                tracker.searchKeywords(parts[1], new SearchReport(new KadId(), new File(dir.resolve("search_" + parts[1] + ".dat").toString())));    // target id is not important here
+            else if (parts[0].compareTo("search") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    log.info("search {}", parts[i]);    // temporary search only first keyword
+                    tracker.searchKeywords(parts[i], new SearchReport(new KadId(), new File(dir.resolve("search_" + parts[i] + ".dat").toString())));    // target id is not important here
+                }
             }
             else if (parts[0].compareTo("hello") == 0 && parts.length == 3) {
                 log.info("[KAD] hello to {}:{}", parts[1], parts[2]);
