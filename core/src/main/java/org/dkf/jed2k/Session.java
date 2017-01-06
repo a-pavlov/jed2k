@@ -12,6 +12,7 @@ import org.dkf.jed2k.kad.KadSearchEntryDistinct;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -176,14 +177,32 @@ public class Session extends Thread {
 
     private static class DhtKeywordsCallback implements Listener {
         final Session session;
+        private final long minSize;
+        private final long maxSize;
+        private final int sources;
+        private final int completeSources;
 
-        public DhtKeywordsCallback(final Session session) {
+        public DhtKeywordsCallback(final Session session, long minSize, long maxSize, int sources, int completeSources) {
             this.session = session;
+            this.minSize = minSize;
+            this.maxSize = maxSize;
+            this.sources = sources;
+            this.completeSources = completeSources;
         }
 
         @Override
         public void process(List<KadSearchEntry> data) {
-            session.pushAlert(new SearchResultAlert(KadSearchEntryDistinct.distinct(data), false));
+            List<SearchEntry> filtered = new LinkedList<>();
+            List<SearchEntry> res = KadSearchEntryDistinct.distinct(data);
+            for(final SearchEntry e: res) {
+                if (minSize > 0 && e.getFileSize() < minSize) continue;
+                if (maxSize > 0 && e.getFileSize() > maxSize) continue;
+                if (sources > 0 && e.getSources() < sources) continue;
+                if (completeSources > 0 && e.getCompleteSources() < completeSources) continue;
+                filtered.add(e);
+            }
+
+            session.pushAlert(new SearchResultAlert(filtered, false));
         }
     }
 
@@ -490,7 +509,7 @@ public class Session extends Thread {
         });
     }
 
-    public void searchDhtKeyword(final String keyword) {
+    public void searchDhtKeyword(final String keyword, final long minSize, final long maxSize, final int sources, final int completeSources) {
         final Session s = this;
         commands.add(new Runnable() {
             @Override
@@ -498,7 +517,7 @@ public class Session extends Thread {
                 DhtTracker tracker = dhtTracker.get();
                 if (tracker != null && !tracker.isAborted()) {
                     try {
-                        tracker.searchKeywords(keyword, new DhtKeywordsCallback(s));
+                        tracker.searchKeywords(keyword, new DhtKeywordsCallback(s, minSize, maxSize, sources, completeSources));
                     } catch(JED2KException e) {
                         log.error("[session] unable to start search keyword {} in DHT {}", keyword, e);
                     }

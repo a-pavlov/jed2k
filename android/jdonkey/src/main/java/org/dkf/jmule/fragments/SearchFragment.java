@@ -285,7 +285,11 @@ public final class SearchFragment extends AbstractFragment implements
             refreshFileTypeCounters(false);
             currentQuery = query;
             // takes first item in search expression for DHT search
-            Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]);
+            Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]
+                , searchParametersView.getMinSize()*1024*1024
+                , searchParametersView.getMaxSize()*1024*1024
+                , searchParametersView.getSourcesCount()
+                , searchParametersView.getCompleteSources());
             searchProgress.setProgressEnabled(true);
             showSearchView(getView());
         }

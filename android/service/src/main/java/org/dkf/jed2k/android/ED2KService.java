@@ -820,9 +820,13 @@ public class ED2KService extends Service {
         }
     }
 
-    public void startSearchDhtKeyword(final String keyword) {
+    public void startSearchDhtKeyword(final String keyword
+            , final long minSize
+            , final long maxSize
+            , final int sources
+            , final int completeSources) {
         if (session == null) return;
-        session.searchDhtKeyword(keyword);
+        session.searchDhtKeyword(keyword, minSize, maxSize, sources, completeSources);
     }
 
     /**

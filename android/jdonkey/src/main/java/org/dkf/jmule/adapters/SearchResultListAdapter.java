@@ -25,7 +25,6 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.protocol.SearchEntry;
-import org.dkf.jed2k.protocol.server.search.SearchResult;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
@@ -218,6 +217,8 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Search
     }
 
     void populateMenuActions(SearchEntry entry, List<MenuAction> actions) {
+        // search more is available only on server source
+        if (entry.getSource() != SearchEntry.SOURCE_SERVER) return;
         // HACK!
         // TODO - replace it with appropriate solution
         MainActivity a = (MainActivity)getContext();
