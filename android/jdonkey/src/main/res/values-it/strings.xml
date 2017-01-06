@@ -107,7 +107,7 @@
     <string name="select_all">Seleziona Tutto</string>
     <string name="server_connect_action">La connessione a %1$s</string>
     <string name="server_disconnect_action">Scollegare dal %1$s</string>
-    <string name="server_not_connected">Non connesso al server</string>
+    <string name="server_not_connected">Fonti per la ricerca</string>
     <string name="server_not_connected_det">Connettersi al server o iniziare a Kademlia, si prega di</string>
     <string name="server_remove_action">Rimuovere %1$s</string>
     <string name="servers">Servers</string>

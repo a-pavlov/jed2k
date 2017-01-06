@@ -128,7 +128,11 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Search
         String strSeeds = view.getContext().getResources().getString(R.string.search_item_sources);
         seeds.setText(String.format(strSeeds, entry.getSources()));
         TextView sourceLink = findView(view, R.id.view_bittorrent_search_result_list_item_text_source);
-        sourceLink.setText(R.string.search_item_source_server);
+        if (entry.getSource() == SearchEntry.SOURCE_SERVER) {
+            sourceLink.setText(R.string.search_item_source_server);
+        } else {
+            sourceLink.setText(R.string.search_source_type_dht);
+        }
     }
 
     @Override

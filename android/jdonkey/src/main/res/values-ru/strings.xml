@@ -135,7 +135,7 @@
     <string name="selected">выделенный</string>
     <string name="server_connect_action">Соединить с %1$s</string>
     <string name="server_disconnect_action">Отсоединить от %1$s</string>
-    <string name="server_not_connected">Нет соединения с сервером</string>
+    <string name="server_not_connected">Нет источников для поиска</string>
     <string name="server_not_connected_det">Для поиска установите соединение с сервером или включите Кадемлию</string>
     <string name="server_remove_action">Удалить %1$s</string>
     <string name="servers">Серверы</string>

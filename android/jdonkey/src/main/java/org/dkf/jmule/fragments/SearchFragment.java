@@ -130,7 +130,6 @@ public final class SearchFragment extends AbstractFragment implements
         }
 
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
-        LOG.info("[SearchFragment] resume {}", !Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
     @Override
@@ -149,7 +148,6 @@ public final class SearchFragment extends AbstractFragment implements
     public void onShow() {
         warnNoServerNoDhtConnections(getView());
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
-        LOG.info("[SearchFragment] show {}", !Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
     @Override
@@ -383,11 +381,9 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void warnNoServerNoDhtConnections(View v) {
-        if (Engine.instance().getCurrentServerId().isEmpty()) {
-            LOG.info("server is not connected");
+        if (Engine.instance().getCurrentServerId().isEmpty() && !Engine.instance().isDhtEnabled()) {
             serverConnectionWarning.setVisibility(View.VISIBLE);
         } else {
-            LOG.info("server connected");
             serverConnectionWarning.setVisibility(View.GONE);
         }
     }
