@@ -305,7 +305,7 @@ public class Conn {
             }
             else if (parts[0].compareTo("dhtsearchkeyword") == 0) {
                 for(int i = 1; i < parts.length; ++i) {
-                    s.searchDhtKeyword(parts[i]);
+                    s.searchDhtKeyword(parts[i], 0, 0, 0, 0);
                 }
             }
             else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
