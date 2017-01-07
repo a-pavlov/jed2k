@@ -34,7 +34,7 @@ public class Refresh extends FindData {
     @Override
     public void done() {
         // just remove algorithm from node
-        log.debug("[refresh] done");
+        log.debug("[refresh] {} done", getTarget());
         nodeImpl.removeTraversalAlgorithm(this);
     }
 }

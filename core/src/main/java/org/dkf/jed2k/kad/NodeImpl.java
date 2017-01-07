@@ -123,7 +123,7 @@ public class NodeImpl {
     public void refresh(final KadId id) throws JED2KException {
         assert id != null;
         log.debug("[node] refresh on target {}", id);
-        Traversal t = new Refresh(this, self);
+        Traversal t = new Refresh(this, id);
         t.start();
     }
 

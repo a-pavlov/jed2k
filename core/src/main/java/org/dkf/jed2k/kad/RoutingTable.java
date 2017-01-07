@@ -171,7 +171,7 @@ public class RoutingTable {
         }
 
         if (now - lastRefresh < Time.seconds(45)) {
-            log.debug("[table] bucket {} has last refresh too recently {}", i, now - lastRefresh);
+            log.trace("[table] bucket {} has last refresh too recently {}", i, now - lastRefresh);
             return null;
         }
 

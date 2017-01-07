@@ -60,7 +60,7 @@ public abstract class FindData extends Traversal {
 
         assert sorted;
 
-        log.debug("[find data] initial size {}", results.size());
+        log.debug("[find data] for {} initial size {}", getTarget(), results.size());
     }
 
     /**
