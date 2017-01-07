@@ -72,12 +72,12 @@ public class Conn {
         try {
             TransferHandle h = s.addTransfer(hash, size, filepath);
             if (h.isValid()) {
-                System.out.println("transfer valid " + h.getHash());
+                log.info("[CONN] transfer valid {}", h.getHash());
             }
 
             return h;
         } catch (JED2KException e) {
-            log.warn("Add transfer failed {}", e.toString());
+            log.warn("[CONN] Add transfer failed {}", e.toString());
         }
 
         return null;
@@ -94,21 +94,21 @@ public class Conn {
             bb.flip();
             while(bb.hasRemaining()) channel.write(bb);
         } catch(IOException e) {
-            System.out.println("I/O exception on save resume data " + e);
+            log.error("[CONN] I/O exception on save resume data {}", e);
         } catch(JED2KException e) {
-            System.out.println("Unable to load search results " + e);
+            log.error("[CONN] unable to load search results {}", e);
         }
     }
 
     public static void main(String[] args) throws IOException, JED2KException {
 
         if (args.length < 1) {
-            System.out.println("Specify incoming directory");
+            log.warn("[CONN] specify incoming directory");
             return;
         }
 
         incomingDirectory = FileSystems.getDefault().getPath(args[0]);
-        System.out.println("Incoming directory set to: " + incomingDirectory);
+        log.info("[CONN] incoming directory set to: {}", incomingDirectory);
         File incomingFile = incomingDirectory.toFile();
         boolean dirCreated = incomingFile.exists() || incomingFile.mkdirs();
 
@@ -129,7 +129,7 @@ public class Conn {
         assert resumeDataDirectory != null;
         DhtTracker tracker = null;
 
-        System.out.println("Conn started");
+        log.info("[CONN] started");
         final Settings startSettings = new Settings();
         startSettings.maxConnectionsPerSecond = 10;
         startSettings.sessionConnectionsLimit = 100;
@@ -187,17 +187,17 @@ public class Conn {
                             printGlobalSearchResult();
                         }
                         else if (a instanceof ServerMessageAlert) {
-                            System.out.println("Server message: " + ((ServerMessageAlert)a).msg);
+                            log.info("[CONN] server message: " + ((ServerMessageAlert)a).msg);
                         }
                         else if (a instanceof ServerStatusAlert) {
                             ServerStatusAlert ssa = (ServerStatusAlert)a;
-                            System.out.println("Files count = " + ssa.filesCount + " users count = " + ssa.usersCount);
+                            log.info("[CONN] files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
                         }
                         else if (a instanceof ServerInfoAlert) {
-                            System.out.println("SI: " + ((ServerInfoAlert)a).info);
+                            log.info("[CONN] server info: {}", ((ServerInfoAlert)a).info);
                         }
                         else {
-                            System.out.println("Unknown alert received: " + a.toString());
+                            log.info("[CONN] unknown alert received: {}", a.toString());
                         }
 
                         a = s.popAlert();
@@ -335,11 +335,9 @@ public class Conn {
                             sb.append("Transfer ").append(filepath).append(" hash: ");
                             sb.append(sfe.getHash().toString()).append(" dataSize: ");
                             sb.append(filesize);
-                            System.out.println(sb);
-
                             handles.add(addTransfer(s, sfe.getHash(), filesize, filepath.toAbsolutePath().toString()));
                         } else {
-                            System.out.println("Not enough parameters to start new transfer");
+                            log.warn("[CONN] not enough parameters to start new transfer");
                         }
                     }
                 } else {
@@ -437,7 +435,7 @@ public class Conn {
                 }
             }
             else if (parts[0].compareTo("report") == 0) {
-                System.out.println(report(s));
+                log.info(report(s));
             }
             else if (parts[0].compareTo("resumetran") == 0 && parts.length == 2) {
                 Hash hash = Hash.fromString(parts[1]);
