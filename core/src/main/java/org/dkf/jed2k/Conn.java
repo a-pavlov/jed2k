@@ -77,7 +77,7 @@ public class Conn {
 
             return h;
         } catch (JED2KException e) {
-            log.warn("[CONN] Add transfer failed {}", e.toString());
+            log.warn("[CONN] add transfer failed {}", e.toString());
         }
 
         return null;
