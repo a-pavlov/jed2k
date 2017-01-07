@@ -13,9 +13,9 @@ In GUI part used source code and design from [FrostWire](https://github.com/fros
 
 ## Implemented Features
 
-* Search files on servers
-* Search file sources using KAD.
-* Download files
+* Searching files on servers and using Kademlia by keywords
+* Searching sources for file using KAD and servers
+* Downloading files
 * Internationalization
 
 ## Features in plans

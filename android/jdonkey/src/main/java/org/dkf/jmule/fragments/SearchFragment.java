@@ -33,7 +33,7 @@ import com.google.android.gms.ads.AdView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
-import org.dkf.jed2k.protocol.server.SharedFileEntry;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.MainActivity;
@@ -135,6 +135,8 @@ public final class SearchFragment extends AbstractFragment implements
         }
 
         adRect.resume();
+
+        searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
     @Override
@@ -156,7 +158,8 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onShow() {
-        warnServerNotConnected(getView());
+        warnNoServerNoDhtConnections(getView());
+        searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
         if (adapter != null) adapter.notifyDataSetChanged();
     }
 
@@ -260,7 +263,7 @@ public final class SearchFragment extends AbstractFragment implements
         if (adapter == null) {
             adapter = new SearchResultListAdapter(getActivity()) {
                 @Override
-                protected void searchResultClicked(SharedFileEntry sr) {
+                protected void searchResultClicked(SearchEntry sr) {
                     LOG.info("start transfer {}", sr.getFileName());
                     startTransfer(sr, getString(R.string.download_added_to_queue));
                 }
@@ -283,8 +286,14 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void performSearch(String query) {
-        warnServerNotConnected(getView());
-        if (!Engine.instance().getCurrentServerId().isEmpty()) {
+        warnNoServerNoDhtConnections(getView());
+        String expression = query.trim();
+        if (expression.isEmpty()) return;
+
+        // server search when one server connected and user chose server search or dht is not enabled
+        if (!Engine.instance().getCurrentServerId().isEmpty()
+                && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
+            LOG.info("perform search on servers");
             awaitingResults = true;
             adapter.clear();
             fileTypeCounter.clear();
@@ -300,7 +309,26 @@ public final class SearchFragment extends AbstractFragment implements
                     , ""
                     , 0
                     , 0
-                    , query);
+                    , expression);
+
+            searchProgress.setProgressEnabled(true);
+            showSearchView(getView());
+        }
+        // DHT search when dht enabled and user chose kad or no one server connected
+        else if (Engine.instance().isDhtEnabled()
+                && (!searchParametersView.isSearchByServer() || Engine.instance().getCurrentServerId().isEmpty())) {
+            LOG.info("perform search on DHT");
+            awaitingResults = true;
+            adapter.clear();
+            fileTypeCounter.clear();
+            refreshFileTypeCounters(false);
+            currentQuery = query;
+            // takes first item in search expression for DHT search
+            Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]
+                , searchParametersView.getMinSize()*1024*1024
+                , searchParametersView.getMaxSize()*1024*1024
+                , searchParametersView.getSourcesCount()
+                , searchParametersView.getCompleteSources());
             searchProgress.setProgressEnabled(true);
             showSearchView(getView());
         }
@@ -336,10 +364,10 @@ public final class SearchFragment extends AbstractFragment implements
     private void searchCompleted(final SearchResultAlert alert) {
         if (awaitingResults) {
             awaitingResults = false;
-            adapter.addResults(alert.results);
+            adapter.addResults(alert.getResults(), alert.isHasMoreResults());
 
             // temporary solution, next use filter by hash to support related search
-            for (SharedFileEntry entry : alert.results.files) {
+            for (SearchEntry entry : alert.getResults()) {
                 fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
             }
         }
@@ -387,7 +415,7 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    private void startTransfer(final SharedFileEntry sr, final String toastMessage) {
+    private void startTransfer(final SearchEntry sr, final String toastMessage) {
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG)) {
             try {
                 NewTransferDialog dlg = NewTransferDialog.newInstance(sr, false);
@@ -402,17 +430,15 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    public static void startDownload(Context ctx, SharedFileEntry entry, String message) {
+    public static void startDownload(Context ctx, SearchEntry entry, String message) {
         StartDownloadTask task = new StartDownloadTask(ctx, entry, null, message);
         Tasks.executeParallel(task);
     }
 
-    private void warnServerNotConnected(View v) {
-        if (Engine.instance().getCurrentServerId().isEmpty()) {
-            LOG.info("server is not connected");
+    private void warnNoServerNoDhtConnections(View v) {
+        if (Engine.instance().getCurrentServerId().isEmpty() && !Engine.instance().isDhtEnabled()) {
             serverConnectionWarning.setVisibility(View.VISIBLE);
         } else {
-            LOG.info("server connected");
             serverConnectionWarning.setVisibility(View.GONE);
         }
     }
@@ -440,7 +466,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onSearchResult(final SearchResultAlert alert) {
-        LOG.info("search result size {} more {}", alert.results.files.size(), alert.results.hasMoreResults()?"YES":"NO");
+        LOG.info("search result size {} more {}", alert.getResults().size(), alert.isHasMoreResults()?"YES":"NO");
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

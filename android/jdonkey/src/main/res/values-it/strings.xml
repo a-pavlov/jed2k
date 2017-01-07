@@ -107,8 +107,8 @@
     <string name="select_all">Seleziona Tutto</string>
     <string name="server_connect_action">La connessione a %1$s</string>
     <string name="server_disconnect_action">Scollegare dal %1$s</string>
-    <string name="server_not_connected">Non connesso al server</string>
-    <string name="server_not_connected_det">Prima cerca di connettersi al server</string>
+    <string name="server_not_connected">Fonti per la ricerca</string>
+    <string name="server_not_connected_det">Connettersi al server o iniziare a Kademlia, si prega di</string>
     <string name="server_remove_action">Rimuovere %1$s</string>
     <string name="servers">Servers</string>
     <string name="servers_settings">Impostazioni dei server</string>
@@ -200,4 +200,6 @@
     <string name="wizard_dht_summary">Utilizzare Kademlia per trovare più fonti. Attenzione, genera il traffico di
         servizio.
     </string>
+    <string name="search_source_type_dht">Kademlia</string>
+    <string name="search_source_type_server">Server</string>
 </resources>

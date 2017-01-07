@@ -7,11 +7,9 @@ import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.kad.KadId;
-import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
-import org.dkf.jed2k.protocol.server.search.SearchResult;
-import org.dkf.jed2k.protocol.tag.Tag;
 import org.dkf.jed2k.util.FUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Conn {
     private static Logger log = LoggerFactory.getLogger(Conn.class);
-    private static SearchResult globalSearchRes = null;
+    private static List<SearchEntry> globalSearchRes = null;
+    private static boolean hasMoreResults = false;
     private static final boolean trial = "true".equals(System.getProperty("session.trial"));
     private static final boolean compression = "true".equals(System.getProperty("session.compression"));
     private static Set<TransferHandle> handles = new HashSet<>();
@@ -62,22 +61,23 @@ public class Conn {
     private static void printGlobalSearchResult() {
         if (globalSearchRes == null) return;
         int index = 0;
-        for(SharedFileEntry entry: globalSearchRes.files) {
-            System.out.println(String.format("%03d ", index++) + entry.toString());
+        for(SearchEntry entry: globalSearchRes) {
+            log.info("-> {} {}", String.format("%03d ", index++), entry.toString());
         }
-        System.out.println("More results: " + (globalSearchRes.hasMoreResults()?"yes":"no"));
+
+        log.info("more results: {}", (hasMoreResults?"yes":"no"));
     }
 
     static TransferHandle addTransfer(final Session s, final Hash hash, final long size, final String filepath) {
         try {
             TransferHandle h = s.addTransfer(hash, size, filepath);
             if (h.isValid()) {
-                System.out.println("transfer valid " + h.getHash());
+                log.info("[CONN] transfer valid {}", h.getHash());
             }
 
             return h;
         } catch (JED2KException e) {
-            log.warn("Add transfer failed {}", e.toString());
+            log.warn("[CONN] add transfer failed {}", e.toString());
         }
 
         return null;
@@ -94,21 +94,21 @@ public class Conn {
             bb.flip();
             while(bb.hasRemaining()) channel.write(bb);
         } catch(IOException e) {
-            System.out.println("I/O exception on save resume data " + e);
+            log.error("[CONN] I/O exception on save resume data {}", e);
         } catch(JED2KException e) {
-            System.out.println("Unable to load search results " + e);
+            log.error("[CONN] unable to load search results {}", e);
         }
     }
 
     public static void main(String[] args) throws IOException, JED2KException {
 
         if (args.length < 1) {
-            System.out.println("Specify incoming directory");
+            log.warn("[CONN] specify incoming directory");
             return;
         }
 
         incomingDirectory = FileSystems.getDefault().getPath(args[0]);
-        System.out.println("Incoming directory set to: " + incomingDirectory);
+        log.info("[CONN] incoming directory set to: {}", incomingDirectory);
         File incomingFile = incomingDirectory.toFile();
         boolean dirCreated = incomingFile.exists() || incomingFile.mkdirs();
 
@@ -129,7 +129,7 @@ public class Conn {
         assert resumeDataDirectory != null;
         DhtTracker tracker = null;
 
-        System.out.println("Conn started");
+        log.info("[CONN] started");
         final Settings startSettings = new Settings();
         startSettings.maxConnectionsPerSecond = 10;
         startSettings.sessionConnectionsLimit = 100;
@@ -174,11 +174,11 @@ public class Conn {
                     Alert a = s.popAlert();
                     while(a != null) {
                         if (a instanceof SearchResultAlert) {
-                            SearchResult sr = ((SearchResultAlert)a).results;
-                            globalSearchRes = sr;
-                            globalSearchRes.files.sort(new Comparator<SharedFileEntry>() {
+                            List<SearchEntry> se = ((SearchResultAlert)a).getResults();
+                            globalSearchRes = se;
+                            globalSearchRes.sort(new Comparator<SearchEntry>() {
                                 @Override
-                                public int compare(SharedFileEntry o1, SharedFileEntry o2) {
+                                public int compare(SearchEntry o1, SearchEntry o2) {
                                     if (o1.getSources() < o2.getSources()) return -1;
                                     if (o1.getSources() > o2.getSources()) return 1;
                                     return 0;
@@ -187,17 +187,17 @@ public class Conn {
                             printGlobalSearchResult();
                         }
                         else if (a instanceof ServerMessageAlert) {
-                            System.out.println("Server message: " + ((ServerMessageAlert)a).msg);
+                            log.info("[CONN] server message: " + ((ServerMessageAlert)a).msg);
                         }
                         else if (a instanceof ServerStatusAlert) {
                             ServerStatusAlert ssa = (ServerStatusAlert)a;
-                            System.out.println("Files count = " + ssa.filesCount + " users count = " + ssa.usersCount);
+                            log.info("[CONN] files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
                         }
                         else if (a instanceof ServerInfoAlert) {
-                            System.out.println("SI: " + ((ServerInfoAlert)a).info);
+                            log.info("[CONN] server info: {}", ((ServerInfoAlert)a).info);
                         }
                         else {
-                            System.out.println("Unknown alert received: " + a.toString());
+                            log.info("[CONN] unknown alert received: {}", a.toString());
                         }
 
                         a = s.popAlert();
@@ -281,28 +281,17 @@ public class Conn {
             }
             else if (parts[0].compareTo("dsearch") == 0 && parts.length == 2) {
                 int index = Integer.parseInt(parts[1]);
-                if (index >= globalSearchRes.files.size() || index < 0) {
+                if (index >= globalSearchRes.size() || index < 0) {
                     log.warn("[CONN] specified index {} out of last search result bounds {}"
                             , index
-                            , globalSearchRes.files.size());
+                            , globalSearchRes.size());
                 } else {
-                    SharedFileEntry sfe = globalSearchRes.files.get(index);
-                    long filesize = 0;
-
-                    for (final Tag t : sfe.properties) {
-                        if (t.id() == Tag.FT_FILESIZE) {
-                            try {
-                                filesize = t.longValue();
-                                break;
-                            } catch (JED2KException e) {
-                                log.warn("[CONN] unable to extract filesize {}", e);
-                            }
-                        }
-                    }
+                    SearchEntry sfe = globalSearchRes.get(index);
+                    long filesize = sfe.getFileSize();
 
                     if (filesize != 0) {
-                        log.debug("[CONN] start search {}/{}", sfe.hash, filesize);
-                        s.dhtDebugSearch(sfe.hash, filesize);
+                        log.debug("[CONN] start search {}/{}", sfe.getHash(), filesize);
+                        s.dhtDebugSearch(sfe.getHash(), filesize);
                     } else {
                         log.warn("[CONN] unable to start DHT debug search due to zero file size");
                     }
@@ -313,6 +302,11 @@ public class Conn {
                 long fileSize = Long.parseLong(parts[2]);
                 log.debug("[CONN] DHT search sources for {} with size {}", fileHash, fileSize);
                 s.dhtDebugSearch(fileHash, fileSize);
+            }
+            else if (parts[0].compareTo("dhtsearchkeyword") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    s.searchDhtKeyword(parts[i], 0, 0, 0, 0);
+                }
             }
             else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
                 s.connectToPeer(new Endpoint(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
@@ -327,42 +321,23 @@ public class Conn {
 
                 if (eml == null) {
                     int index = Integer.parseInt(parts[1]);
-                    if (index >= globalSearchRes.files.size() || index < 0) {
+                    if (index >= globalSearchRes.size() || index < 0) {
                         log.warn("[CONN] specified index {} out of last search result bounds {}"
                             , index
-                            , globalSearchRes.files.size());
+                            , globalSearchRes.size());
                     } else {
-                        SharedFileEntry sfe = globalSearchRes.files.get(index);
-                        Path filepath = null;
-                        long filesize = 0;
-                        for (final Tag t : sfe.properties) {
-                            if (t.id() == Tag.FT_FILESIZE) {
-                                try {
-                                    filesize = t.longValue();
-                                } catch (JED2KException e) {
-                                    System.out.println("Unable to extract filesize");
-                                }
-                            }
-
-                            if (t.id() == Tag.FT_FILENAME) {
-                                try {
-                                    filepath = Paths.get(args[0], t.stringValue());
-                                } catch (JED2KException e) {
-                                    System.out.println("unable to extract filename");
-                                }
-                            }
-                        }
+                        SearchEntry sfe = globalSearchRes.get(index);
+                        Path filepath = Paths.get(args[0], sfe.getFileName());
+                        long filesize = sfe.getFileSize();
 
                         if (filepath != null && filesize != 0) {
                             StringBuilder sb = new StringBuilder();
                             sb.append("Transfer ").append(filepath).append(" hash: ");
-                            sb.append(sfe.hash.toString()).append(" dataSize: ");
+                            sb.append(sfe.getHash().toString()).append(" dataSize: ");
                             sb.append(filesize);
-                            System.out.println(sb);
-
-                            handles.add(addTransfer(s, sfe.hash, filesize, filepath.toAbsolutePath().toString()));
+                            handles.add(addTransfer(s, sfe.getHash(), filesize, filepath.toAbsolutePath().toString()));
                         } else {
-                            System.out.println("Not enough parameters to start new transfer");
+                            log.warn("[CONN] not enough parameters to start new transfer");
                         }
                     }
                 } else {
@@ -391,9 +366,10 @@ public class Conn {
                     }
                 }
             }
+            /*
             else if (parts[0].compareTo("save") == 0) {
                 // saving search results to file for next usage
-                if (globalSearchRes != null && !globalSearchRes.files.isEmpty()) {
+                if (globalSearchRes != null && !globalSearchRes.isEmpty()) {
                     ByteBuffer bb = ByteBuffer.allocate(globalSearchRes.bytesCount());
                     bb.order(ByteOrder.LITTLE_ENDIAN);
                     File f = new File(incomingDirectory.resolve("search_results.txt").toString());
@@ -427,6 +403,7 @@ public class Conn {
                     System.out.println("Unable to load search results " + e);
                 }
             }
+            */
             else if (parts[0].compareTo("print") == 0) {
                 printGlobalSearchResult();
             }
@@ -458,7 +435,7 @@ public class Conn {
                 }
             }
             else if (parts[0].compareTo("report") == 0) {
-                System.out.println(report(s));
+                log.info(report(s));
             }
             else if (parts[0].compareTo("resumetran") == 0 && parts.length == 2) {
                 Hash hash = Hash.fromString(parts[1]);

@@ -36,6 +36,14 @@ public class FindDataObserver extends Observer {
 
     @Override
     public boolean isExpectedTransaction(final Serializable s) {
-        return s instanceof Kad2Res;
+        /**
+         * Kad2Res packet contains target kad id and we are able to validate response more than type of packet
+         *
+         */
+        if (s instanceof Kad2Res) {
+            return algorithm.getTarget().compareTo(((Kad2Res)s).getTarget()) == 0;
+        }
+
+        return false;
     }
 }

@@ -111,4 +111,13 @@ public abstract class Observer {
      * @return
      */
     public abstract boolean isExpectedTransaction(final Serializable s);
+
+    /**
+     * persistent observer is observer which expects more than one response
+     * usual situation for search keywords response
+     * @return true if observer is persistent
+     */
+    public boolean expectMultipleResponses() {
+        return false;
+    }
 }

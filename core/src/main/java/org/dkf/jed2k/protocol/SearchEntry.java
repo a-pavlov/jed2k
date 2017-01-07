@@ -7,6 +7,8 @@ public interface SearchEntry {
     public static final int SOURCE_SERVER = 1;
     public static final int SOURCE_KAD = 2;
 
+    public Hash getHash();
+
     public int getSource();
 
     public String getFileName();

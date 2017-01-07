@@ -1,15 +1,23 @@
 package org.dkf.jed2k.alert;
 
-import org.dkf.jed2k.protocol.server.search.SearchResult;
+import lombok.Getter;
+import lombok.ToString;
+import org.dkf.jed2k.protocol.SearchEntry;
+
+import java.util.List;
 
 /**
  * Created by inkpot on 24.07.2016.
  */
+@Getter
+@ToString
 public class SearchResultAlert extends Alert {
-    public SearchResult results;
+    private List<SearchEntry> results;
+    private boolean hasMoreResults;
 
-    public SearchResultAlert(SearchResult r) {
-        results = r;
+    public SearchResultAlert(final List<SearchEntry> results, boolean hasMoreResults) {
+        this.results = results;
+        this.hasMoreResults = hasMoreResults;
     }
 
     @Override
@@ -20,10 +28,5 @@ public class SearchResultAlert extends Alert {
     @Override
     public int category() {
         return Category.ServerNotification.value;
-    }
-
-    @Override
-    public String toString() {
-        return "server search reslts count " + results.files.size() + " more " + ((results.moreResults!=0)?"yes":"no");
     }
 }

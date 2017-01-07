@@ -1,9 +1,15 @@
 package org.dkf.jed2k.protocol.server;
 
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.tag.Tag;
 
 public class SharedFileEntry extends UsualPacket implements SearchEntry {
+
+    @Override
+    public Hash getHash() {
+        return hash;
+    }
 
     @Override
     public int getSource() {

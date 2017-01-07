@@ -1,12 +1,10 @@
 package org.dkf.jed2k.protocol.kad;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.SearchEntry;
-import org.dkf.jed2k.protocol.Serializable;
-import org.dkf.jed2k.protocol.UInt8;
+import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.tag.Tag;
 
 import java.nio.ByteBuffer;
@@ -16,6 +14,7 @@ import java.nio.ByteBuffer;
  */
 @Getter
 @ToString
+@EqualsAndHashCode(exclude = "info")
 public class KadSearchEntry implements Serializable, SearchEntry {
     private KadId kid = new KadId();
     private Container<UInt8, Tag> info = Container.makeByte(Tag.class);
@@ -33,6 +32,11 @@ public class KadSearchEntry implements Serializable, SearchEntry {
     @Override
     public int bytesCount() {
         return kid.bytesCount() + info.bytesCount();
+    }
+
+    @Override
+    public Hash getHash() {
+        return kid;
     }
 
     @Override
@@ -97,4 +101,5 @@ public class KadSearchEntry implements Serializable, SearchEntry {
         Tag t = Tag.getTagById(Tag.FT_MEDIA_ALBUM, info);
         return (t != null)?t.asStringValue():"";
     }
+
 }

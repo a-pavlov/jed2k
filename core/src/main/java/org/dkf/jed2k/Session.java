@@ -8,9 +8,11 @@ import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.KadSearchEntryDistinct;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -173,6 +175,37 @@ public class Session extends Thread {
         }
     }
 
+    private static class DhtKeywordsCallback implements Listener {
+        final Session session;
+        private final long minSize;
+        private final long maxSize;
+        private final int sources;
+        private final int completeSources;
+
+        public DhtKeywordsCallback(final Session session, long minSize, long maxSize, int sources, int completeSources) {
+            this.session = session;
+            this.minSize = minSize;
+            this.maxSize = maxSize;
+            this.sources = sources;
+            this.completeSources = completeSources;
+        }
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            List<SearchEntry> filtered = new LinkedList<>();
+            List<SearchEntry> res = KadSearchEntryDistinct.distinct(data);
+            for(final SearchEntry e: res) {
+                if (minSize > 0 && e.getFileSize() < minSize) continue;
+                if (maxSize > 0 && e.getFileSize() > maxSize) continue;
+                if (sources > 0 && e.getSources() < sources) continue;
+                if (completeSources > 0 && e.getCompleteSources() < completeSources) continue;
+                filtered.add(e);
+            }
+
+            session.pushAlert(new SearchResultAlert(filtered, false));
+        }
+    }
+
     // from last established server connection
     int clientId    = 0;
     int tcpFlags    = 0;
@@ -326,6 +359,7 @@ public class Session extends Thread {
         }
         finally {
             log.info("Session is closing");
+            commands.clear();
 
             try {
                 if (selector != null) selector.close();
@@ -470,6 +504,23 @@ public class Session extends Thread {
             public void run() {
                 if (serverConection != null) {
                     serverConection.search(value);
+                }
+            }
+        });
+    }
+
+    public void searchDhtKeyword(final String keyword, final long minSize, final long maxSize, final int sources, final int completeSources) {
+        final Session s = this;
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                DhtTracker tracker = dhtTracker.get();
+                if (tracker != null && !tracker.isAborted()) {
+                    try {
+                        tracker.searchKeywords(keyword, new DhtKeywordsCallback(s, minSize, maxSize, sources, completeSources));
+                    } catch(JED2KException e) {
+                        log.error("[session] unable to start search keyword {} in DHT {}", keyword, e);
+                    }
                 }
             }
         });

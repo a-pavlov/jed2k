@@ -6,6 +6,7 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.client.*;
 import org.dkf.jed2k.protocol.server.*;
@@ -20,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.dkf.jed2k.protocol.tag.Tag.tag;
 
@@ -122,7 +125,13 @@ public class ServerConnection extends Connection {
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
         log.trace("search result: " + value);
-        session.pushAlert(new SearchResultAlert(value));
+        // transform server's search result to common
+        List<SearchEntry> entries = new LinkedList<>();
+        for(final SharedFileEntry entry: value.getResults().getList()) {
+            entries.add(entry);
+        }
+
+        session.pushAlert(new SearchResultAlert(entries, value.hasMoreResults()));
     }
 
     @Override

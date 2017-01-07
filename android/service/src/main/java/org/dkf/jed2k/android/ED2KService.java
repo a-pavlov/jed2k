@@ -283,6 +283,10 @@ public class ED2KService extends Service {
         }
     }
 
+    public synchronized boolean isDhtEnabled() {
+        return dhtTracker != null;
+    }
+
     /**
      * synchronized save call to avoid racing on access to dhtTracker variable from
      * main thread(start/stop dht) and background service(save)
@@ -814,6 +818,15 @@ public class ED2KService extends Service {
         } catch(JED2KException e) {
             log.error("search request error {}", e);
         }
+    }
+
+    public void startSearchDhtKeyword(final String keyword
+            , final long minSize
+            , final long maxSize
+            , final int sources
+            , final int completeSources) {
+        if (session == null) return;
+        session.searchDhtKeyword(keyword, minSize, maxSize, sources, completeSources);
     }
 
     /**

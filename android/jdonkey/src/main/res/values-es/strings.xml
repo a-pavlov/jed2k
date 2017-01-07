@@ -139,8 +139,8 @@
     <string name="search_parameter_sources">Fuentes</string>
     <string name="server_connect_action">Conectarse a %1$s</string>
     <string name="server_disconnect_action">Desconectar de %1$s</string>
-    <string name="server_not_connected">No se conecta al servidor</string>
-    <string name="server_not_connected_det">Antes de comenzar la búsqueda conectar al servidor</string>
+    <string name="server_not_connected">No hay fuentes para la búsqueda de</string>
+    <string name="server_not_connected_det">Conectar con el servidor o iniciar Kademlia por favor</string>
     <string name="server_remove_action">Quitar %1$s</string>
     <string name="servers">Servidores</string>
     <string name="servers_settings">Configuración de servidores</string>
@@ -200,4 +200,6 @@
     <string name="wizard_dht_summary">El uso de Kademlia a encontrar más fuentes. Tenga cuidado - genera tráfico de
         servicio.
     </string>
+    <string name="search_source_type_dht">Kademlia</string>
+    <string name="search_source_type_server">Servidores</string>
 </resources>

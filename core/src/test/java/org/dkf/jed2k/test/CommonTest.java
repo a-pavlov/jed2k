@@ -94,4 +94,13 @@ public class CommonTest {
 
         assertEquals(3, i.intValue());
     }
+
+    @Test
+    public void testJavaStringSplitBehaviour() {
+        assertEquals("1", "1".split("\\s+")[0]);
+        assertEquals("1", "1   ".split("\\s+")[0]);
+        assertEquals("3", "3 2 3".split("\\s+")[0]);
+        assertEquals("455", "   455   567".trim().split("\\s+")[0]);
+        assertEquals("", "  ".trim().split("\\s+")[0]);
+    }
 }

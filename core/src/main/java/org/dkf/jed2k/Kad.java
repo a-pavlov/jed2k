@@ -8,7 +8,9 @@ import org.bitlet.weupnp.PortMappingEntry;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Listener;
+import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
@@ -22,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -88,9 +91,11 @@ public class Kad {
 
     private static class SearchReport implements Listener {
         private final KadId target;
+        private final File backup;
 
-        public SearchReport(final KadId id) {
+        public SearchReport(final KadId id, final File backup) {
             target = id;
+            this.backup = backup;
         }
 
         @Override
@@ -100,6 +105,23 @@ public class Kad {
                 log.info("[KAD] {}", e);
             }
             log.info("[KAD] report done.");
+
+            try(FileOutputStream stream = new FileOutputStream(backup, false);FileChannel channel = stream.getChannel()) {
+                Container<UInt16, KadSearchEntry> entries = Container.makeShort(KadSearchEntry.class);
+                for(final KadSearchEntry e: data) {
+                    entries.add(e);
+                }
+                ByteBuffer bb = ByteBuffer.allocate(entries.bytesCount());
+                bb.order(ByteOrder.LITTLE_ENDIAN);
+                entries.put(bb);
+                bb.flip();
+                channel.write(bb);
+                channel.close();
+            } catch(IOException e) {
+                log.error("[KAD] I/O exception on save DHT search results " + e);
+            } catch(JED2KException e) {
+                log.error("[KAD] unable to save search result: " + e);
+            }
         }
     }
 
@@ -154,9 +176,11 @@ public class Kad {
                 log.info("[KAD] bootstrap on {}:{}", parts[1], parts[2]);
                 tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
             }
-            else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
-                log.info("search {}", parts[1]);    // temporary search only first keyword
-                tracker.searchKeywords(parts[1], new SearchReport(new KadId()));    // target id is not important here
+            else if (parts[0].compareTo("search") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    log.info("search {}", parts[i]);    // temporary search only first keyword
+                    tracker.searchKeywords(parts[i], new SearchReport(new KadId(), new File(dir.resolve("search_" + parts[i] + ".dat").toString())));    // target id is not important here
+                }
             }
             else if (parts[0].compareTo("hello") == 0 && parts.length == 3) {
                 log.info("[KAD] hello to {}:{}", parts[1], parts[2]);

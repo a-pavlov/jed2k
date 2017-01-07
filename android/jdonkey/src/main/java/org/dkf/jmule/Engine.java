@@ -334,6 +334,14 @@ public final class Engine implements AlertListener {
         }
     }
 
+    public void performSearchDhtKeyword(final String keyword
+            , final long minSize
+            , final long maxSize
+            , final int sources
+            , final int completeSources) {
+        if (service != null) service.startSearchDhtKeyword(keyword, minSize, maxSize, sources, completeSources);
+    }
+
     public void performSearchMore() {
         if (service != null) service.searchMore();
     }
@@ -425,7 +433,12 @@ public final class Engine implements AlertListener {
     public int getTotalDhtNodes() {
         if (service != null) return service.getTotalDhtNodes();
         return -1;
-}
+    }
+
+    public boolean isDhtEnabled() {
+        if (service != null) return service.isDhtEnabled();
+        return false;
+    }
 
     public void setPermanentNotification(boolean v) {
         if (service != null) service.setPermanentNotification(v);
