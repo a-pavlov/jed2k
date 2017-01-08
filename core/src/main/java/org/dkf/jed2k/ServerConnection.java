@@ -127,8 +127,10 @@ public class ServerConnection extends Connection {
         log.trace("search result: " + value);
         // transform server's search result to common
         List<SearchEntry> entries = new LinkedList<>();
-        for(final SharedFileEntry entry: value.getResults().getList()) {
-            entries.add(entry);
+        if (value.getResults().getList() != null) {
+            for (final SharedFileEntry entry : value.getResults().getList()) {
+                entries.add(entry);
+            }
         }
 
         session.pushAlert(new SearchResultAlert(entries, value.hasMoreResults()));
