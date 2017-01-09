@@ -1,2 +1,2 @@
 language: java
-script: pushd core && mvn test && popd
+script: pushd core && mvn -e test && popd
