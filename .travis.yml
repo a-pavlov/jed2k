@@ -1,8 +1,6 @@
 language: java
 script: pushd core && mvn -e test && popd
 jdk:
-  - openjdk7
-  - oraclejdk7
   - oraclejdk8
 notifications:
   email: false
