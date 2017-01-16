@@ -212,14 +212,15 @@ public class NodeImpl {
             }
             else if (s instanceof Kad2Req) {
                 Kad2Req req = (Kad2Req)s;
-                if (req.getSearchType() != FindData.KADEMLIA_FIND_NODE
-                        && req.getSearchType() != FindData.KADEMLIA_FIND_VALUE
-                        && req.getSearchType() != FindData.KADEMLIA_STORE) {
-                    log.warn("[node] << {} incorrect search type in packet {}", ep, s);
+                int searchType = req.getSearchType() & 0x1F;
+                if (searchType != FindData.KADEMLIA_FIND_NODE
+                        && searchType != FindData.KADEMLIA_FIND_VALUE
+                        && searchType != FindData.KADEMLIA_STORE) {
+                    log.warn("[node] << {} incorrect search type in packet {} calculated search type is {}", ep, s, searchType);
                 }
                 else {
                     Kad2Res res = new Kad2Res();
-                    List<NodeEntry> entries = table.findNode(req.getTarget(), false, (int)req.getSearchType());
+                    List<NodeEntry> entries = table.findNode(req.getTarget(), false, searchType);
                     res.setTarget(req.getTarget());
                     for(final NodeEntry e: entries) {
                         res.getResults().add(new KadEntry(e.getId()
