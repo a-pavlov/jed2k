@@ -13,6 +13,7 @@ import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.Unsigned;
 import org.dkf.jed2k.protocol.kad.*;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
@@ -52,7 +53,7 @@ public class NodeImpl {
     public void addNode(final Endpoint ep, final KadId id) throws JED2KException {
         Kad2HelloReq hello = new Kad2HelloReq();
         hello.setKid(getSelf());
-        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
         hello.getPortTcp().assign(port);
         invoke(hello, ep, new NullObserver(new Single(this, id), ep, id, 0, (byte)0));
     }
@@ -65,7 +66,7 @@ public class NodeImpl {
     public void addKadNode(final KadEntry entry) throws JED2KException {
         Kad2HelloReq hello = new Kad2HelloReq();
         hello.setKid(getSelf());
-        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
         hello.getPortTcp().assign(port);
         invoke(hello, entry.getKadEndpoint().getEndpoint()
                 , new NullObserver(new Single(this, entry.getKid())
@@ -196,7 +197,7 @@ public class NodeImpl {
                 Kad2HelloRes hello = new Kad2HelloRes();
                 hello.setKid(getSelf());
                 hello.getPortTcp().assign(getPort());
-                hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+                hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
                 tracker.write(hello, address);
                 log.debug("[node] >> {}: {}", ep, hello);
             }
@@ -228,6 +229,41 @@ public class NodeImpl {
 
                     tracker.write(res, address);
                     log.debug("[node] >> {}: {}", ep, res);
+                }
+            }
+            else if (s instanceof Kad2BootstrapReq) {
+                List<NodeEntry> entries = table.forEach(new Filter<NodeEntry>() {
+                    private int counter = 20;
+                    @Override
+                    public boolean allow(NodeEntry nodeEntry) {
+                        --counter;
+                        if (counter >= 0) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }, new Filter<NodeEntry>() {
+                    @Override
+                    public boolean allow(NodeEntry nodeEntry) {
+                        return false;
+                    }
+                });
+
+                if (!entries.isEmpty()) {
+                    Kad2BootstrapRes kbr = new Kad2BootstrapRes();
+                    kbr.setKid(getSelf());
+                    kbr.setVersion(Unsigned.uint8(PacketCombiner.KADEMLIA_VERSION));
+                    kbr.setPortTcp(Unsigned.uint16(getPort()));
+
+                    for (NodeEntry ne : entries) {
+                        kbr.getContacts().add(new KadEntry(ne.getId()
+                                , new KadEndpoint(ne.getEndpoint().getIP(), ne.getEndpoint().getPort(), ne.getPortTcp())
+                                , ne.getVersion()));
+                    }
+
+                    tracker.write(kbr, address);
+                } else {
+                    log.debug("[node] entries list is empty, send nothing for bootstrap res");
                 }
             }
             else {

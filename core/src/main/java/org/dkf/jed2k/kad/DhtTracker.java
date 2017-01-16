@@ -321,7 +321,7 @@ public class DhtTracker extends Thread {
     public synchronized void hello(final InetSocketAddress ep) {
         Kad2HelloReq hello = new Kad2HelloReq();
         hello.getKid().assign(Hash.EMULE);
-        hello.getVersion().assign(org.dkf.jed2k.protocol.kad.PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getVersion().assign(org.dkf.jed2k.protocol.kad.PacketCombiner.KADEMLIA_VERSION);
         hello.getPortTcp().assign(listenPort);
         write(hello, ep);
     }
