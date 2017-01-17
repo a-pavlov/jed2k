@@ -2,6 +2,7 @@ package org.dkf.jed2k.protocol;
 
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.util.HexDump;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +87,7 @@ public abstract class PacketCombiner {
             }
         } else {
             log.error("unable to find correspond packet for {}", header);
+            log.warn("packet dump \n{}", HexDump.dump(src.array(), 0, header.size));
             ph = new BytesSkipper(serviceSize(header));
         }
 

@@ -1,5 +1,6 @@
 package org.dkf.jed2k.test;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Constants;
 import org.junit.Test;
 
@@ -8,13 +9,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+@Slf4j
 public class CommonTest {
-    private static Logger log = Logger.getLogger(CommonTest.class.getName());
     private static byte[] data = new byte[(int)Constants.PIECE_SIZE];
     private static ByteBuffer dataBuffer = ByteBuffer.wrap(data);
 

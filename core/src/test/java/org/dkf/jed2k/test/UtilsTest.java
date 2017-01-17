@@ -2,6 +2,7 @@ package org.dkf.jed2k.test;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.Pair;
@@ -9,6 +10,7 @@ import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.util.HexDump;
 import org.junit.Test;
 
 import java.net.InetAddress;
@@ -20,6 +22,7 @@ import static junit.framework.Assert.*;
 import static org.dkf.jed2k.Utils.*;
 
 
+@Slf4j
 public class UtilsTest {
 
     @Test
@@ -235,6 +238,20 @@ public class UtilsTest {
                 return o1.compareTo(o2);
             }
         }));
+    }
+
+    @Test
+    public void testHexDump() {
+        byte data[] = { 0x01, 0x02, 0x30, 0x31, 0x20};
+        assertEquals("01 02 30 31 20                                   | ..01 ", HexDump.dump(data, 0, data.length));
+        assertEquals("02 30 31 20                                      | .01 ", HexDump.dump(data, 1, data.length - 1));
+
+        byte data2[] = {0x01, 0x30, 0x31, 0x20, (byte)0xFF, 0x48, 0x39, 0x44, 0x45, 0x47, 0x20, 0x20, 0x44, 0x45, 0x31, 0x34, 0x35,
+                0x48, 0x39, 0x44, 0x45, 0x47, 0x20, 0x20, 0x44, 0x45, 0x31, 0x34, 0x35 };
+        assertEquals("01 30 31 20 FF 48 39 44 45 47 20 20 44 45 31 34  | .01 .H9DEG  DE14\n35 48 39 44 45 47 20 20 44 45 31 34 35           | 5H9DEG  DE145",
+            HexDump.dump(data2, 0, data2.length));
+
+        log.info("HEX: \n{}", HexDump.dump(data2, 6, 18));
     }
 }
 

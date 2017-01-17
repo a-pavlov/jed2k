@@ -53,7 +53,8 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_EXCEPTION(46, "Unknown exception on port mapping"),
     DHT_REQUEST_ALREADY_RUNNING(47, "DHT request with the same hash already in progress"),
     URI_SYNTAX_ERROR(48, "URI has incorrect syntax"),
-    FAIL(49, "Fail");
+    PACKET_HEADER_UNDEFINED(49, "Packet header contains wrong bytes or undefined"),
+    FAIL(50, "Fail");
 
     private final int code;
     private final String description;

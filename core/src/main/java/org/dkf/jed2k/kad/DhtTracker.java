@@ -3,6 +3,7 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.*;
@@ -141,6 +142,7 @@ public class DhtTracker extends Thread {
             log.debug("[tracker] receive {} bytes from {}", incomingBuffer.capacity() - incomingBuffer.remaining(), address);
             incomingBuffer.flip();
             incomingHeader.get(incomingBuffer);
+            if (!incomingHeader.isDefined()) throw new JED2KException(ErrorCode.PACKET_HEADER_UNDEFINED);
 
             incomingHeader.reset(incomingHeader.key(), incomingBuffer.remaining());
             Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
@@ -151,11 +153,13 @@ public class DhtTracker extends Thread {
             log.error("[tracker] I/O exception {} on reading packet {}", e, incomingHeader);
             e.printStackTrace();
         } catch (JED2KException e) {
-            log.error("[tracker] exception {} on parse packet {}", e, incomingHeader);
             e.printStackTrace();
+            log.error("[tracker] exception {} on parse packet {}", e, incomingHeader);
+            //log.error("packet dump \n{}", HexDump.dump(incomingBuffer.array()));
         } catch (Exception e) {
             e.printStackTrace();
             log.error("[tracker] unexpected error on parse packet {} {}", incomingHeader, e);
+            //log.error("packet dump \n{}", HexDump.dump(incomingBuffer.array()));
         } finally {
             incomingBuffer.clear();
 
