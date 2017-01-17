@@ -87,7 +87,7 @@ public abstract class PacketCombiner {
             }
         } else {
             log.error("unable to find correspond packet for {}", header);
-            log.warn("packet dump \n{}", HexDump.dump(src.array(), 0, header.size));
+            log.trace("[combiner]packet dump \n{}", HexDump.dump(src.array(), 0, Math.min(src.remaining(), Math.min(Math.max(header.size, 0), 256))));
             ph = new BytesSkipper(serviceSize(header));
         }
 

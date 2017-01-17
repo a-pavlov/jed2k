@@ -253,5 +253,12 @@ public class UtilsTest {
 
         log.info("HEX: \n{}", HexDump.dump(data2, 6, 18));
     }
+
+    @Test
+    public void testHexDumpExtrem() {
+        byte data[] = { 0x01, 0x02, 0x30 };
+        assertEquals("", HexDump.dump(data, 2, 0));
+        assertEquals("", HexDump.dump(data, 1, 0));
+    }
 }
 

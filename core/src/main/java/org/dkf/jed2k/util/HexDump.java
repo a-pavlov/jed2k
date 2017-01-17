@@ -11,6 +11,7 @@ public class HexDump {
     }
 
     private static void appendCharacters(final byte[] data, final StringBuilder sb, int startPos, int processedBytes) {
+        if (processedBytes == 0) return;
         int endBorder = startPos + processedBytes;
 
         if (endBorder % 16 != 0) {
