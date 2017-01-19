@@ -12,6 +12,8 @@ public class HexDump {
 
     private static void appendCharacters(final byte[] data, final StringBuilder sb, int startPos, int processedBytes) {
         if (processedBytes == 0) return;
+        assert startPos >= 0;
+        assert startPos + processedBytes <= data.length;
         int endBorder = startPos + processedBytes;
 
         if (endBorder % 16 != 0) {
@@ -29,6 +31,7 @@ public class HexDump {
     }
 
     public static String dump(final byte[] bytes, int offset, int count) {
+        assert bytes != null;
         assert bytes.length >= offset + count;
         assert offset >= 0 && count >= 0;
         StringBuilder sb = new StringBuilder();

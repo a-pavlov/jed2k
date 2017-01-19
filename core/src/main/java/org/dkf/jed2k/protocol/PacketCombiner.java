@@ -70,7 +70,7 @@ public abstract class PacketCombiner {
 
             src.put(plainData, 0, resultLength);
             src.flip();
-            header.reset(header.key(), resultLength);   // TODO - use correct protocol value here to be compatible with HashMap
+            header.reset(header.key(), resultLength);   // use correct protocol value here to be compatible with HashMap
         }
 
         PacketKey key = header.key();
@@ -86,8 +86,10 @@ public abstract class PacketCombiner {
                 throw new JED2KException(e, ErrorCode.GENERIC_ILLEGAL_ACCESS);
             }
         } else {
-            log.error("unable to find correspond packet for {}", header);
-            log.trace("[combiner]packet dump \n{}", HexDump.dump(src.array(), 0, Math.min(src.remaining(), Math.min(Math.max(header.size, 0), 256))));
+            log.error("[combiner] unable to find correspond packet for {}", header);
+            log.trace("[combiner] packet dump \n{}", HexDump.dump(src.array()
+                    , 0
+                    , Math.min(src.remaining(), Math.min(Math.max(header.size, 0), 256))));
             ph = new BytesSkipper(serviceSize(header));
         }
 
