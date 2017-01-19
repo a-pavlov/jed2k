@@ -267,6 +267,12 @@ public class NodeImpl {
                     log.debug("[node] entries list is empty, send nothing for bootstrap res");
                 }
             }
+            else if (s instanceof Kad2PublishKeysReq) {
+                log.debug("[node] publish keys");
+            }
+            else if (s instanceof Kad2PublishSourcesReq) {
+                log.debug("[node] publish sources");
+            }
             else {
                 log.debug("[node] temporary skip unhandled packet {}", s);
             }

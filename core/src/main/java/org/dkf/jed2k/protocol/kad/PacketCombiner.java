@@ -130,6 +130,10 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
         addKadHandler(KadUdp.KADEMLIA_FIREWALLED_REQ.value, KadFirewalledReq.class);
         addKadHandler(KadUdp.KADEMLIA_FIREWALLED2_REQ.value, Kad2FirewalledReq.class);
         addKadHandler(KadUdp.KADEMLIA2_FIREWALLUDP.value, Kad2FirewalledUdp.class);
+
+        addKadHandler(KadUdp.KADEMLIA2_PUBLISH_KEY_REQ.value, Kad2PublishKeysReq.class);
+        addKadHandler(KadUdp.KADEMLIA2_PUBLISH_SOURCE_REQ.value, Kad2PublishSourcesReq.class);
+        addKadHandler(KadUdp.KADEMLIA2_PUBLISH_RES.value, Kad2PublishRes.class);
     }
 
     @Override

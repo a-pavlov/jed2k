@@ -61,7 +61,7 @@ public abstract class PacketCombiner {
             decompresser.end();
             src.clear();
 
-            // TODO fix this temp code
+            // TODO (apavlov) need mechanism to increase buffer size and set it to originator because now buffer will use only once
             if (src.capacity() < resultLength) {
                 log.debug("re-create input buffer due to decompress size to {}", resultLength);
                 src = ByteBuffer.allocate(resultLength);
