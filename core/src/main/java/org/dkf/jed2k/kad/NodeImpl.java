@@ -319,6 +319,12 @@ public class NodeImpl {
                             , fileSize);
                 }
             }
+            else if (s instanceof Kad2FirewalledReq) {
+                log.debug("[node] firewalled request received {}", address);
+                Kad2FirewalledRes kfr = new Kad2FirewalledRes();
+                kfr.setIp(ep.getIP());
+                tracker.write(kfr, address);
+            }
             else {
                 log.debug("[node] temporary skip unhandled packet {}", s);
             }

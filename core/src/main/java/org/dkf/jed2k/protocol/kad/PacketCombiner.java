@@ -55,6 +55,7 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
         KADEMLIA_FIREWALLED2_REQ    (0x53),
 
         KADEMLIA2_FIREWALLUDP       (0x62),
+        KADEMLIA_FIREWALLED_ACK_RES (0x59),	// (null)
 
         KADEMLIA2_SEARCH_KEY_REQ    (0x33),
         KADEMLIA2_SEARCH_SOURCE_REQ (0x34),
@@ -130,6 +131,7 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
         addKadHandler(KadUdp.KADEMLIA_FIREWALLED_REQ.value, KadFirewalledReq.class);
         addKadHandler(KadUdp.KADEMLIA_FIREWALLED2_REQ.value, Kad2FirewalledReq.class);
         addKadHandler(KadUdp.KADEMLIA2_FIREWALLUDP.value, Kad2FirewalledUdp.class);
+        addKadHandler(KadUdp.KADEMLIA_FIREWALLED_RES.value, Kad2FirewalledRes.class);
 
         addKadHandler(KadUdp.KADEMLIA2_PUBLISH_KEY_REQ.value, Kad2PublishKeysReq.class);
         addKadHandler(KadUdp.KADEMLIA2_PUBLISH_SOURCE_REQ.value, Kad2PublishSourcesReq.class);
