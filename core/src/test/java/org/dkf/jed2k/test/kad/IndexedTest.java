@@ -1,6 +1,6 @@
 package org.dkf.jed2k.test.kad;
 
-import org.dkf.jed2k.kad.Dictionary;
+import org.dkf.jed2k.kad.IndexedImpl;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.junit.Test;
@@ -18,10 +18,15 @@ public class IndexedTest {
 
     @Test
     public void trivialMassiveTest() {
-        Dictionary dict = new Dictionary();
+        IndexedImpl dict = new IndexedImpl();
+
         for(int i = 0; i < 100; ++i) {
-            dict.addKeyword(new KadId(Hash.random(false)), new KadId(Hash.random(false)), rnd.nextInt(), rnd.nextInt(10000), "some filename", rnd.nextInt(5678900), 0);
-            dict.addSource(new KadId(Hash.random(false)), new KadId(Hash.random(false)), rnd.nextInt(), rnd.nextInt(10000), rnd.nextInt(45678), 0);
+            int kp = dict.addKeyword(new KadId(Hash.random(false)), new KadId(Hash.random(false)), rnd.nextInt(), rnd.nextInt(10000), "some filename", rnd.nextInt(5678900), 0);
+            assertTrue(kp >= 0);
+            assertTrue(kp < 100);
+            int sp = dict.addSource(new KadId(Hash.random(false)), new KadId(Hash.random(false)), rnd.nextInt(), rnd.nextInt(10000), rnd.nextInt(45678), 0);
+            assertTrue(sp >= 0);
+            assertTrue(sp < 100);
             assertTrue(dict.getKeywordsCount() > 0);
             assertTrue(dict.getSourcesCount() > 0);
         }

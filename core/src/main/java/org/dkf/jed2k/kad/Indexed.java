@@ -16,9 +16,9 @@ public interface Indexed {
      * @param name file name
      * @param size file size
      * @param lastActivityTime current time from external system
-     * @return true if resource was indexed
+     * @return percent of taken place in storage
      */
-    boolean addKeyword(final KadId resourceId, final KadId sourceId, int ip, int port, final String name, long size, long lastActivityTime);
+    int addKeyword(final KadId resourceId, final KadId sourceId, int ip, int port, final String name, long size, long lastActivityTime);
 
     /**
      *
@@ -29,5 +29,5 @@ public interface Indexed {
      * @param portTcp TCP port of endpoint
      * @return true if source was indexed
      */
-    boolean addSource(final KadId resourceId, final KadId sourceId, int ip, int port, int portTcp, long lastActivityTime);
+    int addSource(final KadId resourceId, final KadId sourceId, int ip, int port, int portTcp, long lastActivityTime);
 }

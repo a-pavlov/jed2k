@@ -2,6 +2,8 @@ package org.dkf.jed2k.kad;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.Time;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.util.HashMap;
@@ -12,7 +14,28 @@ import java.util.Map;
 /**
  * Created by inkpot on 21.01.2017.
  */
-public class Dictionary implements Indexed {
+@Slf4j
+public class IndexedImpl implements Indexed {
+    /**
+     * just ported constants from aMule for KAD
+     */
+    public static final long KADEMLIAASKTIME = Time.seconds(1);
+    public static final int  KADEMLIATOTALFILE = 5;		//Total files to search sources for.
+    public static final long KADEMLIAREASKTIME = Time.hours(1);	//1 hour
+    public static final long KADEMLIAPUBLISHTIME = Time.seconds(2);		//2 second
+    public static final int  KADEMLIATOTALSTORENOTES	= 1;		//Total hashes to store.
+    public static final int  KADEMLIATOTALSTORESRC = 3;	//Total hashes to store.
+    public static final int  KADEMLIATOTALSTOREKEY =	2;	//Total hashes to store.
+    public static final long KADEMLIAREPUBLISHTIMES = Time.hours(5);		//5 hours
+    public static final long KADEMLIAREPUBLISHTIMEN	= Time.hours(24);   //24 hours
+    public static final long KADEMLIAREPUBLISHTIMEK	= Time.hours(24);   //24 hours
+    public static final long KADEMLIADISCONNECTDELAY = Time.minutes(20); //20 mins
+    public static final int  KADEMLIAMAXINDEX = 50000;	//Total keyword indexes.
+    public static final int  KADEMLIAHOTINDEX = KADEMLIAMAXINDEX - 5000;
+    public static final int  KADEMLIAMAXENTRIES = 60000;	//Total keyword entries.
+    public static final int  KADEMLIAMAXSOURCEPERFILE = 1000;    //Max number of sources per file in index.
+    public static final int  KADEMLIAMAXNOTESPERFILE = 150;	//Max number of notes per entry in index.
+    public static final int  KADEMLIAFIREWALLCHECKS = 4;	//Firewallcheck Request at a time
 
     @Data
     @EqualsAndHashCode(exclude = {"lastActivityTime"})
@@ -91,15 +114,23 @@ public class Dictionary implements Indexed {
     private Map<KadId, List<NetworkSource>> sources = new HashMap<>();
 
     @Override
-    public boolean addKeyword(KadId resourceId, KadId sourceId, int ip, int port, String name, long size, long lastActivityTime) {
+    public int addKeyword(KadId resourceId, KadId sourceId, int ip, int port, String name, long size, long lastActivityTime) {
         assert name != null && !name.isEmpty();
         assert size >= 0;
+
+        if (keywords.size() > KADEMLIAMAXENTRIES) {
+            log.debug("[indexed] KADEMLIAMAXENTRIES exceeded");
+            return 100;
+        }
 
         Map<KadId, FileEntry> bucket = keywords.get(resourceId);
 
         if (bucket == null) {
             bucket = new HashMap<>();
             keywords.put(resourceId, bucket);
+        } else if (bucket.size() > KADEMLIAMAXINDEX) {
+            log.debug("[indexed] KADEMLIAMAXINDEX exceeded for {}", resourceId);
+            return 100;
         }
 
         assert bucket != null;
@@ -108,16 +139,22 @@ public class Dictionary implements Indexed {
 
         if (entry == null) {
             entry = new FileEntry(name, size);
+        } else if (entry.getSources().size() > KADEMLIAHOTINDEX) {
+            log.debug("[indexed] KADEMLIAHOTINDEX detected");
+            return 100;
         }
 
         assert entry != null;
-
         entry.mergeSource(ip, port, lastActivityTime);
-        return true;
+        return entry.getSources().size()*100/KADEMLIAMAXINDEX;
     }
 
     @Override
-    public boolean addSource(KadId resourceId, KadId sourceId, int ip, int port, int portTcp, long lastActivityTime) {
+    public int addSource(KadId resourceId, KadId sourceId, int ip, int port, int portTcp, long lastActivityTime) {
+        if (sources.size() > KADEMLIAMAXINDEX) {
+            return 100;
+        }
+
         List<NetworkSource> resource = sources.get(resourceId);
         if (resource == null) {
             resource = new LinkedList<>();
@@ -130,14 +167,16 @@ public class Dictionary implements Indexed {
         for(final NetworkSource ns: resource) {
             if (newSrc.equals(ns)) {
                 ns.setLastActivityTime(lastActivityTime);
-                return true;
+                return resource.size()*100/KADEMLIAMAXSOURCEPERFILE;
             }
         }
 
-        resource.add(newSrc);
+        // TODO - add removing oldest entries to cleanup space in storage instead of skip new source
+        if (resource.size() < KADEMLIAMAXSOURCEPERFILE) {
+            resource.add(newSrc);
+        }
 
-        return true;
-
+        return resource.size()/KADEMLIAMAXSOURCEPERFILE;
     }
 
     public int getKeywordsCount() {
