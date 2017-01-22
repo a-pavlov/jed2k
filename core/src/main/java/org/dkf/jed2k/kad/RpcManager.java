@@ -6,7 +6,6 @@ import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
-import org.dkf.jed2k.protocol.kad.Kad2SearchRes;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -64,7 +63,7 @@ public class RpcManager {
         }
 
         if (o == null) {
-            log.debug("[rpc] reply with unknown transaction id: {} from {}", s, ep);
+            log.debug("[rpc] reply with unknown transaction getId: {} from {}", s, ep);
         }
 
         for(final Observer dump: transactions) {

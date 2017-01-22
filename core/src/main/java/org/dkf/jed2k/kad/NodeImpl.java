@@ -297,7 +297,7 @@ public class NodeImpl {
                 long fileSize = pubSrc.getSource().getFileSize();
 
                 for(Tag t: pubSrc.getSource().getInfo()) {
-                    switch(t.id()) {
+                    switch(t.getId()) {
                         case Tag.TAG_SOURCETYPE: ip = t.asIntValue();
                             break;
                         case Tag.TAG_SOURCEPORT: portTcp = t.asIntValue();

@@ -23,8 +23,8 @@ public class TagTest {
     public void initialTest() throws JED2KException {
         Tag floatTag = Tag.tag(Tag.FT_DL_PREVIEW, null, 0.1f);
         assertEquals(0.1f, floatTag.floatValue());
-        assertEquals(Tag.FT_DL_PREVIEW, floatTag.id());
-        assertEquals(Tag.TAGTYPE_FLOAT32, floatTag.type());
+        assertEquals(Tag.FT_DL_PREVIEW, floatTag.getId());
+        assertEquals(Tag.TAGTYPE_FLOAT32, floatTag.getType());
     }
 
     @Test
@@ -112,14 +112,14 @@ public class TagTest {
         nb.flip();
         Tag itag = new Tag();
         itag.get(nb);
-        assertEquals(Tag.FT_FILEHASH, itag.id());
+        assertEquals(Tag.FT_FILEHASH, itag.getId());
         assertEquals(100, itag.intValue());
         assertEquals(6, itag.bytesCount());
         Tag stag = new Tag();
         stag.get(nb);
         assertEquals("Test name", stag.name());
         assertEquals("XXX data", stag.stringValue());
-        assertEquals(Tag.TAGTYPE_STR8, stag.type());
+        assertEquals(Tag.TAGTYPE_STR8, stag.getType());
         assertEquals(20, stag.bytesCount());
         assertEquals(0, nb.remaining());
     }

@@ -565,11 +565,11 @@ public final class Tag implements Serializable {
         return type != TAGTYPE_UNDEFINED && (id != FT_UNDEFINED || name != null);
     }
 
-    public final byte type() {
+    public final byte getType() {
         return type;
     }
 
-    public final byte id() {
+    public final byte getId() {
         return id;
     }
 
@@ -770,7 +770,7 @@ public final class Tag implements Serializable {
 
     public static Tag getTagById(final byte id, final Collection<Tag> tags) {
         for(final Tag t: tags) {
-            if (t.id() == id) return t;
+            if (t.getId() == id) return t;
         }
 
         return null;

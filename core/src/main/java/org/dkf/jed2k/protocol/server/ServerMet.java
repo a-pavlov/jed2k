@@ -76,7 +76,7 @@ public class ServerMet implements Serializable {
 
         public String getName() {
             for(Tag t: tags) {
-                if (t.id() == Tag.FT_FILENAME) {
+                if (t.getId() == Tag.FT_FILENAME) {
                     return t.asStringValue();
                 }
             }
@@ -86,7 +86,7 @@ public class ServerMet implements Serializable {
 
         public String getDescription() {
             for(Tag t: tags) {
-                if (t.id() == Tag.ST_DESCRIPTION) return t.asStringValue();
+                if (t.getId() == Tag.ST_DESCRIPTION) return t.asStringValue();
             }
 
             return "";
@@ -96,7 +96,7 @@ public class ServerMet implements Serializable {
             String host = "";
             if (endpoint.getIP() == 0) {
                 for(Tag t: tags) {
-                    if (t.id() == Tag.ST_PREFERENCE) {
+                    if (t.getId() == Tag.ST_PREFERENCE) {
                         host = t.asStringValue();
                         break;
                     }
