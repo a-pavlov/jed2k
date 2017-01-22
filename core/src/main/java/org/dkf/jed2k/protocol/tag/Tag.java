@@ -8,6 +8,7 @@ import org.dkf.jed2k.protocol.*;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
@@ -478,8 +479,8 @@ public final class Tag implements Serializable {
         } else {
             ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());
             bc.get(src);
-            if (bc.size.intValue() == 1) {
-                id = bc.value[0];
+            if (bc.getSize().intValue() == 1) {
+                id = bc.getValue()[0];
             } else {
                 name = bc.asString();   // use strong format here!
             }
@@ -608,9 +609,11 @@ public final class Tag implements Serializable {
 
     public final int intValue() throws JED2KException {
         assert(initialized());
-        UNumber n = (UNumber)value;
-        if (value == null)  throw new JED2KException(ErrorCode.TAG_TO_INT_INVALID);
-        return n.intValue();
+        try {
+            return ((UNumber) value).intValue();
+        } catch(ClassCastException e) {
+            throw new JED2KException(ErrorCode.TAG_TO_INT_INVALID);
+        }
     }
 
     public final int asIntValue() {
@@ -625,9 +628,11 @@ public final class Tag implements Serializable {
 
     public final long longValue() throws JED2KException {
         assert(initialized());
-        UNumber n = (UNumber)value;
-        if (n == null) throw new JED2KException(ErrorCode.TAG_TO_LONG_INVALID);
-        return n.longValue();
+        try {
+            return ((UNumber) value).longValue();
+        } catch(ClassCastException e) {
+            throw new JED2KException(ErrorCode.TAG_TO_LONG_INVALID);
+        }
     }
 
     public final long asLongValue() {
@@ -660,8 +665,53 @@ public final class Tag implements Serializable {
     public final Hash hashValue() throws JED2KException {
         assert(initialized());
         Hash h = (Hash)value;
-        if (h == null) throw new JED2KException(ErrorCode.TAG_TO_HASH_INVALID);
+        try {
+            if (h == null) throw new JED2KException(ErrorCode.TAG_TO_HASH_INVALID);
+        } catch(ClassCastException e) {
+            throw new JED2KException(ErrorCode.TAG_TO_HASH_INVALID);
+        }
         return h;
+    }
+
+    public final byte[] blobValue() throws JED2KException {
+        assert value != null;
+        try {
+            return ((ByteContainer<UInt32>) value).getValue();
+        } catch(ClassCastException e) {
+            throw new JED2KException(ErrorCode.TAG_TO_BLOB_INVALID);
+        }
+    }
+
+    public boolean isRawValue() {
+        assert value != null;
+        return value instanceof ByteContainer;
+    }
+
+    public final byte[] bsobValue() throws JED2KException {
+        assert value != null;
+        try {
+            return ((ByteContainer<UInt8>)value).getValue();
+        } catch(ClassCastException e) {
+            throw new JED2KException(ErrorCode.TAG_TO_BSOB_INVALID);
+        }
+    }
+
+    public long bsobAsLong() {
+        assert value != null;
+        try {
+            if (isRawValue()) {
+                byte data[] = bsobValue();
+                if (data.length == 8) {
+                    ByteBuffer buffer = ByteBuffer.wrap(data);
+                    buffer.order(ByteOrder.LITTLE_ENDIAN);
+                    return buffer.getLong();
+                }
+            }
+        } catch(Exception e) {
+            log.error("[tag] bsob to long conversion error {}", e);
+        }
+
+        return 0;
     }
 
     public static Tag tag(byte id, String name, int value) {

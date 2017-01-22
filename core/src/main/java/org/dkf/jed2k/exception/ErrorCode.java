@@ -18,6 +18,8 @@ public enum ErrorCode implements BaseErrorCode {
     TAG_TO_LONG_INVALID(13, "Tag to long conversion error"),
     TAG_TO_FLOAT_INVALID(14, "Tag to float conversion error"),
     TAG_TO_HASH_INVALID(15, "Tag to hash conversion error"),
+    TAG_TO_BLOB_INVALID(50, "Tag to blob conversion error"),
+    TAG_TO_BSOB_INVALID(51, "Tag to bsob coversion error"),
     TAG_FROM_STRING_INVALID_CP(16, "Tag from string creation error invalid code page"),
     GENERIC_INSTANTIATION_ERROR(17, "Generic instantiation error"),
     GENERIC_ILLEGAL_ACCESS(18, "Generic illegal access"),
@@ -54,7 +56,7 @@ public enum ErrorCode implements BaseErrorCode {
     DHT_REQUEST_ALREADY_RUNNING(47, "DHT request with the same hash already in progress"),
     URI_SYNTAX_ERROR(48, "URI has incorrect syntax"),
     PACKET_HEADER_UNDEFINED(49, "Packet header contains wrong bytes or undefined"),
-    FAIL(50, "Fail");
+    FAIL(60, "Fail");
 
     private final int code;
     private final String description;

@@ -63,6 +63,12 @@ public class KadSearchEntry implements Serializable, SearchEntry {
             res += hi;
         }
 
+        // additional code for file size extraction from KAD
+        // when we can't get size from long tags and have raw tag(most likely bsob) for filesize
+        if (res == 0 && t != null && t.isRawValue()) {
+            res = t.bsobAsLong();
+        }
+
         return res;
     }
 

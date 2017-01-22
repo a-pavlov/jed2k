@@ -15,6 +15,7 @@ import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.Unsigned;
 import org.dkf.jed2k.protocol.kad.*;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
@@ -39,6 +40,7 @@ public class NodeImpl {
     private Set<Traversal> runningRequests = new HashSet<>();
     private final KadId self;
     private int port;
+    private Indexed index = null;
 
     public NodeImpl(final DhtTracker tracker, final KadId id, int port) {
         assert tracker != null;
@@ -268,10 +270,54 @@ public class NodeImpl {
                 }
             }
             else if (s instanceof Kad2PublishKeysReq) {
-                log.debug("[node] publish keys");
+                Kad2PublishKeysReq pubKeys = (Kad2PublishKeysReq)s;
+                log.debug("[node] publish keys {}", pubKeys.getSources().size());
+                for(KadSearchEntry kse: pubKeys.getSources()) {
+                    final String fileName = kse.getFileName();
+                    final long fileSize = kse.getFileSize();
+                    if (!fileName.isEmpty() && fileSize != 0 && index != null) {
+                        index.addKeyword(pubKeys.getKeywordId()
+                                , kse.getKid()
+                                , ep.getIP()
+                                , ep.getPort()
+                                , fileName
+                                , fileSize
+                                , Time.currentTime());
+                    } else {
+                        log.debug("[node] not added {} size {}", fileName, fileSize);
+                    }
+                }
             }
             else if (s instanceof Kad2PublishSourcesReq) {
+                Kad2PublishSourcesReq pubSrc = (Kad2PublishSourcesReq)s;
                 log.debug("[node] publish sources");
+                int ip = 0;
+                int port = 0;
+                int portTcp = 0;
+                long fileSize = pubSrc.getSource().getFileSize();
+
+                for(Tag t: pubSrc.getSource().getInfo()) {
+                    switch(t.id()) {
+                        case Tag.TAG_SOURCETYPE: ip = t.asIntValue();
+                            break;
+                        case Tag.TAG_SOURCEPORT: portTcp = t.asIntValue();
+                            break;
+                        case Tag.TAG_SOURCEUPORT: port = t.asIntValue();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (index != null && ip != 0 && port != 0 && portTcp != 0 && fileSize != 0) {
+                    index.addSource(pubSrc.getFileId(), pubSrc.getSource().getKid(), ip, port, portTcp, Time.currentTime());
+                } else {
+                    log.trace("[node] not indexed source ip {} port {} portTcp {} size {}"
+                            , ip
+                            , port
+                            , portTcp
+                            , fileSize);
+                }
             }
             else {
                 log.debug("[node] temporary skip unhandled packet {}", s);
