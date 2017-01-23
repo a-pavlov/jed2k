@@ -130,6 +130,12 @@ public class NodeImpl {
         t.start();
     }
 
+    public void firewalled() throws JED2KException {
+        log.debug("[node] start firewalled check");
+        Traversal t = new Firewalled(this, self, null, port);
+        t.start();
+    }
+
     public void abort() {
         tracker = null;
     }

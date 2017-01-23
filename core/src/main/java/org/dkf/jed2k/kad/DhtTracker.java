@@ -334,6 +334,14 @@ public class DhtTracker extends Thread {
         node.bootstrap(endpoints);
     }
 
+    /**
+     * just for test firewalled request/response
+     * @throws JED2KException
+     */
+    public synchronized void firewalled() throws JED2KException {
+        node.firewalled();
+    }
+
     public void status() {
         commands.add(new Runnable() {
             @Override

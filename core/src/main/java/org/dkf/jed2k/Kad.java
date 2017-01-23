@@ -226,6 +226,9 @@ public class Kad {
             else if (parts[0].compareTo("startupnp") == 0) {
                 startUpnp();
             }
+            else if (parts[0].compareTo("firewalled") == 0) {
+                tracker.firewalled();
+            }
         }
 
         stopUpnp();

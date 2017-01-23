@@ -36,7 +36,6 @@ public abstract class FindData extends Traversal {
         this.size = size;
         this.sink = l;
 
-        // TODO - remove duplicate code with refresh algorithm
         List<NodeEntry> nodes = ni.getTable().forEach(new Filter<NodeEntry>() {
             @Override
             public boolean allow(NodeEntry nodeEntry) {

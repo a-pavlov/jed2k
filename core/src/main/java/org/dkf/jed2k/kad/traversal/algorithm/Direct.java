@@ -56,11 +56,16 @@ public abstract class Direct extends Traversal {
 
     @Override
     public void finished(final Observer o) {
-        SearchObserver so = (SearchObserver)o;
-        assert so != null;
+        // TODO - refactor this bad code!
+        // avoid search's call specific
+        if (o instanceof SearchObserver) {
+            SearchObserver so = (SearchObserver) o;
+            assert so != null;
 
-        if (so.getEntries() != null) {
-            accum.addAll(so.getEntries());
+            if (so.getEntries() != null) {
+                accum.addAll(so.getEntries());
+            }
+
         }
 
         super.finished(o);
