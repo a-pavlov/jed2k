@@ -25,15 +25,6 @@ public abstract class Direct extends Traversal {
     }
 
     /**
-     * no new nodes on direct algorithms
-     * @return
-     */
-    @Override
-    public boolean containsNewNodes() {
-        return false;
-    }
-
-    /**
      * can't add entry to that algorithm at all
      * @param id
      * @param addr

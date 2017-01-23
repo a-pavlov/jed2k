@@ -58,10 +58,6 @@ public abstract class Traversal {
 
     public abstract boolean invoke(final Observer o);
 
-    public boolean containsNewNodes() {
-        return true;
-    }
-
     public void done() {
         log.debug("[traversal] done, results size {}", results.size());
         log.debug(toString());
