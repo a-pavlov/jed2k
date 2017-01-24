@@ -3,6 +3,7 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
@@ -11,7 +12,9 @@ import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.kad.*;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
@@ -42,6 +45,7 @@ public class DhtTracker extends Thread {
     private LinkedList<InetSocketAddress> outgoingAddresses = null;
     private PacketCombiner combiner = null;
     private PacketHeader incomingHeader = null;
+    private int localAddress = 0;
 
     public DhtTracker(int listenPort, final KadId id) {
         assert listenPort > 0 && listenPort <= 65535;
@@ -51,11 +55,27 @@ public class DhtTracker extends Thread {
 
     @Override
     public void run() {
+        String host = "";
         try {
-            log.debug("[tracker] starting");
+            host = InetAddress.getLocalHost().getHostAddress();
+            localAddress = Utils.string2Ip(host);
+        }
+        catch (UnknownHostException e) {
+            log.error("[tracker] unknown host exception");
+        }
+        catch(JED2KException e) {
+            log.error("[tracker] unable to parse host {} {}", host, e);
+        }
+
+        log.debug("[tracker] local host {}", Utils.ip2String(localAddress));
+        node.setAddress(localAddress);
+
+        try {
+            InetSocketAddress addr = new InetSocketAddress(listenPort);
+            log.debug("[tracker] starting {}", addr.getAddress().getHostAddress());
             selector = Selector.open();
             channel = DatagramChannel.open();
-            channel.socket().bind(new InetSocketAddress(listenPort));
+            channel.socket().bind(addr);
             channel.configureBlocking(false);
             key = channel.register(selector, SelectionKey.OP_READ);
             incomingBuffer = ByteBuffer.allocate(8128);
@@ -375,5 +395,9 @@ public class DhtTracker extends Thread {
 
     public synchronized boolean needBootstrap() {
         return node.getTable().needBootstrap();
+    }
+
+    public synchronized boolean isFirewalled() {
+        return node.isFirewalled();
     }
 }

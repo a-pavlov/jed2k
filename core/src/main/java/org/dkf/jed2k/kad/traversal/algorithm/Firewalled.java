@@ -12,8 +12,6 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Kad2FirewalledReq;
 import org.dkf.jed2k.protocol.kad.KadId;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -24,7 +22,7 @@ public class Firewalled extends Direct {
     public static final int MAX_REASONABLE_RESPONSES = 2;
     private int finishedCount = 0;
     private int portTcp;
-    private int externalPorts[] = {0, 0};
+    private int externalIps[] = {0, 0};
 
 
     public Firewalled(NodeImpl ni, KadId t, Listener listener, int portTcp) {
@@ -74,15 +72,21 @@ public class Firewalled extends Direct {
             assert responses > 0;
             int ip = ((FirewalledObserver)o).getIp();
             if (ip != 0) {
-                externalPorts[responses - 1] = ip;
+                externalIps[responses - 1] = ip;
             }
         }
 
         if (responses == MAX_REASONABLE_RESPONSES) {
             log.debug("[firewalled] has {} responses", MAX_REASONABLE_RESPONSES);
-            for(int i: externalPorts) {
+            for(int i: externalIps) {
                 log.debug("[firewalled] ip: {}", Utils.ip2String(i));
             }
         }
+    }
+
+    @Override
+    public void done() {
+        super.done();
+        nodeImpl.processAddresses(externalIps);
     }
 }

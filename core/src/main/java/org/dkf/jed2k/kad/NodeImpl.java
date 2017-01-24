@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.traversal.algorithm.*;
@@ -41,6 +42,9 @@ public class NodeImpl {
     private final KadId self;
     private int port;
     private Indexed index = null;
+    private int localAddress = 0;
+    private boolean firewalled = true;
+    private long lastFirewalledCheck = 0;
 
     public NodeImpl(final DhtTracker tracker, final KadId id, int port) {
         assert tracker != null;
@@ -103,6 +107,17 @@ public class NodeImpl {
             if (target != null) refresh(target);
         } catch(JED2KException e) {
             log.error("unable to refresh bucket with target {} due to error {}", target, e);
+        }
+
+        // start firewalled check when we have at least 5 live nodes and last check was later than 1 hour ago
+        if (runningRequests.isEmpty() && table.getSize().getLeft().intValue() > 5 && ((lastFirewalledCheck + Time.hours(1) < Time.currentTime()) || lastFirewalledCheck == 0) ) {
+            log.debug("[node] start firewalled check");
+            lastFirewalledCheck = Time.currentTime();
+            try {
+                firewalled();
+            } catch(JED2KException e) {
+                log.error("[node] unable to start firewalled algorithm {}", e);
+            }
         }
     }
 
@@ -371,5 +386,26 @@ public class NodeImpl {
                 .create();
 
         return gson.toJson(table);
+    }
+
+    void setAddress(int localAddress) {
+        this.localAddress = localAddress;
+    }
+
+    public void processAddresses(int addresses[]) {
+        int matches = 0;
+        for(final int ip: addresses) {
+            log.debug("[node] local/external {}/{}", Utils.ip2String(localAddress), Utils.ip2String(ip));
+            if ((ip != 0) && (ip == localAddress)) {
+                matches++;
+            }
+        }
+
+        firewalled = (matches != addresses.length);
+        log.debug("[node] firewalled {} matches {}", firewalled?"TRUE":"FALSE", matches);
+    }
+
+    public boolean isFirewalled() {
+        return firewalled;
     }
 }
