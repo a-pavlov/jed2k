@@ -41,7 +41,7 @@ public class TimedLinkedHashMapTest {
 
     @Test
     public void testFeatures() throws InterruptedException {
-        TimedLinkedHashMap<KadId, TestItem> order = new TimedLinkedHashMap<>(10, 10, Time.seconds(1));
+        TimedLinkedHashMap<KadId, TestItem> order = new TimedLinkedHashMap<>(10, 10, Time.seconds(1), 0);   // turn off removing by size
         order.put(new KadId(Hash.EMULE), new TestItem(Time.currentTime(), "emule"));
         order.put(new KadId(Hash.LIBED2K), new TestItem(Time.currentTime() + 22, "libed2k"));
         order.put(new KadId(Hash.INVALID), new TestItem(Time.currentTime() + 44, "invalid"));
