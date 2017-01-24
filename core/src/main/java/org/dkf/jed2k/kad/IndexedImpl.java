@@ -39,7 +39,7 @@ public class IndexedImpl implements Indexed {
 
     @Data
     @EqualsAndHashCode(exclude = {"lastActivityTime"})
-    private static class Source {
+    public static class Source implements Timed {
         private int ip;
         private int port;
         private long lastActivityTime;
@@ -48,6 +48,11 @@ public class IndexedImpl implements Indexed {
             this.ip = ip;
             this.port = port;
             this.lastActivityTime = lastActivityTime;
+        }
+
+        @Override
+        public long getLastActiveTime() {
+            return lastActivityTime;
         }
     }
 
