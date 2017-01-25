@@ -36,6 +36,16 @@ public class IndexedImpl implements Indexed {
     public static final int  KADEMLIAMAXNOTESPERFILE = 150;	//Max number of notes per entry in index.
     public static final int  KADEMLIAFIREWALLCHECKS = 4;	//Firewallcheck Request at a time
 
+    /**
+     * small storage size for mobile devices
+     */
+    public static final int KAD_MAX_KEYWORDS = 100;
+    public static final int KAD_MAX_FILES_PER_KEYWORD = 1000;
+    public static final int KAD_MAX_IP_PER_KEYWORD_FILE = 50;
+
+    public static final int KAD_MAX_SOURCES = 1000;
+    public static final int KAD_MAX_IP_PER_SOURCE = 100;
+
     @Data
     @EqualsAndHashCode(exclude = {"lastActivityTime", "port"})
     public static class Source implements Timed {
@@ -70,7 +80,7 @@ public class IndexedImpl implements Indexed {
         private int popularityIndex = 0;
         private String fileName;
         private long fileSize;
-        private TimedLinkedHashMap<Integer, Source> sources = new TimedLinkedHashMap<>(100, 100, KADEMLIAREPUBLISHTIMEK, KADEMLIAHOTINDEX);
+        private TimedLinkedHashMap<Integer, Source> sources = new TimedLinkedHashMap<>(100, 100, KADEMLIAREPUBLISHTIMEK, KAD_MAX_IP_PER_KEYWORD_FILE);
 
         public FileEntry(final String fileName, long fileSize) {
             this.fileName = fileName;
@@ -95,8 +105,8 @@ public class IndexedImpl implements Indexed {
         assert name != null && !name.isEmpty();
         assert size >= 0;
 
-        if (keywords.size() > KADEMLIAMAXENTRIES) {
-            log.debug("[indexed] KADEMLIAMAXENTRIES exceeded");
+        if (keywords.size() > KAD_MAX_KEYWORDS) {
+            log.debug("[indexed] KAD_MAX_KEYWORDS exceeded");
             return 100;
         }
 
@@ -105,8 +115,8 @@ public class IndexedImpl implements Indexed {
         if (bucket == null) {
             bucket = new HashMap<>();
             keywords.put(resourceId, bucket);
-        } else if (bucket.size() > KADEMLIAMAXINDEX) {
-            log.debug("[indexed] KADEMLIAMAXINDEX exceeded for {}", resourceId);
+        } else if (bucket.size() > KAD_MAX_FILES_PER_KEYWORD) {
+            log.debug("[indexed] KAD_MAX_FILES_PER_KEYWORD exceeded for {}", resourceId);
             return 100;
         }
 
@@ -116,25 +126,22 @@ public class IndexedImpl implements Indexed {
 
         if (entry == null) {
             entry = new FileEntry(name, size);
-        } else if (entry.getSources().size() > KADEMLIAHOTINDEX) {
-            log.debug("[indexed] KADEMLIAHOTINDEX detected");
-            return 100;
         }
 
         assert entry != null;
         entry.mergeSource(ip, port, lastActivityTime);
-        return entry.getSources().size()*100/KADEMLIAMAXINDEX;
+        return entry.getSources().size()*100/KAD_MAX_IP_PER_KEYWORD_FILE;
     }
 
     @Override
     public int addSource(KadId resourceId, KadId sourceId, int ip, int port, int portTcp, long lastActivityTime) {
-        if (sources.size() > KADEMLIAMAXINDEX) {
+        if (sources.size() > KAD_MAX_SOURCES) {
             return 100;
         }
 
         TimedLinkedHashMap<KadId, NetworkSource> resource = sources.get(resourceId);
         if (resource == null) {
-            resource = new TimedLinkedHashMap<>(100, 100, KADEMLIAREPUBLISHTIMEN, KADEMLIAMAXSOURCEPERFILE);
+            resource = new TimedLinkedHashMap<>(100, 100, KADEMLIAREPUBLISHTIMEN, KAD_MAX_IP_PER_SOURCE);
             sources.put(resourceId, resource);
         }
 
@@ -147,7 +154,7 @@ public class IndexedImpl implements Indexed {
             resource.put(sourceId, new NetworkSource(ip, port, portTcp, lastActivityTime));
         }
 
-        return resource.size()/KADEMLIAMAXSOURCEPERFILE;
+        return resource.size()/KAD_MAX_IP_PER_SOURCE;
     }
 
     public int getKeywordsCount() {
