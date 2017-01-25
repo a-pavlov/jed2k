@@ -2,6 +2,7 @@ package org.dkf.jed2k.kad;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.kad.traversal.TimedLinkedHashMap;
@@ -39,12 +40,39 @@ public class IndexedImpl implements Indexed {
     /**
      * small storage size for mobile devices
      */
-    public static final int KAD_MAX_KEYWORDS = 100;
-    public static final int KAD_MAX_FILES_PER_KEYWORD = 1000;
-    public static final int KAD_MAX_IP_PER_KEYWORD_FILE = 50;
+    public static final int KAD_MAX_KEYWORD_FILES = 10000;
+    public static final int KAD_MAX_SOURCES = 10000;
 
-    public static final int KAD_MAX_SOURCES = 1000;
-    public static final int KAD_MAX_IP_PER_SOURCE = 100;
+    private int totalKeywordFiles = 0;
+    private int totalSources = 0;
+
+
+    private class KeywordsTimedLinkedHashMap<K, V extends Timed> extends TimedLinkedHashMap<K, V> {
+        public KeywordsTimedLinkedHashMap() { super(100, 10, KADEMLIAREPUBLISHTIMEN, 0); }
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+            boolean remove = !isEmpty() && (super.removeEldestEntry(eldest) || totalKeywordFiles >= KAD_MAX_KEYWORD_FILES);
+            if (remove) totalKeywordFiles--;
+            return remove;
+        }
+    }
+
+    private class SourcesTimedLinkedHashMap<K, V extends Timed> extends TimedLinkedHashMap<K, V> {
+
+        public SourcesTimedLinkedHashMap() { super(100, 10, KADEMLIAREPUBLISHTIMEN, 0); }
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+            boolean remove = !isEmpty() && (super.removeEldestEntry(eldest) || totalSources >= KAD_MAX_SOURCES);
+            if (remove) totalSources--;
+            return remove;
+        }
+    }
+
+
+
+
 
     @Data
     @EqualsAndHashCode(exclude = {"lastActivityTime", "port"})
@@ -75,86 +103,103 @@ public class IndexedImpl implements Indexed {
         }
     }
 
-    @Data
-    private static class FileEntry {
+    @Getter
+    private static class FileEntry implements Timed {
         private int popularityIndex = 0;
         private String fileName;
         private long fileSize;
-        private TimedLinkedHashMap<Integer, Source> sources = new TimedLinkedHashMap<>(100, 100, KADEMLIAREPUBLISHTIMEK, KAD_MAX_IP_PER_KEYWORD_FILE);
+        private int lastPublisherIp = 0;
+        private long lastActiveTime;
 
-        public FileEntry(final String fileName, long fileSize) {
+        public FileEntry(final String fileName, long fileSize, long lastActiveTime) {
             this.fileName = fileName;
             this.fileSize = fileSize;
+            this.lastActiveTime = lastActiveTime;
         }
 
-        public void mergeSource(int ip, int port, long lastActivityTime) {
-            Source src = sources.get(ip);
-            if (src != null) {
-                src.setLastActivityTime(lastActivityTime);
-            } else {
-                sources.put(ip, new Source(ip, port, lastActivityTime));
+        public void setLastPublisherIp(int ip) {
+            if (lastPublisherIp != ip) {
+                ++popularityIndex;
             }
+
+            lastPublisherIp = ip;
+        }
+
+        @Override
+        public long getLastActiveTime() {
+            return lastActiveTime;
+        }
+
+        public void setLastActiveTime(long lastActiveTime) {
+            this.lastActiveTime = lastActiveTime;
         }
     }
 
     private Map<KadId, Map<KadId, FileEntry>> keywords = new HashMap<>();
-    private Map<KadId, TimedLinkedHashMap<KadId, NetworkSource>> sources = new HashMap<>();
+    private Map<KadId, Map<KadId, NetworkSource>> sources = new HashMap<>();
 
     @Override
     public int addKeyword(KadId resourceId, KadId sourceId, int ip, int port, String name, long size, long lastActivityTime) {
         assert name != null && !name.isEmpty();
         assert size >= 0;
 
-        if (keywords.size() > KAD_MAX_KEYWORDS) {
-            log.debug("[indexed] KAD_MAX_KEYWORDS exceeded");
-            return 100;
-        }
-
         Map<KadId, FileEntry> bucket = keywords.get(resourceId);
 
         if (bucket == null) {
-            bucket = new HashMap<>();
+            // we can't create new root
+            if (totalKeywordFiles >= KAD_MAX_KEYWORD_FILES) {
+                return 100;
+            }
+
+            bucket = new KeywordsTimedLinkedHashMap<>();
             keywords.put(resourceId, bucket);
-        } else if (bucket.size() > KAD_MAX_FILES_PER_KEYWORD) {
-            log.debug("[indexed] KAD_MAX_FILES_PER_KEYWORD exceeded for {}", resourceId);
-            return 100;
         }
 
         assert bucket != null;
 
         FileEntry entry = bucket.get(sourceId);
 
-        if (entry == null) {
-            entry = new FileEntry(name, size);
+        if (entry != null) {
+            entry.setLastActiveTime(lastActivityTime);
+        }
+        else {
+            entry = new FileEntry(name, size, lastActivityTime);
+            totalKeywordFiles++;
         }
 
         assert entry != null;
-        entry.mergeSource(ip, port, lastActivityTime);
-        return entry.getSources().size()*100/KAD_MAX_IP_PER_KEYWORD_FILE;
+
+        entry.setLastPublisherIp(ip);
+
+        return totalKeywordFiles*100/KAD_MAX_KEYWORD_FILES;
     }
 
     @Override
     public int addSource(KadId resourceId, KadId sourceId, int ip, int port, int portTcp, long lastActivityTime) {
-        if (sources.size() > KAD_MAX_SOURCES) {
-            return 100;
-        }
+        Map<KadId, NetworkSource> resource = sources.get(resourceId);
 
-        TimedLinkedHashMap<KadId, NetworkSource> resource = sources.get(resourceId);
         if (resource == null) {
-            resource = new TimedLinkedHashMap<>(100, 100, KADEMLIAREPUBLISHTIMEN, KAD_MAX_IP_PER_SOURCE);
+            // can't create new root
+            if (totalSources >= KAD_MAX_SOURCES) {
+                return 100;
+            }
+
+            resource = new SourcesTimedLinkedHashMap<>();
             sources.put(resourceId, resource);
         }
 
         assert resource != null;
 
         Source src = resource.get(sourceId);
+
         if (src != null) {
             src.setLastActivityTime(lastActivityTime);
         } else {
             resource.put(sourceId, new NetworkSource(ip, port, portTcp, lastActivityTime));
+            totalSources++;
         }
 
-        return resource.size()/KAD_MAX_IP_PER_SOURCE;
+        return totalSources/KAD_MAX_SOURCES;
     }
 
     public int getKeywordsCount() {
@@ -163,5 +208,13 @@ public class IndexedImpl implements Indexed {
 
     public int getSourcesCount() {
         return sources.size();
+    }
+
+    public int getTotalFiles() {
+        return totalKeywordFiles;
+    }
+
+    public int getTotalSources() {
+        return totalSources;
     }
 }
