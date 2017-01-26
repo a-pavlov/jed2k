@@ -40,7 +40,7 @@ public class IndexedImpl implements Indexed {
     /**
      * small storage size for mobile devices
      */
-    public static final int KAD_MAX_KEYWORD_FILES = 10000;
+    public static final int KAD_MAX_KEYWORD_FILES = 5000;
     public static final int KAD_MAX_SOURCES = 10000;
 
     private int totalKeywordFiles = 0;
@@ -71,19 +71,18 @@ public class IndexedImpl implements Indexed {
     }
 
 
-
-
-
     @Data
-    @EqualsAndHashCode(exclude = {"lastActivityTime", "port"})
-    public static class Source implements Timed {
+    @EqualsAndHashCode(exclude = {"lastActivityTime"})
+    public static class FileSource implements Timed {
         private int ip;
         private int port;
+        private int tcpPort;
         private long lastActivityTime;
 
-        public Source(int ip, int port, long lastActivityTime) {
+        public FileSource(int ip, int port, int tcpPort, long lastActivityTime) {
             this.ip = ip;
             this.port = port;
+            this.tcpPort = tcpPort;
             this.lastActivityTime = lastActivityTime;
         }
 
@@ -93,18 +92,8 @@ public class IndexedImpl implements Indexed {
         }
     }
 
-    @Data
-    private static class NetworkSource extends Source {
-        private int portTcp;
-
-        public NetworkSource(int ip, int port, int portTcp, long lastActivityTime) {
-            super(ip, port, lastActivityTime);
-            this.portTcp = portTcp;
-        }
-    }
-
     @Getter
-    private static class FileEntry implements Timed {
+    public static class FileEntry implements Timed {
         private int popularityIndex = 0;
         private String fileName;
         private long fileSize;
@@ -136,7 +125,7 @@ public class IndexedImpl implements Indexed {
     }
 
     private Map<KadId, Map<KadId, FileEntry>> keywords = new HashMap<>();
-    private Map<KadId, Map<KadId, NetworkSource>> sources = new HashMap<>();
+    private Map<KadId, Map<KadId, FileSource>> sources = new HashMap<>();
 
     @Override
     public int addKeyword(KadId resourceId, KadId sourceId, int ip, int port, String name, long size, long lastActivityTime) {
@@ -164,6 +153,7 @@ public class IndexedImpl implements Indexed {
         }
         else {
             entry = new FileEntry(name, size, lastActivityTime);
+            bucket.put(sourceId, entry);
             totalKeywordFiles++;
         }
 
@@ -176,7 +166,7 @@ public class IndexedImpl implements Indexed {
 
     @Override
     public int addSource(KadId resourceId, KadId sourceId, int ip, int port, int portTcp, long lastActivityTime) {
-        Map<KadId, NetworkSource> resource = sources.get(resourceId);
+        Map<KadId, FileSource> resource = sources.get(resourceId);
 
         if (resource == null) {
             // can't create new root
@@ -190,12 +180,12 @@ public class IndexedImpl implements Indexed {
 
         assert resource != null;
 
-        Source src = resource.get(sourceId);
+        FileSource src = resource.get(sourceId);
 
         if (src != null) {
             src.setLastActivityTime(lastActivityTime);
         } else {
-            resource.put(sourceId, new NetworkSource(ip, port, portTcp, lastActivityTime));
+            resource.put(sourceId, new FileSource(ip, port, portTcp, lastActivityTime));
             totalSources++;
         }
 
@@ -216,5 +206,13 @@ public class IndexedImpl implements Indexed {
 
     public int getTotalSources() {
         return totalSources;
+    }
+
+    public Map<KadId, FileEntry> getFileByHash(final KadId id) {
+        return keywords.get(id);
+    }
+
+    public Map<KadId, FileSource> getSourceByHash(final KadId id) {
+        return sources.get(id);
     }
 }
