@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.kad.traversal.TimedLinkedHashMap;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -108,15 +109,11 @@ public class IndexedImpl implements Indexed {
     @Data
     @EqualsAndHashCode(exclude = {"lastActivityTime"})
     public static class FileSource implements Timed {
-        private int ip;
-        private int port;
-        private int tcpPort;
+        private final KadSearchEntry entry;
         private long lastActivityTime;
 
-        public FileSource(int ip, int port, int tcpPort, long lastActivityTime) {
-            this.ip = ip;
-            this.port = port;
-            this.tcpPort = tcpPort;
+        public FileSource(final KadSearchEntry entry, long lastActivityTime) {
+            this.entry = entry;
             this.lastActivityTime = lastActivityTime;
         }
 
@@ -129,15 +126,13 @@ public class IndexedImpl implements Indexed {
     @Getter
     public static class FileEntry implements Timed {
         private int popularityIndex = 0;
-        private String fileName;
-        private long fileSize;
         private int lastPublisherIp = 0;
         private long lastActiveTime;
+        private final KadSearchEntry entry;
 
-        public FileEntry(final String fileName, long fileSize, long lastActiveTime) {
-            this.fileName = fileName;
-            this.fileSize = fileSize;
+        public FileEntry(final KadSearchEntry entry, long lastActiveTime) {
             this.lastActiveTime = lastActiveTime;
+            this.entry = entry;
         }
 
         public void setLastPublisherIp(int ip) {
@@ -162,9 +157,7 @@ public class IndexedImpl implements Indexed {
     private Map<KadId, Map<KadId, FileSource>> sources = new HashMap<>();
 
     @Override
-    public int addKeyword(KadId resourceId, KadId sourceId, int ip, int port, String name, long size, long lastActivityTime) {
-        assert name != null && !name.isEmpty();
-        assert size >= 0;
+    public int addKeyword(KadId resourceId, final KadSearchEntry entry, long lastActivityTime) {
 
         Map<KadId, FileEntry> bucket = keywords.get(resourceId);
 
@@ -180,26 +173,23 @@ public class IndexedImpl implements Indexed {
 
         assert bucket != null;
 
-        FileEntry entry = bucket.get(sourceId);
+        FileEntry fe = bucket.get(entry.getKid());
 
-        if (entry != null) {
-            entry.setLastActiveTime(lastActivityTime);
+        if (fe != null) {
+            fe.setLastActiveTime(lastActivityTime);
         }
         else {
-            entry = new FileEntry(name, size, lastActivityTime);
-            bucket.put(sourceId, entry);
+            fe = new FileEntry(entry, lastActivityTime);
+            bucket.put(entry.getKid(), fe);
             totalKeywordFiles++;
         }
 
         assert entry != null;
-
-        entry.setLastPublisherIp(ip);
-
         return totalKeywordFiles*100/KAD_MAX_KEYWORD_FILES;
     }
 
     @Override
-    public int addSource(KadId resourceId, KadId sourceId, int ip, int port, int portTcp, long lastActivityTime) {
+    public int addSource(KadId resourceId, final KadSearchEntry entry, long lastActivityTime) {
         Map<KadId, FileSource> resource = sources.get(resourceId);
 
         if (resource == null) {
@@ -214,12 +204,12 @@ public class IndexedImpl implements Indexed {
 
         assert resource != null;
 
-        FileSource src = resource.get(sourceId);
+        FileSource src = resource.get(entry.getKid());
 
         if (src != null) {
             src.setLastActivityTime(lastActivityTime);
         } else {
-            resource.put(sourceId, new FileSource(ip, port, portTcp, lastActivityTime));
+            resource.put(entry.getKid(), new FileSource(entry, lastActivityTime));
             totalSources++;
         }
 

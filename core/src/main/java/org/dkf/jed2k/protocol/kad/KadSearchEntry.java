@@ -18,8 +18,16 @@ import java.nio.ByteBuffer;
 @ToString
 @EqualsAndHashCode(exclude = "info")
 public class KadSearchEntry implements Serializable, SearchEntry {
-    private KadId kid = new KadId();
+    private KadId kid = null;
     private Container<UInt8, Tag> info = Container.makeByte(Tag.class);
+
+    public KadSearchEntry() {
+        this.kid = new KadId();
+    }
+
+    public KadSearchEntry(final KadId kid) {
+        this.kid = kid;
+    }
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
