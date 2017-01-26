@@ -1,14 +1,13 @@
 package org.dkf.jed2k.kad;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.kad.traversal.TimedLinkedHashMap;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,59 +106,23 @@ public class IndexedImpl implements Indexed {
     }
 
     @Data
-    @EqualsAndHashCode(exclude = {"lastActivityTime"})
-    public static class FileSource implements Timed {
+    public static class Published implements Timed {
         private final KadSearchEntry entry;
-        private long lastActivityTime;
-
-        public FileSource(final KadSearchEntry entry, long lastActivityTime) {
-            this.entry = entry;
-            this.lastActivityTime = lastActivityTime;
-        }
-
-        @Override
-        public long getLastActiveTime() {
-            return lastActivityTime;
-        }
-    }
-
-    @Getter
-    public static class FileEntry implements Timed {
-        private int popularityIndex = 0;
-        private int lastPublisherIp = 0;
         private long lastActiveTime;
-        private final KadSearchEntry entry;
 
-        public FileEntry(final KadSearchEntry entry, long lastActiveTime) {
-            this.lastActiveTime = lastActiveTime;
+        public Published(final KadSearchEntry entry, long lastActiveTime) {
             this.entry = entry;
-        }
-
-        public void setLastPublisherIp(int ip) {
-            if (lastPublisherIp != ip) {
-                ++popularityIndex;
-            }
-
-            lastPublisherIp = ip;
-        }
-
-        @Override
-        public long getLastActiveTime() {
-            return lastActiveTime;
-        }
-
-        public void setLastActiveTime(long lastActiveTime) {
             this.lastActiveTime = lastActiveTime;
         }
     }
 
-    private Map<KadId, Map<KadId, FileEntry>> keywords = new HashMap<>();
-    private Map<KadId, Map<KadId, FileSource>> sources = new HashMap<>();
+    private Map<KadId, Map<KadId, Published>> keywords = new HashMap<>();
+    private Map<KadId, Map<KadId, Published>> sources = new HashMap<>();
 
     @Override
     public int addKeyword(KadId resourceId, final KadSearchEntry entry, long lastActivityTime) {
 
-        Map<KadId, FileEntry> bucket = keywords.get(resourceId);
+        Map<KadId, Published> bucket = keywords.get(resourceId);
 
         if (bucket == null) {
             // we can't create new root
@@ -173,13 +136,13 @@ public class IndexedImpl implements Indexed {
 
         assert bucket != null;
 
-        FileEntry fe = bucket.get(entry.getKid());
+        Published fe = bucket.get(entry.getKid());
 
         if (fe != null) {
             fe.setLastActiveTime(lastActivityTime);
         }
         else {
-            fe = new FileEntry(entry, lastActivityTime);
+            fe = new Published(entry, lastActivityTime);
             bucket.put(entry.getKid(), fe);
             totalKeywordFiles++;
         }
@@ -190,7 +153,7 @@ public class IndexedImpl implements Indexed {
 
     @Override
     public int addSource(KadId resourceId, final KadSearchEntry entry, long lastActivityTime) {
-        Map<KadId, FileSource> resource = sources.get(resourceId);
+        Map<KadId, Published> resource = sources.get(resourceId);
 
         if (resource == null) {
             // can't create new root
@@ -204,12 +167,12 @@ public class IndexedImpl implements Indexed {
 
         assert resource != null;
 
-        FileSource src = resource.get(entry.getKid());
+        Published src = resource.get(entry.getKid());
 
         if (src != null) {
-            src.setLastActivityTime(lastActivityTime);
+            src.setLastActiveTime(lastActivityTime);
         } else {
-            resource.put(entry.getKid(), new FileSource(entry, lastActivityTime));
+            resource.put(entry.getKid(), new Published(entry, lastActivityTime));
             totalSources++;
         }
 
@@ -232,11 +195,15 @@ public class IndexedImpl implements Indexed {
         return totalSources;
     }
 
-    public Map<KadId, FileEntry> getFileByHash(final KadId id) {
-        return keywords.get(id);
+    public Collection<Published> getFileByHash(final KadId id) {
+        Map<KadId, Published> res = keywords.get(id);
+        if (res != null) return res.values();
+        return null;
     }
 
-    public Map<KadId, FileSource> getSourceByHash(final KadId id) {
-        return sources.get(id);
+    public Collection<Published> getSourceByHash(final KadId id) {
+        Map<KadId, Published> res = sources.get(id);
+        if (res != null) return res.values();
+        return null;
     }
 }

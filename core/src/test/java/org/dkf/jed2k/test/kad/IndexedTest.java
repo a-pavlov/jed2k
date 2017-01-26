@@ -8,7 +8,7 @@ import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
+import java.util.Collection;
 import java.util.Random;
 
 import static junit.framework.Assert.assertTrue;
@@ -55,7 +55,7 @@ public class IndexedTest {
 
         int total = 0;
         for(final KadId id: keywords) {
-            Map<KadId, IndexedImpl.FileEntry> files = dictMany.getFileByHash(id);
+            Collection<IndexedImpl.Published> files = dictMany.getFileByHash(id);
             assertTrue(files != null);
             total += files.size();
         }
@@ -76,7 +76,7 @@ public class IndexedTest {
 
         int total = 0;
         for(final KadId id: keywords) {
-            Map<KadId, IndexedImpl.FileSource> files = dictMany.getSourceByHash(id);
+            Collection<IndexedImpl.Published> files = dictMany.getSourceByHash(id);
             assertTrue(files != null);
             total += files.size();
         }

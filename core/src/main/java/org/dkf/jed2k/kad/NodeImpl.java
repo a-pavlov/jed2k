@@ -21,9 +21,9 @@ import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -318,36 +318,46 @@ public class NodeImpl {
             }
             else if (s instanceof Kad2SearchKeysReq) {
                 if (index != null) {
-                    Map<KadId, IndexedImpl.FileEntry> entries = index.getFileByHash(((Kad2SearchKeysReq) s).getTarget());
-                    if (entries != null) {
-                        int collected = 0;
-                        Kad2SearchRes keywordsSearchRes = new Kad2SearchRes();
-                        for(final IndexedImpl.FileEntry e: entries.values()) {
-                            ++collected;
-                            keywordsSearchRes.getResults().add(e.getEntry());
-                            if (collected == 50) {
-                                collected = 0;
-                                tracker.write(keywordsSearchRes, address);
-                                keywordsSearchRes = new Kad2SearchRes();
-                            }
-                        }
-
-                        assert collected >= 0;
-
-                        if (collected != 0) {
-                            tracker.write(keywordsSearchRes, address);
-                        }
-                    }
+                    sendSearchResult(address, ((Kad2SearchKeysReq) s).getTarget(), index.getFileByHash(((Kad2SearchKeysReq) s).getTarget()));
                 } else {
                     log.debug("[node] index is not created, unable to answer for search keywords {}", ((Kad2SearchKeysReq) s).getTarget());
                 }
             }
             else if (s instanceof Kad2SearchSourcesReq) {
-                log.debug("[node] search sources request {}", ((Kad2SearchSourcesReq)s).getTarget());
+                if (index != null) {
+                    sendSearchResult(address, ((Kad2SearchSourcesReq) s).getTarget(), index.getSourceByHash(((Kad2SearchSourcesReq) s).getTarget()));
+                } else {
+                    log.debug("[node] index is not created, unable to answer for search sources {}", ((Kad2SearchSourcesReq) s).getTarget());
+                }
             }
             else {
                 log.debug("[node] temporary skip unhandled packet {}", s);
             }
+        }
+    }
+
+    private void sendSearchResult(final InetSocketAddress address, final KadId target, final Collection<IndexedImpl.Published> publishes) {
+        if (publishes != null) {
+            int collected = 0;
+            Kad2SearchRes keywordsSearchRes = new Kad2SearchRes();
+
+            for(final IndexedImpl.Published p: publishes) {
+                ++collected;
+                keywordsSearchRes.getResults().add(p.getEntry());
+                if (collected == 50) {
+                    collected = 0;
+                    tracker.write(keywordsSearchRes, address);
+                    keywordsSearchRes = new Kad2SearchRes();
+                }
+            }
+
+            assert collected >= 0;
+
+            if (collected != 0) {
+                tracker.write(keywordsSearchRes, address);
+            }
+        } else {
+            log.debug("[node] no data for search request {}", target);
         }
     }
 
