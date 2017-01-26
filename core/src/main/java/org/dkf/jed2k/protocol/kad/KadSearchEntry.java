@@ -2,6 +2,7 @@ package org.dkf.jed2k.protocol.kad;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
@@ -13,6 +14,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Getter
+@Setter
 @ToString
 @EqualsAndHashCode(exclude = "info")
 public class KadSearchEntry implements Serializable, SearchEntry {

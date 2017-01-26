@@ -24,6 +24,7 @@ import org.dkf.jed2k.util.KadIdSerializer;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,7 +42,7 @@ public class NodeImpl {
     private Set<Traversal> runningRequests = new HashSet<>();
     private final KadId self;
     private int port;
-    private Indexed index = null;
+    private IndexedImpl index = null;
     private int localAddress = 0;
     private boolean firewalled = true;
     private long lastFirewalledCheck = 0;
@@ -345,6 +346,32 @@ public class NodeImpl {
                 Kad2FirewalledRes kfr = new Kad2FirewalledRes();
                 kfr.setIp(ep.getIP());
                 tracker.write(kfr, address);
+            }
+            else if (s instanceof Kad2SearchKeysReq) {
+                if (index != null) {
+                    Map<KadId, IndexedImpl.FileEntry> entries = index.getFileByHash(((Kad2SearchKeysReq) s).getTarget());
+                    if (entries != null) {
+                        int collected = 0;
+                        Kad2SearchRes keywordsSearchRes = new Kad2SearchRes();
+                        for(final Map.Entry<KadId, IndexedImpl.FileEntry> e: entries.entrySet()) {
+                            ++collected;
+                            KadSearchEntry se = new KadSearchEntry();
+                            try {
+                                se.setKid(e.getKey());
+                                se.getInfo().add(Tag.tag(Tag.FT_FILENAME, null, e.getValue().getFileName()));
+                                //se.getInfo().add(Tag.tag(Tag.FT_FILESIZE, e.getValue().getFileSize()));
+                            } catch(JED2KException ex) {
+                                log.error("[node] unable to pack keyword {}", e.getKey());
+                            }
+                            keywordsSearchRes.getResults().add(new KadSearchEntry());
+                        }
+                    }
+                } else {
+                    log.debug("[node] index is not created, unable to answer for search keywords {}", ((Kad2SearchKeysReq) s).getTarget());
+                }
+            }
+            else if (s instanceof Kad2SearchSourcesReq) {
+                log.debug("[node] search sources request {}", ((Kad2SearchSourcesReq)s).getTarget());
             }
             else {
                 log.debug("[node] temporary skip unhandled packet {}", s);
