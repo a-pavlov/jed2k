@@ -46,30 +46,64 @@ public class IndexedImpl implements Indexed {
     private int totalKeywordFiles = 0;
     private int totalSources = 0;
 
+    private abstract class Decreaser {
+        protected final int limit;
+        public Decreaser(int limit) {
+            this.limit = limit;
+        }
 
-    private class KeywordsTimedLinkedHashMap<K, V extends Timed> extends TimedLinkedHashMap<K, V> {
-        public KeywordsTimedLinkedHashMap() { super(100, 10, KADEMLIAREPUBLISHTIMEN, 0); }
+        public abstract boolean decrease();
+    }
+
+    private class DecKeywords extends Decreaser {
+
+        public DecKeywords() {
+            super(KAD_MAX_KEYWORD_FILES);
+        }
 
         @Override
-        protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
-            boolean remove = !isEmpty() && (super.removeEldestEntry(eldest) || totalKeywordFiles >= KAD_MAX_KEYWORD_FILES);
-            if (remove) totalKeywordFiles--;
-            return remove;
+        public boolean decrease() {
+            if (totalKeywordFiles >= limit) {
+                totalKeywordFiles--;
+                return true;
+            }
+
+            return false;
         }
     }
 
-    private class SourcesTimedLinkedHashMap<K, V extends Timed> extends TimedLinkedHashMap<K, V> {
+    private class DecSources extends Decreaser {
 
-        public SourcesTimedLinkedHashMap() { super(100, 10, KADEMLIAREPUBLISHTIMEN, 0); }
+        public DecSources() {
+            super(KAD_MAX_SOURCES);
+        }
 
         @Override
-        protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
-            boolean remove = !isEmpty() && (super.removeEldestEntry(eldest) || totalSources >= KAD_MAX_SOURCES);
-            if (remove) totalSources--;
-            return remove;
+        public boolean decrease() {
+            if (totalSources >= limit) {
+                totalSources--;
+                return true;
+            }
+
+            return false;
         }
     }
 
+    private class IndexTimedLinkedHashMap<K, V extends Timed> extends TimedLinkedHashMap<K, V> {
+        private final Decreaser dec;
+
+        public IndexTimedLinkedHashMap(final Decreaser dec) {
+            super(100, 10, KADEMLIAREPUBLISHTIMEN, 0);
+            this.dec = dec;
+            assert dec != null;
+        }
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+            // mutable method decrease - no good
+            return !isEmpty() && (super.removeEldestEntry(eldest) || dec.decrease());
+        }
+    }
 
     @Data
     @EqualsAndHashCode(exclude = {"lastActivityTime"})
@@ -140,7 +174,7 @@ public class IndexedImpl implements Indexed {
                 return 100;
             }
 
-            bucket = new KeywordsTimedLinkedHashMap<>();
+            bucket = new IndexTimedLinkedHashMap<>(new DecKeywords());
             keywords.put(resourceId, bucket);
         }
 
@@ -174,7 +208,7 @@ public class IndexedImpl implements Indexed {
                 return 100;
             }
 
-            resource = new SourcesTimedLinkedHashMap<>();
+            resource = new IndexTimedLinkedHashMap<>(new DecSources());
             sources.put(resourceId, resource);
         }
 
