@@ -142,7 +142,7 @@ public class IndexedImpl implements Indexed {
         }
 
         assert entry != null;
-        return totalKeywordFiles*100/KAD_MAX_KEYWORD_FILES;
+        return totalKeywordFiles*100/KAD_MAX_KEYWORD_FILES; // zero?
     }
 
     @Override

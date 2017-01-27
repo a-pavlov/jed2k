@@ -41,7 +41,7 @@ public class NodeImpl {
     private Set<Traversal> runningRequests = new HashSet<>();
     private final KadId self;
     private int port;
-    private IndexedImpl index = null;
+    private IndexedImpl index = new IndexedImpl();
     private int localAddress = 0;
     private boolean firewalled = true;
     private long lastFirewalledCheck = 0;
@@ -303,7 +303,7 @@ public class NodeImpl {
             }
             else if (s instanceof Kad2PublishSourcesReq) {
                 Kad2PublishSourcesReq pubSrc = (Kad2PublishSourcesReq)s;
-                log.debug("[node] publish sources");
+                log.debug("[node] publish sources {}", pubSrc.getFileId());
                 if (index != null) {
                     index.addSource(pubSrc.getFileId(), pubSrc.getSource(), Time.currentTime());
                 } else {
