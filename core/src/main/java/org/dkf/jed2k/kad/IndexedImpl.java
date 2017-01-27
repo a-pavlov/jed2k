@@ -52,7 +52,8 @@ public class IndexedImpl implements Indexed {
             this.limit = limit;
         }
 
-        public abstract boolean decrease();
+        public abstract void decrease();
+        public abstract boolean overfilled();
     }
 
     private class DecKeywords extends Decreaser {
@@ -62,14 +63,10 @@ public class IndexedImpl implements Indexed {
         }
 
         @Override
-        public boolean decrease() {
-            if (totalKeywordFiles >= limit) {
-                totalKeywordFiles--;
-                return true;
-            }
+        public boolean overfilled() { return totalKeywordFiles >= limit;  }
 
-            return false;
-        }
+        @Override
+        public void decrease() { totalKeywordFiles--;  }
     }
 
     private class DecSources extends Decreaser {
@@ -79,14 +76,10 @@ public class IndexedImpl implements Indexed {
         }
 
         @Override
-        public boolean decrease() {
-            if (totalSources >= limit) {
-                totalSources--;
-                return true;
-            }
+        public boolean overfilled() { return totalSources >= limit; }
 
-            return false;
-        }
+        @Override
+        public void decrease() { totalSources--; }
     }
 
     private class IndexTimedLinkedHashMap<K, V extends Timed> extends TimedLinkedHashMap<K, V> {
@@ -100,8 +93,9 @@ public class IndexedImpl implements Indexed {
 
         @Override
         protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
-            // mutable method decrease - no good
-            return !isEmpty() && (super.removeEldestEntry(eldest) || dec.decrease());
+            boolean remove =  !isEmpty() && (super.removeEldestEntry(eldest) || dec.overfilled());
+            if (remove) dec.decrease();
+            return remove;
         }
     }
 
