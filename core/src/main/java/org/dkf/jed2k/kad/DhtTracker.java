@@ -55,6 +55,7 @@ public class DhtTracker extends Thread {
 
     @Override
     public void run() {
+        // TODO - remove this incorrect code for obtain our address since it won't work on more than one interfaces
         String host = "";
         try {
             host = InetAddress.getLocalHost().getHostAddress();
