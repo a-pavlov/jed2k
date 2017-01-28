@@ -292,20 +292,32 @@ public class NodeImpl {
             }
             else if (s instanceof Kad2PublishKeysReq) {
                 Kad2PublishKeysReq pubKeys = (Kad2PublishKeysReq)s;
-                log.debug("[node] publish keys {}", pubKeys.getSources().size());
+                log.debug("[node] publish keys {} distance {}"
+                        , pubKeys.getSources().size()
+                        , KadId.distance(self, pubKeys.getKeywordId()));
+                int count = 0;
                 for(KadSearchEntry kse: pubKeys.getSources()) {
                     if (index != null) {
                         index.addKeyword(pubKeys.getKeywordId(), kse, Time.currentTime());
+                        count++;
                     } else {
                         log.debug("[node] not added {} size {}", kse);
                     }
                 }
+
+                if (count > 0) {
+                    tracker.write(new Kad2PublishRes(pubKeys.getKeywordId(), 1), address);
+                    log.debug("[node] publish result size {}", count);
+                }
             }
             else if (s instanceof Kad2PublishSourcesReq) {
                 Kad2PublishSourcesReq pubSrc = (Kad2PublishSourcesReq)s;
-                log.debug("[node] publish sources {}", pubSrc.getFileId());
+                log.debug("[node] publish sources {} distance {}"
+                        , pubSrc.getFileId()
+                        , KadId.distance(self, pubSrc.getFileId()));
                 if (index != null) {
                     index.addSource(pubSrc.getFileId(), pubSrc.getSource(), Time.currentTime());
+                    tracker.write(new Kad2PublishRes(pubSrc.getFileId(), 1), address);
                 } else {
                     log.trace("[node] not indexed source ip {} port {} portTcp {} size {}", pubSrc.getSource());
                 }

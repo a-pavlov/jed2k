@@ -13,8 +13,17 @@ import java.nio.ByteBuffer;
  */
 @Data
 public class Kad2PublishRes implements Serializable {
-    private KadId fileId = new KadId();
-    private UInt8 count = Unsigned.uint8();
+    private final KadId fileId;
+    private final UInt8 count = Unsigned.uint8();
+
+    public Kad2PublishRes() {
+        fileId = new KadId();
+    }
+
+    public Kad2PublishRes(final KadId id, int load) {
+        fileId = id;
+        count.assign(load);
+    }
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
