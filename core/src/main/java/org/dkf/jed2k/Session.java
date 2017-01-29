@@ -27,10 +27,7 @@ import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -607,6 +604,18 @@ public class Session extends Thread {
 
         if (t == null) {
             t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, filepath, false));
+            transfers.put(h, t);
+        }
+
+        return new TransferHandle(this, t);
+    }
+
+    // TODO - fix it just for SD writing test
+    public final synchronized TransferHandle addTransfer(Hash h, long size, String filepath, final FileChannel channel) throws JED2KException {
+        Transfer t = transfers.get(h);
+
+        if (t == null) {
+            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, filepath, false, channel));
             transfers.put(h, t);
         }
 

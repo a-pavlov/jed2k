@@ -26,15 +26,19 @@ public class PieceManager extends BlocksEnumerator {
     private LinkedList<BlockManager> blockMgrs = new LinkedList<BlockManager>();
     private static final Logger log = LoggerFactory.getLogger(PieceManager.class);
 
-    public PieceManager(File filePath, int pieceCount, int blocksInLastPiece) {
+    public PieceManager(File filePath, int pieceCount, int blocksInLastPiece, final FileChannel channel) {
         super(pieceCount, blocksInLastPiece);
         this.filePath = filePath;
+        this.channel = channel;
     }
+
 
     /**
      * create or open file on disk
      */
     private void open() throws JED2KException {
+        if (channel != null) return;
+
         if (file == null) {
             try {
                 file = new RandomAccessFile(filePath.getAbsolutePath(), "rw");
@@ -146,7 +150,7 @@ public class PieceManager extends BlocksEnumerator {
         if (file != null) {
             try {
                 try {
-                    channel.close();
+                    if (channel != null) channel.close();
                 } finally {
                     file.close();
                 }
@@ -155,6 +159,14 @@ public class PieceManager extends BlocksEnumerator {
             } finally {
                 file = null;
                 channel = null;
+            }
+        }
+
+        if (channel != null) {
+            try {
+                channel.close();
+            } catch(IOException e) {
+                log.error("[piece manager] unable to close file channel {}", e);
             }
         }
     }

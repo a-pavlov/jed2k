@@ -41,6 +41,7 @@ import org.dkf.jmule.transfers.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -351,7 +352,7 @@ public final class Engine implements AlertListener {
         return false;
     }
 
-    public Transfer startDownload(final Hash hash, long size, final String fileName) {
+    public Transfer startDownload(final Hash hash, long size, final String fileName, final FileChannel channel) {
         try {
             if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
         } catch(JED2KException e) {

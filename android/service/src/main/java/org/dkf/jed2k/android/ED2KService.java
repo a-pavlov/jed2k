@@ -869,6 +869,21 @@ public class ED2KService extends Service {
         throw new Exception("Session in null");
     }
 
+    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath, final FileChannel channel)
+            throws JED2KException, Exception {
+        if(session != null) {
+            Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
+            TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
+            if (handle.isValid()) {
+                Log.i("ED2KService", "handle is valid");
+            }
+
+            return handle;
+        }
+
+        throw new Exception("Session in null");
+    }
+
     public List<TransferHandle> getTransfers() {
         if (session != null) {
             return session.getTransfers();

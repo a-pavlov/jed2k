@@ -114,7 +114,7 @@ public class Transfer {
         // create piece picker always now
         picker = new PiecePicker(numPieces, blocksInLastPiece);
         policy = new Policy(this);
-        pm = new PieceManager(new File(atp.filepath.asString()), numPieces, blocksInLastPiece);
+        pm = new PieceManager(new File(atp.filepath.asString()), numPieces, blocksInLastPiece, atp.getChannel());
 
         if (atp.resumeData.haveData()) {
             restore(atp.resumeData.getData());

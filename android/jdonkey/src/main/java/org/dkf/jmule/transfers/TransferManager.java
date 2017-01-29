@@ -27,13 +27,15 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
-import org.dkf.jmule.core.NetworkManager;
+import org.dkf.jmule.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -98,7 +100,30 @@ public final class TransferManager {
 
     public Transfer download(final Hash hash, long size, final String fileName) {
         File f = new File(ConfigurationManager.instance().getStoragePath(), fileName);
-        return Engine.instance().startDownload(hash, size, f.getAbsolutePath());
+        FileOutputStream os = null;
+        FileChannel channel = null;
+        try {
+            LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+            FileDescriptor fd = fs.openFD(f, "rw");
+            if (fd != null) {
+                os = new FileOutputStream(fd);
+                channel = os.getChannel();
+                LOG.info("channel ready to start on file {}", f);
+                return Engine.instance().startDownload(hash, size, f.getAbsolutePath(), channel);
+            } else {
+                LOG.error("unable to get document for {}", f);
+            }
+        } catch(Exception e) {
+            LOG.error("unable to fill file {} error {}", f, e);
+            try {
+                if (channel != null) channel.close();
+                if (os != null) os.close();
+            } catch(IOException ex) {
+                LOG.error("unable to free resources {}", ex);
+            }
+        }
+
+        return null;
     }
 
     public int getActiveDownloads() {
