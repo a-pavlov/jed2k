@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.io.FileDescriptor;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -300,7 +299,7 @@ public final class LollipopFileSystem implements FileSystem {
         return getExtSdCardFolder(app, file);
     }
 
-    public FileDescriptor openFD(File file, String mode) {
+    public ParcelFileDescriptor openFD(File file, String mode) {
         if (!("r".equals(mode) || "w".equals(mode) || "rw".equals(mode))) {
             LOG.error("Only r, w or rw modes supported");
             return null;
@@ -314,8 +313,7 @@ public final class LollipopFileSystem implements FileSystem {
 
         try {
             ContentResolver cr = app.getContentResolver();
-            ParcelFileDescriptor fd = cr.openFileDescriptor(f.getUri(), mode);
-            return fd.getFileDescriptor();
+            return cr.openFileDescriptor(f.getUri(), mode);
         } catch (Exception e) {
             LOG.error("Unable to get native fd", e);
             return null;

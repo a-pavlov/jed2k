@@ -30,6 +30,9 @@ public class PieceManager extends BlocksEnumerator {
         super(pieceCount, blocksInLastPiece);
         this.filePath = filePath;
         this.channel = channel;
+        if (this.channel != null) {
+            log.info("[piece manager] external channel here");
+        }
     }
 
 
@@ -71,7 +74,6 @@ public class PieceManager extends BlocksEnumerator {
      */
     public LinkedList<ByteBuffer> writeBlock(PieceBlock b, final ByteBuffer buffer) throws JED2KException {
         open();
-        assert(file != null);
         assert(channel != null);
         long bytesOffset = b.blocksOffset()* Constants.BLOCK_SIZE;
         BlockManager mgr = getBlockManager(b.pieceIndex);
@@ -89,6 +91,7 @@ public class PieceManager extends BlocksEnumerator {
             log.debug("write block {} finished", b);
         }
         catch(IOException e) {
+            log.error("i/o error on write block {}", e);
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
 

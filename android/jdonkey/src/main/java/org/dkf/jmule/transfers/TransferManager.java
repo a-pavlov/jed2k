@@ -21,6 +21,7 @@ package org.dkf.jmule.transfers;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -32,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -55,6 +55,8 @@ public final class TransferManager {
     private volatile static TransferManager instance;
     private final ConfigurationManager CM;
     private List<Transfer> transfers = new ArrayList<>();
+    private ParcelFileDescriptor fd;
+    private FileOutputStream os;
 
     public static TransferManager instance() {
         if (instance == null) {
@@ -100,13 +102,15 @@ public final class TransferManager {
 
     public Transfer download(final Hash hash, long size, final String fileName) {
         File f = new File(ConfigurationManager.instance().getStoragePath(), fileName);
-        FileOutputStream os = null;
+        //return Engine.instance().startDownload(hash, size, f.getAbsolutePath(), null);
+
+        os = null;
         FileChannel channel = null;
         try {
             LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
-            FileDescriptor fd = fs.openFD(f, "rw");
+            fd = fs.openFD(f, "rw");
             if (fd != null) {
-                os = new FileOutputStream(fd);
+                os = new FileOutputStream(fd.getFileDescriptor());
                 channel = os.getChannel();
                 LOG.info("channel ready to start on file {}", f);
                 return Engine.instance().startDownload(hash, size, f.getAbsolutePath(), channel);

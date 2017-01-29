@@ -873,7 +873,7 @@ public class ED2KService extends Service {
             throws JED2KException, Exception {
         if(session != null) {
             Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
-            TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
+            TransferHandle handle = session.addTransfer(hash, fileSize, filePath, channel);
             if (handle.isValid()) {
                 Log.i("ED2KService", "handle is valid");
             }

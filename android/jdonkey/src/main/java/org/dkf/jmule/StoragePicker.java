@@ -23,6 +23,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.provider.DocumentFile;
 import org.dkf.jmule.core.LollipopFileSystem;
 import org.dkf.jmule.core.Platforms;
@@ -31,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -96,9 +96,9 @@ public final class StoragePicker {
                         FileOutputStream os = null;
                         FileChannel channel = null;
                         try {
-                            FileDescriptor fd = fs.openFD(testFile, "rw");
+                            ParcelFileDescriptor fd = fs.openFD(testFile, "rw");
                             if (fd != null) {
-                                os = new FileOutputStream(fd);
+                                os = new FileOutputStream(fd.getFileDescriptor());
                                 channel = os.getChannel();
                                 ByteBuffer bb = ByteBuffer.allocate(16);
                                 bb.putInt(1).putInt(2).putInt(3);

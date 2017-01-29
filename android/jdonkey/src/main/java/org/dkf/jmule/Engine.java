@@ -354,7 +354,7 @@ public final class Engine implements AlertListener {
 
     public Transfer startDownload(final Hash hash, long size, final String fileName, final FileChannel channel) {
         try {
-            if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
+            if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName, channel));
         } catch(JED2KException e) {
             log.error("add transfer error {}", e);
         } catch(Exception e) {
