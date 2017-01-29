@@ -30,7 +30,12 @@ import org.dkf.jmule.util.UIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 /**
  * @author gubatron
@@ -85,11 +90,29 @@ public final class StoragePicker {
                     } else {
                         LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
                         result = fs.getTreePath(treeUri);
-                        if (result != null && !result.endsWith("/FrostWire")) {
-                            DocumentFile f = file.findFile("FrostWire");
-                            if (f == null) {
-                                file.createDirectory("FrostWire");
+
+                        // TODO - remove below code - only for testing SD card writing
+                        File testFile = new File(result, "test_file.txt");
+                        FileOutputStream os = null;
+                        FileChannel channel = null;
+                        try {
+                            FileDescriptor fd = fs.openFD(testFile, "rw");
+                            if (fd != null) {
+                                os = new FileOutputStream(fd);
+                                channel = os.getChannel();
+                                ByteBuffer bb = ByteBuffer.allocate(16);
+                                bb.putInt(1).putInt(2).putInt(3);
+                                bb.flip();
+                                channel.write(bb);
+                                os.close();
+                                LOG.info("file filled {}", testFile);
                             }
+                        } catch(Exception e) {
+                            LOG.error("unable to fill file {} error {}"
+                                    , testFile, e);
+                        } finally {
+                            if (channel != null) channel.close();
+                            if (os != null) os.close();
                         }
                     }
                 }

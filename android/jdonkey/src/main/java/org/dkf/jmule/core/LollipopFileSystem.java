@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.io.FileDescriptor;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -299,25 +300,25 @@ public final class LollipopFileSystem implements FileSystem {
         return getExtSdCardFolder(app, file);
     }
 
-    public int openFD(File file, String mode) {
+    public FileDescriptor openFD(File file, String mode) {
         if (!("r".equals(mode) || "w".equals(mode) || "rw".equals(mode))) {
             LOG.error("Only r, w or rw modes supported");
-            return -1;
+            return null;
         }
 
         DocumentFile f = getFile(app, file, true);
         if (f == null) {
             LOG.error("Unable to obtain or create document for file: {}", file);
-            return -1;
+            return null;
         }
 
         try {
             ContentResolver cr = app.getContentResolver();
             ParcelFileDescriptor fd = cr.openFileDescriptor(f.getUri(), mode);
-            return fd.detachFd();
+            return fd.getFileDescriptor();
         } catch (Exception e) {
             LOG.error("Unable to get native fd", e);
-            return -1;
+            return null;
         }
     }
 
@@ -343,26 +344,10 @@ public final class LollipopFileSystem implements FileSystem {
             String fullPath = dir.getAbsolutePath();
             String relativePath = baseFolder.length() < fullPath.length() ? fullPath.substring(baseFolder.length() + 1) : "";
 
-            String[] segments = relativePath.split("/");
+            String[] segments = relativePath.isEmpty()?new String[0]:relativePath.split("/");
 
             Uri rootUri = getDocumentUri(context, new File(baseFolder));
             DocumentFile f = DocumentFile.fromTreeUri(context, rootUri);
-
-            // special FrostWire case
-            if (create) {
-                if (baseFolder.endsWith("/FrostWire") && !f.exists()) {
-                    baseFolder = baseFolder.substring(0, baseFolder.length() - 10);
-                    rootUri = getDocumentUri(context, new File(baseFolder));
-                    f = DocumentFile.fromTreeUri(context, rootUri);
-                    f = f.findFile("FrostWire");
-                    if (f == null) {
-                        f = f.createDirectory("FrostWire");
-                        if (f == null) {
-                            return null;
-                        }
-                    }
-                }
-            }
 
             for (int i = 0; i < segments.length; i++) {
                 String segment = segments[i];
