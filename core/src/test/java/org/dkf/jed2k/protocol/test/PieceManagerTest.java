@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.test;
 
 import org.dkf.jed2k.Constants;
+import org.dkf.jed2k.DesktopFileHandler;
 import org.dkf.jed2k.PieceManager;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.JED2KException;
@@ -51,7 +52,7 @@ public class PieceManagerTest {
     @Test
     public void testSequentialWritingBuffers() throws IOException, JED2KException {
         File tempFile = testFolder.newFile("file.txt");
-        PieceManager pm = new PieceManager(tempFile, 1, Constants.BLOCKS_PER_PIECE, null);
+        PieceManager pm = new PieceManager(new DesktopFileHandler(tempFile), 1, Constants.BLOCKS_PER_PIECE);
         for(int i = 0; i < Constants.BLOCKS_PER_PIECE; ++i) {
             buffer.position(i*(int)Constants.BLOCK_SIZE);
             ByteBuffer localBuffer = buffer.slice();

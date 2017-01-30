@@ -56,6 +56,7 @@ public enum ErrorCode implements BaseErrorCode {
     DHT_REQUEST_ALREADY_RUNNING(47, "DHT request with the same hash already in progress"),
     URI_SYNTAX_ERROR(48, "URI has incorrect syntax"),
     PACKET_HEADER_UNDEFINED(49, "Packet header contains wrong bytes or undefined"),
+    UNABLE_TO_DELETE_FILE(50, "Unable to delete file"),
     FAIL(60, "Fail");
 
     private final int code;

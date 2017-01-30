@@ -2,6 +2,7 @@ package org.dkf.jed2k.test;
 
 import org.dkf.jed2k.BufferPool;
 import org.dkf.jed2k.Constants;
+import org.dkf.jed2k.DesktopFileHandler;
 import org.dkf.jed2k.PieceManager;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.JED2KException;
@@ -60,13 +61,13 @@ public class PieceManagerTest {
     @Test
     public void testNormalRestore() throws IOException, JED2KException {
         File f = folder.newFile("pm1.dat");
-        PieceManager pm = new PieceManager(f, 3, 3, null);
+        PieceManager pm = new PieceManager(new DesktopFileHandler(f), 3, 3);
         LinkedList<ByteBuffer> res0 = pm.writeBlock(new PieceBlock(0, 0), getBuffer(new PieceBlock(0, 0), Constants.BLOCK_SIZE_INT));
         assertEquals(1, res0.size());
         LinkedList<ByteBuffer> res1 = pm.writeBlock(new PieceBlock(1, 0), getBuffer(new PieceBlock(1, 0), Constants.BLOCK_SIZE_INT));
 
         // restore piece manager using external block
-        PieceManager rpm = new PieceManager(f, 3, 3, null);
+        PieceManager rpm = new PieceManager(new DesktopFileHandler(f), 3, 3);
         ByteBuffer b = ByteBuffer.allocate(Constants.BLOCK_SIZE_INT);
         LinkedList<ByteBuffer> rres = rpm.restoreBlock(new PieceBlock(0, 0), b, Constants.BLOCK_SIZE_INT*Constants.BLOCKS_PER_PIECE*2+123);
         assertEquals(1, rres.size());

@@ -100,9 +100,9 @@ public class Transfer {
 
     public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
-        this.hash = atp.hash;
-        this.createTime = atp.createTime.longValue();
-        this.size = atp.size.longValue();
+        this.hash = atp.getHash();
+        this.createTime = atp.getCreateTime().longValue();
+        this.size = atp.getSize().longValue();
         assert(hash != null);
         assert(size != 0);
         numPieces = Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue();
@@ -110,11 +110,11 @@ public class Transfer {
         session = s;
         log.debug("created transfer {} dataSize {}", this.hash, this.size);
 
-        pause = (atp.paused.byteValue() != 0);
+        pause = (atp.getPaused().byteValue() != 0);
         // create piece picker always now
         picker = new PiecePicker(numPieces, blocksInLastPiece);
         policy = new Policy(this);
-        pm = new PieceManager(new File(atp.filepath.asString()), numPieces, blocksInLastPiece, atp.getChannel());
+        pm = new PieceManager(atp.getHandler(), numPieces, blocksInLastPiece);
 
         if (atp.resumeData.haveData()) {
             restore(atp.resumeData.getData());
@@ -135,8 +135,8 @@ public class Transfer {
      * @param picker external picker
      */
     public Transfer(final AddTransferParams atp, final PiecePicker picker) {
-        this.hash = atp.hash;
-        this.size = atp.size.longValue();
+        this.hash = atp.getHash();
+        this.size = atp.getSize().longValue();
         numPieces = Utils.divCeil(this.size, Constants.PIECE_SIZE).intValue();
         this.session = null;
         this.picker = picker;
@@ -492,8 +492,8 @@ public class Transfer {
         return trd;
     }
 
-    public File getFilePath() {
-        return pm.getFilePath();
+    public File getFile() {
+        return pm.getFile();
     }
 
     void setState(final TransferStatus.TransferState state) {

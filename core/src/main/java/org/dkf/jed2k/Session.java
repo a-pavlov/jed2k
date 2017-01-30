@@ -22,12 +22,16 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -599,23 +603,11 @@ public class Session extends Thread {
      * @param size of file
      * @return TransferHandle with valid transfer of without
      */
-    public final synchronized TransferHandle addTransfer(Hash h, long size, String filepath) throws JED2KException {
+    public final synchronized TransferHandle addTransfer(Hash h, long size, File file) throws JED2KException {
         Transfer t = transfers.get(h);
 
         if (t == null) {
-            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, filepath, false));
-            transfers.put(h, t);
-        }
-
-        return new TransferHandle(this, t);
-    }
-
-    // TODO - fix it just for SD writing test
-    public final synchronized TransferHandle addTransfer(Hash h, long size, String filepath, final FileChannel channel) throws JED2KException {
-        Transfer t = transfers.get(h);
-
-        if (t == null) {
-            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, filepath, false, channel));
+            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, file, false));
             transfers.put(h, t);
         }
 
@@ -630,11 +622,11 @@ public class Session extends Thread {
      * @throws JED2KException
      */
     public final synchronized  TransferHandle addTransfer(final AddTransferParams atp) throws JED2KException {
-        Transfer t = transfers.get(atp.hash);
+        Transfer t = transfers.get(atp.getHash());
 
         if (t == null) {
             t = new Transfer(this, atp);
-            transfers.put(atp.hash, t);
+            transfers.put(atp.getHash(), t);
         }
 
         return new TransferHandle(this, t);
@@ -822,7 +814,7 @@ public class Session extends Thread {
                 for(final Transfer t: transfers.values()) {
                     if (t.isNeedSaveResumeData()) {
                         try {
-                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFilePath().getAbsolutePath(), t.isPaused());
+                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFile(), t.isPaused());
                             atp.resumeData.setData(t.resumeData());
                             pushAlert(new TransferResumeDataAlert(t.hash(), atp));
                         } catch(JED2KException e) {
