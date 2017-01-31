@@ -867,6 +867,7 @@ public class ED2KService extends Service {
         if(session != null) {
             Log.i("ED2KService", "start transfer " + hash.toString() + " file " + file + " size " + fileSize);
 
+
             //ParcelFileDescriptor parcel =
             //AndroidFileHandler handler = new AndroidFileHandler(file)
 

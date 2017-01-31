@@ -50,7 +50,7 @@ public final class Platforms {
      *
      * @return
      */
-    public static FileSystem fileSystem() {
+    public static LollipopFileSystem fileSystem() {
         return get().fileSystem();
     }
 
