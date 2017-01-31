@@ -24,7 +24,9 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import org.dkf.jed2k.PeerInfo;
-import org.dkf.jed2k.android.*;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
+import org.dkf.jed2k.android.NetworkManager;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
@@ -34,8 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,9 +101,9 @@ public final class TransferManager {
     }
 
     public Transfer download(final Hash hash, long size, final String fileName) {
-        File f = new File(ConfigurationManager.instance().getStoragePath(), fileName);
-        //return Engine.instance().startDownload(hash, size, f.getAbsolutePath(), null);
+        return Engine.instance().startDownload(hash, size, new File(ConfigurationManager.instance().getStoragePath(), fileName));
 
+        /*
         os = null;
         FileChannel channel = null;
         try {
@@ -128,6 +128,7 @@ public final class TransferManager {
         }
 
         return null;
+        */
     }
 
     public int getActiveDownloads() {

@@ -384,10 +384,10 @@ public final class LollipopFileSystem {
     private static DocumentFile getFile(Context context, File file, boolean create) {
         try {
             String path = file.getAbsolutePath();
-            DocumentFile cached = CACHE.get(path);
-            if (cached != null && cached.isFile()) {
-                return cached;
-            }
+            //DocumentFile cached = CACHE.get(path);
+            //if (cached != null && cached.isFile()) {
+            //    return cached;
+            //}
 
             File parent = file.getParentFile();
             if (parent == null) {
@@ -431,10 +431,10 @@ public final class LollipopFileSystem {
     private static DocumentFile getDocument(Context context, File file) {
         try {
             String path = file.getAbsolutePath();
-            DocumentFile cached = CACHE.get(path);
-            if (cached != null) {
-                return cached;
-            }
+            //DocumentFile cached = CACHE.get(path);
+            //if (cached != null) {
+            //    return cached;
+            //}
 
             String baseFolder = getExtSdCardFolder(context, file);
             if (baseFolder == null) {

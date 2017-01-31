@@ -11,7 +11,9 @@ import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 import android.widget.RemoteViews;
 import org.dkf.jed2k.*;
@@ -867,16 +869,20 @@ public class ED2KService extends Service {
         if(session != null) {
             Log.i("ED2KService", "start transfer " + hash.toString() + " file " + file + " size " + fileSize);
 
+            ParcelFileDescriptor parcel = Platforms.fileSystem().openFD(file, "rw");
+            DocumentFile doc = Platforms.fileSystem().getDocument(file);
+            if (parcel != null && doc != null) {
+                AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
+                TransferHandle handle = session.addTransfer(hash, fileSize, file);
+                if (handle.isValid()) {
+                    Log.i("ED2KService", "handle is valid");
+                }
 
-            //ParcelFileDescriptor parcel =
-            //AndroidFileHandler handler = new AndroidFileHandler(file)
-
-            TransferHandle handle = session.addTransfer(hash, fileSize, file);
-            if (handle.isValid()) {
-                Log.i("ED2KService", "handle is valid");
+                return handle;
             }
 
-            return handle;
+            // return empty handle
+            return new TransferHandle(session);
         }
 
         throw new Exception("Session in null");
