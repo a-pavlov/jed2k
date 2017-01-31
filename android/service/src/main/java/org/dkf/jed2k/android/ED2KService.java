@@ -584,7 +584,7 @@ public class ED2KService extends Service {
             public void run() {
                 log.info("load resume data");
                 File fd = getFilesDir();
-                File[] files = fd.listFiles(new FileFilter() {
+                File[] files = fd.listFiles(new java.io.FileFilter() {
                     @Override
                     public boolean accept(File pathname) {
                         return (pathname.getName().startsWith("rd_"));
@@ -596,10 +596,10 @@ public class ED2KService extends Service {
                     return;
                 }
 
-                //LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+                LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
                 for(final File f: files) {
                     long fileSize = f.length();
-                    if (fileSize > Constants.BLOCK_SIZE_INT) {
+                    if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
                         log.warn("resume data file {} has too large size {}, skip it", f.getName(), fileSize);
                         continue;
                     }

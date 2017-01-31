@@ -22,10 +22,10 @@ import android.app.Application;
 import android.view.ViewConfiguration;
 import com.squareup.leakcanary.LeakCanary;
 import org.apache.commons.io.FileUtils;
-import org.dkf.jmule.core.AndroidPlatform;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.NetworkManager;
-import org.dkf.jmule.core.Platforms;
+import org.dkf.jed2k.android.AndroidPlatform;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.NetworkManager;
+import org.dkf.jed2k.android.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -13,7 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jmule.core;
+package org.dkf.jed2k.android;
 
 import org.dkf.jed2k.R;
 

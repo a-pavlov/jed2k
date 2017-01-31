@@ -24,11 +24,11 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import org.dkf.jed2k.PeerInfo;
+import org.dkf.jed2k.android.*;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
-import org.dkf.jmule.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
