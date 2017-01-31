@@ -21,6 +21,7 @@ public class AddTransferParams implements Serializable {
     private FileHandler handler;
 
     public AddTransferParams() {
+
     }
 
     public AddTransferParams(final Hash h, long createTime, long size, final File file, final boolean paused) throws JED2KException {
@@ -38,6 +39,14 @@ public class AddTransferParams implements Serializable {
         this.createTime.assign(createTime);
         this.filepath.assignString(handler.getFile().getAbsolutePath());
         this.paused.assign(paused?1:0);
+        this.handler = handler;
+    }
+
+    /**
+     *
+     * @param handler file handler from host system like Android
+     */
+    public void setExternalFileHandler(final FileHandler handler) {
         this.handler = handler;
     }
 

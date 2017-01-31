@@ -41,7 +41,7 @@ import org.dkf.jmule.transfers.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.channels.FileChannel;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -352,9 +352,9 @@ public final class Engine implements AlertListener {
         return false;
     }
 
-    public Transfer startDownload(final Hash hash, long size, final String fileName, final FileChannel channel) {
+    public Transfer startDownload(final Hash hash, long size, final File file) {
         try {
-            if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName, channel));
+            if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, file));
         } catch(JED2KException e) {
             log.error("add transfer error {}", e);
         } catch(Exception e) {
@@ -369,7 +369,7 @@ public final class Engine implements AlertListener {
         try {
             if (service != null) {
                 EMuleLink link = EMuleLink.fromString(slink);
-                return new ED2KTransfer(service.addTransfer(link.hash, link.size, link.filepath));
+                return new ED2KTransfer(service.addTransfer(link.hash, link.size, new File(link.filepath)));
             }
         } catch(JED2KException e) {
             log.error("load link error {}", e);

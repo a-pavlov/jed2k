@@ -431,7 +431,7 @@ public class ED2KService extends Service {
     private void createTransferNotification(final String title, final String extra, final Hash hash) {
         TransferHandle handle = session.findTransfer(hash);
         if (handle.isValid()) {
-            buildNotification(title, handle.getFilePath().getName(), extra);
+            buildNotification(title, handle.getFile().getName(), extra);
         }
     }
 
@@ -596,6 +596,7 @@ public class ED2KService extends Service {
                     return;
                 }
 
+                //LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
                 for(final File f: files) {
                     long fileSize = f.length();
                     if (fileSize > Constants.BLOCK_SIZE_INT) {
@@ -617,6 +618,12 @@ public class ED2KService extends Service {
                         // do not flip buffer!
                         AddTransferParams atp = new AddTransferParams();
                         atp.get(buffer);
+                        //File file = new File(atp.getFilepath().asString());
+                        //ParcelFileDescriptor parcel = LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+                        //AndroidFileHandler handler = new AndroidFileHandler()
+                        //atp.setExternalFileHandler();
+                        /*
+                        temporary do not restore transfers
                         if (session != null) {
                             TransferHandle handle = session.addTransfer(atp);
                             if (handle.isValid()) {
@@ -625,6 +632,7 @@ public class ED2KService extends Service {
                                 log.info("transfer invalid");
                             }
                         }
+                        */
                     }
                     catch(FileNotFoundException e) {
                         log.error("load resume data file not found {} error {}", f.getName(), e);
@@ -854,26 +862,15 @@ public class ED2KService extends Service {
         log.info("stop self {} last id: {}", b?"true":"false", lastStartId);
     }
 
-    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath)
+    public TransferHandle addTransfer(final Hash hash, final long fileSize, final File file)
             throws JED2KException, Exception {
         if(session != null) {
-            Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
-            TransferHandle handle = session.addTransfer(hash, fileSize, filePath);
-            if (handle.isValid()) {
-                Log.i("ED2KService", "handle is valid");
-            }
+            Log.i("ED2KService", "start transfer " + hash.toString() + " file " + file + " size " + fileSize);
 
-            return handle;
-        }
+            //ParcelFileDescriptor parcel =
+            //AndroidFileHandler handler = new AndroidFileHandler(file)
 
-        throw new Exception("Session in null");
-    }
-
-    public TransferHandle addTransfer(final Hash hash, final long fileSize, final String filePath, final FileChannel channel)
-            throws JED2KException, Exception {
-        if(session != null) {
-            Log.i("ED2KService", "start transfer " + hash.toString() + " file " + filePath + " size " + fileSize);
-            TransferHandle handle = session.addTransfer(hash, fileSize, filePath, channel);
+            TransferHandle handle = session.addTransfer(hash, fileSize, file);
             if (handle.isValid()) {
                 Log.i("ED2KService", "handle is valid");
             }

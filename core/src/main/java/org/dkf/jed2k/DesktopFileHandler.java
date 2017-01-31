@@ -6,120 +6,40 @@ import org.dkf.jed2k.exception.JED2KException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
+import java.io.IOException;
 
 /**
  * Created by inkpot on 30.01.2017.
  */
 @Slf4j
-public class DesktopFileHandler implements FileHandler {
-    private File file;
-    private FileChannel rChannel = null;
-    private FileChannel wChannel = null;
-    private FileInputStream rStream = null;
-    private FileOutputStream wStream = null;
+public class DesktopFileHandler extends FileHandler {
 
     public DesktopFileHandler(final File file) {
-        this.file = file;
+        super(file);
     }
 
-    private void releaseResources() {
+    @Override
+    protected FileOutputStream allocateOutputStream() throws JED2KException {
         try {
-            if (rChannel != null) {
-                rChannel.close();
-            }
-
-            if (rStream != null) {
-                rStream.close();
-            }
-        } catch(Exception e) {
-            log.error("[desktop file handler] release resources error {}", e);
-        } finally {
-            rStream = null;
-            rChannel = null;
+            return new FileOutputStream(file);
+        } catch(IOException e) {
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
+    }
 
+    @Override
+    protected FileInputStream allocateInputStream() throws JED2KException {
         try {
-            if (wChannel != null) {
-                wChannel.close();
-            }
-
-            if (wStream != null) {
-                wStream.close();
-            }
-        } catch(Exception e) {
-            log.error("[desktop file handler] release resources error {}", e);
-        } finally {
-            wStream = null;
-            wChannel = null;
+            return new FileInputStream(file);
+        } catch(IOException e) {
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
     }
 
     @Override
-    public FileChannel getWriteChannel() throws JED2KException {
-        if (wChannel != null) return wChannel;
-        try {
-            wStream = new FileOutputStream(file);
-            wChannel = wStream.getChannel();
-            return wChannel;
-        }
-        catch(FileNotFoundException e) {
-            log.error("[desktop file handler] file not found {} on {}"
-                    , file
-                    , e);
-            releaseResources();
-            throw new JED2KException(ErrorCode.FILE_NOT_FOUND);
-        }
-        catch(SecurityException e) {
-            log.error("[desktop file handler] security exception {} on {}"
-                    , file
-                    , e);
-            releaseResources();
-            throw new JED2KException(ErrorCode.SECURITY_EXCEPTION);
-        }
-    }
-
-    @Override
-    public FileChannel getReadChannel() throws JED2KException {
-        if (rChannel != null) return rChannel;
-        try {
-            rStream = new FileInputStream(file);
-            rChannel = rStream.getChannel();
-            return rChannel;
-        }
-        catch(FileNotFoundException e) {
-            log.error("[desktop file handler] file not found {} on {}"
-                    , file
-                    , e);
-            releaseResources();
-            throw new JED2KException(ErrorCode.FILE_NOT_FOUND);
-        }
-        catch(SecurityException e) {
-            log.error("[desktop file handler] security exception {} on {}"
-                    , file
-                    , e);
-            releaseResources();
-            throw new JED2KException(ErrorCode.SECURITY_EXCEPTION);
-        }
-    }
-
-    @Override
-    public void close() throws JED2KException {
-        releaseResources();
-    }
-
-    @Override
-    public void delete() throws JED2KException {
-        releaseResources();
-        if (!file.delete()) {
-            throw new JED2KException(ErrorCode.UNABLE_TO_DELETE_FILE);
-        }
-    }
-
-    @Override
-    public File getFile() {
-        return file;
+    protected void deleteFile() throws JED2KException {
+        close();
+        if (!file.delete()) throw new JED2KException(ErrorCode.UNABLE_TO_DELETE_FILE);
     }
 }

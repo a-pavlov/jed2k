@@ -113,7 +113,7 @@ public final class TransferManager {
                 os = new FileOutputStream(fd.getFileDescriptor());
                 channel = os.getChannel();
                 LOG.info("channel ready to start on file {}", f);
-                return Engine.instance().startDownload(hash, size, f.getAbsolutePath(), channel);
+                //return Engine.instance().startDownload(hash, size, f.getAbsolutePath(), channel);
             } else {
                 LOG.error("unable to get document for {}", f);
             }

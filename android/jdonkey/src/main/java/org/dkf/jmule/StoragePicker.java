@@ -23,8 +23,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.support.v4.provider.DocumentFile;
+import org.dkf.jed2k.android.AndroidFileHandler;
 import org.dkf.jmule.core.LollipopFileSystem;
 import org.dkf.jmule.core.Platforms;
 import org.dkf.jmule.util.UIUtils;
@@ -32,10 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 /**
  * @author gubatron
@@ -93,26 +91,20 @@ public final class StoragePicker {
 
                         // TODO - remove below code - only for testing SD card writing
                         File testFile = new File(result, "test_file.txt");
-                        FileOutputStream os = null;
-                        FileChannel channel = null;
+                        LOG.info("test file {}", testFile);
+
                         try {
-                            ParcelFileDescriptor fd = fs.openFD(testFile, "rw");
-                            if (fd != null) {
-                                os = new FileOutputStream(fd.getFileDescriptor());
-                                channel = os.getChannel();
-                                ByteBuffer bb = ByteBuffer.allocate(16);
-                                bb.putInt(1).putInt(2).putInt(3);
-                                bb.flip();
-                                channel.write(bb);
-                                os.close();
-                                LOG.info("file filled {}", testFile);
-                            }
+                            AndroidFileHandler ah = new AndroidFileHandler(testFile
+                                    , fs.getDocument(testFile)
+                                    , fs.openFD(testFile, "rw"));
+                            ByteBuffer bb = ByteBuffer.allocate(48);
+                            bb.putInt(1).putInt(2).putInt(3).putInt(44).putInt(22);
+                            bb.flip();
+                            ah.getWriteChannel().write(bb);
+                            ah.close();
                         } catch(Exception e) {
                             LOG.error("unable to fill file {} error {}"
                                     , testFile, e);
-                        } finally {
-                            if (channel != null) channel.close();
-                            if (os != null) os.close();
                         }
                     }
                 }

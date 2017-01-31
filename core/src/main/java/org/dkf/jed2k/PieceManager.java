@@ -125,7 +125,7 @@ public class PieceManager extends BlocksEnumerator {
      * delete file on disk
      */
     public void deleteFile() throws JED2KException {
-        handler.delete();
+        handler.deleteFile();
     }
 
     final File getFile() {
