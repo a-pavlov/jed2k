@@ -29,7 +29,50 @@ import java.io.File;
  * @author gubatron
  * @author aldenml
  */
-public final class AndroidPlatform implements Platform {
+public final class AndroidPlatform {
+
+    enum NetworkType {
+
+        /**
+         * The absence of APN.
+         */
+        NONE,
+
+        /**
+         * The Default Mobile data connection.  When active, all data traffic
+         * will use this connection by default.
+         */
+        MOBILE,
+
+        /**
+         * The Default WIFI data connection.  When active, all data traffic
+         * will use this connection by default.
+         */
+        WIFI,
+
+        /**
+         * The Default WiMAX data connection.  When active, all data traffic
+         * will use this connection by default.
+         */
+        WIMAX,
+
+        /**
+         * The Default Bluetooth data connection. When active, all data traffic
+         * will use this connection by default.
+         */
+        BLUETOOTH,
+
+        /**
+         * The Default Ethernet data connection.  When active, all data traffic
+         * will use this connection by default.
+         */
+        ETHERNET,
+
+        /**
+         *
+         */
+        UNKNOWN
+    }
 
     private final FileSystem fileSystem;
     private final AndroidPaths systemPaths;
@@ -48,17 +91,14 @@ public final class AndroidPlatform implements Platform {
         this.sdk = Build.VERSION.SDK_INT;
     }
 
-    @Override
     public FileSystem fileSystem() {
         return fileSystem;
     }
 
-    @Override
     public AndroidPaths systemPaths() {
         return systemPaths;
     }
 
-    @Override
     public AndroidSettings appSettings() {
         return appSettings;
     }
@@ -71,24 +111,24 @@ public final class AndroidPlatform implements Platform {
         return sdk;
     }
 
-    public Platform.NetworkType networkType() {
+    public AndroidPlatform.NetworkType networkType() {
         if (NetworkManager.instance().isDataMobileUp()) {
-            return Platform.NetworkType.MOBILE;
+            return AndroidPlatform.NetworkType.MOBILE;
         }
 
         if (NetworkManager.instance().isDataWIFIUp()) {
-            return Platform.NetworkType.WIFI;
+            return AndroidPlatform.NetworkType.WIFI;
         }
 
         if (NetworkManager.instance().isDataWiMAXUp()) {
-            return Platform.NetworkType.WIMAX;
+            return AndroidPlatform.NetworkType.WIMAX;
         }
 
-        return Platform.NetworkType.NONE;
+        return AndroidPlatform.NetworkType.NONE;
     }
 
     public static boolean saf() {
-        Platform p = Platforms.get();
+        AndroidPlatform p = Platforms.get();
         return p.fileSystem() instanceof LollipopFileSystem;
     }
 
@@ -100,14 +140,9 @@ public final class AndroidPlatform implements Platform {
      * @return
      */
     public static boolean saf(File f) {
-        Platform p = Platforms.get();
+        AndroidPlatform p = Platforms.get();
 
         if (!(p.fileSystem() instanceof LollipopFileSystem)) {
-            return false;
-        }
-
-        if (f.getPath().contains("/Android/data/com.frostwire.android/")) {
-            // private file, FUSE give us standard POSIX operations
             return false;
         }
 
