@@ -23,6 +23,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.provider.DocumentFile;
 import org.dkf.jed2k.android.AndroidFileHandler;
 import org.dkf.jed2k.android.LollipopFileSystem;
@@ -94,9 +95,11 @@ public final class StoragePicker {
                         LOG.info("test file {}", testFile);
 
                         try {
+                            ParcelFileDescriptor fd = fs.openFD(testFile, "rw");
+                            DocumentFile doc = fs.getDocument(testFile);
                             AndroidFileHandler ah = new AndroidFileHandler(testFile
-                                    , fs.getDocument(testFile)
-                                    , fs.openFD(testFile, "rw"));
+                                    , doc
+                                    , fd);
                             ByteBuffer bb = ByteBuffer.allocate(48);
                             bb.putInt(1).putInt(2).putInt(3).putInt(44).putInt(22);
                             bb.flip();

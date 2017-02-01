@@ -876,7 +876,7 @@ public class ED2KService extends Service {
             DocumentFile doc = Platforms.fileSystem().getDocument(file);
             if (parcel != null && doc != null) {
                 AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
-                TransferHandle handle = session.addTransfer(hash, fileSize, file);
+                TransferHandle handle = session.addTransfer(hash, fileSize, handler);
                 if (handle.isValid()) {
                     Log.i("ED2KService", "handle is valid");
                 }

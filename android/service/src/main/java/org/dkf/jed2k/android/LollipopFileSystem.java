@@ -25,7 +25,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.storage.StorageManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
-import android.util.LruCache;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -44,8 +43,8 @@ public final class LollipopFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LollipopFileSystem.class);
 
-    private static final int CACHE_MAX_SIZE = 1000;
-    private static final LruCache<String, DocumentFile> CACHE = new LruCache<>(CACHE_MAX_SIZE);
+    //private static final int CACHE_MAX_SIZE = 1000;
+    //private static final LruCache<String, DocumentFile> CACHE = new LruCache<>(CACHE_MAX_SIZE);
 
     private static List<String> FIXED_SDCARD_PATHS = buildFixedSdCardPaths();
 
@@ -327,10 +326,10 @@ public final class LollipopFileSystem {
     private static DocumentFile getDirectory(Context context, File dir, boolean create) {
         try {
             String path = dir.getAbsolutePath();
-            DocumentFile cached = CACHE.get(path);
-            if (cached != null && cached.isDirectory()) {
-                return cached;
-            }
+            //DocumentFile cached = CACHE.get(path);
+            //if (cached != null && cached.isDirectory()) {
+            //    return cached;
+            //}
 
             String baseFolder = getExtSdCardFolder(context, dir);
             if (baseFolder == null) {
@@ -370,9 +369,9 @@ public final class LollipopFileSystem {
 
             f = f.isDirectory() ? f : null;
 
-            if (f != null) {
-                CACHE.put(path, f);
-            }
+            //if (f != null) {
+            //    CACHE.put(path, f);
+            //}
 
             return f;
         } catch (Exception e) {
@@ -417,9 +416,9 @@ public final class LollipopFileSystem {
                 }
             }
 
-            if (f != null) {
-                CACHE.put(path, f);
-            }
+            //if (f != null) {
+            //    CACHE.put(path, f);
+            //}
 
             return f;
         } catch (Exception e) {
@@ -441,7 +440,7 @@ public final class LollipopFileSystem {
                 return file.exists() ? DocumentFile.fromFile(file) : null;
             }
 
-            baseFolder = combineRoot(baseFolder);
+            //baseFolder = combineRoot(baseFolder);
 
             String fullPath = file.getAbsolutePath();
             String relativePath = baseFolder.length() < fullPath.length() ? fullPath.substring(baseFolder.length() + 1) : "";
@@ -461,9 +460,9 @@ public final class LollipopFileSystem {
                 }
             }
 
-            if (f != null) {
-                CACHE.put(path, f);
-            }
+            //if (f != null) {
+            //    CACHE.put(path, f);
+            //}
 
             return f;
         } catch (Exception e) {

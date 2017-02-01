@@ -615,6 +615,25 @@ public class Session extends Thread {
     }
 
     /**
+     * the same as previous instead of external file handler
+     * @param h
+     * @param size
+     * @param handler
+     * @return
+     * @throws JED2KException
+     */
+    public final synchronized TransferHandle addTransfer(Hash h, long size, FileHandler handler) throws JED2KException {
+        Transfer t = transfers.get(h);
+
+        if (t == null) {
+            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, handler, false));
+            transfers.put(h, t);
+        }
+
+        return new TransferHandle(this, t);
+    }
+
+    /**
      * create new transfer in session or return previously created transfer
      * using add transfer parameters structure with or without resume data block
      * @param atp transfer parameters with or without resume data
