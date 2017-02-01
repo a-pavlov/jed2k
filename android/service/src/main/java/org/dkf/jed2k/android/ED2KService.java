@@ -14,8 +14,8 @@ import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.provider.DocumentFile;
-import android.util.Log;
 import android.widget.RemoteViews;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.JED2KException;
@@ -27,8 +27,6 @@ import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -42,9 +40,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 public class ED2KService extends Service {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
-    private final Logger log = LoggerFactory.getLogger(ED2KService.class);
 
     public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jmule.android.ACTION_SHOW_TRANSFERS";
     public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN";
@@ -159,7 +157,7 @@ public class ED2KService extends Service {
 
     @Override
     public void onCreate() {
-        log.info("ED2K service creating....");
+        log.info("[ED2K service] creating....");
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         settings.serverPingTimeout = 20;
@@ -176,13 +174,13 @@ public class ED2KService extends Service {
 
         lastStartId = startId;
 
-        log.info("ED2K service started by this intent: {} flags {} startId {}", intent, flags, startId);
+        log.info("[ED2K service] started by this intent: {} flags {} startId {}", intent, flags, startId);
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        log.info("ED2K service destructing...");
+        log.info("[ED2K service] destructing...");
 
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
@@ -190,23 +188,20 @@ public class ED2KService extends Service {
             session.abort();
             try {
                 session.join();
-                log.info("ED2K service session aborted");
+                log.info("[ED2K service] session aborted");
             } catch (InterruptedException e) {
-                log.error("wait session interrupted error {}", e);
+                log.error("[ED2K service] wait session interrupted error {}", e);
             }
-        } else {
-            log.debug("session is not exist yet");
         }
 
         // stop alerts processing
         // need additional code to guarantee all alerts were processed
         if (scheduledExecutorService != null) scheduledExecutorService.shutdown();
-        log.info("ED2KService destruction completed");
+        log.info("[ED2K service] destroyed");
     }
 
     void startSession() {
         if (session != null) return;
-        log.info("starting session....");
         startingInProgress = true;
         session = new Session(settings);
         session.start();
@@ -219,7 +214,6 @@ public class ED2KService extends Service {
 
     void stopSession() {
         if (session != null) {
-            log.info("stopping session....");
             stoppingInProgress = true;
             session.saveResumeData();
             session.abort();
@@ -243,7 +237,7 @@ public class ED2KService extends Service {
                         a = session.popAlert();
                     }
                 } catch(InterruptedException e) {
-                    log.error("alert loop await interrupted {}", e);
+                    log.error("[ED2K service] alert loop await interrupted {}", e.toString());
                 }
 
                 session = null;
@@ -251,7 +245,6 @@ public class ED2KService extends Service {
             }
 
             stoppingInProgress = false;
-            log.info("session stopped!");
         }
     }
 
@@ -278,7 +271,7 @@ public class ED2KService extends Service {
             try {
                 dhtTracker.join();
             } catch (InterruptedException e) {
-                log.error("[ed2k service] stop DHT tracker interrupted {}", e);
+                log.error("[ED2K service] stop DHT tracker interrupted {}", e);
             } finally {
                 dhtTracker = null;
             }
@@ -317,7 +310,7 @@ public class ED2KService extends Service {
             entries.get(buffer);
             return entries;
         } catch(FileNotFoundException e) {
-            log.info("[ed2k service] dht nodes not found {}", e);
+            log.info("[ED2K service] dht nodes not found {}", e);
         } catch(IOException e) {
             log.error("[ed2k service] i/o exception on load dht nodes {}", e);
         } catch(JED2KException e) {
@@ -445,20 +438,20 @@ public class ED2KService extends Service {
             alert.trd.put(bb);
             bb.flip();
             stream.write(bb.array(), 0, bb.limit());
-            log.info("saved resume data {} size {}", alert.hash.toString(), alert.trd.bytesCount());
+            log.info("[ED2K service] saved resume data {} size {}", alert.hash.toString(), alert.trd.bytesCount());
         } catch(FileNotFoundException e) {
-            log.error("save resume data {} failed {}", alert.hash, e);
+            log.error("[ED2K service] save resume data {} failed {}"
+                    , alert.hash, e);
         } catch(IOException e) {
-            log.error("save resume data write {} failed {}", alert.hash, e);
+            log.error("[ED2K service] save resume data write {} failed {}"
+                    , alert.hash, e);
         }
         catch(JED2KException e) {
-            log.error("save resume data serialization {} failed {}", alert.hash, e);
+            log.error("[ED2K service] save resume data serialization {} failed {}"
+                    , alert.hash, e);
         }
         catch(Exception e) {
-            log.error("save resume data common error {}", e);
-        }
-        catch(Throwable e) {
-            log.error("save resume data throw error {}", e);
+            log.error("[ED2K service] save resume data exception {}", e);
         }
         finally {
             if (stream != null) {
@@ -466,7 +459,8 @@ public class ED2KService extends Service {
                     stream.close();
                 } catch(IOException e) {
                     // just ignore
-                    log.error("save resume data close stream failed {}", e);
+                    log.error("[ED2K service] save resume data close stream failed {}"
+                            , e.toString());
                 }
             }
         }
@@ -477,7 +471,6 @@ public class ED2KService extends Service {
             if (a instanceof ListenAlert) {
                 for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
             } else if (a instanceof SearchResultAlert) {
-                log.info("search result received");
                 for (final AlertListener ls : listeners) ls.onSearchResult((SearchResultAlert) a);
             } else if (a instanceof ServerMessageAlert) {
                 for (final AlertListener ls : listeners) ls.onServerMessage((ServerMessageAlert) a);
@@ -495,18 +488,18 @@ public class ED2KService extends Service {
                 for (final AlertListener ls : listeners) ls.onTransferPaused((TransferPausedAlert) a);
             } else if (a instanceof TransferAddedAlert) {
                 localHashes.put(((TransferAddedAlert) a).hash, 0);
-                log.info("new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
+                log.info("[ED2K service] new transfer added {} save resume data now", ((TransferAddedAlert) a).hash);
                 session.saveResumeData();
                 for (final AlertListener ls : listeners) ls.onTransferAdded((TransferAddedAlert) a);
             } else if (a instanceof TransferRemovedAlert) {
-                log.info("transfer removed {}", ((TransferRemovedAlert) a).hash);
+                log.info("[ED2K service] transfer removed {}", ((TransferRemovedAlert) a).hash);
                 localHashes.remove(((TransferRemovedAlert) a).hash);
                 removeResumeDataFile(((TransferRemovedAlert) a).hash);
                 for (final AlertListener ls : listeners) ls.onTransferRemoved((TransferRemovedAlert) a);
             } else if (a instanceof TransferResumeDataAlert) {
                 saveResumeData((TransferResumeDataAlert) a);
             } else if (a instanceof TransferFinishedAlert) {
-                log.info("transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
+                log.info("[ED2K service] transfer finished {} save resume data", ((TransferFinishedAlert) a).hash);
                 session.saveResumeData();
                 notificationHandler.post(new Runnable() {
                     @Override
@@ -516,7 +509,7 @@ public class ED2KService extends Service {
                 });
             } else if (a instanceof TransferDiskIOErrorAlert) {
                 TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert) a;
-                log.error("disk i/o error: {}", errorAlert.ec);
+                log.error("[ED2K service] disk i/o error: {}", errorAlert.ec);
                 long lastIOErrorTime = 0;
                 if (transfersIOErrorsOrder.containsKey(errorAlert.hash)) {
                     lastIOErrorTime = transfersIOErrorsOrder.get(errorAlert.hash);
@@ -536,14 +529,14 @@ public class ED2KService extends Service {
                 }
             } else if (a instanceof PortMapAlert) {
                 for (final AlertListener ls : listeners) ls.onPortMapAlert((PortMapAlert) a);
-                log.info("port mapped {} {}", ((PortMapAlert)a).port, ((PortMapAlert)a).ec.getDescription());
+                log.info("[ED2K service] port mapped {} {}", ((PortMapAlert)a).port, ((PortMapAlert)a).ec.getDescription());
             }
             else {
-                log.debug("received unhandled alert {}", a);
+                log.debug("[ED2K service] received unhandled alert {}", a);
             }
         }
         catch(Exception e) {
-            log.error("processing alert {} error {}", a, e);
+            log.error("[ED2K service] processing alert {} error {}", a, e);
         }
     }
 
@@ -584,7 +577,6 @@ public class ED2KService extends Service {
         scheduledExecutorService.submit(new Runnable() {
             @Override
             public void run() {
-                log.info("load resume data");
                 File fd = getFilesDir();
                 File[] files = fd.listFiles(new java.io.FileFilter() {
                     @Override
@@ -594,22 +586,27 @@ public class ED2KService extends Service {
                 });
 
                 if (files == null) {
-                    log.info("have no resume data files");
+                    log.info("[ED2K service] have no resume data files");
                     return;
+                } else {
+                    log.info("[ED2K service] load resume data files {}", files.length);
                 }
 
                 LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
                 for(final File f: files) {
                     long fileSize = f.length();
                     if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
-                        log.warn("resume data file {} has too large size {}, skip it", f.getName(), fileSize);
+                        log.warn("[ED2K service] resume data file {} has too large size {}, skip it"
+                                , f.getName(), fileSize);
                         continue;
                     }
 
                     ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
                     FileInputStream istream = null;
                     try {
-                        log.info("load resume data {} size {}", f.getName(), fileSize);
+                        log.info("[ED2K service] load resume data {} size {}"
+                                , f.getName(), fileSize);
+
                         if (session == null) {
                             log.info("session null");
                         } else {
@@ -635,25 +632,25 @@ public class ED2KService extends Service {
                             }
                         }
                         else {
-                            log.error("restore transfer {} failed document or parcel is null"
+                            log.error("[ED2K service] restore transfer {} failed document/parcel is null"
                                 , file);
                         }
                     }
                     catch(FileNotFoundException e) {
-                        log.error("load resume data file not found {} error {}", f.getName(), e);
+                        log.error("[ED2K service] load resume data file not found {} error {}", f.getName(), e);
                     }
                     catch(IOException e) {
-                        log.error("load resume data {} i/o error {}", f.getName(), e);
+                        log.error("[ED2K service] load resume data {} i/o error {}", f.getName(), e);
                     }
                     catch(JED2KException e) {
-                        log.error("load resume data {} add transfer error {}", f.getName(), e);
+                        log.error("[ED2K service] load resume data {} add transfer error {}", f.getName(), e);
                     }
                     finally {
                         if (istream != null) {
                             try {
                                 istream.close();
                             } catch(Exception e) {
-                                log.error("load resume data {} close stream error {}", f.getName(), e);
+                                log.error("[ED2K service] load resume data {} close stream error {}", f.getName(), e);
                             }
                         }
                     }
@@ -670,7 +667,7 @@ public class ED2KService extends Service {
         if (!permanentNotification.get()) return;
 
         if (notificationViews == null || notificationObject == null) {
-            log.warn("Notification views or object are null, review your logic");
+            log.warn("[ED2K service] Notification views or object are null, review your logic");
             return;
         }
 
@@ -870,7 +867,10 @@ public class ED2KService extends Service {
     public TransferHandle addTransfer(final Hash hash, final long fileSize, final File file)
             throws JED2KException, Exception {
         if(session != null) {
-            Log.i("ED2KService", "start transfer " + hash.toString() + " file " + file + " size " + fileSize);
+            log.info("[ED2K service] start transfer {} file {} size {}"
+                    , hash.toString()
+                    , file
+                    , fileSize);
 
             ParcelFileDescriptor parcel = Platforms.fileSystem().openFD(file, "rw");
             DocumentFile doc = Platforms.fileSystem().getDocument(file);
@@ -878,10 +878,12 @@ public class ED2KService extends Service {
                 AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
                 TransferHandle handle = session.addTransfer(hash, fileSize, handler);
                 if (handle.isValid()) {
-                    Log.i("ED2KService", "handle is valid");
+                    log.info("[ED2K service] transfer added");
                 }
 
                 return handle;
+            } else {
+                // unable to create file - add message here
             }
 
             // return empty handle
