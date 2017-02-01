@@ -448,12 +448,15 @@ public class MainActivity extends AbstractActivity implements
 
         try {
             File data = Platforms.data();
-            File parent = data.getParentFile();
+            //File parent = data.getParentFile();
 
-            if (!AndroidPlatform.saf(parent)) {
+            if (!AndroidPlatform.saf(data)) {
                 return;
             }
-            if (!Platforms.fileSystem().canWrite(parent) &&
+
+            log.info("check write permissions for {}", data);
+
+            if (!Platforms.fileSystem().canWrite(data) &&
                     !SDPermissionDialog.visible) {
                 SDPermissionDialog dlg = SDPermissionDialog.newInstance();
                 dlg.show(getFragmentManager());

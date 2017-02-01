@@ -446,7 +446,7 @@ public final class LollipopFileSystem {
             String fullPath = file.getAbsolutePath();
             String relativePath = baseFolder.length() < fullPath.length() ? fullPath.substring(baseFolder.length() + 1) : "";
 
-            String[] segments = relativePath.split("/");
+            String[] segments = relativePath.isEmpty()?new String[0]:relativePath.split("/");
 
             Uri rootUri = getDocumentUri(context, new File(baseFolder));
             DocumentFile f = DocumentFile.fromTreeUri(context, rootUri);
@@ -765,6 +765,7 @@ public final class LollipopFileSystem {
         l.add("/data/sdext2");
         l.add("/data/sdext3");
         l.add("/data/sdext4");
+        l.add("/storage/16F7-2B0E"); // emulator
 
         return Collections.unmodifiableList(l);
     }

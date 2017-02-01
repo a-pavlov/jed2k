@@ -53,7 +53,8 @@ public final class AndroidPaths {
     }
 
     public File data() {
-        return new File(storage(), DOWNLOADS_PATH);
+        //return new File(storage(), DOWNLOADS_PATH);
+        return storage();
     }
 
     public File metadata() {
@@ -66,10 +67,12 @@ public final class AndroidPaths {
 
     private static File storage() {
         String path = ConfigurationManager.instance().getString(Constants.PREF_KEY_STORAGE_PATH);
-        if (path.toLowerCase().endsWith("/" + STORAGE_PATH.toLowerCase())) {
+        /*if (path.toLowerCase().endsWith("/" + STORAGE_PATH.toLowerCase())) {
             return new File(path);
         } else {
             return new File(path, STORAGE_PATH);
         }
+        */
+        return new File(path);
     }
 }
