@@ -620,21 +620,24 @@ public class ED2KService extends Service {
                         // do not flip buffer!
                         AddTransferParams atp = new AddTransferParams();
                         atp.get(buffer);
-                        //File file = new File(atp.getFilepath().asString());
-                        //ParcelFileDescriptor parcel = LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
-                        //AndroidFileHandler handler = new AndroidFileHandler()
-                        //atp.setExternalFileHandler();
-                        /*
-                        temporary do not restore transfers
-                        if (session != null) {
-                            TransferHandle handle = session.addTransfer(atp);
-                            if (handle.isValid()) {
-                                log.info("transfer {} is valid", handle.getHash());
-                            } else {
-                                log.info("transfer invalid");
+                        File file = new File(atp.getFilepath().asString());
+                        ParcelFileDescriptor parcel = Platforms.fileSystem().openFD(file, "rw");
+                        DocumentFile doc = Platforms.fileSystem().getDocument(file);
+                        if (parcel != null && doc != null) {
+                            atp.setExternalFileHandler(new AndroidFileHandler(file, doc, parcel));
+                            if (session != null) {
+                                TransferHandle handle = session.addTransfer(atp);
+                                if (handle.isValid()) {
+                                    log.info("transfer {} is valid", handle.getHash());
+                                } else {
+                                    log.info("transfer invalid");
+                                }
                             }
                         }
-                        */
+                        else {
+                            log.error("restore transfer {} failed document or parcel is null"
+                                , file);
+                        }
                     }
                     catch(FileNotFoundException e) {
                         log.error("load resume data file not found {} error {}", f.getName(), e);
