@@ -87,27 +87,29 @@ public final class StoragePicker {
                         UIUtils.showShortMessage(context, R.string.storage_picker_treeuri_cant_write);
                         result = null;
                     } else {
-                        LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
-                        result = fs.getTreePath(treeUri);
+                        if (Platforms.get().saf()) {
+                            LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+                            result = fs.getTreePath(treeUri);
 
-                        // TODO - remove below code - only for testing SD card writing
-                        File testFile = new File(result, "test_file.txt");
-                        LOG.info("test file {}", testFile);
+                            // TODO - remove below code - only for testing SD card writing
+                            File testFile = new File(result, "test_file.txt");
+                            LOG.info("test file {}", testFile);
 
-                        try {
-                            ParcelFileDescriptor fd = fs.openFD(testFile, "rw");
-                            DocumentFile doc = fs.getDocument(testFile);
-                            AndroidFileHandler ah = new AndroidFileHandler(testFile
-                                    , doc
-                                    , fd);
-                            ByteBuffer bb = ByteBuffer.allocate(48);
-                            bb.putInt(1).putInt(2).putInt(3).putInt(44).putInt(22);
-                            bb.flip();
-                            ah.getWriteChannel().write(bb);
-                            ah.close();
-                        } catch(Exception e) {
-                            LOG.error("unable to fill file {} error {}"
-                                    , testFile, e);
+                            try {
+                                ParcelFileDescriptor fd = fs.openFD(testFile, "rw");
+                                DocumentFile doc = fs.getDocument(testFile);
+                                AndroidFileHandler ah = new AndroidFileHandler(testFile
+                                        , doc
+                                        , fd);
+                                ByteBuffer bb = ByteBuffer.allocate(48);
+                                bb.putInt(1).putInt(2).putInt(3).putInt(44).putInt(22);
+                                bb.flip();
+                                ah.getWriteChannel().write(bb);
+                                ah.close();
+                            } catch (Exception e) {
+                                LOG.error("unable to fill file {} error {}"
+                                        , testFile, e);
+                            }
                         }
                     }
                 }

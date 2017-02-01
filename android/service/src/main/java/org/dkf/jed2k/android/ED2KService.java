@@ -11,9 +11,7 @@ import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.provider.DocumentFile;
 import android.widget.RemoteViews;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.*;
@@ -592,6 +590,8 @@ public class ED2KService extends Service {
                     log.info("[ED2K service] load resume data files {}", files.length);
                 }
 
+                /*
+                temporary disable loading
                 LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
                 for(final File f: files) {
                     long fileSize = f.length();
@@ -654,7 +654,7 @@ public class ED2KService extends Service {
                             }
                         }
                     }
-                }
+                }*/
             }
         });
 
@@ -871,7 +871,7 @@ public class ED2KService extends Service {
                     , hash.toString()
                     , file
                     , fileSize);
-
+/*
             ParcelFileDescriptor parcel = Platforms.fileSystem().openFD(file, "rw");
             DocumentFile doc = Platforms.fileSystem().getDocument(file);
             if (parcel != null && doc != null) {
@@ -882,10 +882,11 @@ public class ED2KService extends Service {
                 }
 
                 return handle;
+
             } else {
                 // unable to create file - add message here
             }
-
+*/
             // return empty handle
             return new TransferHandle(session);
         }

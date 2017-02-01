@@ -33,13 +33,16 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author gubatron
  * @author aldenml
  */
-public final class LollipopFileSystem {
+public final class LollipopFileSystem implements FileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LollipopFileSystem.class);
 
@@ -54,6 +57,7 @@ public final class LollipopFileSystem {
         this.app = app;
     }
 
+    @Override
     public boolean isDirectory(File file) {
         if (file.isDirectory()) {
             return true;
@@ -64,6 +68,7 @@ public final class LollipopFileSystem {
         return f != null && f.isDirectory();
     }
 
+    @Override
     public boolean isFile(File file) {
         if (file.isFile()) {
             return true;
@@ -74,6 +79,7 @@ public final class LollipopFileSystem {
         return f != null && f.isFile();
     }
 
+    @Override
     public boolean canRead(File file) {
         if (file.canRead()) {
             return true;
@@ -84,6 +90,7 @@ public final class LollipopFileSystem {
         return f != null && f.canRead();
     }
 
+    @Override
     public boolean canWrite(File file) {
         if (file.canWrite()) {
             return true;
@@ -94,6 +101,7 @@ public final class LollipopFileSystem {
         return f != null && f.canWrite();
     }
 
+    @Override
     public long length(File file) {
         long r = file.length();
         if (r > 0) {
@@ -105,6 +113,7 @@ public final class LollipopFileSystem {
         return f != null ? f.length() : 0;
     }
 
+    @Override
     public long lastModified(File file) {
         long r = file.lastModified();
         if (r > 0) {
@@ -116,6 +125,7 @@ public final class LollipopFileSystem {
         return f != null ? f.lastModified() : 0;
     }
 
+    @Override
     public boolean exists(File file) {
         if (file.exists()) {
             return true;
@@ -126,6 +136,7 @@ public final class LollipopFileSystem {
         return f != null && f.exists();
     }
 
+    @Override
     public boolean mkdirs(File file) {
         if (file.mkdirs()) {
             return true;
@@ -141,6 +152,7 @@ public final class LollipopFileSystem {
         return f != null;
     }
 
+    @Override
     public boolean delete(File file) {
         if (file.delete()) {
             return true;
@@ -151,6 +163,7 @@ public final class LollipopFileSystem {
         return f != null && f.delete();
     }
 
+    @Override
     public File[] listFiles(File file, org.dkf.jed2k.android.FileFilter filter) {
         try {
             File[] files = file.listFiles(filter);
@@ -189,6 +202,7 @@ public final class LollipopFileSystem {
         return new File[0];
     }
 
+    @Override
     public boolean copy(File src, File dest) {
         try {
             FileUtils.copyFile(src, dest);
@@ -213,6 +227,7 @@ public final class LollipopFileSystem {
         return copy(app, srcF, destF);
     }
 
+    @Override
     public boolean write(File file, byte[] data) {
         try {
             FileUtils.writeByteArrayToFile(file, data);
@@ -231,6 +246,7 @@ public final class LollipopFileSystem {
         return write(app, f, data);
     }
 
+    @Override
     public void scan(File file) {
         try {
             final List<String> paths = new LinkedList<>();
@@ -261,29 +277,9 @@ public final class LollipopFileSystem {
         }
     }
 
-    public static void walkFiles(LollipopFileSystem fs, File file, org.dkf.jed2k.android.FileFilter filter) {
-        File[] arr = fs.listFiles(file, filter);
-        if (arr == null) {
-            return;
-        }
-        Deque<File> q = new LinkedList<>(Arrays.asList(arr));
-
-        while (!q.isEmpty()) {
-            File child = q.pollFirst();
-            filter.file(child);
-            if (fs.isDirectory(child)) {
-                arr = fs.listFiles(child, filter);
-                if (arr != null) {
-                    for (int i = arr.length - 1; i >= 0; i--) {
-                        q.addFirst(arr[i]);
-                    }
-                }
-            }
-        }
-    }
-
+    @Override
     public void walk(File file, org.dkf.jed2k.android.FileFilter filter) {
-        walkFiles(this, file, filter);
+        DefaultFileSystem.walkFiles(this, file, filter);
     }
 
     public String getTreePath(Uri treeUri) {

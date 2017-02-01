@@ -74,7 +74,7 @@ public final class AndroidPlatform {
         UNKNOWN
     }
 
-    private final LollipopFileSystem fileSystem;
+    private final FileSystem fileSystem;
     private final AndroidPaths systemPaths;
     private final AndroidSettings appSettings;
 
@@ -91,7 +91,7 @@ public final class AndroidPlatform {
         this.sdk = Build.VERSION.SDK_INT;
     }
 
-    public LollipopFileSystem fileSystem() {
+    public FileSystem fileSystem() {
         return fileSystem;
     }
 
@@ -141,15 +141,32 @@ public final class AndroidPlatform {
      */
     public static boolean saf(File f) {
         AndroidPlatform p = Platforms.get();
+
+        if (!(p.fileSystem() instanceof LollipopFileSystem)) {
+            return false;
+        }
+
         LollipopFileSystem fs = (LollipopFileSystem) p.fileSystem();
+
         return fs.getExtSdCardFolder(f) != null;
     }
 
-    private static LollipopFileSystem buildFileSystem(Context app) {
+    private static FileSystem buildFileSystem(Context app) {
+        FileSystem fs;
+
         if (Build.VERSION.SDK_INT >= VERSION_CODE_LOLLIPOP) {
-            return new LollipopFileSystem(app);
+            LollipopFileSystem lfs = new LollipopFileSystem(app);
+            //LibTorrent.setPosixWrapper(new PosixCalls(lfs));
+            fs = lfs;
+        } else {
+            fs = new DefaultFileSystem() {
+                @Override
+                public void scan(File file) {
+                    //Librarian.instance().scan(file);
+                }
+            };
         }
 
-        throw new RuntimeException("SDK version can't be less than " + VERSION_CODE_LOLLIPOP);
+        return fs;
     }
 }
