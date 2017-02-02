@@ -11,7 +11,9 @@ import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.provider.DocumentFile;
 import android.widget.RemoteViews;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.*;
@@ -590,9 +592,7 @@ public class ED2KService extends Service {
                     log.info("[ED2K service] load resume data files {}", files.length);
                 }
 
-                /*
-                temporary disable loading
-                LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+
                 for(final File f: files) {
                     long fileSize = f.length();
                     if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
@@ -618,22 +618,32 @@ public class ED2KService extends Service {
                         AddTransferParams atp = new AddTransferParams();
                         atp.get(buffer);
                         File file = new File(atp.getFilepath().asString());
-                        ParcelFileDescriptor parcel = Platforms.fileSystem().openFD(file, "rw");
-                        DocumentFile doc = Platforms.fileSystem().getDocument(file);
-                        if (parcel != null && doc != null) {
-                            atp.setExternalFileHandler(new AndroidFileHandler(file, doc, parcel));
-                            if (session != null) {
-                                TransferHandle handle = session.addTransfer(atp);
-                                if (handle.isValid()) {
-                                    log.info("transfer {} is valid", handle.getHash());
-                                } else {
-                                    log.info("transfer invalid");
+                        if (Platforms.get().saf()) {
+                            LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
+                            ParcelFileDescriptor parcel = fs.openFD(file, "rw");
+                            DocumentFile doc = fs.getDocument(file);
+                            if (parcel != null && doc != null) {
+                                atp.setExternalFileHandler(new AndroidFileHandler(file, doc, parcel));
+                                if (session != null) {
+                                    TransferHandle handle = session.addTransfer(atp);
+                                    if (handle.isValid()) {
+                                        log.info("transfer {} is valid", handle.getHash());
+                                    } else {
+                                        log.info("transfer invalid");
+                                    }
                                 }
+                            } else {
+                                log.error("[ED2K service] restore transfer {} failed document/parcel is null"
+                                        , file);
                             }
-                        }
-                        else {
-                            log.error("[ED2K service] restore transfer {} failed document/parcel is null"
-                                , file);
+                        } else {
+                            atp.setExternalFileHandler(new DesktopFileHandler(file));
+                            TransferHandle handle = session.addTransfer(atp);
+                            if (handle.isValid()) {
+                                log.info("transfer {} is valid", handle.getHash());
+                            } else {
+                                log.info("transfer invalid");
+                            }
                         }
                     }
                     catch(FileNotFoundException e) {
@@ -654,7 +664,7 @@ public class ED2KService extends Service {
                             }
                         }
                     }
-                }*/
+                }
             }
         });
 
@@ -871,22 +881,27 @@ public class ED2KService extends Service {
                     , hash.toString()
                     , file
                     , fileSize);
-/*
-            ParcelFileDescriptor parcel = Platforms.fileSystem().openFD(file, "rw");
-            DocumentFile doc = Platforms.fileSystem().getDocument(file);
-            if (parcel != null && doc != null) {
-                AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
-                TransferHandle handle = session.addTransfer(hash, fileSize, handler);
-                if (handle.isValid()) {
-                    log.info("[ED2K service] transfer added");
+
+            if (Platforms.get().saf()) {
+                LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
+                ParcelFileDescriptor parcel = fs.openFD(file, "rw");
+                DocumentFile doc = fs.getDocument(file);
+                if (parcel != null && doc != null) {
+                    AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
+                    TransferHandle handle = session.addTransfer(hash, fileSize, handler);
+                    if (handle.isValid()) {
+                        log.info("[ED2K service] transfer added");
+                    }
+
+                    return handle;
+
+                } else {
+                    // unable to create file - add message here
                 }
-
-                return handle;
-
             } else {
-                // unable to create file - add message here
+                return session.addTransfer(hash, fileSize, file);
             }
-*/
+
             // return empty handle
             return new TransferHandle(session);
         }
