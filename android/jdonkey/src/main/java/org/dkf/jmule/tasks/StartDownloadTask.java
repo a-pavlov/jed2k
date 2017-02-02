@@ -20,14 +20,16 @@ package org.dkf.jmule.tasks;
 
 import android.app.Activity;
 import android.content.Context;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.EMuleLink;
+import org.dkf.jed2k.exception.ErrorCode;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
+import org.dkf.jmule.R;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.transfers.TransferManager;
 import org.dkf.jmule.util.UIUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,9 +38,8 @@ import org.slf4j.LoggerFactory;
  * @author aldenml
  *
  */
+@Slf4j
 public class StartDownloadTask extends ContextTask<Transfer> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(StartDownloadTask.class);
     private final String message;
     private SearchEntry entry;
     private String link = null;
@@ -66,8 +67,20 @@ public class StartDownloadTask extends ContextTask<Transfer> {
                 EMuleLink el = EMuleLink.fromString(link);
                 transfer = TransferManager.instance().download(el.hash, el.size, el.filepath);
             }
-        } catch (Exception e) {
-            LOG.warn("Error adding new download from result {} {}", entry, e);
+        }
+        catch(JED2KException e) {
+            if (e.getErrorCode().equals(ErrorCode.IO_EXCEPTION)) {
+                UIUtils.showShortMessage(getContext(), R.string.start_transfer_file_error);
+            }
+            else if (e.getErrorCode().equals(ErrorCode.INTERNAL_ERROR)) {
+                UIUtils.showShortMessage(getContext(), R.string.start_transfer_internal_error);
+            }
+
+            log.error("unable to start transfer {}", e.toString());
+            e.printStackTrace();
+        }
+        catch (Exception e) {
+            log.warn("Error adding new download from result {} {}", entry, e);
             e.printStackTrace();
         }
 

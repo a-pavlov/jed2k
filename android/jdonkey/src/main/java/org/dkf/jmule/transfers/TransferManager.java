@@ -27,6 +27,7 @@ import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.android.ConfigurationManager;
 import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.android.NetworkManager;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
@@ -100,9 +101,8 @@ public final class TransferManager {
 
     }
 
-    public Transfer download(final Hash hash, long size, final String fileName) {
+    public Transfer download(final Hash hash, long size, final String fileName) throws JED2KException {
         return Engine.instance().startDownload(hash, size, new File(ConfigurationManager.instance().getStoragePath(), fileName));
-
         /*
         os = null;
         FileChannel channel = null;

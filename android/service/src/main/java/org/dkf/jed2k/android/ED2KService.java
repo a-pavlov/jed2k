@@ -18,6 +18,7 @@ import android.widget.RemoteViews;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
@@ -875,7 +876,7 @@ public class ED2KService extends Service {
     }
 
     public TransferHandle addTransfer(final Hash hash, final long fileSize, final File file)
-            throws JED2KException, Exception {
+            throws JED2KException {
         if(session != null) {
             log.info("[ED2K service] start transfer {} file {} size {}"
                     , hash.toString()
@@ -888,25 +889,18 @@ public class ED2KService extends Service {
                 DocumentFile doc = fs.getDocument(file);
                 if (parcel != null && doc != null) {
                     AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
-                    TransferHandle handle = session.addTransfer(hash, fileSize, handler);
-                    if (handle.isValid()) {
-                        log.info("[ED2K service] transfer added");
-                    }
-
-                    return handle;
-
+                    return session.addTransfer(hash, fileSize, handler);
                 } else {
-                    // unable to create file - add message here
+                    log.error("unable to create target file {}", file);
+                    throw new JED2KException(ErrorCode.IO_EXCEPTION);
                 }
             } else {
                 return session.addTransfer(hash, fileSize, file);
             }
-
-            // return empty handle
-            return new TransferHandle(session);
         }
 
-        throw new Exception("Session in null");
+        log.error("[ED2K service] session is null, but requested transfer adding");
+        throw new JED2KException(ErrorCode.INTERNAL_ERROR);
     }
 
     public List<TransferHandle> getTransfers() {
