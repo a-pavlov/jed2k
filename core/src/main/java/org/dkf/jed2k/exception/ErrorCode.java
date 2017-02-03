@@ -53,7 +53,9 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_EXCEPTION(46, "Unknown exception on port mapping"),
     DHT_REQUEST_ALREADY_RUNNING(47, "DHT request with the same hash already in progress"),
     URI_SYNTAX_ERROR(48, "URI has incorrect syntax"),
-    FAIL(49, "Fail");
+    NUMBER_FORMAT_ERROR(49, "Parse number exception"),
+    UNKNOWN_LINK_TYPE(50, "Emule link has unrecognized type"),
+    FAIL(51, "Fail");
 
     private final int code;
     private final String description;

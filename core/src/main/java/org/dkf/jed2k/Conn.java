@@ -341,8 +341,8 @@ public class Conn {
                         }
                     }
                 } else {
-                    Path filepath = Paths.get(args[0], eml.filepath);
-                    handles.add(addTransfer(s, eml.hash, eml.size, filepath.toAbsolutePath().toString()));
+                    Path filepath = Paths.get(args[0], eml.getStringValue());
+                    handles.add(addTransfer(s, eml.getHash(), eml.getNumberValue(), filepath.toAbsolutePath().toString()));
                 }
             }
             else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
@@ -360,7 +360,7 @@ public class Conn {
                 for(int i = 1; i < parts.length; ++i) {
                     try {
                         EMuleLink link = EMuleLink.fromString(parts[i]);
-                        handles.add(addTransfer(s, link.hash, link.size, Paths.get(args[0], link.filepath).toAbsolutePath().toString()));
+                        handles.add(addTransfer(s, link.getHash(), link.getNumberValue(), Paths.get(args[0], link.getStringValue()).toAbsolutePath().toString()));
                     } catch(JED2KException e) {
                         log.error("Unable to parse link {}", e);
                     }
