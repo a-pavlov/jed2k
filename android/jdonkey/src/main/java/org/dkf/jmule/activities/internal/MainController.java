@@ -24,6 +24,7 @@ import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.activities.SettingsActivity;
 import org.dkf.jmule.activities.WizardActivity;
 import org.dkf.jmule.core.ConfigurationManager;
+import org.dkf.jmule.fragments.ServersFragment;
 import org.dkf.jmule.fragments.TransfersFragment;
 import org.dkf.jmule.fragments.TransfersFragment.TransferStatus;
 
@@ -65,6 +66,13 @@ public final class MainController {
             TransfersFragment fragment = (TransfersFragment) activity.getFragmentByMenuId(R.id.menu_main_transfers);
             //fragment.selectStatusTab(status);
             switchFragment(R.id.menu_main_transfers);
+        }
+    }
+
+    public void showServers() {
+        if (!(activity.getCurrentFragment() instanceof TransfersFragment)) {
+            ServersFragment servers = (ServersFragment) activity.getFragmentByMenuId(R.id.menu_main_servers);
+            switchFragment(R.id.menu_main_servers);
         }
     }
 

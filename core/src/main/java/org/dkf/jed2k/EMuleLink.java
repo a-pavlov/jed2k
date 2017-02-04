@@ -36,6 +36,8 @@ public class EMuleLink {
     }
 
     public static EMuleLink fromString(final String uri) throws JED2KException {
+        if (uri == null) throw new JED2KException(ErrorCode.LINK_MAILFORMED);
+
         String[] parts = uri.split("\\|");
 
         if (parts.length < 2 || !"ed2k://".equals(parts[0]) || !"/".equals(parts[parts.length - 1])) {

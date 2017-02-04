@@ -37,7 +37,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import org.apache.commons.io.IOUtils;
+import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
@@ -238,6 +241,43 @@ public class MainActivity extends AbstractActivity implements
         }
 
         String action = intent.getAction();
+
+        if (action != null && action.equals("android.intent.action.VIEW")) {
+
+            try {
+                EMuleLink link = EMuleLink.fromString(intent.getDataString());
+                if (link.getType().equals(EMuleLink.LinkType.SERVER)) {
+                    ServerMet sm = new ServerMet();
+                    ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+
+                    try {
+                        sm.addServer(ServerMet.ServerMetEntry.create(link.getStringValue()
+                                , (int)link.getNumberValue()
+                                , link.getStringValue()
+                                , link.getStringValue()));
+
+                        ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+                        servers.setupAdapter();
+                        controller.showServers();
+                    } catch (JED2KException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else if (link.getType().equals(EMuleLink.LinkType.SERVERS)) {
+                    log.info("servers link");
+                }
+                else if (link.getType().equals(EMuleLink.LinkType.FILE)) {
+                    log.info("file link");
+
+                }
+                else {
+                    log.error("wtf? link unrecognized {}", intent.getDataString());
+                }
+
+            } catch(JED2KException e) {
+                log.error("intent get data parse error {}", e.toString());
+            }
+        }
 
         if (action != null) {
             if (action.equals(ED2KService.ACTION_SHOW_TRANSFERS)) {
