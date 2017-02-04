@@ -248,10 +248,11 @@ public class MainActivity extends AbstractActivity implements
 
         String action = intent.getAction();
 
+        // view action here - check type of link and load data
         if (action != null && action.equals("android.intent.action.VIEW")) {
-
             try {
                 EMuleLink link = EMuleLink.fromString(intent.getDataString());
+
                 if (link.getType().equals(EMuleLink.LinkType.SERVER)) {
                     ServerMet sm = new ServerMet();
                     ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
@@ -259,8 +260,8 @@ public class MainActivity extends AbstractActivity implements
                     try {
                         sm.addServer(ServerMet.ServerMetEntry.create(link.getStringValue()
                                 , (int)link.getNumberValue()
-                                , link.getStringValue()
-                                , link.getStringValue()));
+                                , "[" + link.getStringValue() + "]"
+                                , ""));
 
                         ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
                         servers.setupAdapter();
@@ -270,7 +271,6 @@ public class MainActivity extends AbstractActivity implements
                     }
                 }
                 else if (link.getType().equals(EMuleLink.LinkType.SERVERS)) {
-                    log.info("servers link");
                     final String serversLink = link.getStringValue();
                     final MainActivity main = this;
                     AsyncTask<Void, Void, ServerMet> task = new AsyncTask<Void, Void, ServerMet>() {
@@ -280,7 +280,6 @@ public class MainActivity extends AbstractActivity implements
                             try {
                                 byte[] data = IOUtils.toByteArray(new URI(serversLink));
                                 ByteBuffer buffer = ByteBuffer.wrap(data);
-                                log.info("downloaded servers size {}", buffer.remaining());
                                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                                 ServerMet sm = new ServerMet();
                                 sm.get(buffer);
@@ -300,6 +299,8 @@ public class MainActivity extends AbstractActivity implements
                                         , R.string.add_servers_list_text
                                         , R.string.add_servers_list_title,
                                         main);
+                            } else {
+                                UIUtils.showShortMessage(main, R.string.add_servers_list_failed);
                             }
                         }
                     };
@@ -307,7 +308,6 @@ public class MainActivity extends AbstractActivity implements
                     task.execute();
                 }
                 else if (link.getType().equals(EMuleLink.LinkType.FILE)) {
-                    log.info("file link");
                     transfers.startTransferFromLink(intent.getDataString());
                     controller.showTransfers(TransferStatus.ALL);
                 }
@@ -783,7 +783,7 @@ public class MainActivity extends AbstractActivity implements
                     placeholder.addView(header, params);
                 }
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("Error updating main header", e);
         }
     }
@@ -904,7 +904,6 @@ public class MainActivity extends AbstractActivity implements
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
         if (lastLoadedServers != null) {
-            log.info("write servers {}", lastLoadedServers.getServers().size());
             ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, lastLoadedServers);
             servers.setupAdapter();
             controller.showServers();
