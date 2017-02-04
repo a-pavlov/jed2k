@@ -22,6 +22,7 @@ import android.app.*;
 import android.content.*;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -71,6 +72,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -265,6 +269,38 @@ public class MainActivity extends AbstractActivity implements
                 }
                 else if (link.getType().equals(EMuleLink.LinkType.SERVERS)) {
                     log.info("servers link");
+                    final String serversLink = link.getStringValue();
+                    AsyncTask<Void, Void, ServerMet> task = new AsyncTask<Void, Void, ServerMet>() {
+
+                        @Override
+                        protected ServerMet doInBackground(Void... voids) {
+                            try {
+                                byte[] data = IOUtils.toByteArray(new URI(serversLink));
+                                ByteBuffer buffer = ByteBuffer.wrap(data);
+                                log.info("downloaded servers size {}", buffer.remaining());
+                                buffer.order(ByteOrder.LITTLE_ENDIAN);
+                                ServerMet sm = new ServerMet();
+                                sm.get(buffer);
+                                return sm;
+                            } catch(Exception e) {
+                                log.error("unable to load servers {}", e);
+                            }
+
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(ServerMet result) {
+                            if (result != null) {
+                                log.info("write servers {}", result.getServers().size());
+                                ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, result);
+                                servers.setupAdapter();
+                                controller.showServers();
+                            }
+                        }
+                    };
+
+                    task.execute();
                 }
                 else if (link.getType().equals(EMuleLink.LinkType.FILE)) {
                     log.info("file link");
