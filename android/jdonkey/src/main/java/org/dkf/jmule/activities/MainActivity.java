@@ -85,6 +85,7 @@ import java.util.Stack;
  */
 public class MainActivity extends AbstractActivity implements
         AbstractDialog.OnDialogClickListener,
+        DialogInterface.OnClickListener,
         ServiceConnection,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -108,6 +109,7 @@ public class MainActivity extends AbstractActivity implements
     private final Stack<Integer> fragmentsStack;
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
+    private ServerMet lastLoadedServers = null;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -270,6 +272,7 @@ public class MainActivity extends AbstractActivity implements
                 else if (link.getType().equals(EMuleLink.LinkType.SERVERS)) {
                     log.info("servers link");
                     final String serversLink = link.getStringValue();
+                    final MainActivity main = this;
                     AsyncTask<Void, Void, ServerMet> task = new AsyncTask<Void, Void, ServerMet>() {
 
                         @Override
@@ -292,10 +295,11 @@ public class MainActivity extends AbstractActivity implements
                         @Override
                         protected void onPostExecute(ServerMet result) {
                             if (result != null) {
-                                log.info("write servers {}", result.getServers().size());
-                                ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, result);
-                                servers.setupAdapter();
-                                controller.showServers();
+                                lastLoadedServers = result;
+                                UIUtils.showYesNoDialog(main
+                                        , R.string.add_servers_list_text
+                                        , R.string.add_servers_list_title,
+                                        main);
                             }
                         }
                     };
@@ -895,6 +899,16 @@ public class MainActivity extends AbstractActivity implements
             checker.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
         //Offers.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
+        if (lastLoadedServers != null) {
+            log.info("write servers {}", lastLoadedServers.getServers().size());
+            ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, lastLoadedServers);
+            servers.setupAdapter();
+            controller.showServers();
+        }
     }
 
     private static final class MenuDrawerToggle extends ActionBarDrawerToggle {

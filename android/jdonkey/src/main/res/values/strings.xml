@@ -234,5 +234,7 @@
 
     <string name="search_source_type_server">Servers</string>
     <string name="search_source_type_dht">Kademlia</string>
-    <string name="session_stopped">ED2K core is stopped, unable to add transfer</string>
+    <string name="session_stopped">ED2K core is stopped, unable to add transfer. Please enable core and try again.</string>
+    <string name="add_servers_list_text">New servers have been downloaded. Replace current servers list?</string>
+    <string name="add_servers_list_title">Servers</string>
 </resources>
