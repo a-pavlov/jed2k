@@ -317,6 +317,7 @@ public class MainActivity extends AbstractActivity implements
 
             } catch(JED2KException e) {
                 log.error("intent get data parse error {}", e.toString());
+                UIUtils.showInformationDialog(this, R.string.intent_link_parse_error, R.string.add_servers_list_title, true, null);
             }
         }
 

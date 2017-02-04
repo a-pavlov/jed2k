@@ -447,7 +447,11 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                     if (Engine.instance().startDownload(url) != null)
                         UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
                 } else {
-                    UIUtils.showLongMessage(getActivity(), R.string.session_stopped);
+                    UIUtils.showInformationDialog(getActivity()
+                            , R.string.add_transfer_session_stopped_body
+                            , R.string.add_transfer_session_stopped_title
+                            ,false
+                            , null);
                 }
             }
         } else {
