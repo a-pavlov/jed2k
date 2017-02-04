@@ -268,7 +268,8 @@ public class MainActivity extends AbstractActivity implements
                 }
                 else if (link.getType().equals(EMuleLink.LinkType.FILE)) {
                     log.info("file link");
-
+                    transfers.startTransferFromLink(intent.getDataString());
+                    controller.showTransfers(TransferStatus.ALL);
                 }
                 else {
                     log.error("wtf? link unrecognized {}", intent.getDataString());

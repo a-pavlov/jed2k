@@ -234,4 +234,5 @@
 
     <string name="search_source_type_server">Servers</string>
     <string name="search_source_type_dht">Kademlia</string>
+    <string name="session_stopped">ED2K core is stopped, unable to add transfer</string>
 </resources>

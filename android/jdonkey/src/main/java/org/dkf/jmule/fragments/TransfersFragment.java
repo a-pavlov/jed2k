@@ -428,7 +428,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     }
 
     private void startTransferFromURL() {
-
         String url = addTransferUrlTextView.getText();
         if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
             toggleAddTransferControls();
@@ -436,6 +435,21 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                 if (Engine.instance().startDownload(url) != null) UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
             }
             addTransferUrlTextView.setText("");
+        } else {
+            UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
+        }
+    }
+
+    public void startTransferFromLink(final String url) {
+        if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
+            if (url.startsWith("ed2k")) {
+                if (Engine.instance().isStarted()) {
+                    if (Engine.instance().startDownload(url) != null)
+                        UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
+                } else {
+                    UIUtils.showLongMessage(getActivity(), R.string.session_stopped);
+                }
+            }
         } else {
             UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
         }
