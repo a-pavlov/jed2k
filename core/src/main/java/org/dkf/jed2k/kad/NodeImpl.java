@@ -109,7 +109,10 @@ public class NodeImpl {
             log.error("unable to refresh bucket with target {} due to error {}", target, e);
         }
 
+
         // start firewalled check when we have at least 5 live nodes and last check was later than 1 hour ago
+        /*
+        disable firewalled checking due to algorithm is not ready
         if (runningRequests.isEmpty() && table.getSize().getLeft().intValue() > 5 && ((lastFirewalledCheck + Time.hours(1) < Time.currentTime()) || lastFirewalledCheck == 0) ) {
             log.debug("[node] start firewalled check");
             lastFirewalledCheck = Time.currentTime();
@@ -119,6 +122,7 @@ public class NodeImpl {
                 log.error("[node] unable to start firewalled algorithm {}", e);
             }
         }
+        */
     }
 
     public void searchSources(final KadId id, long size, final Listener l) throws JED2KException {
@@ -351,21 +355,31 @@ public class NodeImpl {
     private void sendSearchResult(final InetSocketAddress address, final KadId target, final Collection<IndexedImpl.Published> publishes) {
         if (publishes != null) {
             int collected = 0;
+            int bytesAllocated = 0;
             Kad2SearchRes keywordsSearchRes = new Kad2SearchRes();
 
             for(final IndexedImpl.Published p: publishes) {
-                ++collected;
-                keywordsSearchRes.getResults().add(p.getEntry());
-                if (collected == 50) {
-                    collected = 0;
+                // limit was reached - send packet
+                if (collected > 50 || (bytesAllocated + p.getEntry().bytesCount() + KadPacketHeader.KAD_SIZE) > tracker.getOutputBufferLimit()) {
+                    assert bytesAllocated <= tracker.getOutputBufferLimit();
                     tracker.write(keywordsSearchRes, address);
                     keywordsSearchRes = new Kad2SearchRes();
+                    collected = 0;
+                    bytesAllocated = 0;
                 }
+
+                keywordsSearchRes.getResults().add(p.getEntry());
+                ++collected;
+                bytesAllocated += p.getEntry().bytesCount();
             }
 
             assert collected >= 0;
 
+            // send remains
             if (collected != 0) {
+                assert collected > 0;
+                assert bytesAllocated > 0;
+                assert bytesAllocated <= tracker.getOutputBufferLimit();
                 tracker.write(keywordsSearchRes, address);
             }
         } else {

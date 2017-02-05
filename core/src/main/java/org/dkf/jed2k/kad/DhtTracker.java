@@ -47,6 +47,9 @@ public class DhtTracker extends Thread {
     private PacketHeader incomingHeader = null;
     private int localAddress = 0;
 
+    private static int OUTPUT_BUFFER_LIMIT = 8128;
+    private static int INPUT_BUFFER_LIMIT = 8128;
+
     public DhtTracker(int listenPort, final KadId id) {
         assert listenPort > 0 && listenPort <= 65535;
         this.listenPort = listenPort;
@@ -79,8 +82,8 @@ public class DhtTracker extends Thread {
             channel.socket().bind(addr);
             channel.configureBlocking(false);
             key = channel.register(selector, SelectionKey.OP_READ);
-            incomingBuffer = ByteBuffer.allocate(8128);
-            outgoingBuffer = ByteBuffer.allocate(8128);
+            incomingBuffer = ByteBuffer.allocate(INPUT_BUFFER_LIMIT);
+            outgoingBuffer = ByteBuffer.allocate(OUTPUT_BUFFER_LIMIT);
             incomingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingOrder = new LinkedList<>();
@@ -154,6 +157,14 @@ public class DhtTracker extends Thread {
 
             node.tick();
         }
+    }
+
+    public int getOutputBufferLimit() {
+        return OUTPUT_BUFFER_LIMIT;
+    }
+
+    public int getInputBufferLimit() {
+        return INPUT_BUFFER_LIMIT;
     }
 
     private void onReadable() {
