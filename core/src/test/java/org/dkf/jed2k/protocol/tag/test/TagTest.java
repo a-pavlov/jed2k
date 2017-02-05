@@ -3,6 +3,7 @@ package org.dkf.jed2k.protocol.tag.test;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.UInt16;
+import org.dkf.jed2k.protocol.UInt8;
 import org.dkf.jed2k.protocol.tag.Tag;
 import org.junit.Test;
 
@@ -11,9 +12,9 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 import static org.dkf.jed2k.protocol.Unsigned.uint16;
+import static org.dkf.jed2k.protocol.Unsigned.uint8;
 import static org.dkf.jed2k.protocol.tag.Tag.tag;
 
 public class TagTest {
@@ -22,8 +23,8 @@ public class TagTest {
     public void initialTest() throws JED2KException {
         Tag floatTag = Tag.tag(Tag.FT_DL_PREVIEW, null, 0.1f);
         assertEquals(0.1f, floatTag.floatValue());
-        assertEquals(Tag.FT_DL_PREVIEW, floatTag.id());
-        assertEquals(Tag.TAGTYPE_FLOAT32, floatTag.type());
+        assertEquals(Tag.FT_DL_PREVIEW, floatTag.getId());
+        assertEquals(Tag.TAGTYPE_FLOAT32, floatTag.getType());
     }
 
     @Test
@@ -73,6 +74,34 @@ public class TagTest {
         t = itr.next();
         assertEquals("IVAN", t.name());
         assertEquals("APPLE", t.stringValue());
+
+        assertTrue(itr.hasNext());
+        t = itr.next();
+        assertTrue(t.isRawValue());
+        byte[] blobTmpl = { (byte)0x0D, (byte)0x0A, (byte)0x0B };
+
+        assertEquals(blobTmpl.length, t.blobValue().length);
+        for(int i = 0; i < blobTmpl.length; ++i) {
+            assertEquals(blobTmpl[i], t.blobValue()[i]);
+        }
+    }
+
+    @Test
+    public void bsobTest() throws JED2KException {
+        byte source[] = {
+                (byte)0x01
+                , (byte)(Tag.TAGTYPE_BSOB | 0x80), (byte)0x0A, (byte)0x08
+                , (byte)0xFF, (byte)0x00, (byte)0x00, (byte)0x00
+                , (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00 };
+        Container<UInt8, Tag> tags = new Container<UInt8, Tag>(uint8(), Tag.class);
+        ByteBuffer nb = ByteBuffer.wrap(source);
+        nb.order(ByteOrder.LITTLE_ENDIAN);
+        tags.get(nb);
+        assertFalse(nb.hasRemaining());
+        assertEquals(1, tags.size());
+        Tag t = tags.get(0);
+        assertTrue(t.isRawValue());
+        assertEquals(0xFFL, t.bsobAsLong());
     }
 
     @Test
@@ -83,14 +112,14 @@ public class TagTest {
         nb.flip();
         Tag itag = new Tag();
         itag.get(nb);
-        assertEquals(Tag.FT_FILEHASH, itag.id());
+        assertEquals(Tag.FT_FILEHASH, itag.getId());
         assertEquals(100, itag.intValue());
         assertEquals(6, itag.bytesCount());
         Tag stag = new Tag();
         stag.get(nb);
         assertEquals("Test name", stag.name());
         assertEquals("XXX data", stag.stringValue());
-        assertEquals(Tag.TAGTYPE_STR8, stag.type());
+        assertEquals(Tag.TAGTYPE_STR8, stag.getType());
         assertEquals(20, stag.bytesCount());
         assertEquals(0, nb.remaining());
     }

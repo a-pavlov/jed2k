@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
  */
 public class KadPacketHeader extends PacketHeader {
 
+    public static int KAD_SIZE = 2; // 1 byte protocol + 1 byte packet
+
     @Override
     public ByteBuffer get(ByteBuffer src) {
         protocol = src.get();
@@ -26,7 +28,7 @@ public class KadPacketHeader extends PacketHeader {
 
     @Override
     public int bytesCount() {
-        return 2;   // protocol + packet
+        return KAD_SIZE;
     }
 
     /**

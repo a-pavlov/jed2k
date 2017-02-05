@@ -46,6 +46,8 @@ public class Time {
         return value*1000*60;
     }
 
+    public static long hours(int value) { return value*1000*3600; }
+
     public static long seconds(int value) {
         return value*1000;
     }

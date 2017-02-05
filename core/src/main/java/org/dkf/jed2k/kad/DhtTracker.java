@@ -3,6 +3,8 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.*;
@@ -10,7 +12,9 @@ import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.kad.*;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
@@ -41,6 +45,10 @@ public class DhtTracker extends Thread {
     private LinkedList<InetSocketAddress> outgoingAddresses = null;
     private PacketCombiner combiner = null;
     private PacketHeader incomingHeader = null;
+    private int localAddress = 0;
+
+    private static int OUTPUT_BUFFER_LIMIT = 8128;
+    private static int INPUT_BUFFER_LIMIT = 8128;
 
     public DhtTracker(int listenPort, final KadId id) {
         assert listenPort > 0 && listenPort <= 65535;
@@ -50,15 +58,32 @@ public class DhtTracker extends Thread {
 
     @Override
     public void run() {
+        // TODO - remove this incorrect code for obtain our address since it won't work on more than one interfaces
+        String host = "";
         try {
-            log.debug("[tracker] starting");
+            host = InetAddress.getLocalHost().getHostAddress();
+            localAddress = Utils.string2Ip(host);
+        }
+        catch (UnknownHostException e) {
+            log.error("[tracker] unknown host exception");
+        }
+        catch(JED2KException e) {
+            log.error("[tracker] unable to parse host {} {}", host, e);
+        }
+
+        log.debug("[tracker] local host {}", Utils.ip2String(localAddress));
+        node.setAddress(localAddress);
+
+        try {
+            InetSocketAddress addr = new InetSocketAddress(listenPort);
+            log.debug("[tracker] starting {}", addr.getAddress().getHostAddress());
             selector = Selector.open();
             channel = DatagramChannel.open();
-            channel.socket().bind(new InetSocketAddress(listenPort));
+            channel.socket().bind(addr);
             channel.configureBlocking(false);
             key = channel.register(selector, SelectionKey.OP_READ);
-            incomingBuffer = ByteBuffer.allocate(8128);
-            outgoingBuffer = ByteBuffer.allocate(4096);
+            incomingBuffer = ByteBuffer.allocate(INPUT_BUFFER_LIMIT);
+            outgoingBuffer = ByteBuffer.allocate(OUTPUT_BUFFER_LIMIT);
             incomingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingBuffer.order(ByteOrder.LITTLE_ENDIAN);
             outgoingOrder = new LinkedList<>();
@@ -134,6 +159,14 @@ public class DhtTracker extends Thread {
         }
     }
 
+    public int getOutputBufferLimit() {
+        return OUTPUT_BUFFER_LIMIT;
+    }
+
+    public int getInputBufferLimit() {
+        return INPUT_BUFFER_LIMIT;
+    }
+
     private void onReadable() {
         try {
             assert incomingBuffer.remaining() == incomingBuffer.capacity();
@@ -141,6 +174,7 @@ public class DhtTracker extends Thread {
             log.debug("[tracker] receive {} bytes from {}", incomingBuffer.capacity() - incomingBuffer.remaining(), address);
             incomingBuffer.flip();
             incomingHeader.get(incomingBuffer);
+            if (!incomingHeader.isDefined()) throw new JED2KException(ErrorCode.PACKET_HEADER_UNDEFINED);
 
             incomingHeader.reset(incomingHeader.key(), incomingBuffer.remaining());
             Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
@@ -151,11 +185,13 @@ public class DhtTracker extends Thread {
             log.error("[tracker] I/O exception {} on reading packet {}", e, incomingHeader);
             e.printStackTrace();
         } catch (JED2KException e) {
-            log.error("[tracker] exception {} on parse packet {}", e, incomingHeader);
             e.printStackTrace();
+            log.error("[tracker] exception {} on parse packet {}", e, incomingHeader);
+            //log.error("packet dump \n{}", HexDump.dump(incomingBuffer.array()));
         } catch (Exception e) {
             e.printStackTrace();
             log.error("[tracker] unexpected error on parse packet {} {}", incomingHeader, e);
+            //log.error("packet dump \n{}", HexDump.dump(incomingBuffer.array()));
         } finally {
             incomingBuffer.clear();
 
@@ -321,13 +357,21 @@ public class DhtTracker extends Thread {
     public synchronized void hello(final InetSocketAddress ep) {
         Kad2HelloReq hello = new Kad2HelloReq();
         hello.getKid().assign(Hash.EMULE);
-        hello.getVersion().assign(org.dkf.jed2k.protocol.kad.PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getVersion().assign(org.dkf.jed2k.protocol.kad.PacketCombiner.KADEMLIA_VERSION);
         hello.getPortTcp().assign(listenPort);
         write(hello, ep);
     }
 
     public synchronized void bootstrap(final List<Endpoint> endpoints) throws JED2KException {
         node.bootstrap(endpoints);
+    }
+
+    /**
+     * just for test firewalled request/response
+     * @throws JED2KException
+     */
+    public synchronized void firewalled() throws JED2KException {
+        node.firewalled();
     }
 
     public void status() {
@@ -363,5 +407,9 @@ public class DhtTracker extends Thread {
 
     public synchronized boolean needBootstrap() {
         return node.getTable().needBootstrap();
+    }
+
+    public synchronized boolean isFirewalled() {
+        return node.isFirewalled();
     }
 }

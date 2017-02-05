@@ -1,20 +1,17 @@
 package org.dkf.jed2k.test;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Constants;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Logger;
+import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+@Slf4j
 public class CommonTest {
-    private static Logger log = Logger.getLogger(CommonTest.class.getName());
     private static byte[] data = new byte[(int)Constants.PIECE_SIZE];
     private static ByteBuffer dataBuffer = ByteBuffer.wrap(data);
 
@@ -102,5 +99,37 @@ public class CommonTest {
         assertEquals("3", "3 2 3".split("\\s+")[0]);
         assertEquals("455", "   455   567".trim().split("\\s+")[0]);
         assertEquals("", "  ".trim().split("\\s+")[0]);
+    }
+
+    @Test
+    public void testLinkedHashMapFeatures() {
+        LinkedHashMap<Integer, Integer> m = new LinkedHashMap<>(100, 100, true);
+        for(int i = 0; i < 10; ++i) {
+            m.put(i,i);
+        }
+
+        int i = 0;
+        for(final int v: m.values()) {
+            assertEquals(i++, v);
+        }
+
+        assertTrue(m.containsValue(9));
+        assertTrue(m.containsValue(8));
+
+        i = 0;
+        for(final int v: m.values()) {
+            assertEquals(i++, v);
+        }
+
+        Integer val = m.get(5);
+        Integer val2 = m.get(8);
+        assertEquals(5, val.intValue());
+        assertEquals(8, val2.intValue());
+
+        int template[] = {0, 1, 2, 3, 4, 6, 7, 9, 5, 8};
+        i = 0;
+        for(final int v: m.values()) {
+            assertEquals(template[i++], v);
+        }
     }
 }

@@ -25,15 +25,6 @@ public abstract class Direct extends Traversal {
     }
 
     /**
-     * no new nodes on direct algorithms
-     * @return
-     */
-    @Override
-    public boolean containsNewNodes() {
-        return false;
-    }
-
-    /**
      * can't add entry to that algorithm at all
      * @param id
      * @param addr
@@ -56,11 +47,16 @@ public abstract class Direct extends Traversal {
 
     @Override
     public void finished(final Observer o) {
-        SearchObserver so = (SearchObserver)o;
-        assert so != null;
+        // TODO - refactor this bad code!
+        // avoid search's call specific
+        if (o instanceof SearchObserver) {
+            SearchObserver so = (SearchObserver) o;
+            assert so != null;
 
-        if (so.getEntries() != null) {
-            accum.addAll(so.getEntries());
+            if (so.getEntries() != null) {
+                accum.addAll(so.getEntries());
+            }
+
         }
 
         super.finished(o);

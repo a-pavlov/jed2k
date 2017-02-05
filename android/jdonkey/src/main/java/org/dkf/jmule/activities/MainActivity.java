@@ -238,6 +238,8 @@ public class MainActivity extends AbstractActivity implements
 
     @Override
     protected void onNewIntent(Intent intent) {
+        log.info("[main activity] on new intent {}", intent);
+
         if (intent == null) {
             return;
         }

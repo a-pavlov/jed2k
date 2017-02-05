@@ -108,7 +108,7 @@ public class Session extends Thread {
 
                         try {
                             for (final Tag t : kse.getInfo()) {
-                                switch (t.id()) {
+                                switch (t.getId()) {
                                     case Tag.TAG_SOURCETYPE:
                                         sourceType = t.intValue();
                                         break;

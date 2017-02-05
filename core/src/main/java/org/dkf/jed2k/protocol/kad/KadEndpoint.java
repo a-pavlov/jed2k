@@ -1,6 +1,7 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -14,6 +15,7 @@ import java.nio.ByteBuffer;
  * Created by inkpot on 15.11.2016.
  */
 @Data
+@EqualsAndHashCode
 public class KadEndpoint implements Serializable {
     private UInt32 ip = new UInt32();
     private UInt16 portUdp = new UInt16();

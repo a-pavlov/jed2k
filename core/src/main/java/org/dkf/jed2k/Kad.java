@@ -124,14 +124,15 @@ public class Kad {
             }
         }
     }
-
-
+    
     public static void main(String[] args) throws IOException, JED2KException {
         log.info("[KAD] starting");
         if (args.length < 1) {
             log.warn("[KAD] please provide working directory");
             return;
         }
+
+        log.info("[KAD] local host {}", InetAddress.getLocalHost());
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
@@ -225,6 +226,9 @@ public class Kad {
             }
             else if (parts[0].compareTo("startupnp") == 0) {
                 startUpnp();
+            }
+            else if (parts[0].compareTo("firewalled") == 0) {
+                tracker.firewalled();
             }
         }
 

@@ -2,6 +2,7 @@ package org.dkf.jed2k.protocol;
 
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.util.HexDump;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public abstract class PacketCombiner {
             decompresser.end();
             src.clear();
 
-            // TODO fix this temp code
+            // TODO (apavlov) need mechanism to increase buffer size and set it to originator because now buffer will use only once
             if (src.capacity() < resultLength) {
                 log.debug("re-create input buffer due to decompress size to {}", resultLength);
                 src = ByteBuffer.allocate(resultLength);
@@ -69,7 +70,7 @@ public abstract class PacketCombiner {
 
             src.put(plainData, 0, resultLength);
             src.flip();
-            header.reset(header.key(), resultLength);   // TODO - use correct protocol value here to be compatible with HashMap
+            header.reset(header.key(), resultLength);   // use correct protocol value here to be compatible with HashMap
         }
 
         PacketKey key = header.key();
@@ -85,7 +86,10 @@ public abstract class PacketCombiner {
                 throw new JED2KException(e, ErrorCode.GENERIC_ILLEGAL_ACCESS);
             }
         } else {
-            log.error("unable to find correspond packet for {}", header);
+            log.error("[combiner] unable to find correspond packet for {}", header);
+            log.trace("[combiner] packet dump \n{}", HexDump.dump(src.array()
+                    , 0
+                    , Math.min(src.remaining(), Math.min(Math.max(header.size, 0), 256))));
             ph = new BytesSkipper(serviceSize(header));
         }
 

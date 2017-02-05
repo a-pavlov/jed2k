@@ -1,36 +1,33 @@
 package org.dkf.jed2k.protocol.kad;
 
 import lombok.Data;
-import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
-import org.dkf.jed2k.protocol.Unsigned;
 
 import java.nio.ByteBuffer;
 
 /**
- * Created by inkpot on 16.12.2016.
+ * Created by inkpot on 19.01.2017.
  */
 @Data
-public class Kad2FirewalledReq implements Serializable {
-    UInt16 portTcp = Unsigned.uint16();
-    KadId id = new KadId();
-    byte options;
+public class Kad2PublishKeysReq implements Serializable {
+    private KadId keywordId = new KadId();
+    private Container<UInt16, KadSearchEntry> sources = Container.makeShort(KadSearchEntry.class);
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        options = id.get(portTcp.get(src)).get();
-        return src;
+        return sources.get(keywordId.get(src));
     }
 
     @Override
     public ByteBuffer put(ByteBuffer dst) throws JED2KException {
-        return id.put(portTcp.put(dst)).put(options);
+        return sources.put(keywordId.put(dst));
     }
 
     @Override
     public int bytesCount() {
-        return portTcp.bytesCount() + id.bytesCount() + Utils.sizeof(options);
+        return keywordId.bytesCount() + sources.bytesCount();
     }
 }
