@@ -887,7 +887,7 @@ public class ED2KService extends Service {
                 LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
                 ParcelFileDescriptor parcel = fs.openFD(file, "rw");
                 DocumentFile doc = fs.getDocument(file);
-                if (parcel != null && doc != null) {
+                if (parcel != null /*&& doc != null*/) {
                     AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
                     return session.addTransfer(hash, fileSize, handler);
                 } else {

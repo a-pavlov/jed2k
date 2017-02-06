@@ -70,10 +70,10 @@ public class StartDownloadTask extends ContextTask<Transfer> {
         }
         catch(JED2KException e) {
             if (e.getErrorCode().equals(ErrorCode.IO_EXCEPTION)) {
-                UIUtils.showShortMessage(getContext(), R.string.start_transfer_file_error);
+                //UIUtils.showShortMessage(getContext(), R.string.start_transfer_file_error);
             }
             else if (e.getErrorCode().equals(ErrorCode.INTERNAL_ERROR)) {
-                UIUtils.showShortMessage(getContext(), R.string.start_transfer_internal_error);
+                //UIUtils.showShortMessage(getContext(), R.string.start_transfer_internal_error);
             }
 
             log.error("unable to start transfer {}", e.toString());
