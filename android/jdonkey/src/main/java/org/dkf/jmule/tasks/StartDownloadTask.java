@@ -70,7 +70,6 @@ public class StartDownloadTask extends ContextTask<Transfer> {
         }
         catch(JED2KException e) {
             if (e.getErrorCode().equals(ErrorCode.IO_EXCEPTION)) {
-                //UIUtils.showShortMessage(getContext(), R.string.start_transfer_file_error);
             }
             else if (e.getErrorCode().equals(ErrorCode.INTERNAL_ERROR)) {
                 //UIUtils.showShortMessage(getContext(), R.string.start_transfer_internal_error);
@@ -90,35 +89,9 @@ public class StartDownloadTask extends ContextTask<Transfer> {
     @Override
     protected void onPostExecute(Context ctx, Transfer transfer) {
         if (transfer != null) {
-            if (ctx instanceof Activity) {
-                //Offers.showInterstitialOfferIfNecessary((Activity) ctx);
-            }
-
-/*
-            if (!(transfer instanceof InvalidTransfer)) {
-                TransferManager tm = TransferManager.instance();
-                if (tm.isBittorrentDownloadAndMobileDataSavingsOn(transfer)) {
-                    UIUtils.showLongMessage(ctx, R.string.torrent_transfer_enqueued_on_mobile_data);
-                    ((BittorrentDownload) transfer).pause();
-                } else {
-                    if (tm.isBittorrentDownloadAndMobileDataSavingsOff(transfer)) {
-                        UIUtils.showLongMessage(ctx, R.string.torrent_transfer_consuming_mobile_data);
-                    }
-
-                    if (message != null){
-                        UIUtils.showShortMessage(ctx, message);
-                    }
-                }
-            } else {
-                if (transfer instanceof ExistingDownload) {
-                    //nothing happens here, the user should just see the transfer
-                    //manager and we avoid adding the same transfer twice.
-                } else {
-                    UIUtils.showLongMessage(ctx, ((InvalidTransfer) transfer).getReasonResId());
-                }
-            }
-            */
+            UIUtils.showShortMessage(getContext(), R.string.start_transfer_success);
+        } else {
+            UIUtils.showShortMessage(getContext(), R.string.start_transfer_file_error);
         }
-
     }
 }

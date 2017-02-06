@@ -234,6 +234,7 @@
 
     <string name="search_source_type_server">Servers</string>
     <string name="search_source_type_dht">Kademlia</string>
+    <string name="start_transfer_success">Transfer has been added</string>
     <string name="start_transfer_file_error">Unable to start transfer due to I/O exception</string>
     <string name="start_transfer_internal_error">Internal error on transfer starting</string>
 </resources>
