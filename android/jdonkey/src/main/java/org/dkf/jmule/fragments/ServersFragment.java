@@ -69,7 +69,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         setRetainInstance(true);
     }
 
-    private void setupAdapter() {
+    public void setupAdapter() {
         if (adapter == null) {
             adapter = new ServersAdapter(getActivity());
         }

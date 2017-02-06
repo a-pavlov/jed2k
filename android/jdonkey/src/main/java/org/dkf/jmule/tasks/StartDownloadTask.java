@@ -65,7 +65,11 @@ public class StartDownloadTask extends ContextTask<Transfer> {
                 transfer = TransferManager.instance().download(entry.getHash(), entry.getFileSize(), entry.getFileName());
             } else {
                 EMuleLink el = EMuleLink.fromString(link);
-                transfer = TransferManager.instance().download(el.hash, el.size, el.filepath);
+                if (el.getType().equals(EMuleLink.LinkType.FILE)) {
+                    transfer = TransferManager.instance().download(el.getHash(), el.getNumberValue(), el.getStringValue());
+                } else {
+                    // error message to user
+                }
             }
         }
         catch(JED2KException e) {

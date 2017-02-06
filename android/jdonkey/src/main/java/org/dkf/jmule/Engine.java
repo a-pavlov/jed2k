@@ -361,7 +361,11 @@ public final class Engine implements AlertListener {
         try {
             if (service != null) {
                 EMuleLink link = EMuleLink.fromString(slink);
-                return new ED2KTransfer(service.addTransfer(link.hash, link.size, new File(link.filepath)));
+                if (link.getType().equals(EMuleLink.LinkType.FILE)) {
+                    return new ED2KTransfer(service.addTransfer(link.getHash(), link.getNumberValue(), new File(link.getStringValue())));
+                } else {
+                    // message to userv link is incorrect type
+                }
             }
         } catch(JED2KException e) {
             log.error("load link error {}", e);
