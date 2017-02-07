@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.dkf.jmule.core;
+package org.dkf.jed2k.android;
 
 /**
  *

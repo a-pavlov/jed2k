@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jmule.core;
+package org.dkf.jed2k.android;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -25,7 +25,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.storage.StorageManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
-import android.util.LruCache;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -46,9 +45,6 @@ import java.util.List;
 public final class LollipopFileSystem implements FileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LollipopFileSystem.class);
-
-    private static final int CACHE_MAX_SIZE = 1000;
-    private static final LruCache<String, DocumentFile> CACHE = new LruCache<>(CACHE_MAX_SIZE);
 
     private static List<String> FIXED_SDCARD_PATHS = buildFixedSdCardPaths();
 
@@ -165,7 +161,7 @@ public final class LollipopFileSystem implements FileSystem {
     }
 
     @Override
-    public File[] listFiles(File file, org.dkf.jmule.core.FileFilter filter) {
+    public File[] listFiles(File file, org.dkf.jed2k.android.FileFilter filter) {
         try {
             File[] files = file.listFiles(filter);
             if (files != null) {
@@ -252,7 +248,7 @@ public final class LollipopFileSystem implements FileSystem {
         try {
             final List<String> paths = new LinkedList<>();
             if (isDirectory(file)) {
-                walk(file, new org.dkf.jmule.core.FileFilter() {
+                walk(file, new org.dkf.jed2k.android.FileFilter() {
                     @Override
                     public boolean accept(File file) {
                         return true;
@@ -279,7 +275,7 @@ public final class LollipopFileSystem implements FileSystem {
     }
 
     @Override
-    public void walk(File file, org.dkf.jmule.core.FileFilter filter) {
+    public void walk(File file, org.dkf.jed2k.android.FileFilter filter) {
         DefaultFileSystem.walkFiles(this, file, filter);
     }
 
@@ -299,35 +295,30 @@ public final class LollipopFileSystem implements FileSystem {
         return getExtSdCardFolder(app, file);
     }
 
-    public int openFD(File file, String mode) {
+    public ParcelFileDescriptor openFD(File file, String mode) {
         if (!("r".equals(mode) || "w".equals(mode) || "rw".equals(mode))) {
             LOG.error("Only r, w or rw modes supported");
-            return -1;
+            return null;
         }
 
         DocumentFile f = getFile(app, file, true);
         if (f == null) {
             LOG.error("Unable to obtain or create document for file: {}", file);
-            return -1;
+            return null;
         }
 
         try {
             ContentResolver cr = app.getContentResolver();
-            ParcelFileDescriptor fd = cr.openFileDescriptor(f.getUri(), mode);
-            return fd.detachFd();
+            return cr.openFileDescriptor(f.getUri(), mode);
         } catch (Exception e) {
             LOG.error("Unable to get native fd", e);
-            return -1;
+            return null;
         }
     }
 
     private static DocumentFile getDirectory(Context context, File dir, boolean create) {
         try {
             String path = dir.getAbsolutePath();
-            DocumentFile cached = CACHE.get(path);
-            if (cached != null && cached.isDirectory()) {
-                return cached;
-            }
 
             String baseFolder = getExtSdCardFolder(context, dir);
             if (baseFolder == null) {
@@ -343,26 +334,10 @@ public final class LollipopFileSystem implements FileSystem {
             String fullPath = dir.getAbsolutePath();
             String relativePath = baseFolder.length() < fullPath.length() ? fullPath.substring(baseFolder.length() + 1) : "";
 
-            String[] segments = relativePath.split("/");
+            String[] segments = relativePath.isEmpty()?new String[0]:relativePath.split("/");
 
             Uri rootUri = getDocumentUri(context, new File(baseFolder));
             DocumentFile f = DocumentFile.fromTreeUri(context, rootUri);
-
-            // special FrostWire case
-            if (create) {
-                if (baseFolder.endsWith("/FrostWire") && !f.exists()) {
-                    baseFolder = baseFolder.substring(0, baseFolder.length() - 10);
-                    rootUri = getDocumentUri(context, new File(baseFolder));
-                    f = DocumentFile.fromTreeUri(context, rootUri);
-                    f = f.findFile("FrostWire");
-                    if (f == null) {
-                        f = f.createDirectory("FrostWire");
-                        if (f == null) {
-                            return null;
-                        }
-                    }
-                }
-            }
 
             for (int i = 0; i < segments.length; i++) {
                 String segment = segments[i];
@@ -381,13 +356,7 @@ public final class LollipopFileSystem implements FileSystem {
                 }
             }
 
-            f = f.isDirectory() ? f : null;
-
-            if (f != null) {
-                CACHE.put(path, f);
-            }
-
-            return f;
+            return f.isDirectory() ? f : null;
         } catch (Exception e) {
             LOG.error("Error getting directory: {} {}", dir, e);
             return null;
@@ -397,11 +366,6 @@ public final class LollipopFileSystem implements FileSystem {
     private static DocumentFile getFile(Context context, File file, boolean create) {
         try {
             String path = file.getAbsolutePath();
-            DocumentFile cached = CACHE.get(path);
-            if (cached != null && cached.isFile()) {
-                return cached;
-            }
-
             File parent = file.getParentFile();
             if (parent == null) {
                 return DocumentFile.fromFile(file);
@@ -430,10 +394,6 @@ public final class LollipopFileSystem implements FileSystem {
                 }
             }
 
-            if (f != null) {
-                CACHE.put(path, f);
-            }
-
             return f;
         } catch (Exception e) {
             LOG.error("Error getting file: {} {}", file, e);
@@ -444,22 +404,17 @@ public final class LollipopFileSystem implements FileSystem {
     private static DocumentFile getDocument(Context context, File file) {
         try {
             String path = file.getAbsolutePath();
-            DocumentFile cached = CACHE.get(path);
-            if (cached != null) {
-                return cached;
-            }
-
             String baseFolder = getExtSdCardFolder(context, file);
             if (baseFolder == null) {
                 return file.exists() ? DocumentFile.fromFile(file) : null;
             }
 
-            baseFolder = combineRoot(baseFolder);
+            //baseFolder = combineRoot(baseFolder);
 
             String fullPath = file.getAbsolutePath();
             String relativePath = baseFolder.length() < fullPath.length() ? fullPath.substring(baseFolder.length() + 1) : "";
 
-            String[] segments = relativePath.split("/");
+            String[] segments = relativePath.isEmpty()?new String[0]:relativePath.split("/");
 
             Uri rootUri = getDocumentUri(context, new File(baseFolder));
             DocumentFile f = DocumentFile.fromTreeUri(context, rootUri);
@@ -472,10 +427,6 @@ public final class LollipopFileSystem implements FileSystem {
                 } else {
                     return null;
                 }
-            }
-
-            if (f != null) {
-                CACHE.put(path, f);
             }
 
             return f;
@@ -778,6 +729,7 @@ public final class LollipopFileSystem implements FileSystem {
         l.add("/data/sdext2");
         l.add("/data/sdext3");
         l.add("/data/sdext4");
+        l.add("/storage/16F7-2B0E"); // emulator
 
         return Collections.unmodifiableList(l);
     }

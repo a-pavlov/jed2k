@@ -68,9 +68,9 @@ public class Conn {
         log.info("more results: {}", (hasMoreResults?"yes":"no"));
     }
 
-    static TransferHandle addTransfer(final Session s, final Hash hash, final long size, final String filepath) {
+    static TransferHandle addTransfer(final Session s, final Hash hash, final long size, final File file) {
         try {
-            TransferHandle h = s.addTransfer(hash, size, filepath);
+            TransferHandle h = s.addTransfer(hash, size, file);
             if (h.isValid()) {
                 log.info("[CONN] transfer valid {}", h.getHash());
             }
@@ -84,7 +84,7 @@ public class Conn {
     }
 
     static void saveTransferParameters(final AddTransferParams params) throws JED2KException {
-        File transferFile = new File(params.filepath.asString());
+        File transferFile = new File(params.getFilepath().asString());
         File resumeDataFile = new File(resumeDataDirectory.resolve(transferFile.getName()).toString());
 
         try(FileOutputStream stream = new FileOutputStream(resumeDataFile, false); FileChannel channel = stream.getChannel();) {
@@ -335,14 +335,14 @@ public class Conn {
                             sb.append("Transfer ").append(filepath).append(" hash: ");
                             sb.append(sfe.getHash().toString()).append(" dataSize: ");
                             sb.append(filesize);
-                            handles.add(addTransfer(s, sfe.getHash(), filesize, filepath.toAbsolutePath().toString()));
+                            handles.add(addTransfer(s, sfe.getHash(), filesize, filepath.toFile()));
                         } else {
                             log.warn("[CONN] not enough parameters to start new transfer");
                         }
                     }
                 } else {
-                    Path filepath = Paths.get(args[0], eml.getStringValue());
-                    handles.add(addTransfer(s, eml.getHash(), eml.getNumberValue(), filepath.toAbsolutePath().toString()));
+                    Path filepath = Paths.get(args[0], eml.filepath);
+                    handles.add(addTransfer(s, eml.hash, eml.size, filepath.toFile()));
                 }
             }
             else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
@@ -351,7 +351,7 @@ public class Conn {
                     long size = Long.parseLong(parts[2]);
                     Hash hash = Hash.fromString(parts[1]);
                     log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
-                    handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
+                    handles.add(addTransfer(s, hash, size, filepath.toFile()));
                 } catch(Exception e) {
                     log.error("[CONN] unable to start loading {}", e);
                 }
@@ -360,7 +360,7 @@ public class Conn {
                 for(int i = 1; i < parts.length; ++i) {
                     try {
                         EMuleLink link = EMuleLink.fromString(parts[i]);
-                        handles.add(addTransfer(s, link.getHash(), link.getNumberValue(), Paths.get(args[0], link.getStringValue()).toAbsolutePath().toString()));
+                        handles.add(addTransfer(s, link.hash, link.size, Paths.get(args[0], link.filepath).toFile()));
                     } catch(JED2KException e) {
                         log.error("Unable to parse link {}", e);
                     }
@@ -499,7 +499,7 @@ public class Conn {
         for(TransferHandle handle: handles) {
             if (handle.isValid()) {
                 try {
-                    AddTransferParams atp = new AddTransferParams(handle.getHash(), handle.getCreateTime(), handle.getSize(), handle.getFilePath().getAbsolutePath(), handle.isPaused());
+                    AddTransferParams atp = new AddTransferParams(handle.getHash(), handle.getCreateTime(), handle.getSize(), handle.getFile(), handle.isPaused());
                     atp.resumeData.setData(handle.getResumeData());
                     saveTransferParameters(atp);
                 } catch(JED2KException e) {

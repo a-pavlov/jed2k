@@ -67,11 +67,11 @@ public class TransferHandle implements Comparable<TransferHandle> {
         return 0;
     }
 
-    public final File getFilePath() {
+    public final File getFile() {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                return t.getFilePath();
+                return t.getFile();
             }
         }
 

@@ -19,11 +19,11 @@ package org.dkf.jmule.activities.internal;
 
 import android.app.Fragment;
 import android.content.Intent;
+import org.dkf.jed2k.android.ConfigurationManager;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.activities.SettingsActivity;
 import org.dkf.jmule.activities.WizardActivity;
-import org.dkf.jmule.core.ConfigurationManager;
 import org.dkf.jmule.fragments.ServersFragment;
 import org.dkf.jmule.fragments.TransfersFragment;
 import org.dkf.jmule.fragments.TransfersFragment.TransferStatus;

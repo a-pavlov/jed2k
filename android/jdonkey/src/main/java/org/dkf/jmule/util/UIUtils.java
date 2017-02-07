@@ -35,12 +35,12 @@ import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import org.apache.commons.io.FilenameUtils;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jed2k.android.MimeDetector;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.MainActivity;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
-import org.dkf.jmule.core.MimeDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

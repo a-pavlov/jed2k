@@ -39,7 +39,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
-import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jed2k.android.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jed2k.util.Ref;
@@ -48,10 +48,6 @@ import org.dkf.jmule.R;
 import org.dkf.jmule.StoragePicker;
 import org.dkf.jmule.activities.internal.MainController;
 import org.dkf.jmule.activities.internal.MainMenuAdapter;
-import org.dkf.jmule.core.AndroidPlatform;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
-import org.dkf.jmule.core.Platforms;
 import org.dkf.jmule.dialogs.SDPermissionDialog;
 import org.dkf.jmule.dialogs.YesNoDialog;
 import org.dkf.jmule.fragments.MainFragment;
@@ -534,12 +530,15 @@ public class MainActivity extends AbstractActivity implements
 
         try {
             File data = Platforms.data();
-            File parent = data.getParentFile();
+            //File parent = data.getParentFile();
 
-            if (!AndroidPlatform.saf(parent)) {
+            if (!AndroidPlatform.saf(data)) {
                 return;
             }
-            if (!Platforms.fileSystem().canWrite(parent) &&
+
+            log.info("check write permissions for {}", data);
+
+            if (!Platforms.fileSystem().canWrite(data) &&
                     !SDPermissionDialog.visible) {
                 SDPermissionDialog dlg = SDPermissionDialog.newInstance();
                 dlg.show(getFragmentManager());

@@ -58,6 +58,8 @@ public enum ErrorCode implements BaseErrorCode {
     PACKET_HEADER_UNDEFINED(51, "Packet header contains wrong bytes or undefined"),
     TAG_TO_BLOB_INVALID(52, "Tag to blob conversion error"),
     TAG_TO_BSOB_INVALID(53, "Tag to bsob coversion error"),
+    UNABLE_TO_DELETE_FILE(54, "Unable to delete file"),
+    INTERNAL_ERROR(55, "Internal product error"),
     FAIL(60, "Fail");
 
     private final int code;

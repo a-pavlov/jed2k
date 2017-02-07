@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jmule.core;
+package org.dkf.jed2k.android;
 
 import android.app.Application;
 import android.net.ConnectivityManager;

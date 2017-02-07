@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jmule.core;
+package org.dkf.jed2k.android;
 
 import java.io.File;
 
@@ -26,19 +26,19 @@ import java.io.File;
  */
 public final class Platforms {
 
-    private static Platform platform;
+    private static AndroidPlatform platform;
 
     private Platforms() {
     }
 
-    public static Platform get() {
+    public static AndroidPlatform get() {
         if (platform == null) {
             throw new IllegalStateException("Platform can't be null");
         }
         return platform;
     }
 
-    public static void set(Platform p) {
+    public static void set(AndroidPlatform p) {
         if (p == null) {
             throw new IllegalArgumentException("Platform can't be set to null");
         }

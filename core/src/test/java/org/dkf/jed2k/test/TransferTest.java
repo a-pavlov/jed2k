@@ -10,6 +10,7 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
@@ -39,7 +40,7 @@ public class TransferTest {
         trd.downloadedBlocks.add(new PieceBlock(1, 0));
         trd.downloadedBlocks.add(new PieceBlock(1, 22));
         trd.downloadedBlocks.add(new PieceBlock(1, 33));
-        AddTransferParams atp = new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), Constants.PIECE_SIZE*2 + Constants.BLOCK_SIZE*2 + 334, "", true);
+        AddTransferParams atp = new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), Constants.PIECE_SIZE*2 + Constants.BLOCK_SIZE*2 + 334, new File(""), true);
         atp.resumeData.setData(trd);
         Transfer t = Mockito.spy(new Transfer(s, atp));
         doNothing().when(t).asyncRestoreBlock(any(PieceBlock.class), any(ByteBuffer.class));
@@ -57,7 +58,7 @@ public class TransferTest {
     public void testBytesDonePartialBlock() throws JED2KException {
         long fileSize = Constants.PIECE_SIZE*3 + Constants.BLOCK_SIZE*2 + 334;  // 4 pieces and 3 blocks in last piece
         PiecePicker picker = new PiecePicker(4, 3);
-        Transfer t = new Transfer(new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), fileSize, "", true), picker);
+        Transfer t = new Transfer(new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), fileSize, new File(""), true), picker);
         picker.restoreHave(0);
         picker.restoreHave(1);
 
@@ -92,7 +93,7 @@ public class TransferTest {
     public void testBytesDonePartialPiece() throws JED2KException {
         long fileSize = Constants.PIECE_SIZE - 1024;
         PiecePicker picker = new PiecePicker(1, Constants.BLOCKS_PER_PIECE - 1);
-        Transfer t = new Transfer(new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), fileSize, "", true), picker);
+        Transfer t = new Transfer(new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), fileSize, new File(""), true), picker);
         picker.restoreHave(0);
         TransferStatus status = new TransferStatus();
         t.getBytesDone(status);
@@ -103,7 +104,7 @@ public class TransferTest {
     public void testBytesDoneSparse() throws JED2KException {
         long fileSize = Constants.PIECE_SIZE*2 - 1024;
         PiecePicker picker = new PiecePicker(2, Constants.BLOCKS_PER_PIECE);
-        Transfer t = new Transfer(new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), fileSize, "", true), picker);
+        Transfer t = new Transfer(new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), fileSize, new File(""), true), picker);
 
         // we have 1 piece(last) without 1024 bytes + 2 blocks in first piece
         Peer peer = new Peer(new Endpoint(0, 0));
