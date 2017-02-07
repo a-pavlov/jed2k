@@ -26,13 +26,12 @@
 
     <!-- left hand icon with gray circle background a-la lollipop. -->
     <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_margin="12dp"
-        android:background="@drawable/notification_background_circle"
         android:padding="9dp"
-        android:src="@drawable/mule" />
+        android:src="@drawable/notification_mule" />
 
     <!-- mid section container -->
     <LinearLayout

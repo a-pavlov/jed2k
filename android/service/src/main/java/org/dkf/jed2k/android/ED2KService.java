@@ -109,8 +109,6 @@ public class ED2KService extends Service {
      */
     private static final int NOTIFICATION_ID = 001;
 
-    private int smallImage = R.drawable.default_art;
-
     final AtomicBoolean permanentNotification = new AtomicBoolean(false);
     private RemoteViews notificationViews;
     private Notification notificationObject;
@@ -687,7 +685,7 @@ public class ED2KService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.view_permanent_status_text_title, showFrostWireIntent);
 
         Notification notification = new NotificationCompat.Builder(this).
-                setSmallIcon(R.drawable.mule).
+                setSmallIcon(R.drawable.notification_mule).
                 setContentIntent(showFrostWireIntent).
                 setContent(remoteViews).
                 build();
@@ -727,7 +725,7 @@ public class ED2KService extends Service {
          * Remote view for normal view
          */
 
-        Bitmap art = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        Bitmap art = BitmapFactory.decodeResource(getResources(), R.drawable.notification_mule);
 
         RemoteViews mNotificationTemplate = new RemoteViews(this.getPackageName(), R.layout.notification);
         Notification.Builder notificationBuilder = new Notification.Builder(this);
@@ -746,7 +744,7 @@ public class ED2KService extends Service {
          * Create notification instance
          */
         Notification notification = notificationBuilder
-                .setSmallIcon(smallImage)
+                .setSmallIcon(R.drawable.notification_mule)
                 .setContentIntent(openPending)
                 .setPriority(Notification.PRIORITY_DEFAULT)
                 .setContent(mNotificationTemplate)
