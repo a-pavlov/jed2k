@@ -67,6 +67,8 @@ dependencies {
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
+    provided "org.projectlombok:lombok:1.12.6"
 }
 
 apply plugin: 'com.google.gms.google-services'

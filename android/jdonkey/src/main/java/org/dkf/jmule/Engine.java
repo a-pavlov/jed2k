@@ -29,18 +29,19 @@ import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.android.ED2KService;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.util.ThreadPool;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.transfers.ED2KTransfer;
 import org.dkf.jmule.transfers.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -351,16 +352,8 @@ public final class Engine implements AlertListener {
         return false;
     }
 
-    public Transfer startDownload(final Hash hash, long size, final String fileName) {
-        try {
-            if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
-        } catch(JED2KException e) {
-            log.error("add transfer error {}", e);
-        } catch(Exception e) {
-            log.error("add transfer error {}", e.toString());
-        }
-
-
+    public Transfer startDownload(final Hash hash, long size, final File file) throws JED2KException {
+        if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, file));
         return null;
     }
 
@@ -368,7 +361,11 @@ public final class Engine implements AlertListener {
         try {
             if (service != null) {
                 EMuleLink link = EMuleLink.fromString(slink);
-                return new ED2KTransfer(service.addTransfer(link.hash, link.size, link.filepath));
+                if (link.getType().equals(EMuleLink.LinkType.FILE)) {
+                    return new ED2KTransfer(service.addTransfer(link.getHash(), link.getNumberValue(), new File(link.getStringValue())));
+                } else {
+                    // message to userv link is incorrect type
+                }
             }
         } catch(JED2KException e) {
             log.error("load link error {}", e);

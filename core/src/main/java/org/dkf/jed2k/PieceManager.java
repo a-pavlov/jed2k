@@ -1,16 +1,13 @@
 package org.dkf.jed2k;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
@@ -19,36 +16,15 @@ import java.util.LinkedList;
  * Created by inkpot on 15.07.2016.
  * executes write data into file on disk
  */
+@Slf4j
 public class PieceManager extends BlocksEnumerator {
-    private File filePath;
-    private RandomAccessFile file;
-    private FileChannel channel;
+    private final FileHandler handler;
     private LinkedList<BlockManager> blockMgrs = new LinkedList<BlockManager>();
-    private static final Logger log = LoggerFactory.getLogger(PieceManager.class);
 
-    public PieceManager(File filePath, int pieceCount, int blocksInLastPiece) {
+    public PieceManager(final FileHandler handler, int pieceCount, int blocksInLastPiece) {
         super(pieceCount, blocksInLastPiece);
-        this.filePath = filePath;
-    }
-
-    /**
-     * create or open file on disk
-     */
-    private void open() throws JED2KException {
-        if (file == null) {
-            try {
-                file = new RandomAccessFile(filePath.getAbsolutePath(), "rw");
-                channel = file.getChannel();
-            }
-            catch(FileNotFoundException e) {
-                log.error("create random access file {}: file not found exception", filePath.getAbsolutePath());
-                throw new JED2KException(ErrorCode.FILE_NOT_FOUND);
-            }
-            catch(SecurityException e) {
-                log.error("create random access file {}: security exception", filePath.getAbsolutePath());
-                throw new JED2KException(ErrorCode.SECURITY_EXCEPTION);
-            }
-        }
+        this.handler = handler;
+        assert handler != null;
     }
 
     private BlockManager getBlockManager(int piece) {
@@ -66,9 +42,8 @@ public class PieceManager extends BlocksEnumerator {
      * @param buffer data source
      */
     public LinkedList<ByteBuffer> writeBlock(PieceBlock b, final ByteBuffer buffer) throws JED2KException {
-        open();
-        assert(file != null);
-        assert(channel != null);
+        FileChannel c = handler.getWriteChannel();
+        assert c != null;
         long bytesOffset = b.blocksOffset()* Constants.BLOCK_SIZE;
         BlockManager mgr = getBlockManager(b.pieceIndex);
         assert(mgr != null);
@@ -79,12 +54,13 @@ public class PieceManager extends BlocksEnumerator {
             // stage 1 - write block to disk, possibly error occurred
             // buffer must have remaining data
             assert(buffer.hasRemaining());
-            channel.position(bytesOffset);
-            while(buffer.hasRemaining()) channel.write(buffer);
+            handler.getWriteChannel().position(bytesOffset);
+            while(buffer.hasRemaining()) handler.getWriteChannel().write(buffer);
             buffer.rewind();
             log.debug("write block {} finished", b);
         }
         catch(IOException e) {
+            log.error("i/o error on write block {}", e);
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
 
@@ -103,9 +79,8 @@ public class PieceManager extends BlocksEnumerator {
      * @throws JED2KException
      */
     public LinkedList<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, long  fileSize) throws JED2KException {
-        open();
-        assert(file != null);
-        assert(channel != null);
+        FileChannel c = handler.getReadChannel();
+        assert c != null;
         assert(fileSize > 0);
 
         long bytesOffset = b.blocksOffset()*Constants.BLOCK_SIZE;
@@ -117,8 +92,8 @@ public class PieceManager extends BlocksEnumerator {
 
         try {
             // read data from file to buffer
-            channel.position(bytesOffset);
-            while(buffer.hasRemaining()) channel.read(buffer);
+            handler.getReadChannel().position(bytesOffset);
+            while(buffer.hasRemaining()) handler.getReadChannel().read(buffer);
             buffer.flip();
         }
         catch(IOException e) {
@@ -143,32 +118,17 @@ public class PieceManager extends BlocksEnumerator {
      * @throws JED2KException
      */
     public void releaseFile() throws JED2KException {
-        if (file != null) {
-            try {
-                try {
-                    channel.close();
-                } finally {
-                    file.close();
-                }
-            } catch(IOException e) {
-                throw new JED2KException(ErrorCode.IO_EXCEPTION);
-            } finally {
-                file = null;
-                channel = null;
-            }
-        }
+        handler.close();
     }
 
     /**
      * delete file on disk
      */
     public void deleteFile() throws JED2KException {
-        assert file == null;
-        assert channel == null;
-        filePath.delete();
+        handler.deleteFile();
     }
 
-    final File getFilePath() {
-        return filePath;
+    final File getFile() {
+        return handler.getFile();
     }
 }

@@ -33,13 +33,13 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import org.dkf.jed2k.Pair;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.SettingsActivity;
 import org.dkf.jmule.adapters.TransferListAdapter;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.dialogs.MenuDialog;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.transfers.TransferManager;
@@ -467,7 +467,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     }
 
     private void startTransferFromURL() {
-
         String url = addTransferUrlTextView.getText();
         if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
             toggleAddTransferControls();
@@ -475,6 +474,25 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                 if (Engine.instance().startDownload(url) != null) UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
             }
             addTransferUrlTextView.setText("");
+        } else {
+            UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
+        }
+    }
+
+    public void startTransferFromLink(final String url) {
+        if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
+            if (url.startsWith("ed2k")) {
+                if (Engine.instance().isStarted()) {
+                    if (Engine.instance().startDownload(url) != null)
+                        UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
+                } else {
+                    UIUtils.showInformationDialog(getActivity()
+                            , R.string.add_transfer_session_stopped_body
+                            , R.string.add_transfer_session_stopped_title
+                            ,false
+                            , null);
+                }
+            }
         } else {
             UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
         }

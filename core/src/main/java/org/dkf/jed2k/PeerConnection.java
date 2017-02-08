@@ -405,7 +405,7 @@ public class PeerConnection extends Connection {
         Iterator<Tag> itr = value.properties.iterator();
         while(itr.hasNext()) {
             Tag tag = itr.next();
-            switch(tag.id()) {
+            switch(tag.getId()) {
             case Tag.CT_NAME:
                 remotePeerInfo.modName = tag.stringValue();
                 break;

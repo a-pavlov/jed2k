@@ -18,10 +18,10 @@ public class EMuleLinkTest {
     @Before
     public void prepareTemplate() {
         ltemplate = new EMuleLink[4];
-        ltemplate[0] = new EMuleLink(Hash.fromString("31D6CFE0D16AE931B73C59D7E0C089C0"), 100L, "some_file");
-        ltemplate[1] = new EMuleLink(Hash.fromString("DB48A1C00CC972488C29D3FEC9F16A79"), 10L, "more2");
-        ltemplate[2] = new EMuleLink(Hash.fromString("DB48A1C00CC972488C29D3FEC9F16A79"), 0L, "more1");
-        ltemplate[3] = new EMuleLink(Hash.fromString("6462EAFF860B98A0592BB0284225F85B"), 1568L, "Code Geass.emulecollection");
+        ltemplate[0] = new EMuleLink(Hash.fromString("31D6CFE0D16AE931B73C59D7E0C089C0"), 100L, "some_file", EMuleLink.LinkType.FILE);
+        ltemplate[1] = new EMuleLink(Hash.fromString("DB48A1C00CC972488C29D3FEC9F16A79"), 10L, "more2", EMuleLink.LinkType.FILE);
+        ltemplate[2] = new EMuleLink(Hash.fromString("DB48A1C00CC972488C29D3FEC9F16A79"), 0L, "more1", EMuleLink.LinkType.FILE);
+        ltemplate[3] = new EMuleLink(Hash.fromString("6462EAFF860B98A0592BB0284225F85B"), 1568L, "Code Geass.emulecollection", EMuleLink.LinkType.FILE);
     }
 
     @Test
@@ -54,11 +54,39 @@ public class EMuleLinkTest {
         EMuleLink.fromString("et2k://|file|some%5Ffile|332355|31D6CFE0D16AE931B73C59D7E0C089C0|/");
     }
 
+    @Test(expected = JED2KException.class)
+    public void testLinkBadSize() throws JED2KException {
+        EMuleLink.fromString("ed2k://|file|some%5Ffile|xc45545|31D6CFE0D16AE931B73C59D7E0C089C0|/");
+    }
+
     @Test
     public void testRealLinks() throws JED2KException {
         EMuleLink eml1 = EMuleLink.fromString("ed2k://|file|Ps2%20Game%20Virtual%20Tennis%203.iso|734107648|66DEA14BB64F1FB690735F5322A46ADF|h=TAV3XL3F6MKDYULZG55JKMR6RMTOUVJ7|/");
-        assertEquals("Ps2 Game Virtual Tennis 3.iso", eml1.filepath);
+        assertEquals("Ps2 Game Virtual Tennis 3.iso", eml1.getStringValue());
         EMuleLink eml2 = EMuleLink.fromString("ed2k://|file|SkypeSetupFull.exe|47026816|3636DF370FFDCC4783252183EC566A8C|h=O4F7O7NL7PWU4ATT3LRXWIG6CQBQXEVS|/");
-        assertEquals("SkypeSetupFull.exe", eml2.filepath);
+        assertEquals("SkypeSetupFull.exe", eml2.getStringValue());
+    }
+
+    @Test
+    public void testServerLink() throws JED2KException {
+        EMuleLink server = EMuleLink.fromString("ed2k://|server|91.200.42.119|9939|/");
+        assertEquals(EMuleLink.LinkType.SERVER, server.getType());
+        assertEquals("91.200.42.119", server.getStringValue());
+        assertEquals(9939, server.getNumberValue());
+        assertEquals(null, server.getHash());
+    }
+
+    @Test
+    public void testServersLink() throws JED2KException {
+        EMuleLink server = EMuleLink.fromString("ed2k://|serverlist|http://upd.emule-security.org/server.met|/");
+        assertEquals(EMuleLink.LinkType.SERVERS, server.getType());
+        assertEquals("http://upd.emule-security.org/server.met", server.getStringValue());
+        assertEquals(0, server.getNumberValue());
+        assertEquals(null, server.getHash());
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testNumberFormatErrorInServerLink() throws JED2KException {
+        EMuleLink.fromString("ed2k://|server|91.200.42.119|9939x|/");
     }
 }

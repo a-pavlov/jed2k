@@ -19,14 +19,14 @@ import com.google.android.gms.ads.AdView;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.adapters.menu.ServerConnectAction;
 import org.dkf.jmule.adapters.menu.ServerDisconnectAction;
 import org.dkf.jmule.adapters.menu.ServerRemoveAction;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.util.ServerUtils;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.*;
@@ -74,7 +74,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         setRetainInstance(true);
     }
 
-    private void setupAdapter() {
+    public void setupAdapter() {
         if (adapter == null) {
             adapter = new ServersAdapter(getActivity());
         }

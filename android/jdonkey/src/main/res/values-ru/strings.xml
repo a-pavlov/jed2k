@@ -191,6 +191,16 @@
     </string>
     <string name="search_source_type_dht">Кадемлия</string>
     <string name="search_source_type_server">Сервер</string>
+    <string name="add_servers_list_failed">Не могу скачать список серверов. Попробуйте позже.</string>
+    <string name="add_servers_list_text">Новый список серверов звгружен, заменить текущий список?</string>
+    <string name="add_servers_list_title">Серверы</string>
+    <string name="add_transfer_session_stopped_body">ED2K ядро остановлено, добавление трансфера не возможно. Запустите
+        ядро и попробуйте снова.
+    </string>
+    <string name="add_transfer_session_stopped_title">Добавление трансфера</string>
+    <string name="start_transfer_file_error">Не могу начать закачку - ошибка ввода вывода</string>
+    <string name="start_transfer_internal_error">Внутренняя ошибка</string>
+    <string name="start_transfer_success">Закачка добавлена</string>
 
     <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
 </resources>

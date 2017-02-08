@@ -202,4 +202,17 @@
     </string>
     <string name="search_source_type_dht">Kademlia</string>
     <string name="search_source_type_server">Server</string>
+    <string name="add_transfer_session_stopped_title">L\'aggiunta di trasferimento</string>
+    <string name="add_transfer_session_stopped_body">ED2K core è fermato, in grado di aggiungere il trasferimento. Si
+        prega di abilitare i core e provare di nuovo.
+    </string>
+    <string name="add_servers_list_title">Server</string>
+    <string name="add_servers_list_text">Los nuevos servidores que se han descargado. Reemplazar la actual lista de los
+        servidores?
+    </string>
+    <string name="add_servers_list_failed">Impossibile scaricare la lista dei server, si prega di riprovare più tardi
+    </string>
+    <string name="start_transfer_file_error">Impossibile avviare il trasferimento a causa di I/O eccezione</string>
+    <string name="start_transfer_internal_error">Errore interno nel trasferimento di avvio</string>
+    <string name="start_transfer_success">Il trasferimento è stato aggiunto</string>
 </resources>

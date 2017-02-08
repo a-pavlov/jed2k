@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.traversal.algorithm.*;
@@ -13,12 +14,14 @@ import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.Unsigned;
 import org.dkf.jed2k.protocol.kad.*;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +41,10 @@ public class NodeImpl {
     private Set<Traversal> runningRequests = new HashSet<>();
     private final KadId self;
     private int port;
+    private IndexedImpl index = new IndexedImpl();
+    private int localAddress = 0;
+    private boolean firewalled = true;
+    private long lastFirewalledCheck = 0;
 
     public NodeImpl(final DhtTracker tracker, final KadId id, int port) {
         assert tracker != null;
@@ -52,7 +59,7 @@ public class NodeImpl {
     public void addNode(final Endpoint ep, final KadId id) throws JED2KException {
         Kad2HelloReq hello = new Kad2HelloReq();
         hello.setKid(getSelf());
-        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
         hello.getPortTcp().assign(port);
         invoke(hello, ep, new NullObserver(new Single(this, id), ep, id, 0, (byte)0));
     }
@@ -65,7 +72,7 @@ public class NodeImpl {
     public void addKadNode(final KadEntry entry) throws JED2KException {
         Kad2HelloReq hello = new Kad2HelloReq();
         hello.setKid(getSelf());
-        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
         hello.getPortTcp().assign(port);
         invoke(hello, entry.getKadEndpoint().getEndpoint()
                 , new NullObserver(new Single(this, entry.getKid())
@@ -101,6 +108,21 @@ public class NodeImpl {
         } catch(JED2KException e) {
             log.error("unable to refresh bucket with target {} due to error {}", target, e);
         }
+
+
+        // start firewalled check when we have at least 5 live nodes and last check was later than 1 hour ago
+        /*
+        disable firewalled checking due to algorithm is not ready
+        if (runningRequests.isEmpty() && table.getSize().getLeft().intValue() > 5 && ((lastFirewalledCheck + Time.hours(1) < Time.currentTime()) || lastFirewalledCheck == 0) ) {
+            log.debug("[node] start firewalled check");
+            lastFirewalledCheck = Time.currentTime();
+            try {
+                firewalled();
+            } catch(JED2KException e) {
+                log.error("[node] unable to start firewalled algorithm {}", e);
+            }
+        }
+        */
     }
 
     public void searchSources(final KadId id, long size, final Listener l) throws JED2KException {
@@ -124,6 +146,12 @@ public class NodeImpl {
         assert id != null;
         log.debug("[node] refresh on target {}", id);
         Traversal t = new Refresh(this, id);
+        t.start();
+    }
+
+    public void firewalled() throws JED2KException {
+        log.debug("[node] start firewalled check");
+        Traversal t = new Firewalled(this, self, null, port);
         t.start();
     }
 
@@ -196,7 +224,7 @@ public class NodeImpl {
                 Kad2HelloRes hello = new Kad2HelloRes();
                 hello.setKid(getSelf());
                 hello.getPortTcp().assign(getPort());
-                hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION5_48a);
+                hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
                 tracker.write(hello, address);
                 log.debug("[node] >> {}: {}", ep, hello);
             }
@@ -211,14 +239,15 @@ public class NodeImpl {
             }
             else if (s instanceof Kad2Req) {
                 Kad2Req req = (Kad2Req)s;
-                if (req.getSearchType() != FindData.KADEMLIA_FIND_NODE
-                        && req.getSearchType() != FindData.KADEMLIA_FIND_VALUE
-                        && req.getSearchType() != FindData.KADEMLIA_STORE) {
-                    log.warn("[node] << {} incorrect search type in packet {}", ep, s);
+                int searchType = req.getSearchType() & 0x1F;
+                if (searchType != FindData.KADEMLIA_FIND_NODE
+                        && searchType != FindData.KADEMLIA_FIND_VALUE
+                        && searchType != FindData.KADEMLIA_STORE) {
+                    log.warn("[node] << {} incorrect search type in packet {} calculated search type is {}", ep, s, searchType);
                 }
                 else {
                     Kad2Res res = new Kad2Res();
-                    List<NodeEntry> entries = table.findNode(req.getTarget(), false, (int)req.getSearchType());
+                    List<NodeEntry> entries = table.findNode(req.getTarget(), false, searchType);
                     res.setTarget(req.getTarget());
                     for(final NodeEntry e: entries) {
                         res.getResults().add(new KadEntry(e.getId()
@@ -230,9 +259,131 @@ public class NodeImpl {
                     log.debug("[node] >> {}: {}", ep, res);
                 }
             }
+            else if (s instanceof Kad2BootstrapReq) {
+                List<NodeEntry> entries = table.forEach(new Filter<NodeEntry>() {
+                    private int counter = 20;
+                    @Override
+                    public boolean allow(NodeEntry nodeEntry) {
+                        --counter;
+                        if (counter >= 0) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }, new Filter<NodeEntry>() {
+                    @Override
+                    public boolean allow(NodeEntry nodeEntry) {
+                        return false;
+                    }
+                });
+
+                if (!entries.isEmpty()) {
+                    Kad2BootstrapRes kbr = new Kad2BootstrapRes();
+                    kbr.setKid(getSelf());
+                    kbr.setVersion(Unsigned.uint8(PacketCombiner.KADEMLIA_VERSION));
+                    kbr.setPortTcp(Unsigned.uint16(getPort()));
+
+                    for (NodeEntry ne : entries) {
+                        kbr.getContacts().add(new KadEntry(ne.getId()
+                                , new KadEndpoint(ne.getEndpoint().getIP(), ne.getEndpoint().getPort(), ne.getPortTcp())
+                                , ne.getVersion()));
+                    }
+
+                    tracker.write(kbr, address);
+                } else {
+                    log.debug("[node] entries list is empty, send nothing for bootstrap res");
+                }
+            }
+            else if (s instanceof Kad2PublishKeysReq) {
+                Kad2PublishKeysReq pubKeys = (Kad2PublishKeysReq)s;
+                log.debug("[node] publish keys {} distance {}"
+                        , pubKeys.getSources().size()
+                        , KadId.distance(self, pubKeys.getKeywordId()));
+                int count = 0;
+                for(KadSearchEntry kse: pubKeys.getSources()) {
+                    if (index != null) {
+                        index.addKeyword(pubKeys.getKeywordId(), kse, Time.currentTime());
+                        count++;
+                    } else {
+                        log.debug("[node] not added {} size {}", kse);
+                    }
+                }
+
+                if (count > 0) {
+                    tracker.write(new Kad2PublishRes(pubKeys.getKeywordId(), 1), address);
+                    log.debug("[node] publish result size {}", count);
+                }
+            }
+            else if (s instanceof Kad2PublishSourcesReq) {
+                Kad2PublishSourcesReq pubSrc = (Kad2PublishSourcesReq)s;
+                log.debug("[node] publish sources {} distance {}"
+                        , pubSrc.getFileId()
+                        , KadId.distance(self, pubSrc.getFileId()));
+                if (index != null) {
+                    index.addSource(pubSrc.getFileId(), pubSrc.getSource(), Time.currentTime());
+                    tracker.write(new Kad2PublishRes(pubSrc.getFileId(), 1), address);
+                } else {
+                    log.trace("[node] not indexed source ip {} port {} portTcp {} size {}", pubSrc.getSource());
+                }
+            }
+            else if (s instanceof Kad2FirewalledReq) {
+                log.debug("[node] firewalled request received {}", address);
+                Kad2FirewalledRes kfr = new Kad2FirewalledRes();
+                kfr.setIp(ep.getIP());
+                tracker.write(kfr, address);
+            }
+            else if (s instanceof Kad2SearchKeysReq) {
+                if (index != null) {
+                    sendSearchResult(address, ((Kad2SearchKeysReq) s).getTarget(), index.getFileByHash(((Kad2SearchKeysReq) s).getTarget()));
+                } else {
+                    log.debug("[node] index is not created, unable to answer for search keywords {}", ((Kad2SearchKeysReq) s).getTarget());
+                }
+            }
+            else if (s instanceof Kad2SearchSourcesReq) {
+                if (index != null) {
+                    sendSearchResult(address, ((Kad2SearchSourcesReq) s).getTarget(), index.getSourceByHash(((Kad2SearchSourcesReq) s).getTarget()));
+                } else {
+                    log.debug("[node] index is not created, unable to answer for search sources {}", ((Kad2SearchSourcesReq) s).getTarget());
+                }
+            }
             else {
                 log.debug("[node] temporary skip unhandled packet {}", s);
             }
+        }
+    }
+
+    private void sendSearchResult(final InetSocketAddress address, final KadId target, final Collection<IndexedImpl.Published> publishes) {
+        if (publishes != null) {
+            int collected = 0;
+            int bytesAllocated = 0;
+            Kad2SearchRes keywordsSearchRes = new Kad2SearchRes();
+
+            for(final IndexedImpl.Published p: publishes) {
+                // limit was reached - send packet
+                if (collected > 50 || (bytesAllocated + p.getEntry().bytesCount() + KadPacketHeader.KAD_SIZE) > tracker.getOutputBufferLimit()) {
+                    assert bytesAllocated <= tracker.getOutputBufferLimit();
+                    tracker.write(keywordsSearchRes, address);
+                    keywordsSearchRes = new Kad2SearchRes();
+                    collected = 0;
+                    bytesAllocated = 0;
+                }
+
+                keywordsSearchRes.getResults().add(p.getEntry());
+                ++collected;
+                bytesAllocated += p.getEntry().bytesCount();
+            }
+
+            assert collected >= 0;
+
+            // send remains
+            if (collected != 0) {
+                assert collected > 0;
+                assert bytesAllocated > 0;
+                assert bytesAllocated <= tracker.getOutputBufferLimit();
+                tracker.write(keywordsSearchRes, address);
+            }
+        } else {
+            log.debug("[node] no data for search request {}", target);
         }
     }
 
@@ -270,5 +421,26 @@ public class NodeImpl {
                 .create();
 
         return gson.toJson(table);
+    }
+
+    void setAddress(int localAddress) {
+        this.localAddress = localAddress;
+    }
+
+    public void processAddresses(int addresses[]) {
+        int matches = 0;
+        for(final int ip: addresses) {
+            log.debug("[node] local/external {}/{}", Utils.ip2String(localAddress), Utils.ip2String(ip));
+            if ((ip != 0) && (ip == localAddress)) {
+                matches++;
+            }
+        }
+
+        firewalled = (matches != addresses.length);
+        log.debug("[node] firewalled {} matches {}", firewalled?"TRUE":"FALSE", matches);
+    }
+
+    public boolean isFirewalled() {
+        return firewalled;
     }
 }

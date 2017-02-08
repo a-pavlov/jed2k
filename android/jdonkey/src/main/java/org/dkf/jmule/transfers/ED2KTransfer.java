@@ -45,11 +45,11 @@ public class ED2KTransfer implements Transfer {
     }
 
     public String getDisplayName() {
-        return handle.getFilePath().getName();
+        return handle.getFile().getName();
     }
 
     public String getFilePath() {
-        return handle.getFilePath().getAbsolutePath();
+        return handle.getFile().getAbsolutePath();
     }
 
 
@@ -133,7 +133,7 @@ public class ED2KTransfer implements Transfer {
 
     @Override
     public String toLink() {
-        return Utils.formatLink(handle.getFilePath().getName(), handle.getSize(), handle.getHash());
+        return Utils.formatLink(handle.getFile().getName(), handle.getSize(), handle.getHash());
     }
 
     @Override

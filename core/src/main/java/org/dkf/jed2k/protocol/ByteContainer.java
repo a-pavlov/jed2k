@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol;
 
+import lombok.Data;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -15,11 +16,12 @@ import static org.dkf.jed2k.protocol.Unsigned.*;
  * this is the same as Container class except it can store only bytes and array uses as container
  * @param <CS>
  */
+@Data
 public class ByteContainer<CS extends UNumber> implements Serializable {
     private static Logger log = LoggerFactory.getLogger(ByteBuffer.class.getName());
 
-    public final CS size;
-    public byte[] value;
+    private final CS size;
+    private byte[] value;
 
     public ByteContainer(CS size) {
         this.size = size;
