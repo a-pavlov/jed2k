@@ -241,7 +241,7 @@ public class Session extends Thread {
         try {
             if (settings.listenPort > 0) {
                 assert selector != null;
-                log.info("Start listening on port {}", settings.listenPort);
+                log.info("start listening on port {}", settings.listenPort);
                 ssc = ServerSocketChannel.open();
                 ssc.socket().bind(new InetSocketAddress(settings.listenPort));
                 ssc.configureBlocking(false);
@@ -252,17 +252,17 @@ public class Session extends Thread {
             }
         }
         catch(IOException e) {
-            log.error("listen failed {}", e.getMessage());
+            log.error("[listen] failed {}", e);
             closeListenSocket();
             pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
         }
         catch(IllegalArgumentException e) {
-            log.error("illegal argument exception {}", e.getMessage());
+            log.error("[listen] illegal argument exception {}", e);
             closeListenSocket();
             pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
         }
         catch(Exception e) {
-            log.error("unexpected exception {}", e.getMessage());
+            log.error("[listen] unexpected exception {}", e);
             closeListenSocket();
             pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
         }
@@ -356,7 +356,7 @@ public class Session extends Thread {
             }
         }
         catch(IOException e) {
-            log.error("session interrupted with error {}", e.getMessage());
+            log.error("[run] session interrupted with error {}", e);
         }
         finally {
             log.info("Session is closing");
@@ -366,7 +366,7 @@ public class Session extends Thread {
                 if (selector != null) selector.close();
             }
             catch(IOException e) {
-                log.error("close selector failed {}", e.getMessage());
+                log.error("[run] close selector failed {}", e);
             }
 
             // close listen socket

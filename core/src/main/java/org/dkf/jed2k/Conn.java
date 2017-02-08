@@ -259,7 +259,7 @@ public class Conn {
                     log.info("search request: game AND thrones");
                     s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, "game AND thrones"));
                 } catch(JED2KException e) {
-                    log.error(e.getMessage());
+                    log.error("[CONN] {}", e);
                 }
             }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
@@ -276,7 +276,7 @@ public class Conn {
                     log.info("search request: " + s);
                     s.search(SearchRequest.makeRequest(0, maxSize, 0, 0, "", "", "", 0, 0, searchExpression));
                 } catch(JED2KException e) {
-                    log.error(e.getMessage());
+                    log.error("[CONN] {}", e);
                 }
             }
             else if (parts[0].compareTo("dsearch") == 0 && parts.length == 2) {

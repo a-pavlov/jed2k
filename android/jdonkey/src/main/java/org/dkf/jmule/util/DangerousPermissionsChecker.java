@@ -27,11 +27,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -40,13 +39,13 @@ import java.lang.reflect.Method;
  * @author gubatron
  * @author aldenml
  */
+@Slf4j
 public final class DangerousPermissionsChecker implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     public interface OnPermissionsGrantedCallback {
         void onPermissionsGranted();
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DangerousPermissionsChecker.class);
     public static final int EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE = 0x000A;
     public static final int WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE = 0x000B;
 
@@ -149,14 +148,14 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
         boolean hasWriteSettings = DangerousPermissionsChecker.hasPermissionToWriteSettings(handlerActivity);
 
         if (!hasWriteSettings) {
-            LOGGER.warn("handleOnWriteSettingsActivityResult! had no permission to write settings");
+            log.warn("handleOnWriteSettingsActivityResult! had no permission to write settings");
             AUDIO_ID_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK = -1;
             FILE_TYPE_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK = -1;
             return false;
         }
 
         if (AUDIO_ID_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK == -1) {
-            LOGGER.warn("handleOnWriteSettingsActivityResult! AUDIO_ID_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK not set");
+            log.warn("handleOnWriteSettingsActivityResult! AUDIO_ID_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK not set");
             return false;
         }
 
@@ -180,8 +179,8 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
             final Class<?> SystemClass = Class.forName("android.provider.Settings$System");
             final Method canWriteMethod = SystemClass.getMethod("canWrite", Context.class);
             return (boolean) canWriteMethod.invoke(null, context);
-        } catch (Exception t) {
-            LOGGER.error(t.getMessage(), t);
+        } catch (Exception e) {
+            log.error("canWriteSettingsAPILevel23 error {}", e);
         }
         return false;
     }

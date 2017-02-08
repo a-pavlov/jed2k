@@ -98,7 +98,7 @@ public class DhtTracker extends Thread {
                 tick(channelCount);
             }
         } catch (IOException e) {
-            log.error("[tracker] I/O exception on DHT starting {}", e.getMessage());
+            log.error("[tracker] I/O exception on DHT starting {}", e);
         } catch (Exception e) {
             log.error("[tracker] unexpected error {}", e);
             e.printStackTrace();
@@ -109,13 +109,13 @@ public class DhtTracker extends Thread {
             try {
                 if (channel != null) channel.close();
             } catch(IOException e) {
-                log.error("[tracker] datagram channel close error {}", e.getMessage());
+                log.error("[tracker] datagram channel close error {}", e);
             }
 
             try {
                 if (selector != null) selector.close();
             } catch(IOException e) {
-                log.error("[tracker] selector close exception {}", e.getMessage());
+                log.error("[tracker] selector close exception {}", e);
             }
 
             node.abort();

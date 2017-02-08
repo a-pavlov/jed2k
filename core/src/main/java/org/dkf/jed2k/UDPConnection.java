@@ -1,6 +1,7 @@
 package org.dkf.jed2k;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
@@ -15,15 +16,14 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 /**
  *
  * @author apavlov
  *
  */
+@Slf4j
 public class UDPConnection {
-    private static Logger log = Logger.getLogger(UDPConnection.class.getName());
     private ByteBuffer bufferIncoming;
     private ByteBuffer bufferOutgoing;
     private LinkedList<Pair<Serializable, Endpoint>> outgoingOrder =
@@ -97,10 +97,10 @@ public class UDPConnection {
             return;
         }
         catch(JED2KException e) {
-            log.warning(e.getMessage());
+            log.warn("[udp writeable] jed2k error {}", e);
             assert(false);
         } catch (IOException e) {
-            log.warning(e.getMessage());
+            log.warn("[udp writeable] i/o error {}", e);
         }
 
         close();

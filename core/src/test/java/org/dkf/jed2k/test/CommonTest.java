@@ -2,9 +2,11 @@ package org.dkf.jed2k.test;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Constants;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.NotYetConnectedException;
 import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
@@ -131,5 +133,19 @@ public class CommonTest {
         for(final int v: m.values()) {
             assertEquals(template[i++], v);
         }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSlfjAndroidNpeOnNullMessage() {
+        Assume.assumeTrue(System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+        Exception e = new NotYetConnectedException();
+        log.error(e.getMessage());
+    }
+
+    @Test
+    public void testSlfjAndroid() {
+        Exception e = new NotYetConnectedException();
+        log.error("error: {}", e);
+        log.error("{}", e.getMessage());
     }
 }

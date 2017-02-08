@@ -29,9 +29,8 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jmule.R;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -44,10 +43,8 @@ import java.util.*;
  * @author gubatron
  * @author aldenml
  */
+@Slf4j
 public abstract class AbstractListAdapter<T> extends BaseAdapter implements Filterable {
-
-    private static Logger LOG = LoggerFactory.getLogger(AbstractListAdapter.class);
-
     private final Context context;
     private final int viewItemId;
 
@@ -301,7 +298,7 @@ public abstract class AbstractListAdapter<T> extends BaseAdapter implements Filt
             initRadioButton(view, item, position);
             populateView(view, item);
         } catch (Exception e) {
-            LOG.error("Fatal error getting view: " + e.getMessage(), e);
+            log.error("Fatal error getting view: {}", e);
         }
 
         return view;
