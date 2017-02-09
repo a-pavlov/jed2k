@@ -30,13 +30,13 @@ import android.widget.*;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
-import org.dkf.jed2k.protocol.server.SharedFileEntry;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
+import org.dkf.jed2k.android.MediaType;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.adapters.SearchResultListAdapter;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
-import org.dkf.jmule.core.MediaType;
 import org.dkf.jmule.dialogs.NewTransferDialog;
 import org.dkf.jmule.tasks.StartDownloadTask;
 import org.dkf.jmule.tasks.Tasks;
@@ -55,7 +55,7 @@ public final class SearchFragment extends AbstractFragment implements
         SearchProgressView.CurrentQueryReporter,
         AlertListener {
     private static final Logger LOG = LoggerFactory.getLogger(SearchFragment.class);
-    private SearchResultListAdapter adapter;
+    private SearchResultListAdapter adapter = null;
 
     private SearchInputView searchInput;
     private ProgressBar deepSearchProgress;
@@ -66,8 +66,8 @@ public final class SearchFragment extends AbstractFragment implements
     private ListView list;
     private String currentQuery;
     private final FileTypeCounter fileTypeCounter;
-    private final SparseArray<Byte> toTheRightOf = new SparseArray<>(6);
-    private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(6);
+    private final SparseArray<Byte> toTheRightOf = new SparseArray<>(9);
+    private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(9);
 
     private boolean awaitingResults = false;
 
@@ -81,14 +81,21 @@ public final class SearchFragment extends AbstractFragment implements
         toTheRightOf.put(Constants.FILE_TYPE_VIDEOS, Constants.FILE_TYPE_PICTURES);
         toTheRightOf.put(Constants.FILE_TYPE_PICTURES, Constants.FILE_TYPE_APPLICATIONS);
         toTheRightOf.put(Constants.FILE_TYPE_APPLICATIONS, Constants.FILE_TYPE_DOCUMENTS);
-        toTheRightOf.put(Constants.FILE_TYPE_DOCUMENTS, Constants.FILE_TYPE_TORRENTS);
-        toTheRightOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_AUDIO);
-        toTheLeftOf.put(Constants.FILE_TYPE_AUDIO, Constants.FILE_TYPE_TORRENTS);
+        toTheRightOf.put(Constants.FILE_TYPE_DOCUMENTS, Constants.FILE_TYPE_ARCHIVE);
+        toTheRightOf.put(Constants.FILE_TYPE_ARCHIVE, Constants.FILE_TYPE_CD_IMAGE);
+        toTheRightOf.put(Constants.FILE_TYPE_CD_IMAGE, Constants.FILE_TYPE_TORRENTS);
+        toTheRightOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_OTHERS);
+        toTheRightOf.put(Constants.FILE_TYPE_OTHERS, Constants.FILE_TYPE_AUDIO);
+
+        toTheLeftOf.put(Constants.FILE_TYPE_AUDIO, Constants.FILE_TYPE_OTHERS);
         toTheLeftOf.put(Constants.FILE_TYPE_VIDEOS, Constants.FILE_TYPE_AUDIO);
         toTheLeftOf.put(Constants.FILE_TYPE_PICTURES, Constants.FILE_TYPE_VIDEOS);
         toTheLeftOf.put(Constants.FILE_TYPE_APPLICATIONS, Constants.FILE_TYPE_PICTURES);
         toTheLeftOf.put(Constants.FILE_TYPE_DOCUMENTS, Constants.FILE_TYPE_APPLICATIONS);
-        toTheLeftOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_DOCUMENTS);
+        toTheLeftOf.put(Constants.FILE_TYPE_ARCHIVE, Constants.FILE_TYPE_DOCUMENTS);
+        toTheLeftOf.put(Constants.FILE_TYPE_CD_IMAGE, Constants.FILE_TYPE_ARCHIVE);
+        toTheLeftOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_CD_IMAGE);
+        toTheLeftOf.put(Constants.FILE_TYPE_OTHERS, Constants.FILE_TYPE_TORRENTS);
     }
 
     @Override
@@ -121,6 +128,8 @@ public final class SearchFragment extends AbstractFragment implements
         if (adapter != null && (adapter.getCount() > 0 || adapter.getTotalCount() > 0)) {
             refreshFileTypeCounters(true);
         }
+
+        searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
     @Override
@@ -137,7 +146,8 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onShow() {
-        warnServerNotConnected(getView());
+        warnNoServerNoDhtConnections(getView());
+        searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
     @Override
@@ -214,7 +224,7 @@ public final class SearchFragment extends AbstractFragment implements
         if (adapter == null) {
             adapter = new SearchResultListAdapter(getActivity()) {
                 @Override
-                protected void searchResultClicked(SharedFileEntry sr) {
+                protected void searchResultClicked(SearchEntry sr) {
                     LOG.info("start transfer {}", sr.getFileName());
                     startTransfer(sr, getString(R.string.download_added_to_queue));
                 }
@@ -237,8 +247,14 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void performSearch(String query) {
-        warnServerNotConnected(getView());
-        if (!Engine.instance().getCurrentServerId().isEmpty()) {
+        warnNoServerNoDhtConnections(getView());
+        String expression = query.trim();
+        if (expression.isEmpty()) return;
+
+        // server search when one server connected and user chose server search or dht is not enabled
+        if (!Engine.instance().getCurrentServerId().isEmpty()
+                && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
+            LOG.info("perform search on servers");
             awaitingResults = true;
             adapter.clear();
             fileTypeCounter.clear();
@@ -254,7 +270,26 @@ public final class SearchFragment extends AbstractFragment implements
                     , ""
                     , 0
                     , 0
-                    , query);
+                    , expression);
+
+            searchProgress.setProgressEnabled(true);
+            showSearchView(getView());
+        }
+        // DHT search when dht enabled and user chose kad or no one server connected
+        else if (Engine.instance().isDhtEnabled()
+                && (!searchParametersView.isSearchByServer() || Engine.instance().getCurrentServerId().isEmpty())) {
+            LOG.info("perform search on DHT");
+            awaitingResults = true;
+            adapter.clear();
+            fileTypeCounter.clear();
+            refreshFileTypeCounters(false);
+            currentQuery = query;
+            // takes first item in search expression for DHT search
+            Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]
+                , searchParametersView.getMinSize()*1024*1024
+                , searchParametersView.getMaxSize()*1024*1024
+                , searchParametersView.getSourcesCount()
+                , searchParametersView.getCompleteSources());
             searchProgress.setProgressEnabled(true);
             showSearchView(getView());
         }
@@ -287,10 +322,10 @@ public final class SearchFragment extends AbstractFragment implements
     private void searchCompleted(final SearchResultAlert alert) {
         if (awaitingResults) {
             awaitingResults = false;
-            adapter.addResults(alert.results);
+            adapter.addResults(alert.getResults(), alert.isHasMoreResults());
 
             // temporary solution, next use filter by hash to support related search
-            for (SharedFileEntry entry : alert.results.files) {
+            for (SearchEntry entry : alert.getResults()) {
                 fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
             }
         }
@@ -329,7 +364,7 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    private void startTransfer(final SharedFileEntry sr, final String toastMessage) {
+    private void startTransfer(final SearchEntry sr, final String toastMessage) {
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG)) {
             try {
                 NewTransferDialog dlg = NewTransferDialog.newInstance(sr, false);
@@ -344,17 +379,15 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
-    public static void startDownload(Context ctx, SharedFileEntry entry, String message) {
+    public static void startDownload(Context ctx, SearchEntry entry, String message) {
         StartDownloadTask task = new StartDownloadTask(ctx, entry, null, message);
         Tasks.executeParallel(task);
     }
 
-    private void warnServerNotConnected(View v) {
-        if (Engine.instance().getCurrentServerId().isEmpty()) {
-            LOG.info("server is not connected");
+    private void warnNoServerNoDhtConnections(View v) {
+        if (Engine.instance().getCurrentServerId().isEmpty() && !Engine.instance().isDhtEnabled()) {
             serverConnectionWarning.setVisibility(View.VISIBLE);
         } else {
-            LOG.info("server connected");
             serverConnectionWarning.setVisibility(View.GONE);
         }
     }
@@ -382,7 +415,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onSearchResult(final SearchResultAlert alert) {
-        LOG.info("search result size {} more {}", alert.results.files.size(), alert.results.hasMoreResults()?"YES":"NO");
+        LOG.info("search result size {} more {}", alert.getResults().size(), alert.isHasMoreResults()?"YES":"NO");
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -448,6 +481,11 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onTransferIOError(TransferDiskIOErrorAlert alert) {
+
+    }
+
+    @Override
+    public void onPortMapAlert(PortMapAlert alert) {
 
     }
 

@@ -134,7 +134,7 @@
     <string name="app_shutdown_dlg_message">This will shutdown all transfers and background services. Are you sure?</string>
     <string name="dummy_build" translatable="false">[build number]</string>
     <string name="try_other_keywords">Try fewer/different keywords</string>
-    <string name="try_frostwire_plus_for_more_results">Try Mule on Android for more results</string>
+    <string name="try_frostwire_plus_for_more_results" translatable="false">Try Mule on Android for more results</string>
     <string name="your_installation_is_complete">Your installation is complete.</string>
     <string name="thank_you">Thank you!</string>
     <string name="keep_in_touch">Keep in touch!</string>
@@ -157,7 +157,7 @@
     <string name="listen_port">Listen port</string>
     <string name="listen_port_summary">Port for incoming connections</string>
 
-    <string name="NA">N/A</string>
+    <string name="NA" translatable="false">N/A</string>
     <string name="users_count">Users</string>
     <string name="files_count">Files</string>
     <string name="user_id">User ID</string>
@@ -168,11 +168,15 @@
     <string name="connect_on_start_server_summary">Connect to last connected server on start</string>
     <string name="show_server_messages_summary">Show messages from server</string>
     <string name="show_server_messages">Server msg</string>
+    <string name="auto_start_service_title" translatable="false">Service auto start</string>
+    <string name="auto_start_service_summary" translatable="false">Start service(if it stopped) on application statup</string>
+    <string name="forward_ports_title">Forward ports</string>
+    <string name="forward_ports_summary">Forward incoming ports on my router. UPnP must be activated on router</string>
 
     <string name="service_stopped">ED2K service stopped</string>
     <string name="service_stopped_details">Please go to preferences and start ED2K service</string>
-    <string name="server_not_connected">Not connected to server</string>
-    <string name="server_not_connected_det">Before search connect to server please</string>
+    <string name="server_not_connected">No sources for search</string>
+    <string name="server_not_connected_det">Connect to server or start Kademlia please</string>
 
     <string name="search_parameter_min_size">Min size, Mb</string>
     <string name="search_parameter_max_size">Max size, Mb</string>
@@ -192,4 +196,52 @@
     <string name="transfer_state_completed">Completed</string>
     <string name="transfer_state_stalled">Waiting sources</string>
     <string name="transfer_state_downloading">Downloading</string>
+
+    <string name="server_add_name">Name</string>
+    <string name="server_add_host">Host</string>
+    <string name="server_add_port">Port</string>
+    <string name="server_add_descr">Descr</string>
+    <string name="server_add">Add</string>
+
+
+    <string name="welcome_to_mule">Welcome to Mule on Android</string>
+    <string name="storage_path">Storage Path</string>
+    <string name="upnp">Forward port on my router</string>
+    <string name="upnp_summary">If you have router you can forward incoming port on your router. It will help to get HiID on servers and find more sources. Please check UPnP feature is activated on your router</string>
+
+    <string name="wizard_dht">Use DHT(Kademlia)</string>
+    <string name="wizard_dht_summary">Use Kademlia to find more sources. Be careful - generates service traffic.</string>
+
+    <string name="usage_notes_title">Usage notes</string>
+    <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service) if it is
+        stopped. Application supports downloading in background using service. Two types of exit - shutdown all and
+        shutdown only GUI.
+        When you press back button in the end you will be able to minimize application. If you need completely shutdown
+        application and service choose exit in menu.</string>
+    <string name="usage_suggestions_title">Usage suggestions</string>
+    <string name="usage_suggestions_summary">Try to provide accessible incoming port - in this case you will have much more sources.
+        Prefer files with large sources count.</string>
+
+    <string name="usage_proposals_title">Proposals and problems reporting</string>
+    <string name="usage_proposals_summary">Please, report problems and proposals to developer\'s email or by ticket in project\'s page on github</string>
+    <string name="wizard_previous">Previous</string>
+    <string name="wizard_next">Next</string>
+    <string name="wizard_finish">Finish</string>
+
+    <string name="dht_enable_summary">DHT(Kademlia) for search more sources</string>
+    <string name="dht_enable_title">Kademlia</string>
+    <string name="dht_nodes" translatable="false">KAD: %1$s</string>
+
+    <string name="search_source_type_server">Servers</string>
+    <string name="search_source_type_dht">Kademlia</string>
+    <string name="start_transfer_success">Transfer has been added</string>
+    <string name="start_transfer_file_error">Unable to start transfer due to I/O exception</string>
+    <string name="start_transfer_internal_error">Internal error on transfer starting</string>
+
+    <string name="add_transfer_session_stopped_title">Add transfer</string>
+    <string name="add_transfer_session_stopped_body">ED2K core is stopped, unable to add transfer. Please enable core and try again.</string>
+    <string name="add_servers_list_failed">Unable to download servers list, please try again later</string>
+    <string name="add_servers_list_text">New servers have been downloaded. Replace current servers list?</string>
+    <string name="add_servers_list_title">Servers</string>
+    <string name="intent_link_parse_error">Unable to parse link</string>
 </resources>

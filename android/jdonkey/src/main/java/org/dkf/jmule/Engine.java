@@ -29,17 +29,19 @@ import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.android.ED2KService;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.util.ThreadPool;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.transfers.ED2KTransfer;
 import org.dkf.jmule.transfers.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -119,6 +121,11 @@ public final class Engine implements AlertListener {
 
     }
 
+    @Override
+    public void onPortMapAlert(PortMapAlert alert) {
+
+    }
+
     public synchronized static void create(Application context) {
         if (instance != null) {
             return;
@@ -176,8 +183,10 @@ public final class Engine implements AlertListener {
 
     public void shutdown() {
         if (service != null) {
+            log.info("shutdown service");
             if (connection != null) {
                 try {
+                    log.info("unbind connection");
                     context.unbindService(connection);
                 } catch (IllegalArgumentException e) {
                 }
@@ -242,6 +251,7 @@ public final class Engine implements AlertListener {
      * @param context This must be the application context, otherwise there will be a leak.
      */
     private void startEngineService(final Context context) {
+        log.info("start engine service");
         Intent i = new Intent();
         i.setClass(context, ED2KService.class);
         context.startService(i);
@@ -269,10 +279,38 @@ public final class Engine implements AlertListener {
                     setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
                     setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
                     setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
+
+                    // migrate old versions which have no saved user agent hash
+                    String userAgent = ConfigurationManager.instance().getString(Constants.PREF_KEY_USER_AGENT);
+                    if (userAgent == null || userAgent.isEmpty()) {
+                        userAgent = Hash.random(true).toString();
+                        ConfigurationManager.instance().setString(Constants.PREF_KEY_USER_AGENT, userAgent);
+                        log.info("previous user agent was not found, generate new {}", userAgent);
+                    }
+
+                    log.info("user agent {}", userAgent);
+                    setUserAgent(userAgent);
+
+                    // KAD id section
+                    String kadId = ConfigurationManager.instance().getString(Constants.PREF_KEY_KAD_ID);
+                    if (kadId == null || kadId.isEmpty()) {
+                        kadId = new KadId(Hash.random(true)).toString();
+                        ConfigurationManager.instance().setString(Constants.PREF_KEY_KAD_ID, kadId);
+                        log.info("previous kad id was not found, generate new {}", kadId);
+                    }
+
+                    log.info("kad id {}", kadId);
+                    setKadId(kadId);
+
                     configureServices();
-                    //if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CORE_CONNECTED)) {
-                    //    startServices();
-                    //}
+
+                    if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_AUTO_START_SERVICE) && isStopped()) {
+                        startServices();
+                    }
+
+                    forwardPorts(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
+                    useDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CONNECT_DHT));
+
                     //registerStatusReceiver(context);
                 } else {
                     throw new IllegalArgumentException("IBinder on service connected class is not instance of ED2KService.ED2KServiceBinder");
@@ -297,6 +335,14 @@ public final class Engine implements AlertListener {
         }
     }
 
+    public void performSearchDhtKeyword(final String keyword
+            , final long minSize
+            , final long maxSize
+            , final int sources
+            , final int completeSources) {
+        if (service != null) service.startSearchDhtKeyword(keyword, minSize, maxSize, sources, completeSources);
+    }
+
     public void performSearchMore() {
         if (service != null) service.searchMore();
     }
@@ -306,13 +352,8 @@ public final class Engine implements AlertListener {
         return false;
     }
 
-    public Transfer startDownload(final Hash hash, long size, final String fileName) {
-        try {
-            if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, fileName));
-        } catch(JED2KException e) {
-            log.error("add transfer error {}", e);
-        }
-
+    public Transfer startDownload(final Hash hash, long size, final File file) throws JED2KException {
+        if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, file));
         return null;
     }
 
@@ -320,10 +361,16 @@ public final class Engine implements AlertListener {
         try {
             if (service != null) {
                 EMuleLink link = EMuleLink.fromString(slink);
-                return new ED2KTransfer(service.addTransfer(link.hash, link.size, link.filepath));
+                if (link.getType().equals(EMuleLink.LinkType.FILE)) {
+                    return new ED2KTransfer(service.addTransfer(link.getHash(), link.getNumberValue(), new File(link.getStringValue())));
+                } else {
+                    // message to userv link is incorrect type
+                }
             }
         } catch(JED2KException e) {
             log.error("load link error {}", e);
+        } catch(Exception e) {
+            log.error("load link error {}", e.toString());
         }
 
         return null;
@@ -354,6 +401,22 @@ public final class Engine implements AlertListener {
     public void setVibrateOnDownloadCompleted(boolean vibrate) { if (service != null) service.setVibrateOnDownloadCompleted(vibrate); }
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
+    public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
+    public void useDht(boolean dht) {
+        log.info("[engine] use dht {}", dht);
+        if (service != null) service.useDht(dht); }
+
+    public void setUserAgent(final String s) {
+        assert s != null;
+        assert !s.isEmpty();
+        if (service != null) service.setUserAgent(Hash.fromString(s));
+    }
+
+    public void setKadId(final String s) {
+        assert s != null;
+        assert !s.isEmpty();
+        if (service != null) service.setKadId(KadId.fromString(s));
+    }
 
     public void configureServices() {
         if (service != null) service.configureSession();
@@ -362,6 +425,16 @@ public final class Engine implements AlertListener {
     public Pair<Long, Long> getDownloadUploadBandwidth() {
         if (service != null) return service.getDownloadUploadRate();
         return Pair.make(0l, 0l);
+    }
+
+    public int getTotalDhtNodes() {
+        if (service != null) return service.getTotalDhtNodes();
+        return -1;
+    }
+
+    public boolean isDhtEnabled() {
+        if (service != null) return service.isDhtEnabled();
+        return false;
     }
 
     public void setPermanentNotification(boolean v) {

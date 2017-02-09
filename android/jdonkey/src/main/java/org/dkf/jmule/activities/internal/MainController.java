@@ -19,9 +19,12 @@ package org.dkf.jmule.activities.internal;
 
 import android.app.Fragment;
 import android.content.Intent;
+import org.dkf.jed2k.android.ConfigurationManager;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.activities.SettingsActivity;
+import org.dkf.jmule.activities.WizardActivity;
+import org.dkf.jmule.fragments.ServersFragment;
 import org.dkf.jmule.fragments.TransfersFragment;
 import org.dkf.jmule.fragments.TransfersFragment.TransferStatus;
 
@@ -64,6 +67,19 @@ public final class MainController {
             //fragment.selectStatusTab(status);
             switchFragment(R.id.menu_main_transfers);
         }
+    }
 
+    public void showServers() {
+        if (!(activity.getCurrentFragment() instanceof TransfersFragment)) {
+            ServersFragment servers = (ServersFragment) activity.getFragmentByMenuId(R.id.menu_main_servers);
+            switchFragment(R.id.menu_main_servers);
+        }
+    }
+
+    public void startWizardActivity() {
+        ConfigurationManager.instance().resetToDefaults();
+        Intent i = new Intent(activity, WizardActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        activity.startActivity(i);
     }
 }

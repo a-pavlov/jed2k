@@ -27,10 +27,10 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.R;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.views.ClearableEditTextView.OnActionListener;
 
 

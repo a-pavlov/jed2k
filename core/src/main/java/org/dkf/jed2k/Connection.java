@@ -109,13 +109,13 @@ public abstract class Connection implements Dispatcher {
             onConnect();
             lastReceive = Time.currentTime();
         } catch(IOException e) {
-            log.error("{} onConnectable {}",getEndpoint(), e.getMessage());
+            log.error("[connection on connectable] {} i/o error {}", getEndpoint(), e);
             close(ErrorCode.IO_EXCEPTION);
         } catch(JED2KException e) {
-            log.error("{} onConnectable {}", getEndpoint(), e.getMessage());
+            log.error("[connection on connectable] {} jed2k error {}", getEndpoint(), e);
             close(e.getErrorCode());
         } catch(Exception e) {
-            log.error("{} onConnectable {}", getEndpoint(), e.getMessage());
+            log.error("[connection on connectable] {} error {}", getEndpoint(), e);
             close(ErrorCode.NOT_CONNECTED);
         }
     }
@@ -251,15 +251,15 @@ public abstract class Connection implements Dispatcher {
             }
         }
         catch(JED2KException e) {
-            log.error(e.getMessage());
+            log.error("[on writeable] jed2k exception {}", e);
             close(e.getErrorCode());
         }
         catch(NotYetConnectedException e) {
-            log.error(e.getMessage());
+            log.error("[on writeable] not yet connected error {}", e);
             close(ErrorCode.NOT_CONNECTED);
         }
         catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("[on writeable] i/o error {}", e);
             close(ErrorCode.IO_EXCEPTION);
         }
     }
@@ -275,7 +275,7 @@ public abstract class Connection implements Dispatcher {
         try {
             socket.connect(address);
         } catch(IOException e) {
-           log.error("{} connect error {}", getEndpoint(), e.getMessage());
+           log.error("[connection connect] {} connect error {}", getEndpoint(), e);
            close(ErrorCode.IO_EXCEPTION);
         }
     }
@@ -286,10 +286,10 @@ public abstract class Connection implements Dispatcher {
             socket.close();
         }
         catch(IOException e) {
-            log.error("{} socket i/o exception {}, ", getEndpoint(), e.getMessage());
+            log.error("[connection close ] {} socket i/o exception {}, ", getEndpoint(), e);
         }
         catch(Exception e) {
-            log.error("{} socket exception {}", getEndpoint(), e.getMessage());
+            log.error("[connection close ] {} socket exception {}", getEndpoint(), e);
         }
         finally {
             key.cancel();
@@ -318,5 +318,5 @@ public abstract class Connection implements Dispatcher {
         return disconnecting;
     }
 
-    abstract NetworkIdentifier getEndpoint();
+    abstract Endpoint getEndpoint();
 }

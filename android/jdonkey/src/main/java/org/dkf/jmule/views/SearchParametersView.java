@@ -19,6 +19,7 @@ public class SearchParametersView extends LinearLayout {
     private EditText editSources;
     private EditText editCompleteSources;
     private RadioGroup types;
+    private RadioGroup searchSources;
 
     public SearchParametersView(Context context, AttributeSet set) {
         super(context, set);
@@ -33,11 +34,11 @@ public class SearchParametersView extends LinearLayout {
         editSources = (EditText)findViewById(R.id.view_search_parameter_sources);
         editCompleteSources = (EditText)findViewById(R.id.view_search_parameter_complete_sources);
         types = (RadioGroup)findViewById(R.id.view_search_parameter_file_type);
+        searchSources = (RadioGroup)findViewById(R.id.view_search_source_type);
         editMinSize.setText("");
         editMaxSize.setText("");
         editSources.setText("");
         editCompleteSources.setText("");
-        types.check(R.id.search_parameter_type_any);
     }
 
     public String getChecked() {
@@ -70,5 +71,13 @@ public class SearchParametersView extends LinearLayout {
 
     public int getCompleteSources() {
         return (editCompleteSources.getText().toString().isEmpty())?0:Integer.parseInt(editCompleteSources.getText().toString());
+    }
+
+    public boolean isSearchByServer() {
+        return searchSources.getCheckedRadioButtonId() == R.id.search_source_type_server;
+    }
+
+    public void showSearchSourceChooser(boolean flag) {
+        searchSources.setVisibility(flag?VISIBLE:GONE);
     }
 }

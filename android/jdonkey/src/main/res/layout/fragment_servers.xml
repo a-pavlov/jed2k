@@ -5,6 +5,12 @@
               android:layout_width="match_parent"
               android:layout_height="fill_parent">
 
+    <org.dkf.jmule.views.ServerAddView
+        android:id="@+id/fragment_servers_add_server"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
     <org.dkf.jmule.views.RichNotification
         android:id="@+id/fragment_servers_service_stopped_notification"
         frostwire:rich_notification_icon="@null"

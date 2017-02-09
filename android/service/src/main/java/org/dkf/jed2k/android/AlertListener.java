@@ -55,4 +55,6 @@ public interface AlertListener {
     void onTransferPaused(final TransferPausedAlert alert);
     void onTransferResumed(final TransferResumedAlert alert);
     void onTransferIOError(final TransferDiskIOErrorAlert alert);
+
+    void onPortMapAlert(final PortMapAlert alert);
 }

@@ -3,12 +3,14 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.Initiator;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
-import org.dkf.jed2k.protocol.server.SharedFileEntry;
+import org.dkf.jed2k.protocol.SearchEntry;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
-import org.dkf.jed2k.protocol.server.search.SearchResult;
-import org.dkf.jed2k.protocol.tag.Tag;
+import org.dkf.jed2k.util.FUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +31,15 @@ import java.util.concurrent.TimeUnit;
 
 public class Conn {
     private static Logger log = LoggerFactory.getLogger(Conn.class);
-    private static SearchResult globalSearchRes = null;
+    private static List<SearchEntry> globalSearchRes = null;
+    private static boolean hasMoreResults = false;
     private static final boolean trial = "true".equals(System.getProperty("session.trial"));
     private static final boolean compression = "true".equals(System.getProperty("session.compression"));
     private static Set<TransferHandle> handles = new HashSet<>();
     private static Path incomingDirectory;
     private static Path resumeDataDirectory;
+    private static int GLOBAL_PORT = 9999;
+    private static final String DHT_STATUS_FILENAME = "conn_dht_status.dat";
 
     private static String report(final Session s) {
         StringBuilder sb = new StringBuilder();
@@ -56,29 +61,30 @@ public class Conn {
     private static void printGlobalSearchResult() {
         if (globalSearchRes == null) return;
         int index = 0;
-        for(SharedFileEntry entry: globalSearchRes.files) {
-            System.out.println(String.format("%03d ", index++) + entry.toString());
+        for(SearchEntry entry: globalSearchRes) {
+            log.info("-> {} {}", String.format("%03d ", index++), entry.toString());
         }
-        System.out.println("More results: " + (globalSearchRes.hasMoreResults()?"yes":"no"));
+
+        log.info("more results: {}", (hasMoreResults?"yes":"no"));
     }
 
-    static TransferHandle addTransfer(final Session s, final Hash hash, final long size, final String filepath) {
+    static TransferHandle addTransfer(final Session s, final Hash hash, final long size, final File file) {
         try {
-            TransferHandle h = s.addTransfer(hash, size, filepath);
+            TransferHandle h = s.addTransfer(hash, size, file);
             if (h.isValid()) {
-                System.out.println("transfer valid " + h.getHash());
+                log.info("[CONN] transfer valid {}", h.getHash());
             }
 
             return h;
         } catch (JED2KException e) {
-            log.warn("Add transfer failed {}", e.toString());
+            log.warn("[CONN] add transfer failed {}", e.toString());
         }
 
         return null;
     }
 
     static void saveTransferParameters(final AddTransferParams params) throws JED2KException {
-        File transferFile = new File(params.filepath.asString());
+        File transferFile = new File(params.getFilepath().asString());
         File resumeDataFile = new File(resumeDataDirectory.resolve(transferFile.getName()).toString());
 
         try(FileOutputStream stream = new FileOutputStream(resumeDataFile, false); FileChannel channel = stream.getChannel();) {
@@ -88,21 +94,21 @@ public class Conn {
             bb.flip();
             while(bb.hasRemaining()) channel.write(bb);
         } catch(IOException e) {
-            System.out.println("I/O exception on save resume data " + e);
+            log.error("[CONN] I/O exception on save resume data {}", e);
         } catch(JED2KException e) {
-            System.out.println("Unable to load search results " + e);
+            log.error("[CONN] unable to load search results {}", e);
         }
     }
 
     public static void main(String[] args) throws IOException, JED2KException {
 
         if (args.length < 1) {
-            System.out.println("Specify incoming directory");
+            log.warn("[CONN] specify incoming directory");
             return;
         }
 
         incomingDirectory = FileSystems.getDefault().getPath(args[0]);
-        System.out.println("Incoming directory set to: " + incomingDirectory);
+        log.info("[CONN] incoming directory set to: {}", incomingDirectory);
         File incomingFile = incomingDirectory.toFile();
         boolean dirCreated = incomingFile.exists() || incomingFile.mkdirs();
 
@@ -121,15 +127,17 @@ public class Conn {
 
         assert incomingDirectory != null;
         assert resumeDataDirectory != null;
+        DhtTracker tracker = null;
 
-        System.out.println("Conn started");
+        log.info("[CONN] started");
         final Settings startSettings = new Settings();
         startSettings.maxConnectionsPerSecond = 10;
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
         startSettings.serverPingTimeout = 0;
+        startSettings.listenPort = GLOBAL_PORT;
 
-        LinkedList<NetworkIdentifier> systemPeers = new LinkedList<NetworkIdentifier>();
+        LinkedList<Endpoint> systemPeers = new LinkedList<Endpoint>();
         String sp = System.getProperty("session.peers");
         if (sp != null) {
             String[] strP = sp.split(",");
@@ -137,7 +145,7 @@ public class Conn {
                 String[] strEndpoint = s.split(":");
 
                 if (strEndpoint.length == 2) {
-                    NetworkIdentifier ep = new NetworkIdentifier(new InetSocketAddress(strEndpoint[0], (short) Integer.parseInt(strEndpoint[1])));
+                    Endpoint ep = new Endpoint(new InetSocketAddress(strEndpoint[0], (short) Integer.parseInt(strEndpoint[1])));
                     systemPeers.addLast(ep);
                     log.debug("add system peer: {}", ep);
                 } else {
@@ -146,9 +154,15 @@ public class Conn {
             }
         }
 
+        String hashSession = System.getProperty("session.hash");
+        if (hashSession != null) {
+            startSettings.userAgent = Hash.fromString(hashSession);
+        }
+
         final Session s = (trial)?(new SessionTrial(startSettings, systemPeers)):(new Session(startSettings));
         // add sources here
         log.info("Kind of session now: {}", s);
+        log.info("Settings: {}", startSettings);
         s.start();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
@@ -160,11 +174,11 @@ public class Conn {
                     Alert a = s.popAlert();
                     while(a != null) {
                         if (a instanceof SearchResultAlert) {
-                            SearchResult sr = ((SearchResultAlert)a).results;
-                            globalSearchRes = sr;
-                            globalSearchRes.files.sort(new Comparator<SharedFileEntry>() {
+                            List<SearchEntry> se = ((SearchResultAlert)a).getResults();
+                            globalSearchRes = se;
+                            globalSearchRes.sort(new Comparator<SearchEntry>() {
                                 @Override
-                                public int compare(SharedFileEntry o1, SharedFileEntry o2) {
+                                public int compare(SearchEntry o1, SearchEntry o2) {
                                     if (o1.getSources() < o2.getSources()) return -1;
                                     if (o1.getSources() > o2.getSources()) return 1;
                                     return 0;
@@ -173,17 +187,17 @@ public class Conn {
                             printGlobalSearchResult();
                         }
                         else if (a instanceof ServerMessageAlert) {
-                            System.out.println("Server message: " + ((ServerMessageAlert)a).msg);
+                            log.info("[CONN] server message: " + ((ServerMessageAlert)a).msg);
                         }
                         else if (a instanceof ServerStatusAlert) {
                             ServerStatusAlert ssa = (ServerStatusAlert)a;
-                            System.out.println("Files count = " + ssa.filesCount + " users count = " + ssa.usersCount);
+                            log.info("[CONN] files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
                         }
                         else if (a instanceof ServerInfoAlert) {
-                            System.out.println("SI: " + ((ServerInfoAlert)a).info);
+                            log.info("[CONN] server info: {}", ((ServerInfoAlert)a).info);
                         }
                         else {
-                            System.out.println("Unknown alert received: " + a.toString());
+                            log.info("[CONN] unknown alert received: {}", a.toString());
                         }
 
                         a = s.popAlert();
@@ -196,14 +210,36 @@ public class Conn {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
 
+        DhtInitialData idata = new DhtInitialData();
+        try {
+            FUtils.read(idata, new File(incomingDirectory.resolve(DHT_STATUS_FILENAME).toString()));
+        } catch(JED2KException e) {
+            log.warn("[CONN] read initial data failed {}", e);
+        }
+
+        if (idata.getTarget().isAllZeros()) {
+            idata.setTarget(new KadId(Hash.random(false)));
+        }
+
         while ((command = in.readLine()) != null) {
             String[] parts = command.split("\\s+");
 
             if (parts[0].compareTo("exit") == 0 || parts[0].compareTo("quit") == 0) {
+                if (tracker != null) {
+                    idata.setEntries(tracker.getTrackerState());
+                    tracker.abort();
+                    try {
+                        tracker.join();
+                        log.info("[CONN] DHT tracker finished");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 s.abort();
                 try {
                     s.join();
-                    log.info("session finished");
+                    log.info("[CONN] session finished");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -212,7 +248,7 @@ public class Conn {
 
             if (parts[0].compareTo("listen") == 0 && parts.length == 2) {
             	Settings settings = new Settings();
-            	settings.listenPort = (short)Integer.parseInt(parts[1]);
+            	settings.listenPort = Integer.parseInt(parts[1]);
             	s.configureSession(settings);
             }
             if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
@@ -223,7 +259,7 @@ public class Conn {
                     log.info("search request: game AND thrones");
                     s.search(SearchRequest.makeRequest(0, 0, 0, 0, "", "", "", 0, 0, "game AND thrones"));
                 } catch(JED2KException e) {
-                    log.error(e.getMessage());
+                    log.error("[CONN] {}", e);
                 }
             }
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
@@ -240,10 +276,40 @@ public class Conn {
                     log.info("search request: " + s);
                     s.search(SearchRequest.makeRequest(0, maxSize, 0, 0, "", "", "", 0, 0, searchExpression));
                 } catch(JED2KException e) {
-                    log.error(e.getMessage());
+                    log.error("[CONN] {}", e);
                 }
-            } else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
-                s.connectToPeer(new NetworkIdentifier(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
+            }
+            else if (parts[0].compareTo("dsearch") == 0 && parts.length == 2) {
+                int index = Integer.parseInt(parts[1]);
+                if (index >= globalSearchRes.size() || index < 0) {
+                    log.warn("[CONN] specified index {} out of last search result bounds {}"
+                            , index
+                            , globalSearchRes.size());
+                } else {
+                    SearchEntry sfe = globalSearchRes.get(index);
+                    long filesize = sfe.getFileSize();
+
+                    if (filesize != 0) {
+                        log.debug("[CONN] start search {}/{}", sfe.getHash(), filesize);
+                        s.dhtDebugSearch(sfe.getHash(), filesize);
+                    } else {
+                        log.warn("[CONN] unable to start DHT debug search due to zero file size");
+                    }
+                }
+            }
+            else if (parts[0].compareTo("dhtsearch") == 0 && parts.length == 3) {
+                Hash fileHash = Hash.fromString(parts[1]);
+                long fileSize = Long.parseLong(parts[2]);
+                log.debug("[CONN] DHT search sources for {} with size {}", fileHash, fileSize);
+                s.dhtDebugSearch(fileHash, fileSize);
+            }
+            else if (parts[0].compareTo("dhtsearchkeyword") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    s.searchDhtKeyword(parts[i], 0, 0, 0, 0);
+                }
+            }
+            else if (parts[0].compareTo("peer") == 0 && parts.length == 3) {
+                s.connectToPeer(new Endpoint(Integer.parseInt(parts[1]), (short) Integer.parseInt(parts[2])));
             } else if (parts[0].compareTo("load") == 0 && parts.length == 2) {
 
                 EMuleLink eml = null;
@@ -255,57 +321,55 @@ public class Conn {
 
                 if (eml == null) {
                     int index = Integer.parseInt(parts[1]);
-                    if (index >= globalSearchRes.files.size() || index < 0) {
-                        System.out.println("Specified index out of last search result bounds");
+                    if (index >= globalSearchRes.size() || index < 0) {
+                        log.warn("[CONN] specified index {} out of last search result bounds {}"
+                            , index
+                            , globalSearchRes.size());
                     } else {
-                        SharedFileEntry sfe = globalSearchRes.files.get(index);
-                        Path filepath = null;
-                        long filesize = 0;
-                        for (final Tag t : sfe.properties) {
-                            if (t.id() == Tag.FT_FILESIZE) {
-                                try {
-                                    filesize = t.longValue();
-                                } catch (JED2KException e) {
-                                    System.out.println("Unable to extract filesize");
-                                }
-                            }
-
-                            if (t.id() == Tag.FT_FILENAME) {
-                                try {
-                                    filepath = Paths.get(args[0], t.stringValue());
-                                } catch (JED2KException e) {
-                                    System.out.println("unable to extract filename");
-                                }
-                            }
-                        }
+                        SearchEntry sfe = globalSearchRes.get(index);
+                        Path filepath = Paths.get(args[0], sfe.getFileName());
+                        long filesize = sfe.getFileSize();
 
                         if (filepath != null && filesize != 0) {
                             StringBuilder sb = new StringBuilder();
                             sb.append("Transfer ").append(filepath).append(" hash: ");
-                            sb.append(sfe.hash.toString()).append(" dataSize: ");
+                            sb.append(sfe.getHash().toString()).append(" dataSize: ");
                             sb.append(filesize);
-                            System.out.println(sb);
-
-                            handles.add(addTransfer(s, sfe.hash, filesize, filepath.toAbsolutePath().toString()));
+                            handles.add(addTransfer(s, sfe.getHash(), filesize, filepath.toFile()));
                         } else {
-                            System.out.println("Not enough parameters to start new transfer");
+                            log.warn("[CONN] not enough parameters to start new transfer");
                         }
                     }
                 } else {
-                    Path filepath = Paths.get(args[0], eml.filepath);
-                    handles.add(addTransfer(s, eml.hash, eml.size, filepath.toAbsolutePath().toString()));
+                    Path filepath = Paths.get(args[0], eml.getStringValue());
+                    handles.add(addTransfer(s, eml.getHash(), eml.getNumberValue(), filepath.toFile()));
                 }
             }
             else if (parts[0].compareTo("load") == 0 && parts.length == 4) {
-                Path filepath = Paths.get(args[0], parts[3]);
-                long size = Long.parseLong(parts[2]);
-                Hash hash = Hash.fromString(parts[1]);
-                log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
-                handles.add(addTransfer(s, hash, size, filepath.toAbsolutePath().toString()));
+                try {
+                    Path filepath = Paths.get(args[0], parts[3]);
+                    long size = Long.parseLong(parts[2]);
+                    Hash hash = Hash.fromString(parts[1]);
+                    log.info("create transfer {} dataSize {} in file {}", hash, size, filepath);
+                    handles.add(addTransfer(s, hash, size, filepath.toFile()));
+                } catch(Exception e) {
+                    log.error("[CONN] unable to start loading {}", e);
+                }
             }
+            else if (parts[0].compareTo("link") == 0) {
+                for(int i = 1; i < parts.length; ++i) {
+                    try {
+                        EMuleLink link = EMuleLink.fromString(parts[i]);
+                        handles.add(addTransfer(s, link.getHash(), link.getNumberValue(), Paths.get(args[0], link.getStringValue()).toFile()));
+                    } catch(JED2KException e) {
+                        log.error("Unable to parse link {}", e);
+                    }
+                }
+            }
+            /*
             else if (parts[0].compareTo("save") == 0) {
                 // saving search results to file for next usage
-                if (globalSearchRes != null && !globalSearchRes.files.isEmpty()) {
+                if (globalSearchRes != null && !globalSearchRes.isEmpty()) {
                     ByteBuffer bb = ByteBuffer.allocate(globalSearchRes.bytesCount());
                     bb.order(ByteOrder.LITTLE_ENDIAN);
                     File f = new File(incomingDirectory.resolve("search_results.txt").toString());
@@ -339,6 +403,7 @@ public class Conn {
                     System.out.println("Unable to load search results " + e);
                 }
             }
+            */
             else if (parts[0].compareTo("print") == 0) {
                 printGlobalSearchResult();
             }
@@ -370,7 +435,7 @@ public class Conn {
                 }
             }
             else if (parts[0].compareTo("report") == 0) {
-                System.out.println(report(s));
+                log.info(report(s));
             }
             else if (parts[0].compareTo("resumetran") == 0 && parts.length == 2) {
                 Hash hash = Hash.fromString(parts[1]);
@@ -381,12 +446,60 @@ public class Conn {
                     log.warn("transfer {} is not exists", hash);
                 }
             }
+            else if(parts[0].compareTo("startupnp") == 0) {
+                s.startUPnP();
+            }
+            else if (parts[0].compareTo("stopupnp") == 0) {
+                s.stopUPnP();
+            }
+            else if (parts[0].compareTo("startdht") == 0) {
+                if (tracker != null) {
+                    log.info("[CONN] stop previously running DHT tracker");
+                    tracker.abort();
+                }
+
+                tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget());
+                tracker.start();
+                s.setDhtTracker(tracker);
+
+                if (idata.getEntries().getList() != null) {
+                    tracker.addEntries(idata.getEntries().getList());
+                }
+
+                scheduledExecutorService.scheduleWithFixedDelay(new Initiator(s), 1, 1, TimeUnit.MINUTES);
+            }
+            else if (parts[0].compareTo("stopdht") == 0) {
+
+                if (tracker != null) {
+                    idata.setEntries(tracker.getTrackerState());
+                    tracker.abort();
+                } else {
+                    log.warn("[CONN] DHT tracker is null, but shtstop command issued");
+                }
+            }
+            else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
+                if (tracker != null) {
+                    tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+                } else {
+                    log.warn("[CONN] DHT tracker is null, but bootstrap command issued");
+                }
+            }
+            else if (parts[0].compareTo("status") == 0) {
+                if (tracker != null) {
+                    try (PrintWriter pw = new PrintWriter(incomingDirectory.resolve("conn_dht_status.json").toString())) {
+                        pw.write(tracker.getRoutingTableStatus());
+                    }
+                }
+            }
+            else {
+                log.warn("[CONN] unknown command started from {}", parts[0]);
+            }
         }
 
         for(TransferHandle handle: handles) {
             if (handle.isValid()) {
                 try {
-                    AddTransferParams atp = new AddTransferParams(handle.getHash(), handle.getCreateTime(), handle.getSize(), handle.getFilePath().getAbsolutePath(), handle.isPaused());
+                    AddTransferParams atp = new AddTransferParams(handle.getHash(), handle.getCreateTime(), handle.getSize(), handle.getFile(), handle.isPaused());
                     atp.resumeData.setData(handle.getResumeData());
                     saveTransferParameters(atp);
                 } catch(JED2KException e) {
@@ -397,6 +510,7 @@ public class Conn {
         }
 
         scheduledExecutorService.shutdown();
+        FUtils.write(idata, new File(incomingDirectory.resolve(DHT_STATUS_FILENAME).toString()));
         log.info("Conn finished");
     }
 }

@@ -1,7 +1,7 @@
 package org.dkf.jed2k.protocol.test;
 
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Optional;
 import org.dkf.jed2k.protocol.UInt8;
 import org.dkf.jed2k.protocol.Unsigned;
@@ -22,15 +22,15 @@ public class OptionalTest {
                 (byte)0x01, // have data
                 (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x00};   // net identifier 1
 
-        Optional<NetworkIdentifier> opt = new Optional(NetworkIdentifier.class);
+        Optional<Endpoint> opt = new Optional(Endpoint.class);
         ByteBuffer nb = ByteBuffer.wrap(source);
         nb.order(ByteOrder.LITTLE_ENDIAN);
         opt.get(nb);
         assertTrue(opt.haveData());
 
-        NetworkIdentifier data = opt.getData();
+        Endpoint data = opt.getData();
         assertTrue(data != null);
-        assertEquals(new NetworkIdentifier(1, (short)5), data);
+        assertEquals(new Endpoint(1, (short)5), data);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class OptionalTest {
         byte source[] = {
                 (byte)0x00, // have no data
                 (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x00};   // net identifier
-        Optional<NetworkIdentifier> opt = new Optional(NetworkIdentifier.class);
+        Optional<Endpoint> opt = new Optional(Endpoint.class);
         ByteBuffer nb = ByteBuffer.wrap(source);
         nb.order(ByteOrder.LITTLE_ENDIAN);
         opt.get(nb);
@@ -51,18 +51,18 @@ public class OptionalTest {
     public void testInOut() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(20);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        Optional<NetworkIdentifier> opt1 = new Optional<NetworkIdentifier>(NetworkIdentifier.class);
-        Optional<NetworkIdentifier> opt2 = new Optional<NetworkIdentifier>(NetworkIdentifier.class);
-        opt2.setData(new NetworkIdentifier(1120, (short)3));
+        Optional<Endpoint> opt1 = new Optional<Endpoint>(Endpoint.class);
+        Optional<Endpoint> opt2 = new Optional<Endpoint>(Endpoint.class);
+        opt2.setData(new Endpoint(1120, (short)3));
         opt1.put(opt2.put(opt1.put(bb)));
         assertTrue(bb.hasRemaining());
         bb.flip();
-        Optional<NetworkIdentifier> opt = new Optional<NetworkIdentifier>(NetworkIdentifier.class);
+        Optional<Endpoint> opt = new Optional<Endpoint>(Endpoint.class);
         opt.get(bb);
         assertFalse(opt.haveData());
         opt.get(bb);
         assertTrue(opt.haveData());
-        assertEquals(new NetworkIdentifier(1120, (short)3), opt.getData());
+        assertEquals(new Endpoint(1120, (short)3), opt.getData());
         opt.get(bb);
         assertFalse(opt.haveData());
         assertFalse(bb.hasRemaining());
@@ -72,14 +72,14 @@ public class OptionalTest {
     public void testSetter() throws JED2KException {
         ByteBuffer bb = ByteBuffer.allocate(20);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        Optional<NetworkIdentifier> opt = new Optional<>(NetworkIdentifier.class);
+        Optional<Endpoint> opt = new Optional<>(Endpoint.class);
         opt.setData(null);
         assertFalse(opt.haveData());
-        opt.setData(new NetworkIdentifier(1000, 5000));
+        opt.setData(new Endpoint(1000, 5000));
         assertTrue(opt.haveData());
         opt.put(bb);
         bb.flip();
-        Optional<NetworkIdentifier> opt2 = new Optional<>(NetworkIdentifier.class);
+        Optional<Endpoint> opt2 = new Optional<>(Endpoint.class);
         opt2.get(bb);
         assertEquals(opt, opt2);
     }
@@ -97,9 +97,9 @@ public class OptionalTest {
         assertEquals(opt, opt2);
         opt.getData().assign(122);
         assertFalse(opt.equals(opt2));
-        Optional<NetworkIdentifier> opt3 = new Optional<>(NetworkIdentifier.class);
+        Optional<Endpoint> opt3 = new Optional<>(Endpoint.class);
         assertFalse(opt.equals(opt3));
-        opt3.setData(new NetworkIdentifier(23434, 555));
+        opt3.setData(new Endpoint(23434, 555));
         assertFalse(opt.equals(opt3));
     }
 }

@@ -2,6 +2,7 @@ package org.dkf.jed2k.protocol;
 
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.util.HexDump;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,8 @@ public abstract class PacketCombiner {
         OP_EDONKEYPROT(0xE3),
         OP_PACKEDPROT(0xD4),
         OP_EMULEPROT(0xC5),
-    	OP_KAD_COMPRESSED_UDP(0xE5);
+    	OP_KAD_COMPRESSED_UDP(0xE5),
+        OP_KADEMLIAHEADER(0xE4);
 
         public final byte value;
 
@@ -28,79 +30,7 @@ public abstract class PacketCombiner {
         }
     }
 
-    enum KadUdp {
-	    KADEMLIA_BOOTSTRAP_REQ		(0x00),
-	    KADEMLIA_BOOTSTRAP_RES		(0x08),
-
-	    KADEMLIA_HELLO_REQ			(0x10),
-	    KADEMLIA_HELLO_RES			(0x18),
-
-	    KADEMLIA_FIREWALLED_REQ		(0x50),
-	    KADEMLIA_FIREWALLED_RES		(0x58),
-
-	    KADEMLIA_CALLBACK_REQ		(0x52),
-
-	    KADEMLIA_REQ				(0x20),
-	    KADEMLIA_RES				(0x28),
-
-	    KADEMLIA_PUBLISH_REQ		(0x40),
-	    KADEMLIA_PUBLISH_RES		(0x48),
-
-	    KADEMLIA_SEARCH_REQ			(0x30),
-	    KADEMLIA_SEARCH_RES			(0x38),
-
-	    KADEMLIA_SEARCH_NOTES_REQ	(0x32),
-	    KADEMLIA_SEARCH_NOTES_RES	(0x3A),
-
-	    KADEMLIA_FINDBUDDY_REQ		(0x51),
-	    KADEMLIA_FINDBUDDY_RES		(0x5A),
-
-	    KADEMLIA_PUBLISH_NOTES_REQ	(0x42),
-	    KADEMLIA_PUBLISH_NOTES_RES	(0x4A),
-
-	    KADEMLIA2_BOOTSTRAP_REQ		(0x01),
-	    KADEMLIA2_BOOTSTRAP_RES		(0x09),
-
-	    KADEMLIA2_REQ				(0x21),
-	    KADEMLIA2_RES				(0x29),
-
-	    KADEMLIA2_HELLO_REQ			(0x11),
-	    KADEMLIA2_HELLO_RES 		(0x19),
-
-	    KADEMLIA2_HELLO_RES_ACK		(0x22),
-
-	    KADEMLIA_FIREWALLED2_REQ    (0x53),
-
-	    KADEMLIA2_FIREWALLUDP		(0x62),
-
-	    KADEMLIA2_SEARCH_KEY_REQ	(0x33),
-	    KADEMLIA2_SEARCH_SOURCE_REQ	(0x34),
-	    KADEMLIA2_SEARCH_NOTES_REQ	(0x35),
-
-	    KADEMLIA2_SEARCH_RES		(0x3B),
-
-	    KADEMLIA2_PUBLISH_KEY_REQ	(0x43),
-	    KADEMLIA2_PUBLISH_SOURCE_REQ(0x44),
-	    KADEMLIA2_PUBLISH_NOTES_REQ	(0x45),
-
-	    KADEMLIA2_PUBLISH_RES		(0x4B),
-
-	    KADEMLIA2_PUBLISH_RES_ACK	(0x4C),
-
-	    KADEMLIA2_PING				(0x60),
-	    KADEMLIA2_PONG				(0x61),
-
-	    FIND_VALUE 					(0x02),
-	    STORE      					(0x04),
-	    FIND_NODE					(0x0B);
-
-    	public final byte value;
-    	private KadUdp(int v) {
-    		value = (byte)v;
-    	}
-    }
-
-    private PacketHeader outgoingHeader = new PacketHeader();
+    private PacketHeader reusableHeader = new PacketHeader();
 
     /**
      *
@@ -113,8 +43,8 @@ public abstract class PacketCombiner {
         assert(header.isDefined());
         assert(src.remaining() == serviceSize(header));
 
-        // special case for packed protocol
-        if (header.key().protocol == ProtocolType.OP_PACKEDPROT.value) {
+        // special case for packed protocol - both tcp and KAD udp
+        if (header.key().protocol == ProtocolType.OP_PACKEDPROT.value || header.key().protocol == ProtocolType.OP_KAD_COMPRESSED_UDP.value) {
             byte[] compressedData = new byte[src.remaining()];
             byte[] plainData = new byte[src.remaining()*10];
             src.get(compressedData);
@@ -131,7 +61,7 @@ public abstract class PacketCombiner {
             decompresser.end();
             src.clear();
 
-            // TODO fix this temp code
+            // TODO (apavlov) need mechanism to increase buffer size and set it to originator because now buffer will use only once
             if (src.capacity() < resultLength) {
                 log.debug("re-create input buffer due to decompress size to {}", resultLength);
                 src = ByteBuffer.allocate(resultLength);
@@ -140,7 +70,7 @@ public abstract class PacketCombiner {
 
             src.put(plainData, 0, resultLength);
             src.flip();
-            header.reset(header.key(), resultLength);   // TODO - use correct protocol value here to be compatible with HashMap
+            header.reset(header.key(), resultLength);   // use correct protocol value here to be compatible with HashMap
         }
 
         PacketKey key = header.key();
@@ -156,7 +86,10 @@ public abstract class PacketCombiner {
                 throw new JED2KException(e, ErrorCode.GENERIC_ILLEGAL_ACCESS);
             }
         } else {
-            log.error("unable to find correspond packet for {}", header);
+            log.error("[combiner] unable to find correspond packet for {}", header);
+            log.trace("[combiner] packet dump \n{}", HexDump.dump(src.array()
+                    , 0
+                    , Math.min(src.remaining(), Math.min(Math.max(header.size, 0), 256))));
             ph = new BytesSkipper(serviceSize(header));
         }
 
@@ -184,8 +117,9 @@ public abstract class PacketCombiner {
      */
     public boolean pack(Serializable object, ByteBuffer dst) throws JED2KException {
         PacketKey key = classToKey(object.getClass());
-
         assert(key != null);
+        // use appropriate header here
+        PacketHeader outgoingHeader = getHeader();
         if ((outgoingHeader.bytesCount() + object.bytesCount()) < dst.remaining()) {
             outgoingHeader.reset(key, object.bytesCount() + 1);
             assert(outgoingHeader.isDefined());
@@ -200,4 +134,12 @@ public abstract class PacketCombiner {
     protected abstract Class<? extends Serializable> keyToPacket(PacketKey key);
     protected abstract PacketKey classToKey(Class<? extends Serializable> clazz);
     public abstract int serviceSize(PacketHeader ph);
+
+    /**
+     * by default returns standard tcp emule packet header
+     * @return packet header for generation of new packet
+     */
+    protected PacketHeader getHeader() {
+        return reusableHeader;
+    }
 }

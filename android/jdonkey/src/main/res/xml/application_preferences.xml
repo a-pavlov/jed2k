@@ -51,7 +51,7 @@
             android:summary="@string/listen_port_summary"
             android:title="@string/listen_port"
             jdonkey:picker_defaultValue="30000"
-            jdonkey:picker_endRange="99999"
+            jdonkey:picker_endRange="65535"
             jdonkey:picker_startRange="1000"/>
     </PreferenceCategory>
 
@@ -122,7 +122,28 @@
                 android:title="@string/notify_jdonkey_is_running"
                 android:summary="@string/notify_jdonkey_is_running_summary"
                 android:enabled="true"/>
+<!--
+        <CheckBoxPreference
+            android:key="jmule.prefs.gui.auto_start_service"
+            android:title="@string/auto_start_service_title"
+            android:summary="@string/auto_start_service_summary"
+            android:enabled="true" />
+            -->
+        <CheckBoxPreference
+            android:key="jmule.prefs.gui.forward_ports"
+            android:title="@string/forward_ports_title"
+            android:summary="@string/forward_ports_summary"
+            android:enabled="true" />
+
     </PreferenceScreen>
+
+    <PreferenceCategory android:key="jmule.prefs.dht">
+        <CheckBoxPreference
+                android:key="jmule.prefs.connect_dht"
+                android:title="@string/dht_enable_title"
+                android:summary="@string/dht_enable_summary"
+                android:enabled="true" />
+    </PreferenceCategory>
 
     <Preference
             android:key="jmule.prefs.show_about"

@@ -1,16 +1,31 @@
 package org.dkf.jed2k;
 
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
+import org.bitlet.weupnp.PortMappingEntry;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.KadSearchEntryDistinct;
+import org.dkf.jed2k.kad.Listener;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.SearchEntry;
+import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -38,10 +53,159 @@ public class Session extends Thread {
     long zBufferLastAllocatedTime = 0;
     BufferPool bufferPool = null;
     private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
+    private ExecutorService upnpService = Executors.newSingleThreadExecutor();
     private AtomicBoolean finished = new AtomicBoolean(false);
     private boolean aborted = false;
     private Statistics accumulator = new Statistics();
+    private GatewayDiscover discover = new GatewayDiscover();
+    private GatewayDevice device = null;
 
+    /**
+     * external DHT tracker object
+     */
+    private WeakReference<DhtTracker> dhtTracker = new WeakReference<DhtTracker>(null);
+
+    /**
+     * sources search result callback
+     */
+    private static class DhtSourcesCallback implements Listener {
+        final Session session;
+        final WeakReference<Transfer> weakTransfer;
+
+        public DhtSourcesCallback(final Session session, final Transfer t) {
+            this.session = session;
+            this.weakTransfer = new WeakReference<Transfer>(t);
+        }
+
+        @Override
+        public void process(final List<KadSearchEntry> data) {
+            session.commands.add(new Runnable() {
+                @Override
+                public void run() {
+                    Transfer transfer = weakTransfer.get();
+                    if (transfer == null) {
+                        log.debug("[session] transfer not exists for searched result, just skip it");
+                        return;
+                    }
+
+                    for(final KadSearchEntry kse: data) {
+                        KadId target = kse.getKid();
+                        assert target != null; // actually impossible
+
+                        if (transfer == null && transfer.wantMorePeers()) {
+                            log.debug("[session] transfer for {} not exists", target);
+                            continue;
+                        };
+
+                        int ip = 0;
+                        int sourceType = 0;
+                        int sourcePort = 0;
+                        int sourceUPort = 0;
+                        int lowId = 0;
+                        int serverIp = 0;
+                        int serverPort = 0;
+                        KadId id = null;
+                        int cryptOptions = 0;
+
+                        try {
+                            for (final Tag t : kse.getInfo()) {
+                                switch (t.getId()) {
+                                    case Tag.TAG_SOURCETYPE:
+                                        sourceType = t.intValue();
+                                        break;
+                                    case Tag.TAG_SOURCEIP:
+                                        ip = Utils.ntohl(t.intValue());
+                                        break;
+                                    case Tag.TAG_SOURCEPORT:
+                                        sourcePort = t.intValue();
+                                        break;
+                                    case Tag.TAG_CLIENTLOWID:
+                                        lowId = t.intValue();
+                                        break;
+                                    case Tag.TAG_SOURCEUPORT:
+                                        sourceUPort = t.intValue();
+                                        break;
+                                    case Tag.TAG_SERVERIP:
+                                        serverIp = t.intValue();
+                                        break;
+                                    case Tag.TAG_SERVERPORT:
+                                        serverPort = t.intValue();
+                                        break;
+                                    case Tag.TAG_BUDDYHASH:
+                                        try {
+                                            id = new KadId(Hash.fromString(t.stringValue()));
+                                        } catch(JED2KException e) {
+                                            log.warn("[session] unable to extract buddy hash {}", e);
+                                        }
+                                        break;
+                                    case Tag.TAG_ENCRYPTION:
+                                        cryptOptions = t.intValue();
+                                        break;
+                                    default:
+                                        log.debug("[session] unhandled KAD search tag {}", t);
+                                        break;
+                                }
+                            }
+                        } catch(JED2KException e) {
+                            log.error("[session] processing kad search sources result failed {}", e);
+                        }
+
+                        assert transfer != null;
+                        // process here only non-firewalled sources
+                        if (ip != 0 && sourcePort != 0 && (sourceType == 1 || sourceType == 4)) {
+                            try {
+                                transfer.addPeer(new Endpoint(ip, sourcePort), PeerInfo.DHT);
+                            } catch(JED2KException e) {
+                                log.error("[session] unable to add peer {}:{} to transfer {} with error {}", ip, sourcePort, transfer, e);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private static class DhtDebugCallback implements Listener {
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            log.info("[session] DHT debug callback results size {}", data.size());
+            for(final KadSearchEntry e: data) {
+                log.info("entry: {}", e);
+            }
+        }
+    }
+
+    private static class DhtKeywordsCallback implements Listener {
+        final Session session;
+        private final long minSize;
+        private final long maxSize;
+        private final int sources;
+        private final int completeSources;
+
+        public DhtKeywordsCallback(final Session session, long minSize, long maxSize, int sources, int completeSources) {
+            this.session = session;
+            this.minSize = minSize;
+            this.maxSize = maxSize;
+            this.sources = sources;
+            this.completeSources = completeSources;
+        }
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            List<SearchEntry> filtered = new LinkedList<>();
+            List<SearchEntry> res = KadSearchEntryDistinct.distinct(data);
+            for(final SearchEntry e: res) {
+                if (minSize > 0 && e.getFileSize() < minSize) continue;
+                if (maxSize > 0 && e.getFileSize() > maxSize) continue;
+                if (sources > 0 && e.getSources() < sources) continue;
+                if (completeSources > 0 && e.getCompleteSources() < completeSources) continue;
+                filtered.add(e);
+            }
+
+            session.pushAlert(new SearchResultAlert(filtered, false));
+        }
+    }
 
     // from last established server connection
     int clientId    = 0;
@@ -76,18 +240,29 @@ public class Session extends Thread {
 
         try {
             if (settings.listenPort > 0) {
-                log.info("Start listening on port {}", settings.listenPort);
+                assert selector != null;
+                log.info("start listening on port {}", settings.listenPort);
                 ssc = ServerSocketChannel.open();
                 ssc.socket().bind(new InetSocketAddress(settings.listenPort));
                 ssc.configureBlocking(false);
                 ssc.register(selector, SelectionKey.OP_ACCEPT);
                 pushAlert(new ListenAlert("", settings.listenPort));
             } else {
-                log.info("no listen mode");
+                log.info("no listen mode, listen port is {}", settings.listenPort);
             }
         }
         catch(IOException e) {
-            log.error("listen failed {}", e.getMessage());
+            log.error("[listen] failed {}", e);
+            closeListenSocket();
+            pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
+        }
+        catch(IllegalArgumentException e) {
+            log.error("[listen] illegal argument exception {}", e);
+            closeListenSocket();
+            pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
+        }
+        catch(Exception e) {
+            log.error("[listen] unexpected exception {}", e);
             closeListenSocket();
             pushAlert(new ListenAlert(e.getMessage(), settings.listenPort));
         }
@@ -163,7 +338,7 @@ public class Session extends Thread {
 
         accumulator.secondTick(tickIntervalMS);
         connectNewPeers();
-        log.trace(bufferPool.toString());
+        //log.trace(bufferPool.toString());
     }
 
     @Override
@@ -176,21 +351,22 @@ public class Session extends Thread {
 
             while(!aborted && !interrupted()) {
                 int channelCount = selector.select(1000);
-                Time.currentCachedTime = Time.currentTimeHiRes();
+                Time.updateCachedTime();
                 on_tick(ErrorCode.NO_ERROR, channelCount);
             }
         }
         catch(IOException e) {
-            log.error("session interrupted with error {}", e.getMessage());
+            log.error("[run] session interrupted with error {}", e);
         }
         finally {
             log.info("Session is closing");
+            commands.clear();
 
             try {
                 if (selector != null) selector.close();
             }
             catch(IOException e) {
-                log.error("close selector failed {}", e.getMessage());
+                log.error("[run] close selector failed {}", e);
             }
 
             // close listen socket
@@ -220,10 +396,11 @@ public class Session extends Thread {
 
             // stop service
             diskIOService.shutdown();
-
+            upnpService.shutdown();
+            stopUPnPImpl("TCP");
+            stopUPnPImpl("UDP");
             log.info("Session finished");
             finished.set(true);
-
         }
     }
 
@@ -248,7 +425,7 @@ public class Session extends Thread {
         connections.remove(p);
     }
 
-    void openConnection(NetworkIdentifier point) throws JED2KException {
+    void openConnection(Endpoint point) throws JED2KException {
         if (findPeerConnection(point) == null) {
             PeerConnection p = PeerConnection.make(Session.this, point, null, null);
             if (p != null) connections.add(p);
@@ -267,7 +444,7 @@ public class Session extends Thread {
                 try {
                     serverConection = ServerConnection.makeConnection(id, Session.this);
                     serverConection.connect(point);
-                    NetworkIdentifier endpoint = new NetworkIdentifier(point);
+                    Endpoint endpoint = new Endpoint(point);
                     log.debug("connect to server {}", endpoint);
                 } catch(JED2KException e) {
                     // emit alert - connect to server failed
@@ -291,7 +468,7 @@ public class Session extends Thread {
                     try {
                         serverConection = ServerConnection.makeConnection(id, Session.this);
                         serverConection.connect(addr);
-                        NetworkIdentifier endpoint = new NetworkIdentifier(addr);
+                        Endpoint endpoint = new Endpoint(addr);
                         pushAlert(new ServerConnectionAlert(id));
                         log.debug("connect to server {}", endpoint);
                     } catch(JED2KException e) {
@@ -333,6 +510,23 @@ public class Session extends Thread {
         });
     }
 
+    public void searchDhtKeyword(final String keyword, final long minSize, final long maxSize, final int sources, final int completeSources) {
+        final Session s = this;
+        commands.add(new Runnable() {
+            @Override
+            public void run() {
+                DhtTracker tracker = dhtTracker.get();
+                if (tracker != null && !tracker.isAborted()) {
+                    try {
+                        tracker.searchKeywords(keyword, new DhtKeywordsCallback(s, minSize, maxSize, sources, completeSources));
+                    } catch(JED2KException e) {
+                        log.error("[session] unable to start search keyword {} in DHT {}", keyword, e);
+                    }
+                }
+            }
+        });
+    }
+
 
     public void searchMore() {
         commands.add(new Runnable() {
@@ -346,7 +540,7 @@ public class Session extends Thread {
     }
 
     // TODO - remove only
-    public void connectToPeer(final NetworkIdentifier point) {
+    public void connectToPeer(final Endpoint point) {
         commands.add(new Runnable() {
             @Override
             public void run() {
@@ -361,7 +555,7 @@ public class Session extends Thread {
         });
     }
 
-    private PeerConnection findPeerConnection(NetworkIdentifier endpoint) {
+    private PeerConnection findPeerConnection(Endpoint endpoint) {
         for(PeerConnection p: connections) {
             if (p.hasEndpoint() && endpoint.compareTo(p.getEndpoint()) == 0) return p;
         }
@@ -409,11 +603,30 @@ public class Session extends Thread {
      * @param size of file
      * @return TransferHandle with valid transfer of without
      */
-    public final synchronized TransferHandle addTransfer(Hash h, long size, String filepath) throws JED2KException {
+    public final synchronized TransferHandle addTransfer(Hash h, long size, File file) throws JED2KException {
         Transfer t = transfers.get(h);
 
         if (t == null) {
-            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, filepath, false));
+            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, file, false));
+            transfers.put(h, t);
+        }
+
+        return new TransferHandle(this, t);
+    }
+
+    /**
+     * the same as previous instead of external file handler
+     * @param h
+     * @param size
+     * @param handler
+     * @return
+     * @throws JED2KException
+     */
+    public final synchronized TransferHandle addTransfer(Hash h, long size, FileHandler handler) throws JED2KException {
+        Transfer t = transfers.get(h);
+
+        if (t == null) {
+            t = new Transfer(this, new AddTransferParams(h, Time.currentTimeMillis(), size, handler, false));
             transfers.put(h, t);
         }
 
@@ -428,11 +641,11 @@ public class Session extends Thread {
      * @throws JED2KException
      */
     public final synchronized  TransferHandle addTransfer(final AddTransferParams atp) throws JED2KException {
-        Transfer t = transfers.get(atp.hash);
+        Transfer t = transfers.get(atp.getHash());
 
         if (t == null) {
             t = new Transfer(this, atp);
-            transfers.put(atp.hash, t);
+            transfers.put(atp.getHash(), t);
         }
 
         return new TransferHandle(this, t);
@@ -469,6 +682,17 @@ public class Session extends Thread {
 
     void sendSourcesRequest(final Hash h, final long size) {
         if (serverConection != null) serverConection.sendFileSourcesRequest(h, size);
+    }
+
+    void sendDhtSourcesRequest(final Hash h, final long size, final Transfer t) {
+        if (dhtTracker != null) {
+            try {
+                DhtTracker dht = dhtTracker.get();
+                if (dht != null) dht.searchSources(h, size, new DhtSourcesCallback(this, t));
+            } catch(JED2KException e) {
+                log.error("[session] dht search sources error {}", e);
+            }
+        }
     }
 
     /**
@@ -609,7 +833,7 @@ public class Session extends Thread {
                 for(final Transfer t: transfers.values()) {
                     if (t.isNeedSaveResumeData()) {
                         try {
-                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFilePath().getAbsolutePath(), t.isPaused());
+                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFile(), t.isPaused());
                             atp.resumeData.setData(t.resumeData());
                             pushAlert(new TransferResumeDataAlert(t.hash(), atp));
                         } catch(JED2KException e) {
@@ -625,5 +849,121 @@ public class Session extends Thread {
         long dr = accumulator.downloadRate();
         long ur = accumulator.uploadRate();
         return Pair.make(dr, ur);
+    }
+
+    public void startUPnP() {
+        upnpService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+                assert discover != null;
+                BaseErrorCode ec = ErrorCode.NO_ERROR;
+                // TODO - fix unsynchronized access to settings
+                int port = settings.listenPort;
+                try {
+                    discover.discover();
+                    device = discover.getValidGateway();
+                    if (device != null) {
+                        final String[] protocols = {"TCP", "UDP"};
+                        for(final String protocol: protocols) {
+                            PortMappingEntry portMapping = new PortMappingEntry();
+                            if (!device.getSpecificPortMappingEntry(port, protocol, portMapping)) {
+                                InetAddress localAddress = device.getLocalAddress();
+                                if (device.addPortMapping(port, port, localAddress.getHostAddress(), protocol, "JED2K")) {
+                                    // ok, mapping added
+                                    log.info("[session] port mapped {} for {}", port, protocol);
+                                } else {
+                                    log.info("[session] port {} mapping error for {}", port, protocol);
+                                    ec = ErrorCode.PORT_MAPPING_ERROR;
+                                }
+                            } else {
+                                log.debug("[session] port {} already mapped for {}", port, protocol);
+                                ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
+                            }
+                        }
+                    } else {
+                        log.debug("[session] can not find gateway device");
+                        ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_IO_ERROR;
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_SAX_ERROR;
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_CONFIG_ERROR;
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    ec = ErrorCode.PORT_MAPPING_EXCEPTION;
+                }
+
+                pushAlert(new PortMapAlert(port, port, ec));
+            }
+        });
+    }
+
+    public void stopUPnP() {
+        upnpService.submit(new Runnable() {
+            @Override
+            public void run() {
+                stopUPnPImpl("TCP");
+                stopUPnPImpl("UDP");
+                device = null;
+            }
+        });
+    }
+
+    private void stopUPnPImpl(final String protocol) {
+        if (device != null) {
+            try {
+                if (device.deletePortMapping(settings.listenPort, protocol)) {
+                    log.info("port mapping removed {}", settings.listenPort);
+                } else {
+                    log.error("port mapping removing failed");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                log.error("[session] unmap port I/O error {}", e);
+            } catch (SAXException e) {
+                e.printStackTrace();
+                log.error("[session] unmap port SAX error {}", e);
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+                log.error("[session] unmap port error {}", e);
+            }
+        }
+    }
+
+    /**
+     * debug only method to run search source from external process
+     * @param h hash of file
+     * @param size size of file
+     */
+    public synchronized void dhtDebugSearch(final Hash h, long size) {
+        try {
+            DhtTracker tracker = dhtTracker.get();
+            if (tracker != null) {
+                tracker.searchSources(h, size, new DhtDebugCallback());
+            } else {
+                log.warn("[session] DHT is not running, but search sources requested");
+            }
+        } catch(JED2KException e) {
+            log.error("[session] unable to start debug search {}", e);
+        }
+    }
+
+    /**
+     * add or remove DHT tracker from session
+     * @param tracker external DHT tracker object or null
+     */
+    public synchronized void setDhtTracker(final DhtTracker tracker) {
+        dhtTracker = new WeakReference<DhtTracker>(tracker);
+    }
+
+    public synchronized DhtTracker getDhtTracker() {
+        return dhtTracker.get();
     }
 }

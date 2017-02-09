@@ -3,12 +3,40 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:weightSum="1"
-              android:background="@drawable/clearable_edittext_background">
+              android:weightSum="1">
+
+    <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible">
+
+        <RadioGroup
+                android:id="@+id/view_search_source_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+            <RadioButton
+                    android:id="@+id/search_source_type_server"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_source_type_server"
+                    android:checked="true"/>
+
+            <RadioButton
+                    android:id="@+id/search_source_type_dht"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_source_type_dht"/>
+        </RadioGroup>
+
+    </HorizontalScrollView>
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:id="@+id/search_params_min_size"
             android:layout_width="wrap_content"
@@ -26,11 +54,11 @@
             android:id="@+id/view_search_parameter_min_size"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/search_params_min_size"
-            android:background="@android:color/transparent"
             android:textColor="@android:color/black"
             android:singleLine="true"
             android:paddingLeft="8dp"
-            android:paddingRight="38dp"/>
+            android:paddingRight="38dp"
+            android:background="@drawable/clearable_edittext_background"/>
 
         <TextView
             android:id="@+id/search_params_max_size"
@@ -50,11 +78,11 @@
             android:id="@+id/view_search_parameter_max_size"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/search_params_max_size"
-            android:background="@android:color/transparent"
             android:textColor="@android:color/black"
             android:singleLine="true"
             android:paddingLeft="8dp"
-            android:paddingRight="38dp"/>
+            android:paddingRight="38dp"
+            android:background="@drawable/clearable_edittext_background"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -77,11 +105,11 @@
             android:id="@+id/view_search_parameter_sources"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/search_params_sources"
-            android:background="@android:color/transparent"
             android:textColor="@android:color/black"
             android:singleLine="true"
             android:paddingLeft="8dp"
-            android:paddingRight="38dp"/>
+            android:paddingRight="38dp"
+            android:background="@drawable/clearable_edittext_background"/>
 
         <TextView
             android:id="@+id/search_params_complete_sources"
@@ -101,11 +129,11 @@
             android:id="@+id/view_search_parameter_complete_sources"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/search_params_complete_sources"
-            android:background="@android:color/transparent"
             android:textColor="@android:color/black"
             android:singleLine="true"
             android:paddingLeft="8dp"
-            android:paddingRight="38dp"/>
+            android:paddingRight="38dp"
+            android:background="@drawable/clearable_edittext_background"/>
     </RelativeLayout>
 
     <HorizontalScrollView
@@ -114,57 +142,57 @@
 
     <RadioGroup
         android:id="@+id/view_search_parameter_file_type"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
         <RadioButton
             android:id="@+id/search_parameter_type_any"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/media_type_all_types"/>
+            android:text="@string/media_type_all_types"
+            android:checked="true"/>
 
         <RadioButton
             android:id="@+id/search_parameter_type_audio"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/media_type_audio"/>
 
         <RadioButton
             android:id="@+id/search_parameter_type_video"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/media_type_video"/>
 
         <RadioButton
             android:id="@+id/search_parameter_picture"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/media_type_images"/>
 
         <RadioButton
             android:id="@+id/search_parameter_type_archive"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/media_type_archives"/>
 
         <RadioButton
             android:id="@+id/search_parameter_type_document"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/media_type_documents"/>
 
         <RadioButton
             android:id="@+id/search_parameter_type_cd_images"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/media_type_cd_images"/>
 
         <RadioButton
             android:id="@+id/search_parameter_type_application"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/media_type_applications"/>
-
     </RadioGroup>
     </HorizontalScrollView>
 

@@ -13,7 +13,7 @@ import static org.dkf.jed2k.Utils.byte2String;
 
 public class Hash implements Serializable, Comparable<Hash> {
 
-    private final byte[] value = {
+    protected final byte[] value = {
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
@@ -87,10 +87,14 @@ public class Hash implements Serializable, Comparable<Hash> {
         return Hash.fromBytes(md4.digest(buffer.array()));
     }
 
-    public static Hash random() {
+    public static Hash random(boolean eMule) {
         byte[] source = new byte[MD4.HASH_SIZE];
         Random rand = new Random();
         rand.nextBytes(source);
+        if (eMule) {
+            source[5] = 14;
+            source[14] = 111;
+        }
         return fromBytes(source);
     }
 

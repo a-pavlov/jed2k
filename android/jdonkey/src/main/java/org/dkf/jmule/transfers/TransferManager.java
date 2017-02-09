@@ -21,19 +21,22 @@ package org.dkf.jmule.transfers;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
 import org.dkf.jed2k.PeerInfo;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
+import org.dkf.jed2k.android.NetworkManager;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
-import org.dkf.jmule.core.NetworkManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +56,8 @@ public final class TransferManager {
     private volatile static TransferManager instance;
     private final ConfigurationManager CM;
     private List<Transfer> transfers = new ArrayList<>();
+    private ParcelFileDescriptor fd;
+    private FileOutputStream os;
 
     public static TransferManager instance() {
         if (instance == null) {
@@ -96,9 +101,34 @@ public final class TransferManager {
 
     }
 
-    public Transfer download(final Hash hash, long size, final String fileName) {
-        File f = new File(ConfigurationManager.instance().getStoragePath(), fileName);
-        return Engine.instance().startDownload(hash, size, f.getAbsolutePath());
+    public Transfer download(final Hash hash, long size, final String fileName) throws JED2KException {
+        return Engine.instance().startDownload(hash, size, new File(ConfigurationManager.instance().getStoragePath(), fileName));
+        /*
+        os = null;
+        FileChannel channel = null;
+        try {
+            LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+            fd = fs.openFD(f, "rw");
+            if (fd != null) {
+                os = new FileOutputStream(fd.getFileDescriptor());
+                channel = os.getChannel();
+                LOG.info("channel ready to start on file {}", f);
+                //return Engine.instance().startDownload(hash, size, f.getAbsolutePath(), channel);
+            } else {
+                LOG.error("unable to get document for {}", f);
+            }
+        } catch(Exception e) {
+            LOG.error("unable to fill file {} error {}", f, e);
+            try {
+                if (channel != null) channel.close();
+                if (os != null) os.close();
+            } catch(IOException ex) {
+                LOG.error("unable to free resources {}", ex);
+            }
+        }
+
+        return null;
+        */
     }
 
     public int getActiveDownloads() {
@@ -251,12 +281,12 @@ public final class TransferManager {
 
         PeerInfo generatePeer() {
             PeerInfo pi = new PeerInfo();
-            pi.endpoint = new NetworkIdentifier(rnd.nextInt(), (short)rnd.nextInt(30000));
-            pi.modName = "mod";
-            pi.modVersion = rnd.nextInt(22);
-            pi.strModVersion = Integer.toString(rnd.nextInt(33));
-            pi.downloadPayload = rnd.nextInt(555656);
-            pi.downloadSpeed = rnd.nextInt(30000);
+            pi.setEndpoint(new Endpoint(rnd.nextInt(), (short)rnd.nextInt(30000)));
+            pi.setModName("mod");
+            pi.setModVersion(rnd.nextInt(22));
+            pi.setStrModVersion(Integer.toString(rnd.nextInt(33)));
+            pi.setDownloadPayload(rnd.nextInt(555656));
+            pi.setDownloadSpeed(rnd.nextInt(30000));
             return pi;
         }
 

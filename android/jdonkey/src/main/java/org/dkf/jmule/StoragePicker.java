@@ -23,14 +23,18 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.provider.DocumentFile;
-import org.dkf.jmule.core.LollipopFileSystem;
-import org.dkf.jmule.core.Platforms;
+import org.dkf.jed2k.android.AndroidFileHandler;
+import org.dkf.jed2k.android.LollipopFileSystem;
+import org.dkf.jed2k.android.Platforms;
 import org.dkf.jmule.util.UIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 
 /**
  * @author gubatron
@@ -83,12 +87,28 @@ public final class StoragePicker {
                         UIUtils.showShortMessage(context, R.string.storage_picker_treeuri_cant_write);
                         result = null;
                     } else {
-                        LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
-                        result = fs.getTreePath(treeUri);
-                        if (result != null && !result.endsWith("/FrostWire")) {
-                            DocumentFile f = file.findFile("FrostWire");
-                            if (f == null) {
-                                file.createDirectory("FrostWire");
+                        if (Platforms.get().saf()) {
+                            LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+                            result = fs.getTreePath(treeUri);
+
+                            // TODO - remove below code - only for testing SD card writing
+                            File testFile = new File(result, "test_file.txt");
+                            LOG.info("test file {}", testFile);
+
+                            try {
+                                ParcelFileDescriptor fd = fs.openFD(testFile, "rw");
+                                DocumentFile doc = fs.getDocument(testFile);
+                                AndroidFileHandler ah = new AndroidFileHandler(testFile
+                                        , doc
+                                        , fd);
+                                ByteBuffer bb = ByteBuffer.allocate(48);
+                                bb.putInt(1).putInt(2).putInt(3).putInt(44).putInt(22);
+                                bb.flip();
+                                ah.getWriteChannel().write(bb);
+                                ah.close();
+                            } catch (Exception e) {
+                                LOG.error("unable to fill file {} error {}"
+                                        , testFile, e);
                             }
                         }
                     }

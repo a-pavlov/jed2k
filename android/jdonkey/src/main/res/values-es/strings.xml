@@ -73,7 +73,7 @@
     <string name="retry_search">Reintentar</string>
     <string name="no_results_feedback">No se encontraron resultados.\n\nRevisa tu conexión a Internet o\nprueba otra búsqueda.</string>
     <string name="drawer_close">Cierra el menu de navegación</string>
-    <string name="add_transfer_label">Copia una URL de magnet o torrent</string>
+    <string name="add_transfer_label">Inserte el enlace ED2K</string>
     <string name="drawer_open">Abre el menu de navegación</string>
     <string name="magnet_url_added">Enlace agregado a las transferencias</string>
     <string name="transfers_select_completed">completado</string>
@@ -100,7 +100,6 @@
     <string name="app_shutdown_dlg_message">Esto cancelará todas las transferencias y servicios ejecutados en segundo plano. ¿Estás seguro?</string>
     <string name="app_shutdown_dlg_title">Cerrar</string>
     <string name="try_other_keywords">Intenta otras palabras</string>
-    <string name="try_frostwire_plus_for_more_results"><u>Prueba Mula para más resultados</u></string>
     <string name="your_installation_is_complete">Instalación completa.</string>
     <string name="thank_you">¡Gracias!</string>
     <string name="keep_in_touch">¡Mantente en contacto!</string>
@@ -140,8 +139,8 @@
     <string name="search_parameter_sources">Fuentes</string>
     <string name="server_connect_action">Conectarse a %1$s</string>
     <string name="server_disconnect_action">Desconectar de %1$s</string>
-    <string name="server_not_connected">No se conecta al servidor</string>
-    <string name="server_not_connected_det">Antes de comenzar la búsqueda conectar al servidor</string>
+    <string name="server_not_connected">No hay fuentes para la búsqueda de</string>
+    <string name="server_not_connected_det">Conectar con el servidor o iniciar Kademlia por favor</string>
     <string name="server_remove_action">Quitar %1$s</string>
     <string name="servers">Servidores</string>
     <string name="servers_settings">Configuración de servidores</string>
@@ -162,4 +161,58 @@
     <string name="transfers_max_total_connections_summary">El Máximo Total De Conexiones</string>
     <string name="user_id">ID de usuario</string>
     <string name="users_count">Los usuarios</string>
+    <string name="search_more_action">Buscar aún</string>
+    <string name="ed2k_network_summary">El estado de la conexión</string>
+    <string name="files_count">Los archivos</string>
+    <string name="transfers_settings">Las transferencias de configuración</string>
+    <string name="forward_ports_summary">Adelante entrantes a los puertos en mi router. UPnP debe ser activado en el router</string>
+    <string name="forward_ports_title">La redirección de puertos</string>
+    <string name="server_add">Agregar</string>
+    <string name="server_add_descr">Descripción</string>
+    <string name="server_add_name">Nombre</string>
+
+    <string name="storage_path">Ruta de almacenamiento</string>
+    <string name="wizard_previous">Anterior</string>
+    <string name="wizard_next">Siguiente</string>
+    <string name="wizard_finish">Terminar</string>
+    <string name="upnp">La redirección de puertos en el enrutador</string>
+    <string name="upnp_summary">Si está conectado a través de un router intenta tender un puerto de entrada en el
+        enrutador. En este caso, el puerto de conexión entrante será accesible desde el exterior. Esto le dará una mayor
+        cantidad de fuentes. Compruebe que el router está activado el UPnP.
+    </string>
+    <string name="usage_notes_summary">Antes de comenzar, vaya a configuración y active el servicio ED2K si está
+        apagado. La aplicación soporta la descarga en el fondo a través del servicio. Pulsando el botón de atrás está al
+        final será capaz de salir de la aplicación sin necesidad de interrumpir el servicio. Para la total paralización
+        del servicio y de la aplicación y seleccione salir en el menú.</string>
+    <string name="usage_notes_title">Trabajar con la aplicación</string>
+    <string name="usage_proposals_summary">Направляйте пожелания и отчеты о проблемах на почту разработчика</string>
+    <string name="usage_proposals_title">La propuesta y el mensaje de los problemas</string>
+    <string name="usage_suggestions_summary">Trate de proporcionar accesible desde el exterior el puerto de las
+        conexiones entrantes. Seleccione los archivos con una gran cantidad de fuentes.
+    </string>
+    <string name="usage_suggestions_title">Consejos sobre el uso del</string>
+    <string name="welcome_to_mule">Bienvenido a un Mule para Android</string>
+    <string name="server_add_host">Host</string>
+    <string name="server_add_port">Port</string>
+    <string name="dht_enable_title">Kademlia</string>
+    <string name="dht_enable_summary">Utilizar la DHT(Kademlia) para ampliar la búsqueda de las fuentes de</string>
+    <string name="wizard_dht">El uso de la DHT(Kademlia)</string>
+    <string name="wizard_dht_summary">El uso de Kademlia a encontrar más fuentes. Tenga cuidado - genera tráfico de
+        servicio.
+    </string>
+    <string name="search_source_type_dht">Kademlia</string>
+    <string name="search_source_type_server">Servidores</string>
+    <string name="add_transfer_session_stopped_title">Agregar enlace</string>
+    <string name="add_transfer_session_stopped_body">ED2K núcleo se detiene, no se puede agregar la transferencia. Por
+        favor habilite núcleo e inténtelo de nuevo.
+    </string>
+    <string name="add_servers_list_title">Servidores</string>
+    <string name="add_servers_list_text">I nuovi server sono stati scaricati. Sostituisce l\'attuale lista dei server?
+    </string>
+    <string name="add_servers_list_failed">No se puede descargar la lista de servidores, por favor, inténtelo de nuevo
+        más tarde
+    </string>
+    <string name="start_transfer_file_error">No se puede iniciar el traslado, debido a que I/O de excepción</string>
+    <string name="start_transfer_internal_error">Error interno en la transferencia de partida</string>
+    <string name="start_transfer_success">La transferencia ha sido añadido</string>
 </resources>

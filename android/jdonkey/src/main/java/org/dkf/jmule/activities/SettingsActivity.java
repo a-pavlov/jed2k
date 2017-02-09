@@ -37,13 +37,13 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import org.dkf.jed2k.android.AndroidPlatform;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.android.ED2KService;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.StoragePicker;
-import org.dkf.jmule.core.AndroidPlatform;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.preference.NumberPickerPreference;
 import org.dkf.jmule.views.preference.StoragePreference;
@@ -111,6 +111,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void setupComponents() {
         setupConnectSwitch();
+        useDhtCheckbox();
         setupNickname();
         setupListenPort();
         setupStorageOption();
@@ -170,6 +171,7 @@ public class SettingsActivity extends PreferenceActivity {
     private void setupOtherOptions() {
         setupPermanentStatusNotificationOption();
         setupVibrateOnDownloadCompletedOption();
+        setupForwardPortsOption();
     }
 
     private void setupPermanentStatusNotificationOption() {
@@ -200,6 +202,19 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     Engine.instance().setVibrateOnDownloadCompleted((boolean) newValue);
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void setupForwardPortsOption() {
+        final CheckBoxPreference vibrateOnDownloadCompleted = (CheckBoxPreference) findPreference(Constants.PREF_KEY_FORWARD_PORTS);
+        if (vibrateOnDownloadCompleted != null) {
+            vibrateOnDownloadCompleted.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().forwardPorts((boolean) newValue);
                     return true;
                 }
             });
@@ -259,6 +274,19 @@ public class SettingsActivity extends PreferenceActivity {
                     } else if (newStatus && (Engine.instance().isStopped())) {
                         connect();
                     }
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void useDhtCheckbox() {
+        final CheckBoxPreference useDht = (CheckBoxPreference) findPreference(Constants.PREF_KEY_CONNECT_DHT);
+        if (useDht != null) {
+            useDht.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().useDht((boolean) newValue);
                     return true;
                 }
             });

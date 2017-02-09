@@ -22,6 +22,7 @@ import android.app.*;
 import android.content.*;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -37,17 +38,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import org.apache.commons.io.IOUtils;
-import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jed2k.EMuleLink;
+import org.dkf.jed2k.android.*;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.StoragePicker;
 import org.dkf.jmule.activities.internal.MainController;
 import org.dkf.jmule.activities.internal.MainMenuAdapter;
-import org.dkf.jmule.core.AndroidPlatform;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
-import org.dkf.jmule.core.Platforms;
 import org.dkf.jmule.dialogs.SDPermissionDialog;
 import org.dkf.jmule.dialogs.YesNoDialog;
 import org.dkf.jmule.fragments.MainFragment;
@@ -68,6 +68,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -78,6 +81,7 @@ import java.util.Stack;
  */
 public class MainActivity extends AbstractActivity implements
         AbstractDialog.OnDialogClickListener,
+        DialogInterface.OnClickListener,
         ServiceConnection,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -101,6 +105,7 @@ public class MainActivity extends AbstractActivity implements
     private final Stack<Integer> fragmentsStack;
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
+    private ServerMet lastLoadedServers = null;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -229,6 +234,8 @@ public class MainActivity extends AbstractActivity implements
 
     @Override
     protected void onNewIntent(Intent intent) {
+        log.info("[main activity] on new intent {}", intent);
+
         if (intent == null) {
             return;
         }
@@ -238,6 +245,79 @@ public class MainActivity extends AbstractActivity implements
         }
 
         String action = intent.getAction();
+
+        // view action here - check type of link and load data
+        if (action != null && action.equals("android.intent.action.VIEW")) {
+            try {
+                EMuleLink link = EMuleLink.fromString(intent.getDataString());
+
+                if (link.getType().equals(EMuleLink.LinkType.SERVER)) {
+                    ServerMet sm = new ServerMet();
+                    ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+
+                    try {
+                        sm.addServer(ServerMet.ServerMetEntry.create(link.getStringValue()
+                                , (int)link.getNumberValue()
+                                , "[" + link.getStringValue() + "]"
+                                , ""));
+
+                        ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, sm);
+                        servers.setupAdapter();
+                        controller.showServers();
+                    } catch (JED2KException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else if (link.getType().equals(EMuleLink.LinkType.SERVERS)) {
+                    final String serversLink = link.getStringValue();
+                    final MainActivity main = this;
+                    AsyncTask<Void, Void, ServerMet> task = new AsyncTask<Void, Void, ServerMet>() {
+
+                        @Override
+                        protected ServerMet doInBackground(Void... voids) {
+                            try {
+                                byte[] data = IOUtils.toByteArray(new URI(serversLink));
+                                ByteBuffer buffer = ByteBuffer.wrap(data);
+                                buffer.order(ByteOrder.LITTLE_ENDIAN);
+                                ServerMet sm = new ServerMet();
+                                sm.get(buffer);
+                                return sm;
+                            } catch(Exception e) {
+                                log.error("unable to load servers {}", e);
+                            }
+
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(ServerMet result) {
+                            if (result != null) {
+                                lastLoadedServers = result;
+                                UIUtils.showYesNoDialog(main
+                                        , R.string.add_servers_list_text
+                                        , R.string.add_servers_list_title,
+                                        main);
+                            } else {
+                                UIUtils.showShortMessage(main, R.string.add_servers_list_failed);
+                            }
+                        }
+                    };
+
+                    task.execute();
+                }
+                else if (link.getType().equals(EMuleLink.LinkType.FILE)) {
+                    transfers.startTransferFromLink(intent.getDataString());
+                    controller.showTransfers(TransferStatus.ALL);
+                }
+                else {
+                    log.error("wtf? link unrecognized {}", intent.getDataString());
+                }
+
+            } catch(JED2KException e) {
+                log.error("intent get data parse error {}", e.toString());
+                UIUtils.showInformationDialog(this, R.string.intent_link_parse_error, R.string.add_servers_list_title, true, null);
+            }
+        }
 
         if (action != null) {
             if (action.equals(ED2KService.ACTION_SHOW_TRANSFERS)) {
@@ -319,7 +399,7 @@ public class MainActivity extends AbstractActivity implements
             mainResume();
             //Offers.initAdNetworks(this);
         } else if (!isShutdown()){
-            //controller.startWizardActivity();
+            controller.startWizardActivity();
         }
 
         checkLastSeenVersion();
@@ -450,12 +530,15 @@ public class MainActivity extends AbstractActivity implements
 
         try {
             File data = Platforms.data();
-            File parent = data.getParentFile();
+            //File parent = data.getParentFile();
 
-            if (!AndroidPlatform.saf(parent)) {
+            if (!AndroidPlatform.saf(data)) {
                 return;
             }
-            if (!Platforms.fileSystem().canWrite(parent) &&
+
+            log.info("check write permissions for {}", data);
+
+            if (!Platforms.fileSystem().canWrite(data) &&
                     !SDPermissionDialog.visible) {
                 SDPermissionDialog dlg = SDPermissionDialog.newInstance();
                 dlg.show(getFragmentManager());
@@ -702,7 +785,7 @@ public class MainActivity extends AbstractActivity implements
                     placeholder.addView(header, params);
                 }
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("Error updating main header", e);
         }
     }
@@ -818,6 +901,15 @@ public class MainActivity extends AbstractActivity implements
             checker.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
         //Offers.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
+        if (lastLoadedServers != null) {
+            ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, lastLoadedServers);
+            servers.setupAdapter();
+            controller.showServers();
+        }
     }
 
     private static final class MenuDrawerToggle extends ActionBarDrawerToggle {

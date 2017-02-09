@@ -29,9 +29,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import org.apache.commons.io.IOUtils;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jmule.BuildConfig;
 import org.dkf.jmule.R;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.util.UIUtils;
 
 import java.io.IOException;

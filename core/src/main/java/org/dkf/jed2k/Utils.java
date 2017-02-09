@@ -1,11 +1,16 @@
 package org.dkf.jed2k;
 
+import org.dkf.jed2k.exception.ErrorCode;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
 import org.dkf.jed2k.protocol.Serializable;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
 
 public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -72,18 +77,50 @@ public final class Utils {
         return null;
     }
 
+    public static String ip2String(int ip) {
+        return String.format("%d.%d.%d.%d",
+                ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
+    }
+
+    public static int string2Ip(final String s) throws JED2KException {
+        String[] parts = s.split("[.]");
+        if (parts.length != 4) throw new JED2KException(ErrorCode.ILLEGAL_ARGUMENT);
+        try {
+            int raw[] = {Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])};
+
+            for (int r : raw) {
+                if (r < 0 || r > 255) throw new JED2KException(ErrorCode.ILLEGAL_ARGUMENT);
+            }
+
+            return raw[0]
+                    | ((raw[1] << 8) & 0xff00)
+                    | ((raw[2] << 16) & 0xff0000)
+                    | ((raw[3] << 24) & 0xff000000);
+        }
+        catch(NumberFormatException e) {
+            throw new JED2KException(ErrorCode.ILLEGAL_ARGUMENT);
+        }
+    }
+
     /**
      *
      * @param order sequence of four bytes
      * @return host byte order integer
      */
-    public static int networkByteOrderToIp(byte[] order) {
+    public static int htonl(byte[] order) {
         assert(order.length == 4);
         int res =  ((int)order[0] << 24)
                 | (((int)order[1] << 16) & 0x00FF0000)
                 | (((int)order[2] << 8) & 0x0000FF00)
                 | (((int)order[3]) & 0xFF);
         return res;
+    }
+
+    public static int htonl(int ip) {
+        return ((ip & 0x000000FF) << 24)
+                | ((ip & 0x0000FF00) << 8)
+                | ((ip >> 8) & 0x0000FF00)
+                | ((ip >> 24) & 0xFF);
     }
 
     /**
@@ -107,7 +144,7 @@ public final class Utils {
      */
     public static int ntohl(int ip) {
         byte raw[] = { (byte)(ip & 0xff), (byte)((ip >> 8) & 0xff), (byte)((ip >> 16) & 0xff), (byte)((ip >> 24) & 0xff)};
-        return networkByteOrderToIp(raw);
+        return htonl(raw);
     }
 
     /**
@@ -115,7 +152,7 @@ public final class Utils {
      * @param ep ip address in network byte order
      * @return true if it is local address
      */
-    public static boolean isLocalAddress(NetworkIdentifier ep) {
+    public static boolean isLocalAddress(Endpoint ep) {
         int host = ntohl(ep.getIP());
         return ((host & 0xff000000) == 0x0a000000 // 10.x.x.x
                 || (host & 0xfff00000) == 0xac100000 // 172.16.x.x
@@ -198,5 +235,37 @@ public final class Utils {
                 .append(fileSize).append("|")
                 .append(hash.toString())
                 .append("|/").toString();
+    }
+
+    public static boolean isBit(int value, int mask) {
+        return (value & mask) == mask;
+    }
+
+    public static <T> int indexOf(Collection<T> src, Checker<T> chk) {
+        int i = 0;
+        for(final T s: src) {
+            if (chk.check(s)) return i;
+            ++i;
+        }
+
+        return -1;
+    }
+
+    public static <T>
+    boolean isSorted(Iterable<T> iterable, final Comparator<T> cmp) {
+        Iterator<T> iter = iterable.iterator();
+
+        if (!iter.hasNext()) {
+            return true;
+        }
+
+        T t = iter.next();
+        while (iter.hasNext()) {
+            T t2 = iter.next();
+            if (cmp.compare(t, t2) > 0) return false;
+            t = t2;
+        }
+
+        return true;
     }
 }

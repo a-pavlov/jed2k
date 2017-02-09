@@ -40,47 +40,28 @@
               android:gravity="center_horizontal"
               android:text="@string/keep_in_touch"
               android:textSize="20sp"
-              android:layout_marginBottom="20dp"
+              android:layout_marginBottom="10dp"
             />
 
     <LinearLayout android:orientation="horizontal"
                   android:layout_weight="0.20"
                   android:layout_width="fill_parent"
                   android:layout_height="0dp"
-                  android:layout_marginBottom="50dp"
+                  android:layout_marginBottom="10dp"
                   android:paddingLeft="20dp"
                   android:paddingRight="20dp"
                   android:weightSum="1"
                   android:gravity="center_horizontal"
             >
 
-        <ImageButton android:id="@+id/view_social_buttons_facebook_button"
-                     android:src="@drawable/social_wizard_facebook"
+
+        <ImageButton android:id="@+id/view_buttons_github"
+                     android:src="@drawable/github_mark_120px_plus"
                      android:layout_width="0dp"
                      android:layout_weight="0.22"
                      android:layout_height="wrap_content"
                      android:background="@color/transparent"
                      android:layout_marginRight="20dp"
                      android:scaleType="fitCenter"/>
-
-
-        <ImageButton android:id="@+id/view_social_buttons_twitter_button"
-                     android:src="@drawable/social_wizard_twitter"
-                     android:layout_width="0dp"
-                     android:layout_weight="0.22"
-                     android:layout_height="wrap_content"
-                     android:background="@color/transparent"
-                     android:layout_marginRight="20dp"
-                     android:scaleType="fitCenter"/>
-
-
-        <ImageButton android:id="@+id/view_social_buttons_reddit_button"
-                     android:src="@drawable/social_wizard_reddit"
-                     android:layout_width="0dp"
-                     android:layout_weight="0.22"
-                     android:layout_height="wrap_content"
-                     android:background="@color/transparent"
-                     android:scaleType="fitCenter"/>
-
     </LinearLayout>
 </LinearLayout>

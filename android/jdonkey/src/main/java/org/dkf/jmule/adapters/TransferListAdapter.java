@@ -25,22 +25,22 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.TransferStatus;
+import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
+import org.dkf.jed2k.android.NetworkManager;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.adapters.menu.*;
-import org.dkf.jmule.core.ConfigurationManager;
-import org.dkf.jmule.core.Constants;
-import org.dkf.jmule.core.NetworkManager;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.ClickAdapter;
 import org.dkf.jmule.views.MenuAction;
 import org.dkf.jmule.views.MenuAdapter;
 import org.dkf.jmule.views.MenuBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -49,8 +49,8 @@ import java.util.*;
  * @author gubatron
  * @author aldenml
  */
+@Slf4j
 public class TransferListAdapter extends BaseExpandableListAdapter {
-    private static final Logger LOG = LoggerFactory.getLogger(TransferListAdapter.class);
     private final WeakReference<Context> context;
     private final OnClickListener viewOnClickListener;
     private final ViewOnLongClickListener viewOnLongClickListener;
@@ -107,7 +107,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
             initTouchFeedback(convertView, item);
             populateChildView(convertView, item);
         } catch (Exception e) {
-            LOG.error("Fatal error getting view: " + e.getMessage(), e);
+            log.error("Fatal error getting view: {}", e);
         }
 
         return convertView;
@@ -119,7 +119,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
             final Transfer transfer = list.get(groupPosition);
             return transfer.getItems().size();
         } catch (IndexOutOfBoundsException e) {
-            LOG.info("jdonkey", "out of bound in children count");
+            log.error("out of bound in children count {}", e);
             return 0;
         }
     }
@@ -164,13 +164,13 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
         try {
             populateGroupView(listItemLinearLayoutHolder, item);
         } catch (Exception e) {
-            LOG.error("Not able to populate group view in expandable list:" + e.getMessage());
+            log.error("Not able to populate group view in expandable list: {}", e);
         }
 
         try {
             setupGroupIndicator(listItemLinearLayoutHolder, expandableListView, isExpanded, item, groupPosition);
         } catch (Exception e) {
-            LOG.error("Not able to setup touch handlers for group indicator ImageView: " + e.getMessage());
+            log.error("Not able to setup touch handlers for group indicator ImageView: {}", e);
         }
 
         return listItemLinearLayoutHolder;
@@ -196,7 +196,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
             try {
                 dialog.dismiss();
             } catch (Exception e) {
-                LOG.warn("Error dismissing dialog", e);
+                log.warn("Error dismissing dialog {}", e);
             }
         }
     }
@@ -395,20 +395,28 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
     }
 
     private void populatePeerItem(View view, PeerInfo item) {
-        //ImageView icon = findView(view, R.id.view_transfer_item_list_item_icon);
+        ImageView icon = findView(view, R.id.view_transfer_item_list_item_icon);
         TextView title = findView(view, R.id.view_transfer_item_list_item_title);
         TextView summary = findView(view, R.id.view_transfer_item_list_item_summary);
         TextView totalBytes = findView(view, R.id.view_transfer_item_list_item_total_bytes);
         TextView speed = findView(view, R.id.view_transfer_item_list_item_speed);
+
+        // for DHT set swap icon and computer icon for all other cases
+        if (Utils.isBit(item.getSourceFlag(), PeerInfo.DHT)) {
+            icon.setImageResource(R.drawable.ic_swap_calls_black_24dp);
+        } else {
+            icon.setImageResource(R.drawable.ic_computer_black_24dp);
+        }
+
         //ImageButton buttonPlay = findView(view, R.id.view_transfer_item_list_item_button_play);
 
         //icon.setImageResource(MediaType.getFileTypeIconId(FilenameUtils.getExtension(item.getFilePath().getAbsolutePath())));
-        title.setText(item.endpoint.toString());
+        title.setText(item.getEndpoint().toString());
         String templateTotalBytes = view.getResources().getString(R.string.peer_total_bytes_download);
         String templateSpeed = view.getResources().getString(R.string.peer_speed);
-        String strTotalBytes = String.format(templateTotalBytes, UIUtils.getBytesInHuman(item.downloadPayload + item.downloadProtocol));
-        String strSpeed = String.format(templateSpeed, UIUtils.rate2speed(item.downloadSpeed / 1024));
-        String strSummary = String.format("[%s] %s", item.strModVersion != null?item.strModVersion:"", item.modName);
+        String strTotalBytes = String.format(templateTotalBytes, UIUtils.getBytesInHuman(item.getDownloadPayload() + item.getDownloadProtocol()));
+        String strSpeed = String.format(templateSpeed, UIUtils.rate2speed(item.getDownloadSpeed() / 1024));
+        String strSummary = String.format("[%s] %s", item.getStrModVersion() != null?item.getStrModVersion():"", item.getModName());
         totalBytes.setText(strTotalBytes);
         speed.setText(strSpeed);
         summary.setText(strSummary);
@@ -438,7 +446,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
                 return true;
             }
         } catch (Exception e) {
-            LOG.error("Failed to create the menu", e);
+            log.error("Failed to create the menu {}", e);
         }
         return false;
     }

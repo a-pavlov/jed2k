@@ -149,6 +149,15 @@
                     android:drawableLeft="@drawable/transfers_triangle_upward"
                     android:paddingRight="8dp"
                     android:text="@string/dummy_uploads_indicator"/>
+
+            <TextView
+                    android:id="@+id/fragment_transfers_dht"
+                    style="@style/TransfersIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/transfers_triangle_upward"
+                    android:paddingRight="8dp"
+                    android:text="@string/dht_nodes"/>
         </LinearLayout>
     </LinearLayout>
 

@@ -4,7 +4,7 @@ import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.tag.Tag;
@@ -26,7 +26,7 @@ public class ServerMet implements Serializable {
     }
 
     public static class ServerMetEntry implements Serializable {
-        final NetworkIdentifier endpoint = new NetworkIdentifier();
+        final Endpoint endpoint = new Endpoint();
         final Container<UInt32, Tag> tags = Container.makeInt(Tag.class);
 
         public static ServerMetEntry create(int ip, int port, final String name, final String description) throws JED2KException {
@@ -76,7 +76,7 @@ public class ServerMet implements Serializable {
 
         public String getName() {
             for(Tag t: tags) {
-                if (t.id() == Tag.FT_FILENAME) {
+                if (t.getId() == Tag.FT_FILENAME) {
                     return t.asStringValue();
                 }
             }
@@ -86,7 +86,7 @@ public class ServerMet implements Serializable {
 
         public String getDescription() {
             for(Tag t: tags) {
-                if (t.id() == Tag.ST_DESCRIPTION) return t.asStringValue();
+                if (t.getId() == Tag.ST_DESCRIPTION) return t.asStringValue();
             }
 
             return "";
@@ -96,7 +96,7 @@ public class ServerMet implements Serializable {
             String host = "";
             if (endpoint.getIP() == 0) {
                 for(Tag t: tags) {
-                    if (t.id() == Tag.ST_PREFERENCE) {
+                    if (t.getId() == Tag.ST_PREFERENCE) {
                         host = t.asStringValue();
                         break;
                     }

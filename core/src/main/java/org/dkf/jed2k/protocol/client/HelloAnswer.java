@@ -8,9 +8,9 @@ import java.nio.ByteBuffer;
 
 public class HelloAnswer implements Serializable, Dispatchable {
     public final Hash hash = new Hash();
-    public final NetworkIdentifier point = new NetworkIdentifier();
+    public final Endpoint point = new Endpoint();
     public final Container<UInt32, Tag> properties = Container.makeInt(Tag.class);
-    public final NetworkIdentifier serverPoint = new NetworkIdentifier();
+    public final Endpoint serverPoint = new Endpoint();
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

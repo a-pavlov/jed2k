@@ -81,7 +81,7 @@
     <string name="drawer_open">Показать панель навигацию</string>
     <string name="drawer_close">Закрыть панель навигации</string>
     <string name="please_check_connection_status_before_resuming_download">Пожалуйста, проверьте ваше интернет-соединение, прежде чем возобновить.</string>
-    <string name="add_transfer_label">Вставьте magnet или торрент ссылку</string>
+    <string name="add_transfer_label">Вставьте ED2K ссылку</string>
     <string name="please_enter_valid_url">Пожалуйста, введите правильный URL</string>
     <string name="magnet_url_added">Cсылка добавлена для передачи. (лучше всего работают через Wi-Fi)</string>
     <string name="torrent_url_added">ED2K ссылка добавлена для передачи.</string>
@@ -101,7 +101,6 @@
     <string name="app_shutdown_dlg_message">Будет завершена работа всех загрузок и фоновых служб. Вы уверены?</string>
     <string name="try_other_keywords">Попробуйте другие ключевые слова</string>
     <string name="remove_torrent_and_data">Удалить трансфер и данные</string>
-    <string name="try_frostwire_plus_for_more_results">Попробуйте Mule on Android с большим количеством результатов</string>
     <string name="your_installation_is_complete">Установка завершена.</string>
     <string name="thank_you">Спасибо!</string>
     <string name="keep_in_touch">Оставайся на связи!</string>
@@ -136,8 +135,8 @@
     <string name="selected">выделенный</string>
     <string name="server_connect_action">Соединить с %1$s</string>
     <string name="server_disconnect_action">Отсоединить от %1$s</string>
-    <string name="server_not_connected">Нет соединения с сервером</string>
-    <string name="server_not_connected_det">Для поиска установите соединение с сервером</string>
+    <string name="server_not_connected">Нет источников для поиска</string>
+    <string name="server_not_connected_det">Для поиска установите соединение с сервером или включите Кадемлию</string>
     <string name="server_remove_action">Удалить %1$s</string>
     <string name="servers">Серверы</string>
     <string name="servers_settings">Настройки серверов</string>
@@ -163,6 +162,45 @@
     <string name="transfers_settings">Настройки трансферов</string>
     <string name="user_id">Id пользователя</string>
     <string name="users_count">Пользователей</string>
+    <string name="pick_the_files_you_want_to_download_from_this_torrent">Выделите файлы</string>
+    <string name="forward_ports_summary">Побросить входящий порт на моем роутере. UPnP должно быть активировано на роутере.</string>
+    <string name="forward_ports_title">Проброс порта</string>
+    <string name="server_add">Добавить</string>
+    <string name="server_add_descr">Описание</string>
+    <string name="server_add_name">Имя</string>
+    <string name="upnp">Проброс порта на роутере</string>
+    <string name="upnp_summary">Если вы подключены посредством роутера попробуйте пробросить входящий порт на роутере. В этом случае порт входящих соединений будет доступен извне. Это даст большее количество источников. Проверьте что на роутере активировано UPnP.</string>
+    <string name="usage_notes_title">Работа с приложением</string>
+    <string name="usage_proposals_title">Предложения и сообщения о проблемах</string>
+    <string name="usage_suggestions_title">Советы по работе</string>
+    <string name="usage_suggestions_summary">Попробуйте обеспечить достижимый извне порт входящих соединений. Выбирайте файлы с большим количеством источников.</string>
+    <string name="usage_proposals_summary">Направляйте пожелания и отчеты о проблемах на почту разработчика</string>
+    <string name="usage_notes_summary">Перед началом работы перейдите в настройки и включите сервис ED2K если он выключен. Приложение поддерживает закачку в фоне посредством сервиса. Нажимая кнопку назад вы в конце сможете выйти из приложения не останавливая сервис. Для полного закрытия сервиса и приложения выберите выход в меню.</string>
+    <string name="wizard_finish">Готово</string>
+    <string name="wizard_next">Вперед</string>
+    <string name="wizard_previous">Назад</string>
+    <string name="welcome_to_mule">Добро пожаловать в Ослик для Андроида</string>
+    <string name="storage_path">Директория для закачек</string>
+    <string name="server_add_host">Хост</string>
+    <string name="server_add_port">Порт</string>
+    <string name="dht_enable_title">Кадемлия</string>
+    <string name="dht_enable_summary">Использовать DHT(Кадемлия) для дополнительного поиска источников</string>
+    <string name="wizard_dht">Использовать DHT(Кадемлия)</string>
+    <string name="wizard_dht_summary">Использовать Кадемлтю чтобы находить больше источников. Осторожно - генерирует
+        служебный траффик.
+    </string>
+    <string name="search_source_type_dht">Кадемлия</string>
+    <string name="search_source_type_server">Сервер</string>
+    <string name="add_servers_list_failed">Не могу скачать список серверов. Попробуйте позже.</string>
+    <string name="add_servers_list_text">Новый список серверов звгружен, заменить текущий список?</string>
+    <string name="add_servers_list_title">Серверы</string>
+    <string name="add_transfer_session_stopped_body">ED2K ядро остановлено, добавление трансфера не возможно. Запустите
+        ядро и попробуйте снова.
+    </string>
+    <string name="add_transfer_session_stopped_title">Добавление трансфера</string>
+    <string name="start_transfer_file_error">Не могу начать закачку - ошибка ввода вывода</string>
+    <string name="start_transfer_internal_error">Внутренняя ошибка</string>
+    <string name="start_transfer_success">Закачка добавлена</string>
 
     <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
 </resources>

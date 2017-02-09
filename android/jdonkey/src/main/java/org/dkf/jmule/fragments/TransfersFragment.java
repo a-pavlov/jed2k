@@ -30,12 +30,13 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import org.dkf.jed2k.Pair;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.SettingsActivity;
 import org.dkf.jmule.adapters.TransferListAdapter;
-import org.dkf.jmule.core.Constants;
 import org.dkf.jmule.dialogs.MenuDialog;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.transfers.TransferManager;
@@ -68,14 +69,16 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private ExpandableListView list;
     private TextView textDownloads;
     private TextView textUploads;
+    private TextView textDht;
     private ClearableEditTextView addTransferUrlTextView;
     private TransferListAdapter adapter;
     private TransferStatus selectedStatus;
     private TimerSubscription subscription;
-    private int delayedDHTUpdateTimeElapsed;
+    private int delayedDHTUpdateTimeElapsed = 0;
     private boolean isVPNactive;
     private static boolean firstTimeShown = true;
     private Handler vpnRichToastHandler;
+    private int totalDhtNodes = -1;
 
     private boolean showTorrentSettingsOnClick;
 
@@ -153,12 +156,20 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         int downloads = TransferManager.instance().getActiveDownloads();
         int uploads = TransferManager.instance().getActiveUploads();
 
+        delayedDHTUpdateTimeElapsed += UI_UPDATE_INTERVAL_IN_SECS;
+
+        if (delayedDHTUpdateTimeElapsed >= DHT_STATUS_UPDATE_INTERVAL_IN_SECS) {
+            delayedDHTUpdateTimeElapsed = 0;
+            totalDhtNodes = Engine.instance().getTotalDhtNodes();
+        }
+
         updateStatusBar(sDown, sUp, downloads, uploads);
     }
 
     private void updateStatusBar(String sDown, String sUp, int downloads, int uploads) {
         textDownloads.setText(downloads + " @ " + sDown);
         textUploads.setText(uploads + " @ " + sUp);
+        textDht.setText(getString(R.string.dht_nodes, (totalDhtNodes>=0)?new Integer(totalDhtNodes).toString():"???"));
     }
 
     @Override
@@ -249,6 +260,8 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         textDownloads = findView(v, R.id.fragment_transfers_text_downloads);
         textUploads = findView(v, R.id.fragment_transfers_text_uploads);
+        textDht = findView(v, R.id.fragment_transfers_dht);
+        textDht.setText(getString(R.string.dht_nodes, "???"));
     }
 
     public void initStorageRelatedRichNotifications(View v) {
@@ -261,7 +274,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         RichNotification internalMemoryNotification = findView(v, R.id.fragment_transfers_internal_memory_notification);
         internalMemoryNotification.setVisibility(View.GONE);
 
-        /*if (TransferManager.isUsingSDCardPrivateStorage() && !sdCardNotification.wasDismissed()) {
+        if (TransferManager.isUsingSDCardPrivateStorage() && !sdCardNotification.wasDismissed()) {
             String currentPath = ConfigurationManager.instance().getStoragePath();
             boolean inPrivateFolder = currentPath.contains("Android/data");
 
@@ -283,7 +296,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             internalMemoryNotification.setVisibility(View.VISIBLE);
             internalMemoryNotification.setOnClickListener(new SDCardNotificationListener(this));
         }
-        */
+
     }
 
     private void setupAdapter() {
@@ -415,16 +428,32 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     }
 
     private void startTransferFromURL() {
-
         String url = addTransferUrlTextView.getText();
         if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
             toggleAddTransferControls();
-            if (url.startsWith("ed2k")) { //magnets are automatically started if found on the clipboard by autoPasteMagnetOrURL
-                //TransferManager.instance().downloadTorrent(url.trim(),
-                //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
-                UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
+            if (url.startsWith("ed2k")) {
+                if (Engine.instance().startDownload(url) != null) UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
             }
             addTransferUrlTextView.setText("");
+        } else {
+            UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
+        }
+    }
+
+    public void startTransferFromLink(final String url) {
+        if (url != null && !url.isEmpty() && (url.startsWith("ed2k"))) {
+            if (url.startsWith("ed2k")) {
+                if (Engine.instance().isStarted()) {
+                    if (Engine.instance().startDownload(url) != null)
+                        UIUtils.showLongMessage(getActivity(), R.string.torrent_url_added);
+                } else {
+                    UIUtils.showInformationDialog(getActivity()
+                            , R.string.add_transfer_session_stopped_body
+                            , R.string.add_transfer_session_stopped_title
+                            ,false
+                            , null);
+                }
+            }
         } else {
             UIUtils.showLongMessage(getActivity(), R.string.please_enter_valid_url);
         }
@@ -451,8 +480,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                         if (text.startsWith("ed2k")) {
                             addTransferUrlTextView.setText(text.trim());
                             if (Engine.instance().startDownload(text) != null) {
-                                //TransferManager.instance().downloadTorrent(text.trim(),
-                                //        new HandpickedTorrentDownloadDialogOnFetch(getActivity()));
                                 UIUtils.showLongMessage(getActivity(), R.string.magnet_url_added);
                             }
                             clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
@@ -461,7 +488,6 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                     }
                 }
             } catch (Exception ignored) {
-
             }
         }
     }
@@ -568,7 +594,8 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
 
         @Override
         public void onClick(TransfersFragment f, View v) {
-            f.showContextMenu();
+            // temporary do nothing
+            //f.showContextMenu();
         }
     }
 

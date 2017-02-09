@@ -31,7 +31,7 @@
         android:layout_height="35dp"
         android:layout_gravity="center|center_vertical"
         android:layout_margin="2dp"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/notification_mule" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -20,13 +20,16 @@ package org.dkf.jmule.tasks;
 
 import android.app.Activity;
 import android.content.Context;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.EMuleLink;
+import org.dkf.jed2k.exception.ErrorCode;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
+import org.dkf.jmule.R;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.transfers.TransferManager;
 import org.dkf.jmule.util.UIUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,14 +38,13 @@ import org.slf4j.LoggerFactory;
  * @author aldenml
  *
  */
+@Slf4j
 public class StartDownloadTask extends ContextTask<Transfer> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(StartDownloadTask.class);
     private final String message;
-    private SharedFileEntry entry;
+    private SearchEntry entry;
     private String link = null;
 
-    public StartDownloadTask(Context ctx, SharedFileEntry entry, String link, String message) {
+    public StartDownloadTask(Context ctx, SearchEntry entry, String link, String message) {
         super(ctx);
         assert entry != null || link != null;
         this.entry = entry;
@@ -60,13 +62,28 @@ public class StartDownloadTask extends ContextTask<Transfer> {
         try {
             UIUtils.showTransfersOnDownloadStart(getContext());
             if (entry != null) {
-                transfer = TransferManager.instance().download(entry.hash, entry.getFileSize(), entry.getFileName());
+                transfer = TransferManager.instance().download(entry.getHash(), entry.getFileSize(), entry.getFileName());
             } else {
                 EMuleLink el = EMuleLink.fromString(link);
-                transfer = TransferManager.instance().download(el.hash, el.size, el.filepath);
+                if (el.getType().equals(EMuleLink.LinkType.FILE)) {
+                    transfer = TransferManager.instance().download(el.getHash(), el.getNumberValue(), el.getStringValue());
+                } else {
+                    // error message to user
+                }
             }
-        } catch (Exception e) {
-            LOG.warn("Error adding new download from result {} {}", entry, e);
+        }
+        catch(JED2KException e) {
+            if (e.getErrorCode().equals(ErrorCode.IO_EXCEPTION)) {
+            }
+            else if (e.getErrorCode().equals(ErrorCode.INTERNAL_ERROR)) {
+                //UIUtils.showShortMessage(getContext(), R.string.start_transfer_internal_error);
+            }
+
+            log.error("unable to start transfer {}", e.toString());
+            e.printStackTrace();
+        }
+        catch (Exception e) {
+            log.warn("Error adding new download from result {} {}", entry, e);
             e.printStackTrace();
         }
 
@@ -76,35 +93,9 @@ public class StartDownloadTask extends ContextTask<Transfer> {
     @Override
     protected void onPostExecute(Context ctx, Transfer transfer) {
         if (transfer != null) {
-            if (ctx instanceof Activity) {
-                //Offers.showInterstitialOfferIfNecessary((Activity) ctx);
-            }
-
-/*
-            if (!(transfer instanceof InvalidTransfer)) {
-                TransferManager tm = TransferManager.instance();
-                if (tm.isBittorrentDownloadAndMobileDataSavingsOn(transfer)) {
-                    UIUtils.showLongMessage(ctx, R.string.torrent_transfer_enqueued_on_mobile_data);
-                    ((BittorrentDownload) transfer).pause();
-                } else {
-                    if (tm.isBittorrentDownloadAndMobileDataSavingsOff(transfer)) {
-                        UIUtils.showLongMessage(ctx, R.string.torrent_transfer_consuming_mobile_data);
-                    }
-
-                    if (message != null){
-                        UIUtils.showShortMessage(ctx, message);
-                    }
-                }
-            } else {
-                if (transfer instanceof ExistingDownload) {
-                    //nothing happens here, the user should just see the transfer
-                    //manager and we avoid adding the same transfer twice.
-                } else {
-                    UIUtils.showLongMessage(ctx, ((InvalidTransfer) transfer).getReasonResId());
-                }
-            }
-            */
+            UIUtils.showShortMessage(getContext(), R.string.start_transfer_success);
+        } else {
+            UIUtils.showShortMessage(getContext(), R.string.start_transfer_file_error);
         }
-
     }
 }

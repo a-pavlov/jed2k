@@ -52,6 +52,10 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
         }
     }
 
+    public List<E> getList() {
+        return collection;
+    }
+
     @Override
     public Iterator<E> iterator() {
         if (collection == null)

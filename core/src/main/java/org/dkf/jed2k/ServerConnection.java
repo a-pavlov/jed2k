@@ -4,8 +4,9 @@ import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.NetworkIdentifier;
+import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.client.*;
 import org.dkf.jed2k.protocol.server.*;
@@ -20,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.dkf.jed2k.protocol.tag.Tag.tag;
 
@@ -122,7 +125,15 @@ public class ServerConnection extends Connection {
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
         log.trace("search result: " + value);
-        session.pushAlert(new SearchResultAlert(value));
+        // transform server's search result to common
+        List<SearchEntry> entries = new LinkedList<>();
+        if (value.getResults().getList() != null) {
+            for (final SharedFileEntry entry : value.getResults().getList()) {
+                entries.add(entry);
+            }
+        }
+
+        session.pushAlert(new SearchResultAlert(entries, value.hasMoreResults()));
     }
 
     @Override
@@ -232,14 +243,14 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         Transfer transfer = session.transfers.get(value.hash);
         if (transfer != null) {
-            for(final NetworkIdentifier endpoint: value.sources) {
+            for(final Endpoint endpoint: value.sources) {
                 if (Utils.isLowId(endpoint.getIP()) && !Utils.isLowId(session.clientId) && !session.callbacks.containsKey(endpoint.getIP())) {
                     sendCallbackRequest(endpoint.getIP());
                     session.callbacks.put(endpoint.getIP(), value.hash);
                 } else {
                     log.debug("to hash {} added endpoint {}", value.hash, endpoint);
                     try {
-                        transfer.addPeer(endpoint);
+                        transfer.addPeer(endpoint, PeerInfo.SERVER);
                     } catch(JED2KException e) {
                         e.printStackTrace();
                         break;
@@ -294,9 +305,9 @@ public class ServerConnection extends Connection {
     }
 
     @Override
-    NetworkIdentifier getEndpoint() {
+    Endpoint getEndpoint() {
         // actually we have server ip/port but currently I no need them for debug purposes
-        return new NetworkIdentifier();
+        return new Endpoint();
     }
 
     void sendFileSourcesRequest(final Hash h, final long size) {

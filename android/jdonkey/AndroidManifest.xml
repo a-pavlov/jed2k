@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <user-permission android:name="android.permission.MANAGE_DOCUMENTS"/>
 
     <application
         android:name="org.dkf.jmule.MainApplication"
@@ -25,18 +26,29 @@
         android:theme="@style/Theme.FrostWire">
 
         <activity
-            android:name="org.dkf.jmule.activities.MainActivity"
-            android:label="@string/app_name" >
+            android:name="org.dkf.jmule.activities.SplashActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+        </activity>
 
-            <intent-filter>
+        <activity
+            android:name="org.dkf.jmule.activities.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>q
                 <action android:name="org.dkf.jmule.android.ACTION_SHOW_TRANSFERS" />
                 <action android:name="org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN" />
                 <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="ed2k"/>
             </intent-filter>
         </activity>
 
@@ -46,6 +58,9 @@
         <activity android:name="org.dkf.jmule.activities.SettingsActivity"
                   android:label="@string/activity_preferences_name"
                   android:theme="@style/Preferences"/>
+
+        <activity android:name="org.dkf.jmule.activities.WizardActivity"
+                  android:label="@string/app_name" android:screenOrientation="portrait"/>
 
     </application>
 

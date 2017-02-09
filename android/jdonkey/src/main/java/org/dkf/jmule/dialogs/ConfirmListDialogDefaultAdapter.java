@@ -26,12 +26,11 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jmule.R;
 import org.dkf.jmule.dialogs.AbstractConfirmListDialog.SelectionMode;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.AbstractListAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -51,8 +50,8 @@ import java.util.Map;
  * @author votaguz
  *
  */
+@Slf4j
 abstract class ConfirmListDialogDefaultAdapter<T> extends AbstractListAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfirmListDialogDefaultAdapter.class);
     private static final int ITEM_TITLE = 0;
     private static final int ITEM_SIZE = 1;
     private static final int ITEM_ART = 2;
@@ -108,7 +107,7 @@ abstract class ConfirmListDialogDefaultAdapter<T> extends AbstractListAdapter {
             }
             populateView(view, item);
         } catch (Exception e) {
-            LOGGER.error("Fatal error getting view: " + e.getMessage(), e);
+            log.error("Fatal error getting view: {}", e);
         }
 
         return view;

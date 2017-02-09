@@ -24,8 +24,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.view.Gravity;
 import android.widget.RadioButton;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jmule.R;
-import org.dkf.jmule.core.Constants;
 
 
 /**
