@@ -116,9 +116,9 @@ public class ServerMet implements Serializable {
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         header = src.get();
-        if (header != MET_HEADER && header != MET_HEADER_WITH_LARGEFILES) {
-            throw new JED2KException(ErrorCode.SERVER_MET_HEADER_INCORRECT);
-        }
+        //if (header != MET_HEADER && header != MET_HEADER_WITH_LARGEFILES) {
+        //    throw new JED2KException(ErrorCode.SERVER_MET_HEADER_INCORRECT);
+        //}
 
         return servers.get(src);
     }
