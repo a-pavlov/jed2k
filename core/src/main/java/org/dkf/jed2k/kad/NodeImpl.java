@@ -228,12 +228,6 @@ public class NodeImpl {
                 tracker.write(hello, address);
                 log.debug("[node] >> {}: {}", ep, hello);
             }
-            else if (s instanceof Kad2SearchKeysReq) {
-                log.debug("[node] temporary ignore kad search key request");
-            }
-            else if (s instanceof Kad2SearchSourcesReq) {
-                log.debug("[node] temporary ignore kad search sources request");
-            }
             else if (s instanceof Kad2SearchNotesReq) {
                 log.debug("[node] temporary ignore kad search notes request");
             }

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Constants;
 import org.junit.Assume;
 import org.junit.Test;
+import org.junit.internal.AssumptionViolatedException;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -137,9 +138,13 @@ public class CommonTest {
 
     @Test(expected = NullPointerException.class)
     public void testSlfjAndroidNpeOnNullMessage() {
-        Assume.assumeTrue(System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
-        Exception e = new NotYetConnectedException();
-        log.error(e.getMessage());
+        try {
+            Assume.assumeTrue(System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
+            Exception e = new NotYetConnectedException();
+            log.error(e.getMessage());
+        } catch(AssumptionViolatedException e) {
+            throw new NullPointerException();
+        }
     }
 
     @Test
