@@ -117,8 +117,8 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
         addKadHandler(KadUdp.KADEMLIA2_REQ.value, Kad2Req.class);
         addKadHandler(KadUdp.KADEMLIA2_RES.value, Kad2Res.class);
 
-        addKadHandler(KadUdp.KADEMLIA_REQ.value, Kad2Req.class);
-        addKadHandler(KadUdp.KADEMLIA_RES.value, Kad2Res.class);
+        //addKadHandler(KadUdp.KADEMLIA_REQ.value, Kad2Req.class);
+        //addKadHandler(KadUdp.KADEMLIA_RES.value, Kad2Res.class);
 
         addKadHandler(KadUdp.KADEMLIA2_HELLO_REQ.value, Kad2HelloReq.class);
         addKadHandler(KadUdp.KADEMLIA2_HELLO_RES.value, Kad2HelloRes.class);

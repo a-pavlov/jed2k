@@ -1,5 +1,6 @@
 package org.dkf.jed2k;
 
+import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -9,6 +10,7 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.dkf.jed2k.util.FUtils;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -477,11 +480,31 @@ public class Conn {
                     log.warn("[CONN] DHT tracker is null, but shtstop command issued");
                 }
             }
-            else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
-                if (tracker != null) {
-                    tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+            else if (parts[0].compareTo("bootstrap") == 0) {
+                if (parts.length == 3) {
+                    if (tracker != null) {
+                        tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+                    } else {
+                        log.warn("[CONN] DHT tracker is null, but bootstrap command issued");
+                    }
                 } else {
-                    log.warn("[CONN] DHT tracker is null, but bootstrap command issued");
+                    log.info("[CONN] downloading nodes.dat from inet and bootstrap dht");
+                    try {
+                        byte[] data = IOUtils.toByteArray(new URI("http://server-met.emulefuture.de/download.php?file=nodes.dat"));
+                        ByteBuffer buffer = ByteBuffer.wrap(data);
+                        log.debug("[KAD] downloaded nodes.dat size {}", buffer.remaining());
+                        buffer.order(ByteOrder.LITTLE_ENDIAN);
+                        KadNodesDat nodes = new KadNodesDat();
+                        nodes.get(buffer);
+                        if (tracker != null) {
+                            tracker.addKadEntries(nodes.getContacts());
+                            tracker.addKadEntries(nodes.getBootstrapEntries().getList());
+                        } else {
+                            log.warn("tracker is null");
+                        }
+                    } catch (Exception e) {
+                        log.error("[KAD] unable to initialize DHT from inet: {}", e);
+                    }
                 }
             }
             else if (parts[0].compareTo("status") == 0) {

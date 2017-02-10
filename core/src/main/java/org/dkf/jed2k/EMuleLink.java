@@ -25,6 +25,7 @@ public class EMuleLink {
     public enum LinkType {
         SERVER,
         SERVERS,
+        NODES,
         FILE
     };
 
@@ -64,6 +65,10 @@ public class EMuleLink {
 
         if ("serverlist".equals(parts[1]) && parts.length == 4) {
             return new EMuleLink(null, 0, parts[2], LinkType.SERVERS);
+        }
+
+        if ("nodeslist".equals(parts[1]) && parts.length == 4) {
+            return new EMuleLink(null, 0, parts[2], LinkType.NODES);
         }
 
         if ("file".equals(parts[1]) && parts.length >= 6) {

@@ -89,4 +89,13 @@ public class EMuleLinkTest {
     public void testNumberFormatErrorInServerLink() throws JED2KException {
         EMuleLink.fromString("ed2k://|server|91.200.42.119|9939x|/");
     }
+
+    @Test
+    public void testNodesLink() throws JED2KException {
+        EMuleLink nodes = EMuleLink.fromString("ed2k://|nodeslist|http://upd.emule-security.net/nodes.dat|/");
+        assertEquals(EMuleLink.LinkType.NODES, nodes.getType());
+        assertEquals("http://upd.emule-security.net/nodes.dat", nodes.getStringValue());
+        assertEquals(0, nodes.getNumberValue());
+        assertEquals(null, nodes.getHash());
+    }
 }
