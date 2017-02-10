@@ -67,7 +67,6 @@
                         </goals>
                     </execution>
                 </executions>
-
                 <configuration>
                     <excludeResources>true</excludeResources>
                     <useDefaultExcludes>true</useDefaultExcludes>
