@@ -25,6 +25,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.storage.StorageManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
+import android.support.v4.util.Pair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -295,7 +296,7 @@ public final class LollipopFileSystem implements FileSystem {
         return getExtSdCardFolder(app, file);
     }
 
-    public ParcelFileDescriptor openFD(File file, String mode) {
+    public Pair<ParcelFileDescriptor, DocumentFile> openFD(File file, String mode) {
         if (!("r".equals(mode) || "w".equals(mode) || "rw".equals(mode))) {
             LOG.error("Only r, w or rw modes supported");
             return null;
@@ -309,7 +310,7 @@ public final class LollipopFileSystem implements FileSystem {
 
         try {
             ContentResolver cr = app.getContentResolver();
-            return cr.openFileDescriptor(f.getUri(), mode);
+            return Pair.create(cr.openFileDescriptor(f.getUri(), mode), f);
         } catch (Exception e) {
             LOG.error("Unable to get native fd", e);
             return null;

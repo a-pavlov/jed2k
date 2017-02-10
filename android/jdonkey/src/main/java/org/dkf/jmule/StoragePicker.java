@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.provider.DocumentFile;
+import android.support.v4.util.Pair;
 import org.dkf.jed2k.android.AndroidFileHandler;
 import org.dkf.jed2k.android.LollipopFileSystem;
 import org.dkf.jed2k.android.Platforms;
@@ -96,16 +97,20 @@ public final class StoragePicker {
                             LOG.info("test file {}", testFile);
 
                             try {
-                                ParcelFileDescriptor fd = fs.openFD(testFile, "rw");
-                                DocumentFile doc = fs.getDocument(testFile);
-                                AndroidFileHandler ah = new AndroidFileHandler(testFile
-                                        , doc
-                                        , fd);
-                                ByteBuffer bb = ByteBuffer.allocate(48);
-                                bb.putInt(1).putInt(2).putInt(3).putInt(44).putInt(22);
-                                bb.flip();
-                                ah.getWriteChannel().write(bb);
-                                ah.close();
+                                Pair<ParcelFileDescriptor, DocumentFile> fd = fs.openFD(testFile, "rw");
+                                if (fd != null && fd.first != null && fd.second != null) {
+                                    AndroidFileHandler ah = new AndroidFileHandler(testFile
+                                            , fd.second
+                                            , fd.first);
+                                    ByteBuffer bb = ByteBuffer.allocate(48);
+                                    bb.putInt(1).putInt(2).putInt(3).putInt(44).putInt(22);
+                                    bb.flip();
+                                    ah.getWriteChannel().write(bb);
+                                    ah.close();
+                                }
+                                else {
+                                    LOG.error("unable to create file {}", testFile);
+                                }
                             } catch (Exception e) {
                                 LOG.error("unable to fill file {} error {}"
                                         , testFile, e);

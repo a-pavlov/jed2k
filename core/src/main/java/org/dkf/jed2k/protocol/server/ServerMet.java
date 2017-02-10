@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.server;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -14,6 +15,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 06.09.2016.
  */
+@Slf4j
 public class ServerMet implements Serializable {
     private static final byte  MET_HEADER  = 0x0E;
     private static final byte  MET_HEADER_WITH_LARGEFILES  = 0x0F;
@@ -116,9 +118,9 @@ public class ServerMet implements Serializable {
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         header = src.get();
-        //if (header != MET_HEADER && header != MET_HEADER_WITH_LARGEFILES) {
-        //    throw new JED2KException(ErrorCode.SERVER_MET_HEADER_INCORRECT);
-        //}
+        if (header != MET_HEADER && header != MET_HEADER_WITH_LARGEFILES) {
+            log.warn("server met file header is incorrect: {}", (int)header);
+        }
 
         return servers.get(src);
     }
