@@ -299,7 +299,7 @@ public class MainActivity extends AbstractActivity implements
                                         , R.string.add_servers_list_title,
                                         main);
                             } else {
-                                UIUtils.showShortMessage(main, R.string.add_servers_list_failed);
+                                UIUtils.showInformationDialog(main, R.string.link_download_failed, R.string.link_download_failed, true, null);
                             }
                         }
                     };
@@ -331,8 +331,10 @@ public class MainActivity extends AbstractActivity implements
                         protected void onPostExecute(KadNodesDat result) {
                             if (result != null) {
                                 if (!Engine.instance().addDhtNodes(result)) {
-                                    // report error here
+                                    UIUtils.showInformationDialog(main, R.string.nodes_link_open_error_text, R.string.nodes_link_open_error_title, false, null);
                                 }
+                            } else {
+                                UIUtils.showInformationDialog(main, R.string.link_download_failed, R.string.link_download_failed, true, null);
                             }
                         }
                     };

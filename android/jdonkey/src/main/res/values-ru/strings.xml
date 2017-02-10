@@ -191,7 +191,7 @@
     </string>
     <string name="search_source_type_dht">Кадемлия</string>
     <string name="search_source_type_server">Сервер</string>
-    <string name="add_servers_list_failed">Не могу скачать список серверов. Попробуйте позже.</string>
+    <string name="link_download_failed">Не могу скачать список серверов. Попробуйте позже.</string>
     <string name="add_servers_list_text">Новый список серверов звгружен, заменить текущий список?</string>
     <string name="add_servers_list_title">Серверы</string>
     <string name="add_transfer_session_stopped_body">ED2K ядро остановлено, добавление трансфера не возможно. Запустите

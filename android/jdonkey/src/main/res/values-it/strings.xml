@@ -210,7 +210,7 @@
     <string name="add_servers_list_text">Los nuevos servidores que se han descargado. Reemplazar la actual lista de los
         servidores?
     </string>
-    <string name="add_servers_list_failed">Impossibile scaricare la lista dei server, si prega di riprovare più tardi
+    <string name="link_download_failed">Impossibile scaricare la lista dei server, si prega di riprovare più tardi
     </string>
     <string name="start_transfer_file_error">Impossibile avviare il trasferimento a causa di I/O eccezione</string>
     <string name="start_transfer_internal_error">Errore interno nel trasferimento di avvio</string>
