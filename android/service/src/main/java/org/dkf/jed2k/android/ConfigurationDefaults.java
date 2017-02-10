@@ -100,11 +100,12 @@ final class ConfigurationDefaults {
         // servers section
         ServerMet sm = new ServerMet();
         try {
-            sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.46", 1176, "eMule Security No1", "www.emule-security.org"));
+            //sm.adDNBdServer(ServerMet.ServerMetEntry.create("91.200.42.46", 1176, "eMule Security No1", "www.emule-security.org"));
             sm.addServer(ServerMet.ServerMetEntry.create("176.103.48.36", 4184, "TV Underground", "Operated by TVUnderground.org.ru"));
-            sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.47", 3883, "eMule Security No2", "www.emule-security.org"));
-            sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.119", 9939, "eMule Security No3", "www.emule-security.org"));
-            sm.addServer(ServerMet.ServerMetEntry.create("77.120.115.66", 5041, "eMule Security No4", "www.emule-security.org"));
+            //sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.47", 3883, "eMule Security No2", "www.emule-security.org"));
+            //sm.addServer(ServerMet.ServerMetEntry.create("91.200.42.119", 9939, "eMule Security No3", "www.emule-security.org"));
+            //sm.addServer(ServerMet.ServerMetEntry.create("77.120.115.66", 5041, "eMule Security No4", "www.emule-security.org"));
+            sm.addServer(ServerMet.ServerMetEntry.create("195.154.109.229" , 4232, "!! www.Sharing-Devils.org No.1 ...", "www.Sharing-Devils.to"));
             sm.addServer(ServerMet.ServerMetEntry.create("85.204.50.116", 4232, "!! www.Sharing-Devils.to No.3 !!", "www.Sharing-Devils.to"));
             sm.addServer(ServerMet.ServerMetEntry.create("222.40.142.3", 40072, "emule lover server No.1", null));
             //sm.addServer(ServerMet.ServerMetEntry.create("emule.is74.ru", 4661, "IS74", "IS 74 emule server"));
