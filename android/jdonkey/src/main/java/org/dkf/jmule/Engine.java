@@ -35,6 +35,7 @@ import org.dkf.jed2k.android.ED2KService;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.util.ThreadPool;
 import org.dkf.jmule.transfers.ED2KTransfer;
 import org.dkf.jmule.transfers.Transfer;
@@ -434,6 +435,11 @@ public final class Engine implements AlertListener {
 
     public boolean isDhtEnabled() {
         if (service != null) return service.isDhtEnabled();
+        return false;
+    }
+
+    public boolean addDhtNodes(final KadNodesDat nodes) {
+        if (service != null) return service.addNodes(nodes);
         return false;
     }
 

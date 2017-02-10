@@ -27,6 +27,7 @@ import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 
 import java.io.*;
@@ -289,6 +290,18 @@ public class ED2KService extends Service {
         if (dhtTracker != null) {
             saveDhtEntries(dhtTracker.getTrackerState());
         }
+    }
+
+    public synchronized boolean addNodes(final KadNodesDat nodes) {
+        assert nodes != null;
+        if (dhtTracker != null) {
+            dhtTracker.addKadEntries(nodes.getContacts());
+            return true;
+        } else {
+            log.warn("tracker or nodes is null");
+        }
+
+        return false;
     }
 
     /**
