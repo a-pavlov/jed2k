@@ -215,4 +215,7 @@
     <string name="start_transfer_file_error">No se puede iniciar el traslado, debido a que I/O de excepción</string>
     <string name="start_transfer_internal_error">Error interno en la transferencia de partida</string>
     <string name="start_transfer_success">La transferencia ha sido añadido</string>
+    <string name="nodes_link_open_error_text">No se puede agregar nodos a Kad - verificación ED2K núcleo se inicia y Kademlia es activado</string>
+    <string name="nodes_link_open_error_title">Los nodos</string>
+    <string name="intent_link_parse_error">No se puede analizar el vínculo</string>
 </resources>

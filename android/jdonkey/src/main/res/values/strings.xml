@@ -245,5 +245,5 @@
     <string name="add_servers_list_title">Servers</string>
     <string name="intent_link_parse_error">Unable to parse link</string>
     <string name="nodes_link_open_error_title">Nodes</string>
-    <string name="nodes_link_open_error_text">Unable to add nodes to DHT - check core is started and Kademlia is activated</string>
+    <string name="nodes_link_open_error_text">Unable to add nodes to Kad - check ED2K core is started and Kademlia is activated</string>
 </resources>

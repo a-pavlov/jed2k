@@ -63,7 +63,7 @@ public class EMuleLinkTest {
     public void testRealLinks() throws JED2KException {
         EMuleLink eml1 = EMuleLink.fromString("ed2k://|file|Ps2%20Game%20Virtual%20Tennis%203.iso|734107648|66DEA14BB64F1FB690735F5322A46ADF|h=TAV3XL3F6MKDYULZG55JKMR6RMTOUVJ7|/");
         assertEquals("Ps2 Game Virtual Tennis 3.iso", eml1.getStringValue());
-        EMuleLink eml2 = EMuleLink.fromString("ed2k://|file|SkypeSetupFull.exe|47026816|3636DF370FFDCC4783252183EC566A8C|h=O4F7O7NL7PWU4ATT3LRXWIG6CQBQXEVS|/");
+        EMuleLink eml2 = EMuleLink.fromString("ed2k://%7Cfile|SkypeSetupFull.exe|47026816|3636DF370FFDCC4783252183EC566A8C|h=O4F7O7NL7PWU4ATT3LRXWIG6CQBQXEVS|/");
         assertEquals("SkypeSetupFull.exe", eml2.getStringValue());
     }
 
