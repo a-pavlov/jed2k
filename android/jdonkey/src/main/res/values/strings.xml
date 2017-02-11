@@ -174,7 +174,7 @@
     <string name="forward_ports_summary">Forward incoming ports on my router. UPnP must be activated on router</string>
 
     <string name="service_stopped">ED2K service stopped</string>
-    <string name="service_stopped_details">Please go to preferences and start ED2K service</string>
+    <string name="service_stopped_details" translatable="false">Please go to preferences and start ED2K service</string>
     <string name="server_not_connected">No sources for search</string>
     <string name="server_not_connected_det">Connect to server or start Kademlia please</string>
 

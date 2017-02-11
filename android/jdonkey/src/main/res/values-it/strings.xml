@@ -113,7 +113,6 @@
     <string name="servers">Servers</string>
     <string name="servers_settings">Impostazioni dei server</string>
     <string name="service_stopped">ED2K servizio è stato arrestato</string>
-    <string name="service_stopped_details">Si prega di andare su preferenze e iniziare ED2K servizio</string>
     <string name="sever_menu_title">Le operazioni del Server</string>
     <string name="show_server_messages">Server msg</string>
     <string name="show_server_messages_summary">Mostra i messaggi dal server</string>
