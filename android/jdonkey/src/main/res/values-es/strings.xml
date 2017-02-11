@@ -145,7 +145,6 @@
     <string name="servers">Servidores</string>
     <string name="servers_settings">Configuración de servidores</string>
     <string name="service_stopped">ED2K detenido el servicio de</string>
-    <string name="service_stopped_details" translatable="false">Por favor, vaya a preferencias y empezar ED2K servicio</string>
     <string name="sever_menu_title">Las operaciones del servidor</string>
     <string name="show_server_messages">El servidor msg</string>
     <string name="show_server_messages_summary">Mostrar mensajes desde el servidor</string>
