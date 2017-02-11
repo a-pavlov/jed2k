@@ -35,6 +35,7 @@ import org.dkf.jed2k.android.ED2KService;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.util.ThreadPool;
 import org.dkf.jmule.transfers.ED2KTransfer;
 import org.dkf.jmule.transfers.Transfer;
@@ -352,6 +353,7 @@ public final class Engine implements AlertListener {
         return false;
     }
 
+    /// TODO - (apavlov) fix this methods startDownload and startDownload from link - make them in one fashion
     public Transfer startDownload(final Hash hash, long size, final File file) throws JED2KException {
         if (service != null) return new ED2KTransfer(service.addTransfer(hash, size, file));
         return null;
@@ -362,7 +364,9 @@ public final class Engine implements AlertListener {
             if (service != null) {
                 EMuleLink link = EMuleLink.fromString(slink);
                 if (link.getType().equals(EMuleLink.LinkType.FILE)) {
-                    return new ED2KTransfer(service.addTransfer(link.getHash(), link.getNumberValue(), new File(link.getStringValue())));
+                    return new ED2KTransfer(service.addTransfer(link.getHash()
+                            , link.getNumberValue()
+                            , new File(ConfigurationManager.instance().getStoragePath(), link.getStringValue())));
                 } else {
                     // message to userv link is incorrect type
                 }
@@ -434,6 +438,11 @@ public final class Engine implements AlertListener {
 
     public boolean isDhtEnabled() {
         if (service != null) return service.isDhtEnabled();
+        return false;
+    }
+
+    public boolean addDhtNodes(final KadNodesDat nodes) {
+        if (service != null) return service.addNodes(nodes);
         return false;
     }
 

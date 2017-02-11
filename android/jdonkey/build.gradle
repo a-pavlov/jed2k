@@ -43,8 +43,8 @@ android {
         applicationId "org.dkf.jmule"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 9
-        versionName "0.9"
+        versionCode 10
+        versionName "1.0"
     }
 
     sourceSets {
@@ -58,17 +58,12 @@ android {
     }
 }
 
-
-
 dependencies {
     compile project(':service')
-    compile 'com.google.firebase:firebase-ads:9.4.0'
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:22.2.0'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
     provided "org.projectlombok:lombok:1.12.6"
 }
-
-apply plugin: 'com.google.gms.google-services'

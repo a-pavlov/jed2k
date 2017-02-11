@@ -244,8 +244,10 @@
 
     <string name="add_transfer_session_stopped_title">Add transfer</string>
     <string name="add_transfer_session_stopped_body">ED2K core is stopped, unable to add transfer. Please enable core and try again.</string>
-    <string name="add_servers_list_failed">Unable to download servers list, please try again later</string>
+    <string name="link_download_failed">Unable to download or parse data from link, please try again later</string>
     <string name="add_servers_list_text">New servers have been downloaded. Replace current servers list?</string>
     <string name="add_servers_list_title">Servers</string>
     <string name="intent_link_parse_error">Unable to parse link</string>
+    <string name="nodes_link_open_error_title">Nodes</string>
+    <string name="nodes_link_open_error_text">Unable to add nodes to Kad - check ED2K core is started and Kademlia is activated</string>
 </resources>

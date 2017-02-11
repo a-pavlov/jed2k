@@ -25,6 +25,7 @@ public class EMuleLink {
     public enum LinkType {
         SERVER,
         SERVERS,
+        NODES,
         FILE
     };
 
@@ -38,7 +39,17 @@ public class EMuleLink {
     public static EMuleLink fromString(final String uri) throws JED2KException {
         if (uri == null) throw new JED2KException(ErrorCode.LINK_MAILFORMED);
 
-        String[] parts = uri.split("\\|");
+        String decUri = null;
+        try {
+            decUri = URLDecoder.decode(uri, "UTF-8");
+        }
+        catch(UnsupportedEncodingException e) {
+            throw new JED2KException(ErrorCode.UNSUPPORTED_ENCODING);
+        }
+
+        assert decUri != null;
+
+        String[] parts = decUri.split("\\|");
 
         if (parts.length < 2 || !"ed2k://".equals(parts[0]) || !"/".equals(parts[parts.length - 1])) {
             throw new JED2KException(ErrorCode.LINK_MAILFORMED);
@@ -53,11 +64,11 @@ public class EMuleLink {
         }
 
         if ("serverlist".equals(parts[1]) && parts.length == 4) {
-            try {
-                return new EMuleLink(null, 0, URLDecoder.decode(parts[2], "UTF-8"), LinkType.SERVERS);
-            } catch(UnsupportedEncodingException e) {
-                throw new JED2KException(ErrorCode.UNSUPPORTED_ENCODING);
-            }
+            return new EMuleLink(null, 0, parts[2], LinkType.SERVERS);
+        }
+
+        if ("nodeslist".equals(parts[1]) && parts.length == 4) {
+            return new EMuleLink(null, 0, parts[2], LinkType.NODES);
         }
 
         if ("file".equals(parts[1]) && parts.length >= 6) {

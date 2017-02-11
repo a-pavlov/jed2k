@@ -32,6 +32,16 @@ public class ServerMetTest {
     }
 
     @Test
+    public void testSerialization2() throws JED2KException {
+        ResourceFile rf = new ResourceFile();
+        ByteBuffer buffer = rf.read("server2.met", null);
+        assertTrue(buffer.hasRemaining());
+        ServerMet sm = new ServerMet();
+        sm.get(buffer);
+        assertFalse(sm.getServers().isEmpty());
+    }
+
+    @Test
     public void testGetters() throws JED2KException {
         ServerMet sm = new ServerMet();
         sm.addServer(ServerMet.ServerMetEntry.create(new Endpoint(new InetSocketAddress("192.168.0.9", 1223)).getIP(), (short)5600, "Test server name", "Test descr"));

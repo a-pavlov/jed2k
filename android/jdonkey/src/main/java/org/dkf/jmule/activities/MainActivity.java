@@ -45,6 +45,7 @@ import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.*;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
@@ -294,7 +295,42 @@ public class MainActivity extends AbstractActivity implements
                                         , R.string.add_servers_list_title,
                                         main);
                             } else {
-                                UIUtils.showShortMessage(main, R.string.add_servers_list_failed);
+                                UIUtils.showInformationDialog(main, R.string.link_download_failed, R.string.link_download_failed, true, null);
+                            }
+                        }
+                    };
+
+                    task.execute();
+                }
+                else if (link.getType().equals(EMuleLink.LinkType.NODES)) {
+                    final String serversLink = link.getStringValue();
+                    final MainActivity main = this;
+                    AsyncTask<Void, Void, KadNodesDat> task = new AsyncTask<Void, Void, KadNodesDat>() {
+
+                        @Override
+                        protected KadNodesDat doInBackground(Void... voids) {
+                            try {
+                                byte[] data = IOUtils.toByteArray(new URI(serversLink));
+                                ByteBuffer buffer = ByteBuffer.wrap(data);
+                                buffer.order(ByteOrder.LITTLE_ENDIAN);
+                                KadNodesDat sm = new KadNodesDat();
+                                sm.get(buffer);
+                                return sm;
+                            } catch(Exception e) {
+                                log.error("unable to load nodes dat {}", e);
+                            }
+
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(KadNodesDat result) {
+                            if (result != null) {
+                                if (!Engine.instance().addDhtNodes(result)) {
+                                    UIUtils.showInformationDialog(main, R.string.nodes_link_open_error_text, R.string.nodes_link_open_error_title, false, null);
+                                }
+                            } else {
+                                UIUtils.showInformationDialog(main, R.string.link_download_failed, R.string.link_download_failed, true, null);
                             }
                         }
                     };

@@ -27,6 +27,7 @@ import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 
 import java.io.*;
@@ -289,6 +290,18 @@ public class ED2KService extends Service {
         if (dhtTracker != null) {
             saveDhtEntries(dhtTracker.getTrackerState());
         }
+    }
+
+    public synchronized boolean addNodes(final KadNodesDat nodes) {
+        assert nodes != null;
+        if (dhtTracker != null) {
+            dhtTracker.addKadEntries(nodes.getContacts());
+            return true;
+        } else {
+            log.warn("tracker or nodes is null");
+        }
+
+        return false;
     }
 
     /**
@@ -619,10 +632,10 @@ public class ED2KService extends Service {
                         File file = new File(atp.getFilepath().asString());
                         if (Platforms.get().saf()) {
                             LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
-                            ParcelFileDescriptor parcel = fs.openFD(file, "rw");
-                            DocumentFile doc = fs.getDocument(file);
-                            if (parcel != null && doc != null) {
-                                atp.setExternalFileHandler(new AndroidFileHandler(file, doc, parcel));
+                            android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
+
+                            if (resume != null && resume.second != null && resume.first != null) {
+                                atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
                                 if (session != null) {
                                     TransferHandle handle = session.addTransfer(atp);
                                     if (handle.isValid()) {
@@ -883,10 +896,10 @@ public class ED2KService extends Service {
 
             if (Platforms.get().saf()) {
                 LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
-                ParcelFileDescriptor parcel = fs.openFD(file, "rw");
-                DocumentFile doc = fs.getDocument(file);
-                if (parcel != null && doc != null) {
-                    AndroidFileHandler handler = new AndroidFileHandler(file, doc, parcel);
+                android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> fd = fs.openFD(file, "rw");
+
+                if (fd != null && fd.second != null && fd.first != null) {
+                    AndroidFileHandler handler = new AndroidFileHandler(file, fd.second, fd.first);
                     return session.addTransfer(hash, fileSize, handler);
                 } else {
                     log.error("unable to create target file {}", file);
