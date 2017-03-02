@@ -2,16 +2,18 @@ package org.dkf.jed2k.protocol.kad;
 
 import lombok.Getter;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.ReqDispatcher;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt64;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 /**
  * Created by inkpot on 15.11.2016.
  */
 @Getter
-public class Kad2SearchNotesReq implements Serializable {
+public class Kad2SearchNotesReq implements Serializable, KadDispatchable {
     private KadId kid = new KadId();
     private UInt64 fileSize = new UInt64();
 
@@ -28,5 +30,10 @@ public class Kad2SearchNotesReq implements Serializable {
     @Override
     public int bytesCount() {
         return kid.bytesCount() + fileSize.bytesCount();
+    }
+
+    @Override
+    public void dispatch(ReqDispatcher dispatcher, final InetSocketAddress address) {
+        dispatcher.process(this, address);
     }
 }

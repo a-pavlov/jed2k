@@ -31,7 +31,7 @@ import java.util.Set;
  */
 @Slf4j
 @Getter
-public class NodeImpl {
+public class NodeImpl implements ReqDispatcher {
 
     private final static int SEARCH_BRANCHING = 5;
     private final static int BUCKET_SIZE = 10;
@@ -173,7 +173,7 @@ public class NodeImpl {
         return SEARCH_BRANCHING;
     }
 
-    public void incoming(final Serializable s, final InetSocketAddress address) {
+    public void response(final Serializable s, final InetSocketAddress address) {
         final Endpoint ep = Endpoint.fromInet(address);
         log.trace("[node] << {}: {}", address, s);
 
@@ -211,137 +211,6 @@ public class NodeImpl {
             } else {
                 // update routing table with information from observer due to can't find this information in incoming packet
                 table.nodeSeen(o.getId(), o.getEndpoint(), o.getPortTcp(), o.getVersion());
-            }
-        } else {
-            // process incoming requests here
-            if (s instanceof Kad2Ping) {
-                Kad2Pong pong = new Kad2Pong();
-                pong.getPortUdp().assign(port);
-                tracker.write(pong, address);
-                log.debug("[node] >> {}: {}", ep, pong);
-            }
-            else if (s instanceof Kad2HelloReq) {
-                Kad2HelloRes hello = new Kad2HelloRes();
-                hello.setKid(getSelf());
-                hello.getPortTcp().assign(getPort());
-                hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
-                tracker.write(hello, address);
-                log.debug("[node] >> {}: {}", ep, hello);
-            }
-            else if (s instanceof Kad2SearchNotesReq) {
-                log.debug("[node] temporary ignore kad search notes request");
-            }
-            else if (s instanceof Kad2Req) {
-                Kad2Req req = (Kad2Req)s;
-                int searchType = req.getSearchType() & 0x1F;
-                if (searchType != FindData.KADEMLIA_FIND_NODE
-                        && searchType != FindData.KADEMLIA_FIND_VALUE
-                        && searchType != FindData.KADEMLIA_STORE) {
-                    log.warn("[node] << {} incorrect search type in packet {} calculated search type is {}", ep, s, searchType);
-                }
-                else {
-                    Kad2Res res = new Kad2Res();
-                    List<NodeEntry> entries = table.findNode(req.getTarget(), false, searchType);
-                    res.setTarget(req.getTarget());
-                    for(final NodeEntry e: entries) {
-                        res.getResults().add(new KadEntry(e.getId()
-                                , new KadEndpoint(e.getEndpoint().getIP(), e.getEndpoint().getPort(), e.getPortTcp())
-                                , e.getVersion()));
-                    }
-
-                    tracker.write(res, address);
-                    log.debug("[node] >> {}: {}", ep, res);
-                }
-            }
-            else if (s instanceof Kad2BootstrapReq) {
-                List<NodeEntry> entries = table.forEach(new Filter<NodeEntry>() {
-                    private int counter = 20;
-                    @Override
-                    public boolean allow(NodeEntry nodeEntry) {
-                        --counter;
-                        if (counter >= 0) {
-                            return true;
-                        }
-                        return false;
-                    }
-                }, new Filter<NodeEntry>() {
-                    @Override
-                    public boolean allow(NodeEntry nodeEntry) {
-                        return false;
-                    }
-                });
-
-                if (!entries.isEmpty()) {
-                    Kad2BootstrapRes kbr = new Kad2BootstrapRes();
-                    kbr.setKid(getSelf());
-                    kbr.setVersion(Unsigned.uint8(PacketCombiner.KADEMLIA_VERSION));
-                    kbr.setPortTcp(Unsigned.uint16(getPort()));
-
-                    for (NodeEntry ne : entries) {
-                        kbr.getContacts().add(new KadEntry(ne.getId()
-                                , new KadEndpoint(ne.getEndpoint().getIP(), ne.getEndpoint().getPort(), ne.getPortTcp())
-                                , ne.getVersion()));
-                    }
-
-                    tracker.write(kbr, address);
-                } else {
-                    log.debug("[node] entries list is empty, send nothing for bootstrap res");
-                }
-            }
-            else if (s instanceof Kad2PublishKeysReq) {
-                Kad2PublishKeysReq pubKeys = (Kad2PublishKeysReq)s;
-                log.debug("[node] publish keys {} distance {}"
-                        , pubKeys.getSources().size()
-                        , KadId.distance(self, pubKeys.getKeywordId()));
-                int count = 0;
-                for(KadSearchEntry kse: pubKeys.getSources()) {
-                    if (index != null) {
-                        index.addKeyword(pubKeys.getKeywordId(), kse, Time.currentTime());
-                        count++;
-                    } else {
-                        log.debug("[node] not added {} size {}", kse);
-                    }
-                }
-
-                if (count > 0) {
-                    tracker.write(new Kad2PublishRes(pubKeys.getKeywordId(), 1), address);
-                    log.debug("[node] publish result size {}", count);
-                }
-            }
-            else if (s instanceof Kad2PublishSourcesReq) {
-                Kad2PublishSourcesReq pubSrc = (Kad2PublishSourcesReq)s;
-                log.debug("[node] publish sources {} distance {}"
-                        , pubSrc.getFileId()
-                        , KadId.distance(self, pubSrc.getFileId()));
-                if (index != null) {
-                    index.addSource(pubSrc.getFileId(), pubSrc.getSource(), Time.currentTime());
-                    tracker.write(new Kad2PublishRes(pubSrc.getFileId(), 1), address);
-                } else {
-                    log.trace("[node] not indexed source ip {} port {} portTcp {} size {}", pubSrc.getSource());
-                }
-            }
-            else if (s instanceof Kad2FirewalledReq) {
-                log.debug("[node] firewalled request received {}", address);
-                Kad2FirewalledRes kfr = new Kad2FirewalledRes();
-                kfr.setIp(ep.getIP());
-                tracker.write(kfr, address);
-            }
-            else if (s instanceof Kad2SearchKeysReq) {
-                if (index != null) {
-                    sendSearchResult(address, ((Kad2SearchKeysReq) s).getTarget(), index.getFileByHash(((Kad2SearchKeysReq) s).getTarget()));
-                } else {
-                    log.debug("[node] index is not created, unable to answer for search keywords {}", ((Kad2SearchKeysReq) s).getTarget());
-                }
-            }
-            else if (s instanceof Kad2SearchSourcesReq) {
-                if (index != null) {
-                    sendSearchResult(address, ((Kad2SearchSourcesReq) s).getTarget(), index.getSourceByHash(((Kad2SearchSourcesReq) s).getTarget()));
-                } else {
-                    log.debug("[node] index is not created, unable to answer for search sources {}", ((Kad2SearchSourcesReq) s).getTarget());
-                }
-            }
-            else {
-                log.debug("[node] temporary skip unhandled packet {}", s);
             }
         }
     }
@@ -436,5 +305,152 @@ public class NodeImpl {
 
     public boolean isFirewalled() {
         return firewalled;
+    }
+
+    @Override
+    public void process(Kad2Ping p, InetSocketAddress address) {
+        final Endpoint ep = Endpoint.fromInet(address);
+        Kad2Pong pong = new Kad2Pong();
+        pong.getPortUdp().assign(port);
+        tracker.write(pong, address);
+        log.debug("[node] >> {}: {}", ep, pong);
+    }
+
+    @Override
+    public void process(Kad2HelloReq p, InetSocketAddress address) {
+        final Endpoint ep = Endpoint.fromInet(address);
+        Kad2HelloRes hello = new Kad2HelloRes();
+        hello.setKid(getSelf());
+        hello.getPortTcp().assign(getPort());
+        hello.getVersion().assign(PacketCombiner.KADEMLIA_VERSION);
+        tracker.write(hello, address);
+        log.debug("[node] >> {}: {}", ep, hello);
+    }
+
+    @Override
+    public void process(Kad2SearchNotesReq p, InetSocketAddress address) {
+        log.debug("[node] temporary ignore kad search notes request");
+    }
+
+    @Override
+    public void process(Kad2Req p, InetSocketAddress address) {
+        final Endpoint ep = Endpoint.fromInet(address);
+        int searchType = p.getSearchType() & 0x1F;
+        if (searchType != FindData.KADEMLIA_FIND_NODE
+                && searchType != FindData.KADEMLIA_FIND_VALUE
+                && searchType != FindData.KADEMLIA_STORE) {
+            log.warn("[node] << {} incorrect search type in packet {} calculated search type is {}", ep, p, searchType);
+        }
+        else {
+            Kad2Res res = new Kad2Res();
+            List<NodeEntry> entries = table.findNode(p.getTarget(), false, searchType);
+            res.setTarget(p.getTarget());
+            for(final NodeEntry e: entries) {
+                res.getResults().add(new KadEntry(e.getId()
+                        , new KadEndpoint(e.getEndpoint().getIP(), e.getEndpoint().getPort(), e.getPortTcp())
+                        , e.getVersion()));
+            }
+
+            tracker.write(res, address);
+            log.debug("[node] >> {}: {}", ep, res);
+        }
+    }
+
+    @Override
+    public void process(Kad2BootstrapReq p, InetSocketAddress address) {
+        List<NodeEntry> entries = table.forEach(new Filter<NodeEntry>() {
+            private int counter = 20;
+            @Override
+            public boolean allow(NodeEntry nodeEntry) {
+                --counter;
+                if (counter >= 0) {
+                    return true;
+                }
+                return false;
+            }
+        }, new Filter<NodeEntry>() {
+            @Override
+            public boolean allow(NodeEntry nodeEntry) {
+                return false;
+            }
+        });
+
+        if (!entries.isEmpty()) {
+            Kad2BootstrapRes kbr = new Kad2BootstrapRes();
+            kbr.setKid(getSelf());
+            kbr.setVersion(Unsigned.uint8(PacketCombiner.KADEMLIA_VERSION));
+            kbr.setPortTcp(Unsigned.uint16(getPort()));
+
+            for (NodeEntry ne : entries) {
+                kbr.getContacts().add(new KadEntry(ne.getId()
+                        , new KadEndpoint(ne.getEndpoint().getIP(), ne.getEndpoint().getPort(), ne.getPortTcp())
+                        , ne.getVersion()));
+            }
+
+            tracker.write(kbr, address);
+        } else {
+            log.debug("[node] entries list is empty, send nothing for bootstrap res");
+        }
+    }
+
+    @Override
+    public void process(Kad2PublishKeysReq p, InetSocketAddress address) {
+        log.debug("[node] publish keys {} distance {}"
+                , p.getSources().size()
+                , KadId.distance(self, p.getKeywordId()));
+        int count = 0;
+        for(KadSearchEntry kse: p.getSources()) {
+            if (index != null) {
+                index.addKeyword(p.getKeywordId(), kse, Time.currentTime());
+                count++;
+            } else {
+                log.debug("[node] not added {} size {}", kse);
+            }
+        }
+
+        if (count > 0) {
+            tracker.write(new Kad2PublishRes(p.getKeywordId(), 1), address);
+            log.debug("[node] publish result size {}", count);
+        }
+    }
+
+    @Override
+    public void process(Kad2PublishSourcesReq p, InetSocketAddress address) {
+        log.debug("[node] publish sources {} distance {}"
+                , p.getFileId()
+                , KadId.distance(self, p.getFileId()));
+        if (index != null) {
+            index.addSource(p.getFileId(), p.getSource(), Time.currentTime());
+            tracker.write(new Kad2PublishRes(p.getFileId(), 1), address);
+        } else {
+            log.trace("[node] not indexed source ip {} port {} portTcp {} size {}", p.getSource());
+        }
+    }
+
+    @Override
+    public void process(Kad2FirewalledReq p, InetSocketAddress address) {
+        final Endpoint ep = Endpoint.fromInet(address);
+        log.debug("[node] firewalled request received {}", address);
+        Kad2FirewalledRes kfr = new Kad2FirewalledRes();
+        kfr.setIp(ep.getIP());
+        tracker.write(kfr, address);
+    }
+
+    @Override
+    public void process(Kad2SearchKeysReq p, InetSocketAddress address) {
+        if (index != null) {
+            sendSearchResult(address, (p).getTarget(), index.getFileByHash(p.getTarget()));
+        } else {
+            log.debug("[node] index is not created, unable to answer for search keywords {}", p.getTarget());
+        }
+    }
+
+    @Override
+    public void process(Kad2SearchSourcesReq p, InetSocketAddress address) {
+        if (index != null) {
+            sendSearchResult(address, p.getTarget(), index.getSourceByHash(p.getTarget()));
+        } else {
+            log.debug("[node] index is not created, unable to answer for search sources {}", p.getTarget());
+        }
     }
 }

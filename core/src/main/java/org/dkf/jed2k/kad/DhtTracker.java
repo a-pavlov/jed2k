@@ -180,7 +180,12 @@ public class DhtTracker extends Thread {
             Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
             assert s != null;
             log.debug("[tracker] packet {}: {}", s.bytesCount(), s);
-            node.incoming(s, address);
+
+            if (s instanceof KadDispatchable) {
+                ((KadDispatchable)s).dispatch(node, address);
+            } else {
+                node.response(s, address);
+            }
         } catch (IOException e) {
             log.error("[tracker] I/O exception {} on reading packet {}", e, incomingHeader);
             e.printStackTrace();
