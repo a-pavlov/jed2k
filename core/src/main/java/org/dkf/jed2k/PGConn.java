@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by apavlov on 03.03.17.
@@ -46,7 +48,8 @@ public class PGConn {
 
         // create synchronized datagram socket server
         try {
-            SynDhtTracker dht = new SynDhtTracker(2000, 10000);
+            ExecutorService exec = Executors.newSingleThreadExecutor();
+            SynDhtTracker dht = new SynDhtTracker(2000, 10000, exec);
             dht.processPackets();
             dht.close();
         } catch(JED2KException e) {
