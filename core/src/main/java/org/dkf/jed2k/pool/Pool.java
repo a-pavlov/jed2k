@@ -1,31 +1,32 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.pool;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 /**
- * Created by inkpot on 08.07.2016.
+ * Created by apavlov on 06.03.17.
  */
-public class BufferPool {
+public abstract class Pool<T> {
     private int maxBuffersCount = 0;
     private int allocatedBuffersCount = 0;
     private int maxAllocatedCount = 0;
-    LinkedList<ByteBuffer>  freeBuffers = new LinkedList<ByteBuffer>();
+    LinkedList<T> freeBuffers = new LinkedList<>();
     LinkedList<Long> bufferReleaseTimes = new LinkedList<Long>();
 
 
-    public BufferPool(int maxBuffers) {
+    public Pool(int maxBuffers) {
         assert(maxBuffers > 0);
         maxBuffersCount = maxBuffers;
     }
 
-    public ByteBuffer allocate() {
-        ByteBuffer b = freeBuffers.poll();
+    protected abstract T createObject();
+
+    public T allocate() {
+        T b = freeBuffers.poll();
         Long releaseTime = bufferReleaseTimes.poll();
         assert(freeBuffers.size() == bufferReleaseTimes.size());
 
         if (b == null && allocatedBuffersCount < maxBuffersCount) {
-            b = ByteBuffer.allocate((int) Constants.BLOCK_SIZE);
+            b = createObject();
         }
 
         if (b != null) {
@@ -41,7 +42,7 @@ public class BufferPool {
      * @param b - byte buffer
      * @param sessionTime - current session time when byte buffer has been released
      */
-    public void deallocate(ByteBuffer b, long sessionTime) {
+    public void deallocate(T b, long sessionTime) {
         assert(b != null);
         assert(freeBuffers.size() == bufferReleaseTimes.size());
         allocatedBuffersCount--;
