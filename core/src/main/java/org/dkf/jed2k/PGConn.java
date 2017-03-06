@@ -1,6 +1,8 @@
 package org.dkf.jed2k;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.server.SynDhtTracker;
 
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -40,6 +42,15 @@ public class PGConn {
             conn.close();
         } catch(SQLException e) {
             log.error("sql exception {}", e);
+        }
+
+        // create synchronized datagram socket server
+        try {
+            SynDhtTracker dht = new SynDhtTracker(2000, 10000);
+            dht.processPackets();
+            dht.close();
+        } catch(JED2KException e) {
+            log.error("sync dht tracker failed with {}", e);
         }
     }
 }

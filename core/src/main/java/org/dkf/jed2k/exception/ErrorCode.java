@@ -69,7 +69,9 @@ public enum ErrorCode implements BaseErrorCode {
     NUMBER_FORMAT_ERROR(92, "Parse number exception"),
     UNKNOWN_LINK_TYPE(93, "Emule link has unrecognized type"),
 
-    FAIL(100, "Fail");
+    DHT_TRACKER_SOCKET_EXCEPTION(100, "Dht tracker creation server socket error"),
+
+    FAIL(200, "Fail");
 
     private final int code;
     private final String description;
