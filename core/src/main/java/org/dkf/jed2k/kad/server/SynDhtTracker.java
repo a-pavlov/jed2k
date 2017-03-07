@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.pool.SynchronizedArrayPool;
+import org.postgresql.ds.PGPoolingDataSource;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -22,11 +23,13 @@ public class SynDhtTracker {
     private DatagramSocket serverSocket = null;
     private SynchronizedArrayPool packetStorage = new SynchronizedArrayPool(1024, 8096);
     private ExecutorService executor;
+    private PGPoolingDataSource ds;
 
-    public SynDhtTracker(int port, int timeout, ExecutorService executor) throws JED2KException {
+    public SynDhtTracker(int port, int timeout, ExecutorService executor, final PGPoolingDataSource ds) throws JED2KException {
         this.port = port;
         this.timeout = timeout;
         this.executor = executor;
+        this.ds = ds;
 
         try {
             serverSocket = new DatagramSocket(port);
@@ -44,7 +47,8 @@ public class SynDhtTracker {
                 DatagramPacket receivePacket = new DatagramPacket(data, data.length);
                 serverSocket.receive(receivePacket);
                 executor.submit(new DhtRequestHandler(packetStorage
-                        , receivePacket));
+                        , receivePacket
+                        , ds));
             } else {
                 log.warn("unable to allocate buffer to receive packet");
             }

@@ -9,10 +9,13 @@ import org.dkf.jed2k.protocol.PacketHeader;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.KadDispatchable;
 import org.dkf.jed2k.protocol.kad.KadPacketHeader;
+import org.postgresql.ds.PGPoolingDataSource;
 
 import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Created by apavlov on 06.03.17.
@@ -21,11 +24,15 @@ import java.nio.ByteOrder;
 public class DhtRequestHandler implements Runnable {
     private final SynchronizedArrayPool pool;
     private final DatagramPacket packet;
+    private final PGPoolingDataSource ds;
     private static PacketCombiner combiner = new org.dkf.jed2k.protocol.kad.PacketCombiner();
 
-    public DhtRequestHandler(SynchronizedArrayPool pool, final DatagramPacket packet) {
+    public DhtRequestHandler(SynchronizedArrayPool pool
+            , final DatagramPacket packet
+            , final PGPoolingDataSource ds) {
         this.pool = pool;
         this.packet = packet;
+        this.ds = ds;
     }
 
     @Override
@@ -45,6 +52,20 @@ public class DhtRequestHandler implements Runnable {
 
             if (s instanceof KadDispatchable) {
                 //((KadDispatchable)s).dispatch(node, address);
+                Connection conn = null;
+                try {
+                    conn = ds.getConnection();
+                } catch(SQLException e) {
+                    log.error("connection error {}", e);
+                } finally {
+                    if (conn != null) {
+                        try {
+                            conn.close();
+                        } catch(SQLException e) {
+                            log.warn("close connection error {}", e);
+                        }
+                    }
+                }
             } else {
                 log.debug("incoming packet is not dispatchable");
             }
