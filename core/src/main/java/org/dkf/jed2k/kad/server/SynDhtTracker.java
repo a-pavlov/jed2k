@@ -3,14 +3,16 @@ package org.dkf.jed2k.kad.server;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.pool.SynchronizedArrayPool;
+import org.dkf.jed2k.protocol.PacketCombiner;
+import org.dkf.jed2k.protocol.PacketHeader;
+import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.kad.KadPacketHeader;
 import org.postgresql.ds.PGPoolingDataSource;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -21,9 +23,10 @@ public class SynDhtTracker {
     private int timeout;
     private int port;
     private DatagramSocket serverSocket = null;
-    private SynchronizedArrayPool packetStorage = new SynchronizedArrayPool(1024, 8096);
     private ExecutorService executor;
     private PGPoolingDataSource ds;
+    byte[] data = new byte[8096];
+    private PacketCombiner combiner = new org.dkf.jed2k.protocol.kad.PacketCombiner();
 
     public SynDhtTracker(int port, int timeout, ExecutorService executor, final PGPoolingDataSource ds) throws JED2KException {
         this.port = port;
@@ -42,16 +45,19 @@ public class SynDhtTracker {
 
     public void processPackets() throws JED2KException {
         try {
-            byte data[] = packetStorage.allocate();
-            if (data != null) {
-                DatagramPacket receivePacket = new DatagramPacket(data, data.length);
-                serverSocket.receive(receivePacket);
-                executor.submit(new DhtRequestHandler(packetStorage
-                        , receivePacket
+            DatagramPacket receivePacket = new DatagramPacket(data, data.length);
+            serverSocket.receive(receivePacket);
+            ByteBuffer buffer = ByteBuffer.wrap(data, 0, receivePacket.getLength());
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            PacketHeader header = new KadPacketHeader();
+            header.get(buffer);
+            if (!header.isDefined()) throw new JED2KException(ErrorCode.PACKET_HEADER_UNDEFINED);
+            Serializable s = combiner.unpack(header, buffer);
+            log.trace("incoming packet {}", s);
+
+            executor.submit(new DhtRequestHandler(s
+                        , new InetSocketAddress(receivePacket.getAddress(), receivePacket.getPort())
                         , ds));
-            } else {
-                log.warn("unable to allocate buffer to receive packet");
-            }
         } catch(SocketTimeoutException e) {
             log.trace("socket timeout");
         } catch (IOException e) {
