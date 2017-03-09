@@ -72,6 +72,7 @@ public enum ErrorCode implements BaseErrorCode {
     DHT_TRACKER_SOCKET_EXCEPTION(100, "Dht tracker creation server socket error"),
 
     SOURCE_INSERT_SQL_ERROR(120, "SQL exception on insert source"),
+    NO_AVAILABLE_SQL_CONNECTIONS(121, "Can't obtain connection to database"),
 
     FAIL(200, "Fail");
 

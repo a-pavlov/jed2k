@@ -2,18 +2,23 @@ package org.dkf.jed2k.kad.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.ByteBufferInputStream;
+import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.ReqDispatcher;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.*;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.postgresql.ds.PGPoolingDataSource;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by apavlov on 06.03.17.
@@ -23,6 +28,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
     private final Serializable packet;
     private final InetSocketAddress address;
     private final PGPoolingDataSource ds;
+    private ByteBuffer buffer;
 
     public DhtRequestHandler(final Serializable packet
             , final InetSocketAddress address
@@ -35,55 +41,64 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
     @Override
     public void run() {
         assert packet != null;
+        buffer = ByteBuffer.allocate(packet.bytesCount());
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+
         if (packet instanceof KadDispatchable) {
             ((KadDispatchable)packet).dispatch(this, address);
+        } else {
+            if (packet instanceof Kad2SearchRes) {
+
+            }
         }
     }
 
-    /**
-     *
-     * @param kadId
-     * @param host
-     * @param portTcp
-     * @param portUdp
-     * @param packet
-     * @param sourceType
-     * @throws JED2KException
-     */
-    private void insertSource(final String kadId
-            , final String host
-            , int portTcp
-            , int portUdp
-            , ByteBuffer packet
-            , final String sourceType) throws JED2KException {
+    private void insertSource(final KadId kadId
+            , final KadSearchEntry entry
+            , final InetSocketAddress address) throws JED2KException {
+
+        Connection conn = null;
+
         try {
-            Connection conn = getConnection();
-            if (conn != null) {
-                PreparedStatement ps = conn.prepareStatement("INSERT INTO test.sources(kad_id, host, port_tcp, port_udp, packet, source_type) " +
-                        "VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT sources_pk DO UPDATE SET last_update = current_timestamp, packet = ?");
-                ps.setString(1, kadId);
-                ps.setString(2, host);
-                ps.setInt(3, portTcp);
-                ps.setInt(4, portUdp);
-                ps.setBinaryStream(5, new ByteBufferInputStream(packet));
-                ps.setString(6, sourceType);
-                ps.setBinaryStream(7, new ByteBufferInputStream(packet));
-                ps.executeUpdate();
+
+            conn = ds.getConnection();
+            if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
+            Endpoint ep = Endpoint.fromInet(address);
+            int portTcp = 0;
+            int portUdp = ep.getPort();
+            int ip = ep.getIP();
+
+            for(final Tag t: entry.getInfo()) {
+                if (t.getId() == Tag.TAG_SOURCETYPE) {
+                    ip = t.asIntValue();
+                }
+                else if (t.getId() == Tag.TAG_SOURCEPORT) {
+                    portTcp = t.asIntValue();
+                }
+                else if (t.getId() == Tag.TAG_SOURCEUPORT) {
+                    portUdp = t.asIntValue();
+                }
             }
+
+            entry.put(buffer);
+            buffer.flip();
+
+            ByteBuffer buffer2 = buffer.slice();
+
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test.sources(kad_id, host, port_tcp, port_udp, packet, source_flag) " +
+                    "VALUES (?, ?::INET, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT sources_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = test.sources.total_updates + 1");
+            ps.setString(1, kadId.toString());
+            ps.setString(2, Utils.ip2String(ip));
+            ps.setInt(3, portTcp);
+            ps.setInt(4, portUdp);
+            ps.setBinaryStream(5, new ByteBufferInputStream(buffer));
+            ps.setString(6, "P");
+            ps.setBinaryStream(7, new ByteBufferInputStream(buffer2));
+            ps.executeUpdate();
+            //conn.commit();
         } catch(SQLException e) {
             log.error("SQL exception {}", e);
             throw new JED2KException(ErrorCode.SOURCE_INSERT_SQL_ERROR);
-        }
-    }
-
-    private Connection getConnection() throws SQLException {
-        Connection conn = null;
-        try {
-            conn = ds.getConnection();
-
-        } catch(SQLException e) {
-            log.error("connection error {}", e);
-            throw e;
         } finally {
             if (conn != null) {
                 try {
@@ -93,8 +108,48 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                 }
             }
         }
+    }
 
-        return conn;
+    private void insertKeywords(final KadId kadId
+            , final List<KadSearchEntry> keywords
+            , final InetSocketAddress address) throws JED2KException {
+
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
+
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test.keywords(kad_id, file_id, host, packet) " +
+                "VALUES(?, ?, ?::INET, ?) ON CONFLICT ON CONSTRAINT keywords_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = test.keywords.total_updates + 1");
+
+            ps.setString(1, kadId.toString());
+            final String host = Utils.ip2String(Endpoint.fromInet(address).getIP());
+
+            for(final KadSearchEntry res: keywords) {
+                ps.setString(2, res.getKid().toString());
+                buffer.clear();
+                res.put(buffer);
+                buffer.flip();
+                ByteBuffer buffer2 = buffer.slice();
+                ps.setString(3, host);
+                ps.setBinaryStream(4, new ByteBufferInputStream(buffer));
+                ps.setBinaryStream(5, new ByteBufferInputStream(buffer2));
+                ps.executeUpdate();
+            }
+
+            //conn.commit();
+        } catch(SQLException e) {
+            log.error("SQL exception {}", e);
+            throw new JED2KException(ErrorCode.SOURCE_INSERT_SQL_ERROR);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch(SQLException e) {
+                    log.warn("close connection error {}", e);
+                }
+            }
+        }
     }
 
     @Override
@@ -124,12 +179,20 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
 
     @Override
     public void process(Kad2PublishKeysReq p, InetSocketAddress address) {
-
+        try {
+            insertKeywords(p.getKeywordId(), p.getSources().getList(), address);
+        } catch (JED2KException e) {
+            log.error("process publish keywords request error {}", e.getMessage());
+        }
     }
 
     @Override
     public void process(Kad2PublishSourcesReq p, InetSocketAddress address) {
-
+        try {
+            insertSource(p.getFileId(), p.getSource(), address);
+        } catch(JED2KException e) {
+            log.error("process publish sources request error {}", e.getMessage());
+        }
     }
 
     @Override
