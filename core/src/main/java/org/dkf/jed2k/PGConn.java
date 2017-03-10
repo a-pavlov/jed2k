@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.server.DhtRequestHandler;
-import org.dkf.jed2k.kad.server.SynDhtTracker;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.*;
 import org.postgresql.ds.PGPoolingDataSource;
@@ -17,8 +16,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by apavlov on 03.03.17.
@@ -136,16 +133,6 @@ public class PGConn {
                     }
                 }
             }
-        }
-
-        // create synchronized datagram socket server
-        try {
-            ExecutorService exec = Executors.newSingleThreadExecutor();
-            SynDhtTracker dht = new SynDhtTracker(2000, 10000, exec, source);
-            dht.processPackets();
-            dht.close();
-        } catch(JED2KException e) {
-            log.error("sync dht tracker failed with {}", e);
         }
     }
 }

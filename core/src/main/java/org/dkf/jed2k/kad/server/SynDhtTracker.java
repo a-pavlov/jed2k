@@ -19,16 +19,20 @@ import java.util.concurrent.ExecutorService;
  * Created by apavlov on 06.03.17.
  */
 @Slf4j
-public class SynDhtTracker {
+public class SynDhtTracker extends Thread {
     private int timeout;
     private int port;
     private DatagramSocket serverSocket = null;
-    private ExecutorService executor;
-    private PGPoolingDataSource ds;
-    byte[] data = new byte[8096];
-    private PacketCombiner combiner = new org.dkf.jed2k.protocol.kad.PacketCombiner();
+    private final ExecutorService executor;
+    private final PGPoolingDataSource ds;
+    private final byte[] data = new byte[8096];
+    private final PacketCombiner combiner = new org.dkf.jed2k.protocol.kad.PacketCombiner();
+    private volatile boolean stopFlag = false;
 
-    public SynDhtTracker(int port, int timeout, ExecutorService executor, final PGPoolingDataSource ds) throws JED2KException {
+    public SynDhtTracker(int port
+            , int timeout
+            , ExecutorService executor
+            , final PGPoolingDataSource ds) throws JED2KException {
         this.port = port;
         this.timeout = timeout;
         this.executor = executor;
@@ -59,13 +63,32 @@ public class SynDhtTracker {
                         , new InetSocketAddress(receivePacket.getAddress(), receivePacket.getPort())
                         , ds));
         } catch(SocketTimeoutException e) {
-            log.trace("socket timeout");
+            log.trace("socket timeout", e);
+            throw new JED2KException(ErrorCode.SOCKET_TIMEOUT);
         } catch (IOException e) {
-
+            log.error("i/o error {}", e);
+            throw new JED2KException(ErrorCode.IO_EXCEPTION);
         }
     }
 
-    public void close() {
+    private void close() {
         if (serverSocket != null) serverSocket.close();
+    }
+
+    @Override
+    public void run() {
+        while(!stopFlag) {
+            try {
+                processPackets();
+            } catch(JED2KException e) {
+                log.warn("process packet raised exception {}", e);
+            }
+        }
+
+        close();
+    }
+
+    public void stopTracking() {
+        stopFlag = true;
     }
 }

@@ -73,6 +73,11 @@ public enum ErrorCode implements BaseErrorCode {
 
     SOURCE_INSERT_SQL_ERROR(120, "SQL exception on insert source"),
     NO_AVAILABLE_SQL_CONNECTIONS(121, "Can't obtain connection to database"),
+    SOCKET_TIMEOUT(122, "Socket timeout exception"),
+
+    KD_PORT_UNDEFINED(130, "Port is not provided"),
+    KD_PORT_INVALID(131, "Invalid port value"),
+    KD_DAEMONIZE_FAILED(132, "Daemonize failed"),
 
     FAIL(200, "Fail");
 
