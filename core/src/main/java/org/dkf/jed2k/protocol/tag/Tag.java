@@ -252,7 +252,7 @@ public final class Tag implements Serializable {
             case TAGTYPE_STR20: return "TAGTYPE_STR20";
             case TAGTYPE_STR21: return "TAGTYPE_STR21";
             case TAGTYPE_STR22: return "TAGTYPE_STR22";
-            default: return "UNKNOWN";
+            default: return String.format("Type ?: 0x%02X", ((int)id) & 0xFF);
         }
     }
 
@@ -308,7 +308,7 @@ public final class Tag implements Serializable {
             case CT_EMULE_MISCOPTIONS2: return "[CT_EMULE_MISCOPTIONS2/TAG_SOURCEIP]";
             case CT_EMULE_RESERVED13: return "[CT_EMULE_RESERVED13/TAG_SOURCETYPE]";
             case CT_MOD_VERSION: return "CT_MOD_VERSION";
-            default: return "UNKNOWN";
+            default: return String.format("Id ?: 0x%02X", ((int)id) & 0xFF);
         }
     }
 
