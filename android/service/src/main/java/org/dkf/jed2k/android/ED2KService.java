@@ -253,7 +253,7 @@ public class ED2KService extends Service {
      */
     synchronized void startDht() {
         if (useDht) {
-            dhtTracker = new DhtTracker(settings.listenPort, kadId);
+            dhtTracker = new DhtTracker(settings.listenPort, kadId, null);
             dhtTracker.start();
             Container<UInt32, NodeEntry> entries = loadDhtEntries();
             if (entries != null && entries.getList() != null) {
