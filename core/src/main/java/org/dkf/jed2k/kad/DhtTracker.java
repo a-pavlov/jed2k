@@ -50,10 +50,12 @@ public class DhtTracker extends Thread {
     private static int OUTPUT_BUFFER_LIMIT = 8128;
     private static int INPUT_BUFFER_LIMIT = 8128;
 
-    public DhtTracker(int listenPort, final KadId id) {
+    public DhtTracker(int listenPort
+            , final KadId id
+            , final InetSocketAddress storagePoint) {
         assert listenPort > 0 && listenPort <= 65535;
         this.listenPort = listenPort;
-        this.node = new NodeImpl(this, id, listenPort);
+        this.node = new NodeImpl(this, id, listenPort, storagePoint);
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
 
+import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,8 +46,12 @@ public class NodeImpl implements ReqDispatcher {
     private int localAddress = 0;
     private boolean firewalled = true;
     private long lastFirewalledCheck = 0;
+    private final InetSocketAddress storagePoint;
 
-    public NodeImpl(final DhtTracker tracker, final KadId id, int port) {
+    public NodeImpl(final DhtTracker tracker
+            , final KadId id
+            , int port
+            , final InetSocketAddress storagePoint) {
         assert tracker != null;
         assert id != null;
         this.tracker = tracker;
@@ -54,6 +59,7 @@ public class NodeImpl implements ReqDispatcher {
         this.self = id;
         this.table = new RoutingTable(id, BUCKET_SIZE);
         this.port = port;
+        this.storagePoint = storagePoint;
     }
 
     public void addNode(final Endpoint ep, final KadId id) throws JED2KException {
@@ -398,6 +404,12 @@ public class NodeImpl implements ReqDispatcher {
         log.debug("[node] publish keys {} distance {}"
                 , p.getSources().size()
                 , KadId.distance(self, p.getKeywordId()));
+
+        if (storagePoint != null) {
+            log.debug("[node] store publish keys request in storage");
+            tracker.write(p, storagePoint);
+        }
+
         int count = 0;
         for(KadSearchEntry kse: p.getSources()) {
             if (index != null) {
@@ -419,6 +431,12 @@ public class NodeImpl implements ReqDispatcher {
         log.debug("[node] publish sources {} distance {}"
                 , p.getFileId()
                 , KadId.distance(self, p.getFileId()));
+
+        if (storagePoint != null) {
+            log.debug("[node] store publish sources request in storage");
+            tracker.write(p, storagePoint);
+        }
+
         if (index != null) {
             index.addSource(p.getFileId(), p.getSource(), Time.currentTime());
             tracker.write(new Kad2PublishRes(p.getFileId(), 1), address);
