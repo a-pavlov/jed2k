@@ -18,6 +18,7 @@ import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -123,18 +124,35 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                 "VALUES(?, ?, ?::INET, ?) ON CONFLICT ON CONSTRAINT keywords_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = test.keywords.total_updates + 1");
 
             ps.setString(1, kadId.toString());
-            final String host = Utils.ip2String(Endpoint.fromInet(address).getIP());
 
             for(final KadSearchEntry res: keywords) {
-                ps.setString(2, res.getKid().toString());
-                buffer.clear();
-                res.put(buffer);
-                buffer.flip();
-                ByteBuffer buffer2 = buffer.slice();
-                ps.setString(3, host);
-                ps.setBinaryStream(4, new ByteBufferInputStream(buffer));
-                ps.setBinaryStream(5, new ByteBufferInputStream(buffer2));
-                ps.executeUpdate();
+                int ip = 0;
+
+                Iterator<Tag> itr = res.getInfo().iterator();
+                while(itr.hasNext()) {
+                    Tag t = itr.next();
+
+                    // extract ip address from additional(non standard) tag and remove that tag
+                    if (t.getId() == Tag.TAG_SOURCETYPE) {
+                        ip = t.asIntValue();
+                        itr.remove();
+                        break;
+                    }
+                }
+
+                if (ip != 0) {
+                    ps.setString(2, res.getKid().toString());
+                    buffer.clear();
+                    res.put(buffer);
+                    buffer.flip();
+                    ByteBuffer buffer2 = buffer.slice();
+                    ps.setString(3, Utils.ip2String(ip));
+                    ps.setBinaryStream(4, new ByteBufferInputStream(buffer));
+                    ps.setBinaryStream(5, new ByteBufferInputStream(buffer2));
+                    ps.executeUpdate();
+                } else {
+                    log.warn("ip is zero in kad search entry, skip entry {}", res);
+                }
             }
 
             //conn.commit();
