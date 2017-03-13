@@ -20,7 +20,6 @@ import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
 
-import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashSet;
@@ -412,7 +411,8 @@ public class NodeImpl implements ReqDispatcher {
 
         int count = 0;
         for(KadSearchEntry kse: p.getSources()) {
-            if (index != null) {
+            // real publish request - temporary write it to local index
+            if (index != null && address != null) {
                 index.addKeyword(p.getKeywordId(), kse, Time.currentTime());
                 count++;
             } else {
@@ -420,7 +420,8 @@ public class NodeImpl implements ReqDispatcher {
             }
         }
 
-        if (count > 0) {
+        // write response only if we have real recipient
+        if (count > 0 && address != null) {
             tracker.write(new Kad2PublishRes(p.getKeywordId(), 1), address);
             log.debug("[node] publish result size {}", count);
         }
@@ -437,7 +438,8 @@ public class NodeImpl implements ReqDispatcher {
             tracker.write(p, storagePoint);
         }
 
-        if (index != null) {
+        // for real publish request temporary write it to local index
+        if (index != null && address != null) {
             index.addSource(p.getFileId(), p.getSource(), Time.currentTime());
             tracker.write(new Kad2PublishRes(p.getFileId(), 1), address);
         } else {
