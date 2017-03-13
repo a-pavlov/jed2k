@@ -10,6 +10,12 @@ import java.net.InetSocketAddress;
  */
 public interface ReqDispatcher {
 
+    /**
+     * dispatch packet to processing and answering. if no address provided - address == null
+     * no answer should be produced
+     * @param p dispatchable and serializable packet
+     * @param address address of origin, can be null
+     */
     void process(final Kad2Ping p, final InetSocketAddress address);
     void process(final Kad2HelloReq p, final InetSocketAddress address);
     void process(final Kad2SearchNotesReq p, final InetSocketAddress address);
