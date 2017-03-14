@@ -6,6 +6,7 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.server.DhtRequestHandler;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.*;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.postgresql.ds.PGPoolingDataSource;
 
 import java.io.*;
@@ -105,9 +106,10 @@ public class PGConn {
                         Kad2PublishSourcesReq ps = new Kad2PublishSourcesReq();
                         ps.setFileId(new KadId(KadId.EMULE));
                         for (final KadSearchEntry se: res.getResults()) {
+                            Endpoint ep = new Endpoint(1234567, 20000);
+                            se.getInfo().add(Tag.tag(Tag.TAG_SOURCETYPE, null, ep.getIP()));
                             ps.setSource(se);
                             //Endpoint ep = new Endpoint(rnd.nextInt(), rnd.nextInt(65535));
-                            Endpoint ep = new Endpoint(1234567, 20000);
                             DhtRequestHandler rh = new DhtRequestHandler(ps, ep.toInetSocketAddress(), source);
                             rh.run();
                         }
@@ -120,12 +122,18 @@ public class PGConn {
                 for(int i = 1; i < parts.length; ++i) {
                     log.info("load keywords from {}", parts[i]);
                     try {
+                        Endpoint ep = new Endpoint(rnd.nextInt(), rnd.nextInt(65535));
+                        //Endpoint ep = new Endpoint(1234567, 20000);
                         Kad2SearchRes res = file2SearchRes(parts[i]);
                         Kad2PublishKeysReq pk = new Kad2PublishKeysReq();
+                        for(final KadSearchEntry kse: res.getResults()) {
+                            // inject endpoint into search result entry - it will be used as source host in KAD storage
+                            kse.getInfo().add(Tag.tag(Tag.TAG_SOURCETYPE, null, ep.getIP()));
+                        }
+
                         pk.setKeywordId(new KadId(KadId.EMULE));
                         pk.getSources().addAll(res.getResults());
-                        //Endpoint ep = new Endpoint(rnd.nextInt(), rnd.nextInt(65535));
-                        Endpoint ep = new Endpoint(1234567, 20000);
+
                         DhtRequestHandler rh = new DhtRequestHandler(pk, ep.toInetSocketAddress(), source);
                         rh.run();
                     } catch(JED2KException e) {
