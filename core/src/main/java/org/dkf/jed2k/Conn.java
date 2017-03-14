@@ -461,7 +461,7 @@ public class Conn {
                     tracker.abort();
                 }
 
-                tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget());
+                tracker = new DhtTracker(GLOBAL_PORT, idata.getTarget(), null);
                 tracker.start();
                 s.setDhtTracker(tracker);
 

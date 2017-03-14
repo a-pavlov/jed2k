@@ -152,7 +152,7 @@ public class Kad {
 
         String command;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        DhtTracker tracker = new DhtTracker(port, idata.getTarget());
+        DhtTracker tracker = new DhtTracker(port, idata.getTarget(), null);
         tracker.start();
         if (idata.getEntries().getList() != null) {
             tracker.addEntries(idata.getEntries().getList());
