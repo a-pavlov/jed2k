@@ -40,10 +40,13 @@ public class SynDhtTracker extends Thread {
 
         log.trace("syn dht tracker started on port {}", port);
         try {
-            serverSocket = new DatagramSocket(port);
+            serverSocket = new DatagramSocket(new InetSocketAddress(InetAddress.getByName("localhost"),port));
             serverSocket.setSoTimeout(timeout);
         } catch(SocketException e) {
             log.error("unable to create udp server socket {}", e);
+            throw new JED2KException(ErrorCode.DHT_TRACKER_SOCKET_EXCEPTION);
+        } catch(UnknownHostException e) {
+            log.error("unbale to bind to localhost {}", e);
             throw new JED2KException(ErrorCode.DHT_TRACKER_SOCKET_EXCEPTION);
         }
     }
@@ -56,6 +59,8 @@ public class SynDhtTracker extends Thread {
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             PacketHeader header = new KadPacketHeader();
             header.get(buffer);
+            header.reset(header.key(), buffer.remaining());
+            log.debug("header {} bytes remaining {}", header, buffer.remaining());
             if (!header.isDefined()) throw new JED2KException(ErrorCode.PACKET_HEADER_UNDEFINED);
             Serializable s = combiner.unpack(header, buffer);
             log.trace("incoming packet {}", s);
@@ -82,7 +87,7 @@ public class SynDhtTracker extends Thread {
             try {
                 processPackets();
             } catch(JED2KException e) {
-                log.warn("process packet raised exception {}", e);
+                log.trace("process packet raised exception {}", e);
             }
         }
 

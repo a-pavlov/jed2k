@@ -60,6 +60,7 @@ public class PGConn {
         source.setMaxConnections(4);
         ExecutorService service = Executors.newFixedThreadPool(4);
         SynDhtTracker tracker = new SynDhtTracker(20000, 10000, service, source);
+        tracker.start();
 
         Random rnd = new Random();
 
