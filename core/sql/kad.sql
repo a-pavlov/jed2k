@@ -1,7 +1,8 @@
-drop table test.sources;
-drop table test.keywords;
+drop table kad.sources;
+drop table kad.keywords;
+create schema kad;
 
-create table test.sources (
+create table kad.sources (
   kad_id character(32) not null
   , host inet not null
   , port_tcp int not null default 0
@@ -13,9 +14,9 @@ create table test.sources (
   , constraint sources_pk primary key (kad_id, host, port_tcp, port_udp)
 );
 
-create index sources_update_indx on test.sources(last_update);
+create index sources_update_indx on kad.sources(last_update);
 
-create table test.keywords (
+create table kad.keywords (
   kad_id character(32)
   , file_id character(32)
   , host inet not null
@@ -25,7 +26,7 @@ create table test.keywords (
   , constraint keywords_pk primary key(kad_id, file_id, host)
 );
 
-create index keywords_update_indx on test.keywords(last_update);
+create index keywords_update_indx on kad.keywords(last_update);
 
-grant all on table test.sources to test;
-grant all on table test.keywords to test;
+grant all on table kad.sources to kad;
+grant all on table kad.keywords to kad;

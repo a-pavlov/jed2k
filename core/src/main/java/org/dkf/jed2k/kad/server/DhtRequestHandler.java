@@ -86,8 +86,8 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
 
             ByteBuffer buffer2 = buffer.slice();
 
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO test.sources(kad_id, host, port_tcp, port_udp, packet, source_flag) " +
-                    "VALUES (?, ?::INET, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT sources_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = test.sources.total_updates + 1");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO kad.sources(kad_id, host, port_tcp, port_udp, packet, source_flag) " +
+                    "VALUES (?, ?::INET, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT sources_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = kad.sources.total_updates + 1");
             ps.setString(1, kadId.toString());
             ps.setString(2, Utils.ip2String(ip));
             ps.setInt(3, portTcp);
@@ -120,8 +120,8 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             conn = ds.getConnection();
             if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
 
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO test.keywords(kad_id, file_id, host, packet) " +
-                "VALUES(?, ?, ?::INET, ?) ON CONFLICT ON CONSTRAINT keywords_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = test.keywords.total_updates + 1");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO kad.keywords(kad_id, file_id, host, packet) " +
+                "VALUES(?, ?, ?::INET, ?) ON CONFLICT ON CONSTRAINT keywords_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = kad.keywords.total_updates + 1");
 
             ps.setString(1, kadId.toString());
 

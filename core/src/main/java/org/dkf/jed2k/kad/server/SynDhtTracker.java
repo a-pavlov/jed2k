@@ -38,6 +38,7 @@ public class SynDhtTracker extends Thread {
         this.executor = executor;
         this.ds = ds;
 
+        log.trace("syn dht tracker started on port {}", port);
         try {
             serverSocket = new DatagramSocket(port);
             serverSocket.setSoTimeout(timeout);

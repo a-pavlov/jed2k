@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.server.DhtRequestHandler;
+import org.dkf.jed2k.kad.server.SynDhtTracker;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.*;
 import org.dkf.jed2k.protocol.tag.Tag;
@@ -17,6 +18,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by apavlov on 03.03.17.
@@ -45,49 +48,20 @@ public class PGConn {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, JED2KException {
         log.info("PG connect started");
 
         PGPoolingDataSource source = new PGPoolingDataSource();
-        source.setDataSourceName("A Data Source");
+        source.setDataSourceName("Kad data source");
         source.setServerName("localhost");
-        source.setDatabaseName("test");
-        source.setUser("test");
-        source.setPassword("test");
-        source.setMaxConnections(10);
-
-        java.sql.Connection conn = null;
+        source.setDatabaseName("kad");
+        source.setUser("kad");
+        source.setPassword("kad");
+        source.setMaxConnections(4);
+        ExecutorService service = Executors.newFixedThreadPool(4);
+        SynDhtTracker tracker = new SynDhtTracker(20000, 10000, service, source);
 
         Random rnd = new Random();
-
-        try {
-            conn = source.getConnection();
-
-            if (conn.isClosed()) {
-                log.info("connection closed");
-            }
-
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT count(*) FROM test.sources");
-            if (rs.next()) {
-                log.info("records count {}", rs.getInt(1));
-            } else {
-                log.warn("no records");
-            }
-
-            rs.close();
-        } catch(SQLException e) {
-            log.error("sql exception {}", e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch(SQLException e) {
-
-                }
-            }
-        }
-
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
@@ -142,5 +116,17 @@ public class PGConn {
                 }
             }
         }
+
+        if (tracker != null) {
+            tracker.stopTracking();
+            try {
+                tracker.join();
+            } catch(InterruptedException e) {
+                log.error("interrupted exception on tracker wait {}", e);
+            }
+        }
+
+        if (service != null) service.shutdown();
+        if (source != null) source.close();
     }
 }
