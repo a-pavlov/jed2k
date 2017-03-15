@@ -10,6 +10,7 @@ import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
@@ -124,6 +125,14 @@ public class Kad {
             }
         }
     }
+
+    private static class SourcesReport implements Listener {
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            log.info("[KAD] sources found {}", data.size());
+        }
+    }
     
     public static void main(String[] args) throws IOException, JED2KException {
         log.info("[KAD] starting");
@@ -190,6 +199,12 @@ public class Kad {
             else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
                 log.info("[KAD] bootstrap on {}:{}", parts[1], parts[2]);
                 tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+            }
+            else if (parts[0].compareTo("sources") == 0 && parts.length == 3) {
+                log.info("search sources for {} size {}", parts[1], parts[2]);
+                tracker.searchSources(Hash.fromString(parts[1])
+                        , Long.parseLong(parts[2])
+                        , new SourcesReport());
             }
             else if (parts[0].compareTo("search") == 0) {
                 for(int i = 1; i < parts.length; ++i) {
