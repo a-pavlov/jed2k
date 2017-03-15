@@ -134,6 +134,20 @@ public class Kad {
 
         log.info("[KAD] local host {}", InetAddress.getLocalHost());
 
+        String sp = System.getProperty("storage.point");
+        InetSocketAddress spAddress = null;
+        if (sp != null) {
+            String[] parts = sp.split(":");
+            if (parts.length == 2) {
+                spAddress = new InetSocketAddress(parts[0], Integer.parseInt(parts[1]));
+                log.info("storage point is {}", spAddress);
+            } else {
+                log.warn("storage point specification is invalid {}", sp);
+            }
+        } else {
+            log.info("no storage point");
+        }
+
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
         Path dir = FileSystems.getDefault().getPath(args[0]);
@@ -152,7 +166,7 @@ public class Kad {
 
         String command;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        DhtTracker tracker = new DhtTracker(port, idata.getTarget(), null);
+        DhtTracker tracker = new DhtTracker(port, idata.getTarget(), spAddress);
         tracker.start();
         if (idata.getEntries().getList() != null) {
             tracker.addEntries(idata.getEntries().getList());
