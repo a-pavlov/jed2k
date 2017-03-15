@@ -10,6 +10,7 @@ import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
@@ -124,7 +125,8 @@ public class Kad {
             }
         }
     }
-    
+
+
     public static void main(String[] args) throws IOException, JED2KException {
         log.info("[KAD] starting");
         if (args.length < 1) {

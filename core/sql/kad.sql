@@ -10,7 +10,7 @@ create table kad.sources (
   , packet bytea not null
   , last_update timestamp not null default current_timestamp
   , total_updates int not null default 0
-  , source_flag character(1) not null
+  , source_type int not null
   , constraint sources_pk primary key (kad_id, host, port_tcp, port_udp)
 );
 

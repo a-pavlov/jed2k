@@ -67,10 +67,14 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             Endpoint ep = Endpoint.fromInet(address);
             int portTcp = 0;
             int portUdp = ep.getPort();
-            int ip = ep.getIP();
+            int srcType = 0;
+            int ip = 0;
 
             for(final Tag t: entry.getInfo()) {
                 if (t.getId() == Tag.TAG_SOURCETYPE) {
+                    srcType = t.asIntValue();
+                }
+                else if (t.getId() == Tag.TAG_SOURCEIP) {
                     ip = t.asIntValue();
                 }
                 else if (t.getId() == Tag.TAG_SOURCEPORT) {
@@ -86,17 +90,20 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
 
             ByteBuffer buffer2 = buffer.slice();
 
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO kad.sources(kad_id, host, port_tcp, port_udp, packet, source_flag) " +
-                    "VALUES (?, ?::INET, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT sources_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = kad.sources.total_updates + 1");
-            ps.setString(1, kadId.toString());
-            ps.setString(2, Utils.ip2String(ip));
-            ps.setInt(3, portTcp);
-            ps.setInt(4, portUdp);
-            ps.setBinaryStream(5, new ByteBufferInputStream(buffer));
-            ps.setString(6, "P");
-            ps.setBinaryStream(7, new ByteBufferInputStream(buffer2));
-            ps.executeUpdate();
-            //conn.commit();
+            if (ip != 0) {
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO kad.sources(kad_id, host, port_tcp, port_udp, packet, source_type) " +
+                        "VALUES (?, ?::INET, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT sources_pk DO UPDATE SET last_update = current_timestamp, packet = ?, total_updates = kad.sources.total_updates + 1");
+                ps.setString(1, kadId.toString());
+                ps.setString(2, Utils.ip2String(ip));
+                ps.setInt(3, portTcp);
+                ps.setInt(4, portUdp);
+                ps.setBinaryStream(5, new ByteBufferInputStream(buffer));
+                ps.setInt(6, srcType);
+                ps.setBinaryStream(7, new ByteBufferInputStream(buffer2));
+                ps.executeUpdate();
+            } else {
+                log.warn("source packet doesn't contain source ip");
+            }
         } catch(SQLException e) {
             log.error("SQL exception {}", e);
             throw new JED2KException(ErrorCode.SOURCE_INSERT_SQL_ERROR);
