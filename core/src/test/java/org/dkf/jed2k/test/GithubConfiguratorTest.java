@@ -21,7 +21,7 @@ import static junit.framework.Assert.assertTrue;
 public class GithubConfiguratorTest {
     @Test
     public void testGithubDescriptionDownloader() throws URISyntaxException, IOException {
-        byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/kadstore/core/daemon/storage_description_test.json"));
+        byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json"));
         Gson gson = new GsonBuilder().create();
         String s = new String(data, StandardCharsets.UTF_8);
         GithubConfigurator gc = gson.fromJson(s, GithubConfigurator.class);
