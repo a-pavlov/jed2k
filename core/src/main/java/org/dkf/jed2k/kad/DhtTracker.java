@@ -419,4 +419,12 @@ public class DhtTracker extends Thread {
     public synchronized boolean isFirewalled() {
         return node.isFirewalled();
     }
+
+    /**
+     * set storage point for store and use search results
+     * @param address of kad storage point
+     */
+    public synchronized void setStoragePoint(final InetSocketAddress address) {
+        node.setStoragePoint(address);
+    }
 }
