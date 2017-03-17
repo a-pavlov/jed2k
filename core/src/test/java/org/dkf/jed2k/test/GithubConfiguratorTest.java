@@ -23,7 +23,7 @@ public class GithubConfiguratorTest {
     public void testGithubDescriptionDownloader() throws URISyntaxException, IOException {
         byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json"));
         Gson gson = new GsonBuilder().create();
-        String s = new String(data, StandardCharsets.UTF_8);
+        String s = new String(data);
         GithubConfigurator gc = gson.fromJson(s, GithubConfigurator.class);
         assertTrue(gc.getKadStorageDescription() != null);
         assertEquals("192.168.0.45", gc.getKadStorageDescription().getIp());
