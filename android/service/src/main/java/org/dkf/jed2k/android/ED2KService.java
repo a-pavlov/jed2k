@@ -54,6 +54,7 @@ public class ED2KService extends Service {
     public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN";
     public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
     private static final String DHT_NODES_FILENAME = "dht_nodes.dat";
+    private static final String GITHUB_CFG = "https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json";
 
     private final static long[] VENEZUELAN_VIBE = buildVenezuelanVibe();
 
@@ -320,49 +321,38 @@ public class ED2KService extends Service {
 
     public synchronized void setDhtStoragePoint(final GithubConfigurator ghCfg) {
         if (dhtTracker != null) {
-
             // not configured storage point
             if (ghCfg.getKadStorageDescription() == null) {
                 dhtTracker.setStoragePoint(null);
             } else {
-                // validate github storage point configuraton
-                if (ghCfg.getKadStorageDescription().getPorts() != null
-                        && !ghCfg.getKadStorageDescription().getPorts().isEmpty()
-                        && ghCfg.getKadStorageDescription().getIp() != null) {
-                    Random rnd = new Random();
-                    try {
-                        InetSocketAddress address = new InetSocketAddress(ghCfg.getKadStorageDescription().getIp()
-                                , ghCfg.getKadStorageDescription().getPorts().get(rnd.nextInt(ghCfg.getKadStorageDescription().getPorts().size())));
-                        dhtTracker.setStoragePoint(address);
-                        log.info("storage point configured to {}", address);
-                    } catch(Exception e) {
-                        log.warn("Unable to configure storage point address {}", e);
-                    }
-                } else {
-                    log.warn("storage point configuration contains incorrect structure - missed ip/ports or ports is empty");
+                Random rnd = new Random();
+                try {
+                    InetSocketAddress address = new InetSocketAddress(ghCfg.getKadStorageDescription().getIp()
+                            , ghCfg.getKadStorageDescription().getPorts().get(rnd.nextInt(ghCfg.getKadStorageDescription().getPorts().size())));
+                    dhtTracker.setStoragePoint(address);
+                    log.info("storage point configured to {}", address);
+                } catch(Exception e) {
+                    log.warn("Unable to configure storage point address {}", e);
                 }
             }
         }
     }
 
-    GithubConfigurator getConfiguration() {
-        try {
-            byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json"));
-            Gson gson = new GsonBuilder().create();
-            String s = null;
-            s = new String(data);
-            return gson.fromJson(s, GithubConfigurator.class);
-        } catch(Exception e) {
-            log.error("unable to get configuration");
-        }
-
-        return null;
+    GithubConfigurator getConfiguration(final String url) throws Exception {
+        byte[] data = IOUtils.toByteArray(new URI(url));
+        Gson gson = new GsonBuilder().create();
+        String s = null;
+        s = new String(data);
+        return gson.fromJson(s, GithubConfigurator.class);
     }
 
     private void refreshDhtStoragePoint() {
-        GithubConfigurator ghCfg = getConfiguration();
-        if (ghCfg != null) {
+        try {
+            GithubConfigurator ghCfg = getConfiguration(GITHUB_CFG);
+            ghCfg.validate();
             setDhtStoragePoint(ghCfg);
+        } catch(Exception e) {
+            log.error("unable to refresh kad storage point {}", e);
         }
     }
 
