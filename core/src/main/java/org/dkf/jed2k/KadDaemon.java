@@ -81,15 +81,16 @@ public class KadDaemon implements Daemon {
             if (!line.hasOption("database")) throw new Exception("option \"database\" missed");
             if (!line.hasOption("user")) throw new Exception("option \"user\" missed");
             if (!line.hasOption("password")) throw new Exception("option \"password\" missed");
+            port = Integer.parseInt(line.getOptionValue("port"));
 
-            PGPoolingDataSource source = new PGPoolingDataSource();
+            source = new PGPoolingDataSource();
             source.setDataSourceName("Kad data source");
             source.setServerName(line.getOptionValue("host"));
             source.setDatabaseName(line.getOptionValue("database"));
             source.setUser(line.getOptionValue("user"));
             source.setPassword(line.getOptionValue("password"));
             source.setMaxConnections(PARALLELISM);
-            ExecutorService service = Executors.newFixedThreadPool(PARALLELISM);
+            service = Executors.newFixedThreadPool(PARALLELISM);
 
         } catch (ParseException | NumberFormatException e) {
             log.error("incorrect command line arguments {}", e.getMessage());
@@ -99,8 +100,9 @@ public class KadDaemon implements Daemon {
 
     @Override
     public void start() throws Exception {
-        log.debug("[KD] start");
+        log.debug("[KD] start on port {} with timeout {}", port, SO_TIMEOUT);
         tracker = new SynDhtTracker(port, SO_TIMEOUT, service, source);
+        tracker.start();
     }
 
     @Override

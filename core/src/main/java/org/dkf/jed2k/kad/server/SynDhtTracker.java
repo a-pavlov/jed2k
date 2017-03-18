@@ -46,7 +46,7 @@ public class SynDhtTracker extends Thread {
             log.error("unable to create udp server socket {}", e);
             throw new JED2KException(ErrorCode.DHT_TRACKER_SOCKET_EXCEPTION);
         } catch(UnknownHostException e) {
-            log.error("unbale to bind to localhost {}", e);
+            log.error("unable to bind to localhost {}", e);
             throw new JED2KException(ErrorCode.DHT_TRACKER_SOCKET_EXCEPTION);
         }
     }
