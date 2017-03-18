@@ -15,7 +15,11 @@ import android.os.ParcelFileDescriptor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.provider.DocumentFile;
 import android.widget.RemoteViews;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
+import okio.Timeout;
+import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
@@ -31,15 +35,15 @@ import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 
 import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -50,6 +54,7 @@ public class ED2KService extends Service {
     public static final String ACTION_REQUEST_SHUTDOWN = "org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN";
     public static final String EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION";
     private static final String DHT_NODES_FILENAME = "dht_nodes.dat";
+    private static final String GITHUB_CFG = "https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json";
 
     private final static long[] VENEZUELAN_VIBE = buildVenezuelanVibe();
 
@@ -259,7 +264,17 @@ public class ED2KService extends Service {
             if (entries != null && entries.getList() != null) {
                 dhtTracker.addEntries(entries.getList());
             }
+
             session.setDhtTracker(dhtTracker);
+            // unsynchronized check here - actually executor service must be created already
+            if (scheduledExecutorService != null) {
+                scheduledExecutorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshDhtStoragePoint();
+                    }
+                });
+            }
         }
     }
 
@@ -302,6 +317,43 @@ public class ED2KService extends Service {
         }
 
         return false;
+    }
+
+    public synchronized void setDhtStoragePoint(final GithubConfigurator ghCfg) {
+        if (dhtTracker != null) {
+            // not configured storage point
+            if (ghCfg.getKadStorageDescription() == null) {
+                dhtTracker.setStoragePoint(null);
+            } else {
+                Random rnd = new Random();
+                try {
+                    InetSocketAddress address = new InetSocketAddress(ghCfg.getKadStorageDescription().getIp()
+                            , ghCfg.getKadStorageDescription().getPorts().get(rnd.nextInt(ghCfg.getKadStorageDescription().getPorts().size())));
+                    dhtTracker.setStoragePoint(address);
+                    log.info("storage point configured to {}", address);
+                } catch(Exception e) {
+                    log.warn("Unable to configure storage point address {}", e);
+                }
+            }
+        }
+    }
+
+    GithubConfigurator getConfiguration(final String url) throws Exception {
+        byte[] data = IOUtils.toByteArray(new URI(url));
+        Gson gson = new GsonBuilder().create();
+        String s = null;
+        s = new String(data);
+        return gson.fromJson(s, GithubConfigurator.class);
+    }
+
+    private void refreshDhtStoragePoint() {
+        try {
+            GithubConfigurator ghCfg = getConfiguration(GITHUB_CFG);
+            ghCfg.validate();
+            setDhtStoragePoint(ghCfg);
+        } catch(Exception e) {
+            log.error("unable to refresh kad storage point {}", e);
+        }
     }
 
     /**
@@ -682,6 +734,13 @@ public class ED2KService extends Service {
 
         // every 1 minute execute bootstrapping check
         scheduledExecutorService.scheduleWithFixedDelay(new Initiator(session), 1, 1, TimeUnit.MINUTES);
+
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                refreshDhtStoragePoint();
+            }
+        }, 10, 20, TimeUnit.MINUTES);
     }
 
     private void updatePermanentStatusNotification() {

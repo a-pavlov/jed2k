@@ -68,6 +68,9 @@ public enum ErrorCode implements BaseErrorCode {
     URI_SYNTAX_ERROR(91, "URI has incorrect syntax"),
     NUMBER_FORMAT_ERROR(92, "Parse number exception"),
     UNKNOWN_LINK_TYPE(93, "Emule link has unrecognized type"),
+    GITHUB_CFG_IP_IS_NULL(94, "Ip is null in github kad config"),
+    GITHUB_CFG_PORTS_ARE_NULL(95, "Ports are null in github kad config"),
+    GITHUB_CFG_PORTS_ARE_EMPTY(96, "Ports are empty in github kad config"),
 
     DHT_TRACKER_SOCKET_EXCEPTION(100, "Dht tracker creation server socket error"),
 

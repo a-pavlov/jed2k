@@ -45,7 +45,7 @@ public class NodeImpl implements ReqDispatcher {
     private int localAddress = 0;
     private boolean firewalled = true;
     private long lastFirewalledCheck = 0;
-    private final InetSocketAddress storagePoint;
+    private InetSocketAddress storagePoint;
 
     public NodeImpl(final DhtTracker tracker
             , final KadId id
@@ -472,5 +472,9 @@ public class NodeImpl implements ReqDispatcher {
         } else {
             log.debug("[node] index is not created, unable to answer for search sources {}", p.getTarget());
         }
+    }
+
+    void setStoragePoint(final InetSocketAddress address) {
+        storagePoint = address;
     }
 }

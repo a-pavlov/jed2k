@@ -220,7 +220,7 @@ public class DhtTracker extends Thread {
         assert outgoingBuffer.remaining() == outgoingBuffer.capacity();
 
         try {
-            log.debug("[tracker] send packet size {}", packet.bytesCount());
+            log.debug("[tracker] send packet size {} to {}", packet.bytesCount(), ep);
             combiner.pack(packet, outgoingBuffer);
             outgoingBuffer.flip();
             channel.send(outgoingBuffer, ep);
@@ -418,5 +418,13 @@ public class DhtTracker extends Thread {
 
     public synchronized boolean isFirewalled() {
         return node.isFirewalled();
+    }
+
+    /**
+     * set storage point for store and use search results
+     * @param address of kad storage point
+     */
+    public synchronized void setStoragePoint(final InetSocketAddress address) {
+        node.setStoragePoint(address);
     }
 }
