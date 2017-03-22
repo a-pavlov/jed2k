@@ -1,9 +1,6 @@
 package org.dkf.jed2k;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import com.sun.org.apache.xpath.internal.operations.String;
 import lombok.Data;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
