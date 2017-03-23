@@ -405,7 +405,7 @@ public class NodeImpl implements ReqDispatcher {
                 , KadId.distance(self, p.getKeywordId()));
 
         if (storagePoint != null) {
-            log.debug("[node] store publish keys request in storage");
+            log.debug("[node] store publish keys request in storage {}", storagePoint);
             tracker.write(p, storagePoint);
         }
 
@@ -434,7 +434,7 @@ public class NodeImpl implements ReqDispatcher {
                 , KadId.distance(self, p.getFileId()));
 
         if (storagePoint != null) {
-            log.debug("[node] store publish sources request in storage");
+            log.debug("[node] store publish sources request in storage {}", storagePoint);
             tracker.write(p, storagePoint);
         }
 
