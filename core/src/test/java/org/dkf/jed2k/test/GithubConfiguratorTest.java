@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -25,7 +24,7 @@ public class GithubConfiguratorTest {
 
     @Test
     public void testGithubDescriptionDownloader() throws URISyntaxException, IOException, JED2KException {
-        byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json"));
+        byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/kad/core/src/test/resources/config.json"));
         String s = new String(data);
         GithubConfigurator gc = gson.fromJson(s, GithubConfigurator.class);
         gc.validate();
@@ -80,5 +79,19 @@ public class GithubConfiguratorTest {
     @Test(expected = JsonSyntaxException.class)
     public void testIncorrectJson() {
         GithubConfigurator gc = gson.fromJson("{", GithubConfigurator.class);
+    }
+
+    public void testUsualConfig() throws JED2KException {
+        GithubConfigurator gc = gson.fromJson("{\n" +
+                "  \"kadStorageDescription\": {\n" +
+                "    \"ip\": \"192.168.0.45\",\n" +
+                "    \"ports\": [20000]" +
+                "  }\n" +
+                "}\n", GithubConfigurator.class);
+        gc.validate();
+        assertTrue(gc.getKadStorageDescription() != null);
+        assertEquals("192.168.0.45", gc.getKadStorageDescription().getIp());
+        assertEquals(1, gc.getKadStorageDescription().getPorts().size());
+        assertEquals(20000, gc.getKadStorageDescription().getPorts().get(0).intValue());
     }
 }
