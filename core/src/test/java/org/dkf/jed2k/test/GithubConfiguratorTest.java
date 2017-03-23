@@ -24,7 +24,7 @@ public class GithubConfiguratorTest {
 
     @Test
     public void testGithubDescriptionDownloader() throws URISyntaxException, IOException, JED2KException {
-        byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json"));
+        byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/kad/core/src/test/resources/config.json"));
         String s = new String(data);
         GithubConfigurator gc = gson.fromJson(s, GithubConfigurator.class);
         gc.validate();
