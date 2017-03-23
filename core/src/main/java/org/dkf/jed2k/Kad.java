@@ -1,5 +1,7 @@
 package org.dkf.jed2k;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bitlet.weupnp.GatewayDevice;
@@ -10,6 +12,7 @@ import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
@@ -29,6 +32,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -124,6 +128,14 @@ public class Kad {
             }
         }
     }
+
+    private static class SourcesReport implements Listener {
+
+        @Override
+        public void process(List<KadSearchEntry> data) {
+            log.info("[KAD] sources found {}", data.size());
+        }
+    }
     
     public static void main(String[] args) throws IOException, JED2KException {
         log.info("[KAD] starting");
@@ -133,6 +145,20 @@ public class Kad {
         }
 
         log.info("[KAD] local host {}", InetAddress.getLocalHost());
+
+        String sp = System.getProperty("storage.point");
+        InetSocketAddress spAddress = null;
+        if (sp != null) {
+            String[] parts = sp.split(":");
+            if (parts.length == 2) {
+                spAddress = new InetSocketAddress(parts[0], Integer.parseInt(parts[1]));
+                log.info("storage point is {}", spAddress);
+            } else {
+                log.warn("storage point specification is invalid {}", sp);
+            }
+        } else {
+            log.info("no storage point");
+        }
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
@@ -152,7 +178,7 @@ public class Kad {
 
         String command;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        DhtTracker tracker = new DhtTracker(port, idata.getTarget());
+        DhtTracker tracker = new DhtTracker(port, idata.getTarget(), spAddress);
         tracker.start();
         if (idata.getEntries().getList() != null) {
             tracker.addEntries(idata.getEntries().getList());
@@ -176,6 +202,12 @@ public class Kad {
             else if (parts[0].compareTo("bootstrap") == 0 && parts.length == 3) {
                 log.info("[KAD] bootstrap on {}:{}", parts[1], parts[2]);
                 tracker.bootstrap(Collections.singletonList(Endpoint.fromString(parts[1], Integer.parseInt(parts[2]))));
+            }
+            else if (parts[0].compareTo("sources") == 0 && parts.length == 3) {
+                log.info("search sources for {} size {}", parts[1], parts[2]);
+                tracker.searchSources(Hash.fromString(parts[1])
+                        , Long.parseLong(parts[2])
+                        , new SourcesReport());
             }
             else if (parts[0].compareTo("search") == 0) {
                 for(int i = 1; i < parts.length; ++i) {
@@ -229,6 +261,26 @@ public class Kad {
             }
             else if (parts[0].compareTo("firewalled") == 0) {
                 tracker.firewalled();
+            }
+            else if (parts[0].compareTo("sp") == 0) {
+                try {
+                    Gson gson = new GsonBuilder().create();
+                    byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json"));
+                    String s = new String(data);
+                    GithubConfigurator gc = gson.fromJson(s, GithubConfigurator.class);
+                    gc.validate();
+                    if (gc.getKadStorageDescription() != null) {
+                        Random rnd = new Random();
+                        int pos = rnd.nextInt(gc.getKadStorageDescription().getPorts().size());
+                        InetSocketAddress spAddress2 = new InetSocketAddress(gc.getKadStorageDescription().getIp(), gc.getKadStorageDescription().getPorts().get(pos));
+                        log.info("[KAD] storage point address {}", spAddress2);
+                        tracker.setStoragePoint(spAddress2);
+                    } else {
+                        log.info("[KAD] storage point disabled in github");
+                    }
+                } catch(Exception e) {
+
+                }
             }
         }
 
