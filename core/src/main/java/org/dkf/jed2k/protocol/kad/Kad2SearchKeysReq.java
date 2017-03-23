@@ -3,9 +3,11 @@ package org.dkf.jed2k.protocol.kad;
 import lombok.Getter;
 import lombok.Setter;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.ReqDispatcher;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 /**
@@ -13,7 +15,7 @@ import java.nio.ByteBuffer;
  */
 @Getter
 @Setter
-public class Kad2SearchKeysReq implements Serializable {
+public class Kad2SearchKeysReq implements Serializable, KadDispatchable {
     private KadId target = new KadId();
     private UInt16 startPos = new UInt16(0);
 
@@ -30,5 +32,10 @@ public class Kad2SearchKeysReq implements Serializable {
     @Override
     public int bytesCount() {
         return target.bytesCount() + startPos.bytesCount();
+    }
+
+    @Override
+    public void dispatch(ReqDispatcher dispatcher, final InetSocketAddress address) {
+        dispatcher.process(this, address);
     }
 }

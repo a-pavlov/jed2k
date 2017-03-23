@@ -1,11 +1,11 @@
 package org.dkf.jed2k.test;
 
-import org.dkf.jed2k.BufferPool;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.DesktopFileHandler;
 import org.dkf.jed2k.PieceManager;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.pool.BufferPool;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

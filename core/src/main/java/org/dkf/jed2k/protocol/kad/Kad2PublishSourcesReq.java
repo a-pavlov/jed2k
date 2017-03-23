@@ -2,15 +2,17 @@ package org.dkf.jed2k.protocol.kad;
 
 import lombok.Data;
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.ReqDispatcher;
 import org.dkf.jed2k.protocol.Serializable;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 /**
  * Created by inkpot on 19.01.2017.
  */
 @Data
-public class Kad2PublishSourcesReq implements Serializable {
+public class Kad2PublishSourcesReq implements Serializable, KadDispatchable {
     private KadId fileId = new KadId();
     private KadSearchEntry source = new KadSearchEntry();
 
@@ -27,5 +29,10 @@ public class Kad2PublishSourcesReq implements Serializable {
     @Override
     public int bytesCount() {
         return fileId.bytesCount() + source.bytesCount();
+    }
+
+    @Override
+    public void dispatch(ReqDispatcher dispatcher, final InetSocketAddress address) {
+        dispatcher.process(this, address);
     }
 }

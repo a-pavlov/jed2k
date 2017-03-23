@@ -50,10 +50,12 @@ public class DhtTracker extends Thread {
     private static int OUTPUT_BUFFER_LIMIT = 8128;
     private static int INPUT_BUFFER_LIMIT = 8128;
 
-    public DhtTracker(int listenPort, final KadId id) {
+    public DhtTracker(int listenPort
+            , final KadId id
+            , final InetSocketAddress storagePoint) {
         assert listenPort > 0 && listenPort <= 65535;
         this.listenPort = listenPort;
-        this.node = new NodeImpl(this, id, listenPort);
+        this.node = new NodeImpl(this, id, listenPort, storagePoint);
     }
 
     @Override
@@ -180,7 +182,12 @@ public class DhtTracker extends Thread {
             Serializable s = combiner.unpack(incomingHeader, incomingBuffer);
             assert s != null;
             log.debug("[tracker] packet {}: {}", s.bytesCount(), s);
-            node.incoming(s, address);
+
+            if (s instanceof KadDispatchable) {
+                ((KadDispatchable)s).dispatch(node, address);
+            } else {
+                node.response(s, address);
+            }
         } catch (IOException e) {
             log.error("[tracker] I/O exception {} on reading packet {}", e, incomingHeader);
             e.printStackTrace();
@@ -213,7 +220,7 @@ public class DhtTracker extends Thread {
         assert outgoingBuffer.remaining() == outgoingBuffer.capacity();
 
         try {
-            log.debug("[tracker] send packet size {}", packet.bytesCount());
+            log.debug("[tracker] send packet size {} to {}", packet.bytesCount(), ep);
             combiner.pack(packet, outgoingBuffer);
             outgoingBuffer.flip();
             channel.send(outgoingBuffer, ep);
@@ -411,5 +418,13 @@ public class DhtTracker extends Thread {
 
     public synchronized boolean isFirewalled() {
         return node.isFirewalled();
+    }
+
+    /**
+     * set storage point for store and use search results
+     * @param address of kad storage point
+     */
+    public synchronized void setStoragePoint(final InetSocketAddress address) {
+        node.setStoragePoint(address);
     }
 }
