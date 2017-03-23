@@ -83,6 +83,15 @@ public class KadDaemon implements Daemon {
             if (!line.hasOption("password")) throw new Exception("option \"password\" missed");
             port = Integer.parseInt(line.getOptionValue("port"));
 
+            try {
+                Class.forName("org.postgresql.Driver");
+            } catch(ClassNotFoundException e) {
+                log.error("unable to load database driver {}", e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
+            }
+
+
             source = new PGPoolingDataSource();
             source.setDataSourceName("Kad data source");
             source.setServerName(line.getOptionValue("host"));
