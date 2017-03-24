@@ -137,8 +137,8 @@ public class RoutingTable {
     KadId needRefresh() {
         long now = Time.currentTime();
 
-        // refresh our own bucket once every 15 minutes
-        if (now - lastSelfRefresh > Time.minutes(15)) {
+        // refresh our own bucket once every 10 minutes
+        if (now - lastSelfRefresh > Time.minutes(10)) {
             lastSelfRefresh = now;
             log.debug("[table] need_refresh [ bucket: self target: {}]", self);
             return self;
@@ -165,7 +165,7 @@ public class RoutingTable {
         assert i >= 0;
         assert i < buckets.size();
 
-        if (now - bucket.getLastActive() < Time.minutes(15)) {
+        if (now - bucket.getLastActive() < Time.minutes(10)) {
             log.trace("[table] bucket {} has too recent last active is {}", i, now - bucket.getLastActive());
             return null;
         }

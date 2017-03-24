@@ -8,24 +8,33 @@ import org.apache.commons.daemon.DaemonInitException;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
+import org.dkf.jed2k.kad.NodeEntry;
+import org.dkf.jed2k.protocol.Container;
+import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.util.FUtils;
 
-import java.io.File;
+import javax.xml.soap.Node;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by apavlov on 18.03.17.
  */
 @Slf4j
 public class Kad2 implements Daemon {
+    ScheduledExecutorService scheduledExecutorService = null;
     DhtTracker tracker = null;
     int port = 0;
     InetSocketAddress sp = null;
@@ -83,7 +92,7 @@ public class Kad2 implements Daemon {
 
             try {
                 FUtils.read(idata, new File(ws.resolve(STATUS_FILENAME).toString()));
-            } catch(JED2KException e) {
+            } catch (JED2KException e) {
                 log.error("[Kad2] unable to load initial data {}, skip it", e.getMessage());
                 needBootstrap = true;
             }
@@ -103,6 +112,7 @@ public class Kad2 implements Daemon {
         assert port != 0;
         assert idata != null;
         assert sp != null;
+        scheduledExecutorService = Executors.newScheduledThreadPool(1);
         tracker = new DhtTracker(port, idata.getTarget(), sp);
         tracker.start();
         if (idata.getEntries().getList() != null) {
@@ -122,21 +132,44 @@ public class Kad2 implements Daemon {
                 log.error("[KAD] unable to initialize DHT from inet: {}", e);
             }
         }
+
+        // start service tasks
+        // save tracker state
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                saveTrackerStateAndStatus();
+            }
+        }, 10, 10, TimeUnit.MINUTES);
     }
 
     @Override
     public void stop() throws Exception {
+        if (scheduledExecutorService != null) {
+            scheduledExecutorService.shutdown();
+            try {
+                scheduledExecutorService.awaitTermination(4, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                log.error("scheduled executor service termination error {}", e);
+            } finally {
+                scheduledExecutorService = null;
+            }
+        }
+
+        // directly save state
+        saveTrackerStateAndStatus();
+
         tracker.abort();
         try {
             tracker.join();
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error("wait tracker raised interrupted exception {}", e);
         }
 
         idata.setEntries(tracker.getTrackerState());
         try {
             FUtils.write(idata, new File(ws.resolve(STATUS_FILENAME).toString()));
-        } catch(JED2KException e) {
+        } catch (JED2KException e) {
             log.error("unable to save status {}", e);
         }
 
@@ -148,4 +181,33 @@ public class Kad2 implements Daemon {
     public void destroy() {
 
     }
+
+    private void saveTrackerStateAndStatus() {
+        Container<UInt32, NodeEntry> entries = tracker.getTrackerState();
+        if (entries != null) {
+            try (FileOutputStream stream = new FileOutputStream(new File(ws.resolve(STATUS_FILENAME).toString())); FileChannel channel = stream.getChannel()) {
+                ByteBuffer buffer = ByteBuffer.allocate(entries.bytesCount());
+                buffer.order(ByteOrder.LITTLE_ENDIAN);
+                entries.put(buffer);
+                buffer.flip();
+                channel.write(buffer);
+                log.info("[edk2 service] save dht entries {}", entries.size());
+            } catch (FileNotFoundException e) {
+                log.error("[ed2k service] unable to open output stream for dht nodes {}", e);
+            } catch (JED2KException e) {
+                log.error("[ed2k service] internal error on save dht nodes {}", e);
+            } catch (IOException e) {
+                log.error("[ed2k service] i/o error {}", e);
+            } catch (Exception e) {
+                log.error("[ed2k service] unexpected error {}", e);
+            }
+        }
+
+        try (PrintWriter pw = new PrintWriter(ws.resolve("status.json").toString())) {
+            pw.write(tracker.getRoutingTableStatus());
+        } catch(Exception e) {
+            log.warn("unable to write status to disk {}", e.getMessage());
+        }
+    }
 }
+
