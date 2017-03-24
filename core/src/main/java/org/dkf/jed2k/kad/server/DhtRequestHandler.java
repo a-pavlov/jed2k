@@ -141,7 +141,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                     Tag t = itr.next();
 
                     // extract ip address from additional(non standard) tag and remove that tag
-                    if (t.getId() == Tag.TAG_SOURCETYPE) {
+                    if (t.getId() == Tag.TAG_SOURCEIP) {
                         ip = t.asIntValue();
                         itr.remove();
                         break;
@@ -159,7 +159,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                     ps.setBinaryStream(5, new ByteBufferInputStream(buffer2));
                     ps.executeUpdate();
                 } else {
-                    log.warn("ip is zero in kad search entry, skip entry {}", res);
+                    log.warn("ip is zero in kad publish keywords request, skip entry {}", res);
                 }
             }
 

@@ -16,6 +16,7 @@ import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.Unsigned;
 import org.dkf.jed2k.protocol.kad.*;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
@@ -266,10 +267,10 @@ public class NodeImpl implements ReqDispatcher {
                 o.setWasSent(true);
                 o.setFlags(o.getFlags() | Observer.FLAG_QUERIED);
                 o.setSentTime(Time.currentTime());
-                log.debug("[node] invoked {}", o);
+                log.trace("[node] invoked {}", o);
                 return true;
             } else {
-                log.debug("[node] invoke failed without error {}", o);
+                log.error("[node] invoke failed without error {}", o);
             }
         } catch(final JED2KException e) {
             log.error("[node] invoke failed {} with error {}", o, e);
@@ -410,7 +411,15 @@ public class NodeImpl implements ReqDispatcher {
                 , KadId.distance(self, p.getKeywordId()));
 
         if (storagePoint != null) {
-            log.debug("[node] store publish keys request in storage");
+            log.debug("[node] store publish keys request in storage {}", address);
+
+            // process all sources and inject source ip in each item
+            Endpoint ep = Endpoint.fromInet(address);
+            for(final KadSearchEntry kse: p.getSources()) {
+                // inject endpoint into search result entry - it will be used as source host in KAD storage
+                kse.getInfo().add(Tag.tag(Tag.TAG_SOURCEIP, null, ep.getIP()));
+            }
+
             tracker.write(p, storagePoint);
         }
 

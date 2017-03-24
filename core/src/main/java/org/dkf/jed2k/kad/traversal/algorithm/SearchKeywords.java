@@ -48,7 +48,7 @@ public class SearchKeywords extends Direct {
             res.setKeywordId(o.getId());
             for(final KadSearchEntry kse: so.getEntries()) {
                 // inject endpoint into search result entry - it will be used as source host in KAD storage
-                kse.getInfo().add(Tag.tag(Tag.TAG_SOURCETYPE, null, o.getEndpoint().getIP()));
+                kse.getInfo().add(Tag.tag(Tag.TAG_SOURCEIP, null, o.getEndpoint().getIP()));
                 res.getSources().add(kse);
             }
 
