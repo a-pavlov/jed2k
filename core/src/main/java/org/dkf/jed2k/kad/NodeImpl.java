@@ -16,6 +16,7 @@ import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.Unsigned;
 import org.dkf.jed2k.protocol.kad.*;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
@@ -404,8 +405,16 @@ public class NodeImpl implements ReqDispatcher {
                 , p.getSources().size()
                 , KadId.distance(self, p.getKeywordId()));
 
+        // add source ip if we have originator
+        if (address != null) {
+            for(final KadSearchEntry kse: p.getSources()) {
+                addSourceIp(kse, Endpoint.fromInet(address));
+            }
+        }
+
         if (storagePoint != null) {
-            log.debug("[node] store publish keys request in storage {}", storagePoint);
+            log.debug("[node] store publish keys request in storage {}"
+                    , storagePoint);
             tracker.write(p, storagePoint);
         }
 
@@ -432,6 +441,10 @@ public class NodeImpl implements ReqDispatcher {
         log.debug("[node] publish sources {} distance {}"
                 , p.getFileId()
                 , KadId.distance(self, p.getFileId()));
+
+        if (address != null) {
+            addSourceIp(p.getSource(), Endpoint.fromInet(address));
+        }
 
         if (storagePoint != null) {
             log.debug("[node] store publish sources request in storage {}", storagePoint);
@@ -476,5 +489,10 @@ public class NodeImpl implements ReqDispatcher {
 
     void setStoragePoint(final InetSocketAddress address) {
         storagePoint = address;
+    }
+
+    private void addSourceIp(final KadSearchEntry entry, final Endpoint ep) {
+        if (entry.getInfo().contains(Tag.tag(Tag.TAG_SOURCEIP, null, 0))) return;
+        entry.getInfo().addFirst(Tag.tag(Tag.TAG_SOURCEIP, null, ep.getIP()));
     }
 }

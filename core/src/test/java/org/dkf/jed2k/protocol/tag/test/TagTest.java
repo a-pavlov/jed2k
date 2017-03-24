@@ -123,4 +123,14 @@ public class TagTest {
         assertEquals(20, stag.bytesCount());
         assertEquals(0, nb.remaining());
     }
+
+    @Test
+    public void testTagEqality() {
+        // Tags do not compare values!
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, null, 100), Tag.tag(Tag.TAG_SOURCETYPE, null, 1100));
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, "Some", 100), Tag.tag(Tag.TAG_SOURCETYPE, "Some", 1100));
+        assertNotSame(Tag.tag(Tag.TAG_AVAILABILITY, null, 100), Tag.tag(Tag.TAG_SOURCETYPE, null, 100));
+        assertNotSame(Tag.tag(Tag.TAG_AVAILABILITY, null, 100), Tag.tag(Tag.TAG_AVAILABILITY, "Some", 100));
+        assertNotSame(Tag.tag(Tag.TAG_AVAILABILITY, "Null", 100), Tag.tag(Tag.TAG_AVAILABILITY, "Some", 100));
+    }
 }
