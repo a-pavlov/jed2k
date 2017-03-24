@@ -33,8 +33,8 @@ import java.util.Set;
 @Getter
 public class NodeImpl implements ReqDispatcher {
 
-    private final static int SEARCH_BRANCHING = 5;
-    private final static int BUCKET_SIZE = 10;
+    private final static int SEARCH_BRANCHING = 10;
+    private final static int BUCKET_SIZE = 100;
     private final RpcManager rpc;
     private DhtTracker tracker = null;
     private RoutingTable table = null;

@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class RpcManager {
     private static int SHORT_TIMEOUT = 2;
-    private static int TIMEOUT = 12;
+    private static int TIMEOUT = 20;
 
     private boolean destructing = false;
     private List<Observer> transactions = new LinkedList<>();

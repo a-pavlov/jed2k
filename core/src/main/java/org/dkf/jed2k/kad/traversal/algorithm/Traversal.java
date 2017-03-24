@@ -29,7 +29,7 @@ public abstract class Traversal {
 
     public static final int PREVENT_REQUEST = 1;
     public static final int SHORT_TIMEOUT = 2;
-    public static final int MAX_RESULT_COUNT = 100;
+    public static final int MAX_RESULT_COUNT = 500;
 
     public Traversal(final NodeImpl ni, final KadId t) {
         assert t != null;
