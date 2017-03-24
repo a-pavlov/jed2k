@@ -410,16 +410,16 @@ public class NodeImpl implements ReqDispatcher {
                 , p.getSources().size()
                 , KadId.distance(self, p.getKeywordId()));
 
-        if (storagePoint != null) {
-            log.debug("[node] store publish keys request in storage {}", address);
-
-            // process all sources and inject source ip in each item
-            Endpoint ep = Endpoint.fromInet(address);
+        // add source ip if we have originator
+        if (address != null) {
             for(final KadSearchEntry kse: p.getSources()) {
-                // inject endpoint into search result entry - it will be used as source host in KAD storage
-                kse.getInfo().add(Tag.tag(Tag.TAG_SOURCEIP, null, ep.getIP()));
+                addSourceIp(kse, Endpoint.fromInet(address));
             }
+        }
 
+        if (storagePoint != null) {
+            log.debug("[node] store publish keys request in storage {}"
+                    , storagePoint);
             tracker.write(p, storagePoint);
         }
 
@@ -447,8 +447,12 @@ public class NodeImpl implements ReqDispatcher {
                 , p.getFileId()
                 , KadId.distance(self, p.getFileId()));
 
+        if (address != null) {
+            addSourceIp(p.getSource(), Endpoint.fromInet(address));
+        }
+
         if (storagePoint != null) {
-            log.debug("[node] store publish sources request in storage");
+            log.debug("[node] store publish sources request in storage {}", storagePoint);
             tracker.write(p, storagePoint);
         }
 
@@ -492,5 +496,10 @@ public class NodeImpl implements ReqDispatcher {
 
     void setStoragePoint(final InetSocketAddress address) {
         storagePoint = address;
+    }
+
+    private void addSourceIp(final KadSearchEntry entry, final Endpoint ep) {
+        if (entry.getInfo().contains(Tag.tag(Tag.TAG_SOURCEIP, null, 0))) return;
+        entry.getInfo().addFirst(Tag.tag(Tag.TAG_SOURCEIP, null, ep.getIP()));
     }
 }

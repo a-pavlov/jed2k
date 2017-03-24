@@ -1,5 +1,7 @@
 package org.dkf.jed2k;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bitlet.weupnp.GatewayDevice;
@@ -30,6 +32,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -258,6 +261,26 @@ public class Kad {
             }
             else if (parts[0].compareTo("firewalled") == 0) {
                 tracker.firewalled();
+            }
+            else if (parts[0].compareTo("sp") == 0) {
+                try {
+                    Gson gson = new GsonBuilder().create();
+                    byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json"));
+                    String s = new String(data);
+                    GithubConfigurator gc = gson.fromJson(s, GithubConfigurator.class);
+                    gc.validate();
+                    if (gc.getKadStorageDescription() != null) {
+                        Random rnd = new Random();
+                        int pos = rnd.nextInt(gc.getKadStorageDescription().getPorts().size());
+                        InetSocketAddress spAddress2 = new InetSocketAddress(gc.getKadStorageDescription().getIp(), gc.getKadStorageDescription().getPorts().get(pos));
+                        log.info("[KAD] storage point address {}", spAddress2);
+                        tracker.setStoragePoint(spAddress2);
+                    } else {
+                        log.info("[KAD] storage point disabled in github");
+                    }
+                } catch(Exception e) {
+
+                }
             }
         }
 
