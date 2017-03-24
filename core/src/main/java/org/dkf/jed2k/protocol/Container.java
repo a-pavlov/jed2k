@@ -90,6 +90,12 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
         return true;
     }
 
+
+    public boolean addFirst(E e) {
+        holder().addFirst(e);
+        return true;
+    }
+
     public final E get(int i) {
         assert(i < holder().size());
         return holder().get(i);

@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.tag;
 
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
@@ -16,6 +17,7 @@ import static org.dkf.jed2k.Utils.sizeof;
 import static org.dkf.jed2k.protocol.Unsigned.*;
 
 @Slf4j
+@EqualsAndHashCode(exclude = "value")
 public final class Tag implements Serializable {
 
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
