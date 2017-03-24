@@ -119,18 +119,7 @@ public class Kad2 implements Daemon {
             tracker.addEntries(idata.getEntries().getList());
         } else {
             log.info("[Kad2] downloading nodes.dat from inet and bootstrap dht");
-            try {
-                byte[] data = IOUtils.toByteArray(new URI("http://server-met.emulefuture.de/download.php?file=nodes.dat"));
-                ByteBuffer buffer = ByteBuffer.wrap(data);
-                log.debug("[Kad2] downloaded nodes.dat size {}", buffer.remaining());
-                buffer.order(ByteOrder.LITTLE_ENDIAN);
-                KadNodesDat nodes = new KadNodesDat();
-                nodes.get(buffer);
-                tracker.addKadEntries(nodes.getContacts());
-                tracker.addKadEntries(nodes.getBootstrapEntries().getList());
-            } catch (Exception e) {
-                log.error("[KAD] unable to initialize DHT from inet: {}", e);
-            }
+            loadNodes();
         }
 
         // start service tasks
@@ -141,6 +130,13 @@ public class Kad2 implements Daemon {
                 saveTrackerStateAndStatus();
             }
         }, 10, 10, TimeUnit.MINUTES);
+
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                loadNodes();
+            }
+        }, 1, 4, TimeUnit.HOURS);
     }
 
     @Override
@@ -180,6 +176,21 @@ public class Kad2 implements Daemon {
     @Override
     public void destroy() {
 
+    }
+
+    private void loadNodes() {
+        try {
+            byte[] data = IOUtils.toByteArray(new URI("http://server-met.emulefuture.de/download.php?file=nodes.dat"));
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            log.debug("[Kad2] downloaded nodes.dat size {}", buffer.remaining());
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            KadNodesDat nodes = new KadNodesDat();
+            nodes.get(buffer);
+            tracker.addKadEntries(nodes.getContacts());
+            tracker.addKadEntries(nodes.getBootstrapEntries().getList());
+        } catch (Exception e) {
+            log.error("[Kad2] unable to initialize DHT from inet: {}", e);
+        }
     }
 
     private void saveTrackerStateAndStatus() {

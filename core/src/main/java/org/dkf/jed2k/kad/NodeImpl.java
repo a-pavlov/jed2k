@@ -363,6 +363,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2BootstrapReq p, InetSocketAddress address) {
+        log.debug("[node] bootstrap request from {}", address);
         List<NodeEntry> entries = table.forEach(new Filter<NodeEntry>() {
             private int counter = 20;
             @Override
@@ -393,6 +394,7 @@ public class NodeImpl implements ReqDispatcher {
             }
 
             tracker.write(kbr, address);
+            log.debug("[node] bootstrap collected, size {}", entries.size());
         } else {
             log.debug("[node] entries list is empty, send nothing for bootstrap res");
         }
@@ -450,7 +452,7 @@ public class NodeImpl implements ReqDispatcher {
     @Override
     public void process(Kad2FirewalledReq p, InetSocketAddress address) {
         final Endpoint ep = Endpoint.fromInet(address);
-        log.debug("[node] firewalled request received {}", address);
+        log.debug("[node] firewalled request received from {}", address);
         Kad2FirewalledRes kfr = new Kad2FirewalledRes();
         kfr.setIp(ep.getIP());
         tracker.write(kfr, address);
@@ -459,6 +461,7 @@ public class NodeImpl implements ReqDispatcher {
     @Override
     public void process(Kad2SearchKeysReq p, InetSocketAddress address) {
         if (index != null) {
+            log.debug("[node] search keys request from {}", address);
             sendSearchResult(address, (p).getTarget(), index.getFileByHash(p.getTarget()));
         } else {
             log.debug("[node] index is not created, unable to answer for search keywords {}", p.getTarget());
@@ -468,6 +471,7 @@ public class NodeImpl implements ReqDispatcher {
     @Override
     public void process(Kad2SearchSourcesReq p, InetSocketAddress address) {
         if (index != null) {
+            log.debug("[node] search sources request from {}", address);
             sendSearchResult(address, p.getTarget(), index.getSourceByHash(p.getTarget()));
         } else {
             log.debug("[node] index is not created, unable to answer for search sources {}", p.getTarget());
