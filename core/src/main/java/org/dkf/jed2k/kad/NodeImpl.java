@@ -109,7 +109,10 @@ public class NodeImpl implements ReqDispatcher {
         }
         KadId target = table.needRefresh();
         try {
-            if (target != null) refresh(target);
+            if (target != null) {
+                log.debug("[node] start refreshing {}", target);
+                refresh(target);
+            }
         } catch(JED2KException e) {
             log.error("unable to refresh bucket with target {} due to error {}", target, e);
         }
