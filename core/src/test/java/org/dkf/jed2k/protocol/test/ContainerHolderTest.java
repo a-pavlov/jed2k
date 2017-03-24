@@ -5,10 +5,12 @@ import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.UInt8;
+import org.dkf.jed2k.protocol.tag.Tag;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Collections;
 import java.util.Iterator;
 
 import static junit.framework.Assert.*;
@@ -58,5 +60,28 @@ public class ContainerHolderTest {
         c.remove(new Endpoint(10, 20));
         assertEquals(1, c.size());
         assertEquals(c.get(0), new Endpoint(30, 50));
+    }
+
+    @Test
+    public void testContainerAddRemoveItems() {
+        Container<UInt16, Tag> c = Container.makeShort(Tag.class);
+        c.add(Tag.tag(Tag.TAG_SOURCETYPE, null, 100));
+        c.add(Tag.tag(Tag.TAG_SOURCETYPE, null, 110));
+        assertEquals(2, c.size());
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, null, 0), c.get(0));
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, null, 0), c.get(1));
+        c.addFirst(Tag.tag(Tag.TAG_SOURCEIP, null, 4000));
+        assertEquals(3, c.size());
+        assertEquals(Tag.tag(Tag.TAG_SOURCEIP, null, 4000), c.get(0));
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, null, 0), c.get(1));
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, null, 0), c.get(2));
+        assertTrue(c.contains(Tag.tag(Tag.TAG_SOURCEIP, null, 0)));
+        c.remove(Tag.tag(Tag.TAG_SOURCEIP, null, 0));
+        assertFalse(c.contains(Tag.tag(Tag.TAG_SOURCEIP, null, 0)));
+        assertEquals(2, c.size());
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, null, 0), c.get(0));
+        assertEquals(Tag.tag(Tag.TAG_SOURCETYPE, null, 0), c.get(1));
+        c.removeAll(Collections.singleton(Tag.tag(Tag.TAG_SOURCETYPE, null, 0)));
+        assertTrue(c.isEmpty());
     }
 }
