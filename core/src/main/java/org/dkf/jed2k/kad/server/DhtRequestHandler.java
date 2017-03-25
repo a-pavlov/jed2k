@@ -102,6 +102,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                 ps.setBinaryStream(7, new ByteBufferInputStream(buffer2));
                 ps.setInt(8, srcType);
                 ps.executeUpdate();
+                log.debug("store source from IP: {}", Utils.ip2String(ip));
             } else {
                 log.warn("source packet doesn't contain source ip");
             }
@@ -161,6 +162,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                     ps.setBinaryStream(4, new ByteBufferInputStream(buffer));
                     ps.setBinaryStream(5, new ByteBufferInputStream(buffer2));
                     ps.executeUpdate();
+                    log.debug("store keyword from {}", Utils.ip2String(ip));
                 } else {
                     log.warn("ip is zero in kad publish keywords request, skip entry {}", res);
                 }
