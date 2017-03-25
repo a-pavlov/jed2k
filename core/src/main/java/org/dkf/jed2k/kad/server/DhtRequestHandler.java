@@ -75,7 +75,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                     srcType = t.asIntValue();
                 }
                 else if (t.getId() == Tag.TAG_SOURCEIP) {
-                    ip = t.asIntValue();
+                    ip = Utils.ntohl(t.asIntValue());
                 }
                 else if (t.getId() == Tag.TAG_SOURCEPORT) {
                     portTcp = t.asIntValue();
@@ -140,7 +140,10 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                 while(itr.hasNext()) {
                     Tag t = itr.next();
 
-                    // extract ip address from additional(non standard) tag and remove that tag
+                    /**
+                     * extract ip address from additional(non standard) tag and remove that tag
+                     * do not rotate bytes here since it is completely artificial tag in host byte order
+                    **/
                     if (t.getId() == Tag.TAG_SOURCEIP) {
                         ip = t.asIntValue();
                         itr.remove();
