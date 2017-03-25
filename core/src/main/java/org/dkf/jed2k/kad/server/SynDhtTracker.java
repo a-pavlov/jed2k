@@ -74,6 +74,9 @@ public class SynDhtTracker extends Thread {
         } catch (IOException e) {
             log.error("i/o error {}", e);
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        } catch(Exception e) {
+            log.error("internal error {}", e);
+            throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
     }
 
