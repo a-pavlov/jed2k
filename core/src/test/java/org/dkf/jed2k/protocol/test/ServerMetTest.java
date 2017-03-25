@@ -33,6 +33,7 @@ public class ServerMetTest {
 
     @Test
     public void testSerialization2() throws JED2KException {
+        Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         ResourceFile rf = new ResourceFile();
         ByteBuffer buffer = rf.read("server2.met", null);
         assertTrue(buffer.hasRemaining());
