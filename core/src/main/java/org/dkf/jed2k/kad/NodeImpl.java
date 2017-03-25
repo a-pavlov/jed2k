@@ -408,6 +408,9 @@ public class NodeImpl implements ReqDispatcher {
         // add source ip if we have originator
         if (address != null) {
             for(final KadSearchEntry kse: p.getSources()) {
+                /**
+                 * do not rotate anything here since receiver won't rotate bytes to host byte order
+                 */
                 addSourceIp(kse, Endpoint.fromInet(address));
             }
         }
@@ -443,7 +446,14 @@ public class NodeImpl implements ReqDispatcher {
                 , KadId.distance(self, p.getFileId()));
 
         if (address != null) {
-            addSourceIp(p.getSource(), Endpoint.fromInet(address));
+            /**
+             * imitate KAD original source IP in network byte order since receiver will rotate bytes
+             * to host byte order
+             * no need for search results since it already contains IP
+             */
+            Endpoint ep = Endpoint.fromInet(address);
+            ep.setIP(Utils.htonl(ep.getIP()));
+            addSourceIp(p.getSource(), ep);
         }
 
         if (storagePoint != null) {
