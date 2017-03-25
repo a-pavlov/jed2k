@@ -72,6 +72,8 @@ public class ServerAddView extends LinearLayout implements View.OnKeyListener {
                     }
                 } catch (JED2KException e) {
                     e.printStackTrace();
+                } catch(Exception e) {
+                    e.printStackTrace();
                 }
             }
 
