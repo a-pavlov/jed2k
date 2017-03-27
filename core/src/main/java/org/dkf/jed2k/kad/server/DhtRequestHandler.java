@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -233,11 +234,58 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
 
     @Override
     public void process(Kad2SearchKeysReq p, InetSocketAddress address) {
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
 
+            PreparedStatement ps = conn.prepareStatement("SELECT packet FROM kad.keywords WHERE kad_id = ?");
+            ps.setString(1, p.getTarget().toString());
+            ResultSet rs = ps.executeQuery();
+
+            if (rs != null) {
+                while(rs.next()) {
+                    byte[] data = rs.getBytes(1);
+
+                }
+
+                rs.close();
+            }
+
+            ps.close();
+
+        } catch(SQLException e) {
+            log.error("SQL exception {}", e);
+        } catch (JED2KException e) {
+
+        }
     }
 
     @Override
     public void process(Kad2SearchSourcesReq p, InetSocketAddress address) {
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
 
+            PreparedStatement ps = conn.prepareStatement("SELECT packet FROM kad.sources WHERE kad_id = ?");
+            ps.setString(1, p.getTarget().toString());
+            ResultSet rs = ps.executeQuery();
+
+            if (rs != null) {
+                while(rs.next()) {
+                    byte[] data = rs.getBytes(1);
+                }
+
+                rs.close();
+            }
+
+            ps.close();
+
+        } catch(SQLException e) {
+            log.error("SQL exception {}", e);
+        } catch (JED2KException e) {
+
+        }
     }
 }
