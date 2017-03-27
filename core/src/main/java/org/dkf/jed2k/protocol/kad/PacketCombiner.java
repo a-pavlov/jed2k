@@ -147,7 +147,7 @@ public class PacketCombiner extends org.dkf.jed2k.protocol.PacketCombiner {
     }
 
     @Override
-    protected PacketKey classToKey(Class<? extends Serializable> clazz) {
+    public PacketKey classToKey(Class<? extends Serializable> clazz) {
         return struct2KeyKad.get(clazz);
     }
 

@@ -6,12 +6,15 @@ import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.ReqDispatcher;
-import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.Serializable;
+import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.kad.*;
+import org.dkf.jed2k.protocol.kad.PacketCombiner;
 import org.dkf.jed2k.protocol.tag.Tag;
 import org.postgresql.ds.PGPoolingDataSource;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -232,10 +235,32 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
 
     }
 
+    private void flushBuffer(byte[] data, int length, final InetSocketAddress address) {
+        try {
+            DatagramPacket dp = new DatagramPacket(data, length, address);
+            DatagramSocket socket = new DatagramSocket();
+            socket.send(dp);
+        } catch(IOException e) {
+            log.error("i/o error {} on send packet to {}", e.getMessage(), address);
+        }
+    }
+
     @Override
     public void process(Kad2SearchKeysReq p, InetSocketAddress address) {
         Connection conn = null;
         try {
+            byte[] buf = new byte[4096];
+            ByteBuffer buffer = ByteBuffer.wrap(buf);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            PacketCombiner pc = new PacketCombiner();
+
+            KadPacketHeader kph = new KadPacketHeader();
+            kph.reset(pc.classToKey(p.getClass()), 0);
+            UInt16 count = Unsigned.uint16();
+
+            count.put(kph.put(buffer));
+
+
             conn = ds.getConnection();
             if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
 
@@ -243,16 +268,39 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             ps.setString(1, p.getTarget().toString());
             ResultSet rs = ps.executeQuery();
 
+            int i = 0;
             if (rs != null) {
                 while(rs.next()) {
                     byte[] data = rs.getBytes(1);
+                    if (buffer.remaining() < data.length) {
+                        assert i != 0;
+                        int len = buffer.limit() - buffer.remaining();
+                        buffer.position(kph.bytesCount());
+                        count.assign(i);
+                        count.put(buffer);
+                        flushBuffer(buf, len, address);
+                        buffer.position(kph.bytesCount());
+                        i = 0;
+                    }
 
+                    buffer.put(data);
+                    ++i;
                 }
 
                 rs.close();
             }
 
             ps.close();
+
+            if (i != 0) {
+                int len = buffer.limit() - buffer.remaining();
+                buffer.position(kph.bytesCount());
+                count.assign(i);
+                count.put(buffer);
+                flushBuffer(buf, len, address);
+                buffer.position(kph.bytesCount());
+                i = 0;
+            }
 
         } catch(SQLException e) {
             log.error("SQL exception {}", e);
