@@ -53,6 +53,7 @@ public class SynDhtTracker extends Thread {
 
     public void processPackets() throws JED2KException {
         try {
+            if (stopFlag) return;
             DatagramPacket receivePacket = new DatagramPacket(data, data.length);
             serverSocket.receive(receivePacket);
             ByteBuffer buffer = ByteBuffer.wrap(data, 0, receivePacket.getLength());
