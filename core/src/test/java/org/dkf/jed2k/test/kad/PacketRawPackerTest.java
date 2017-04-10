@@ -68,6 +68,7 @@ public class PacketRawPackerTest {
             assertEquals(new Endpoint(ip++, port++), ep);
         }
 
+        assertTrue(prp.isEmpty());
         buff.clear();
         // fill buffer again
         for(int i = 0; i < capacity; ++i) {
@@ -83,6 +84,7 @@ public class PacketRawPackerTest {
             prp.putBlock(data);
         }
 
+        assertFalse(prp.isEmpty());
         assertFalse(prp.hasSpace(e.bytesCount()));
         prp.releaseBuffer();
         Container<UInt16, Endpoint> x2 = Container.makeShort(Endpoint.class);
@@ -95,5 +97,7 @@ public class PacketRawPackerTest {
         for(final Endpoint ep: x2) {
             assertEquals(new Endpoint(ip++, port++), ep);
         }
+
+        assertTrue(prp.isEmpty());
     }
 }
