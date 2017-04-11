@@ -293,6 +293,10 @@ public class DhtTracker extends Thread {
         node.addNode(endpoint, id);
     }
 
+    public synchronized void addRouterNodes(final Endpoint ep) {
+        node.addRouterNode(ep);
+    }
+
     /**
      * adds initial nodes
      * @param entries

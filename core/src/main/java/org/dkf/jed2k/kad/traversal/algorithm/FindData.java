@@ -91,6 +91,11 @@ public abstract class FindData extends Traversal {
 
         try {
             Direct d = newTraversal();
+            for(final Endpoint e: nodeImpl.getRouterNodes()) {
+                // persistent node has port + 1 of router node
+                d.addNode(new Endpoint(e.getIP(), e.getPort() + 1), target, e.getPort(), (byte)0);
+            }
+
             for(final Observer o: results) {
                 // do not request failed nodes now
                 if (!Utils.isBit(o.getFlags(), Observer.FLAG_FAILED)) {
