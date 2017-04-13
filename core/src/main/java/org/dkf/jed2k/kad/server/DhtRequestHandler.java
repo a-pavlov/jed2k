@@ -272,7 +272,8 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                     if (!prp.hasSpace(data.length)) {
                         if (socket == null) socket = new DatagramSocket();
                         ByteBuffer b = prp.releaseBuffer();
-                        DatagramPacket dp = new DatagramPacket(buf, b.remaining(), address);
+                        DatagramPacket dp = new DatagramPacket(buf, b.remaining(), address.getAddress(), address.getPort());
+                        log.debug("send dp {} to {}", b.remaining(), address);
                         socket.send(dp);
                         buffer.clear();
                     }
@@ -289,12 +290,16 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             if (!prp.isEmpty()) {
                 ByteBuffer b = prp.releaseBuffer();
                 if (socket == null) socket = new DatagramSocket();
-                DatagramPacket dp = new DatagramPacket(buf, b.remaining(), address);
+                DatagramPacket dp = new DatagramPacket(buf, b.remaining(), address.getAddress(), address.getPort());
+                log.debug("send dp {} to {}", b.remaining(), address);
                 socket.send(dp);
                 buffer.clear();
             }
 
-            log.debug("processed search {} request with result count {}", (p instanceof Kad2SearchKeysReq)?"keywords":"sources", total);
+            log.debug("processed search {} from {} request with result count {}"
+                    , (p instanceof Kad2SearchKeysReq)?"keywords":"sources"
+                    , address
+                    , total);
         } catch(SQLException e) {
             log.error("[PS] SQL exception {}", e);
         } catch (JED2KException e) {
