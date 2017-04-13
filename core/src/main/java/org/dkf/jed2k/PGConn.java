@@ -6,6 +6,7 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.server.DhtRequestHandler;
 import org.dkf.jed2k.kad.server.SynDhtTracker;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.*;
 import org.dkf.jed2k.protocol.tag.Tag;
 import org.postgresql.ds.PGPoolingDataSource;
@@ -14,9 +15,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -113,6 +111,33 @@ public class PGConn {
                         rh.run();
                     } catch(JED2KException e) {
                         log.error("unable to parse file content, expected Kad2SearchRes {}", e);
+                    }
+                }
+            }
+            else if ("getk".equals(parts[0])) {
+                for(int i = 1; i < parts.length; ++i) {
+                    log.info("getk {}", parts[i]);
+                    Kad2SearchKeysReq req = new Kad2SearchKeysReq();
+                    req.setTarget(new KadId(Hash.fromString(parts[i])));
+                    Endpoint ep = new Endpoint(0, rnd.nextInt(65535));
+                    try {
+                        DhtRequestHandler rh = new DhtRequestHandler(req, ep.toInetSocketAddress(), source);
+                        rh.run();
+                    } catch(JED2KException e) {
+                        log.error("unable to process get keywords request {}", e);
+                    }
+                }
+            } else if ("gets".equals(parts[0])) {
+                for(int i = 1; i < parts.length; ++i) {
+                    log.info("gets {}", parts[i]);
+                    Kad2SearchSourcesReq req = new Kad2SearchSourcesReq();
+                    req.setTarget(new KadId(Hash.fromString(parts[i])));
+                    Endpoint ep = new Endpoint(0, rnd.nextInt(65535));
+                    try {
+                        DhtRequestHandler rh = new DhtRequestHandler(req, ep.toInetSocketAddress(), source);
+                        rh.run();
+                    } catch(JED2KException e) {
+                        log.error("unable to process get keywords request {}", e);
                     }
                 }
             }
