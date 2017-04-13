@@ -261,6 +261,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                 ps.setString(1, ((Kad2SearchSourcesReq)p).getTarget().toString());
             }
 
+            int total = 0;
             ResultSet rs = ps.executeQuery();
 
             socket = null;
@@ -277,6 +278,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                     }
 
                     prp.putBlock(data);
+                    ++total;
                 }
 
                 rs.close();
@@ -292,6 +294,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                 buffer.clear();
             }
 
+            log.debug("processed search {} request with result count {}", (p instanceof Kad2SearchKeysReq)?"keywords":"sources", total);
         } catch(SQLException e) {
             log.error("[PS] SQL exception {}", e);
         } catch (JED2KException e) {
