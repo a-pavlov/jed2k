@@ -282,6 +282,14 @@ public class Kad {
 
                 }
             }
+            else if ("router".equals(parts[0])) {
+                for(int i = 1; i < parts.length; ++i) {
+                    String[] routerNode = parts[i].split(":");
+                    if (routerNode.length == 2) {
+                        tracker.addRouterNodes(Endpoint.fromString(routerNode[0], Integer.parseInt(routerNode[1])));
+                    }
+                }
+            }
         }
 
         stopUpnp();
