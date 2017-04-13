@@ -246,7 +246,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             PacketCombiner pc = new PacketCombiner();
 
             KadPacketHeader kph = new KadPacketHeader();
-            kph.reset(pc.classToKey(p.getClass()), 0);
+            kph.reset(pc.classToKey(Kad2SearchRes.class), 0);
             PacketRawPacker prp = new PacketRawPacker(buffer, kph);
 
             conn = ds.getConnection();
