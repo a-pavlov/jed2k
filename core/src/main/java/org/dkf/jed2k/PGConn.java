@@ -15,6 +15,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.sql.SQLException;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -139,6 +140,12 @@ public class PGConn {
                     } catch(JED2KException e) {
                         log.error("unable to process get keywords request {}", e);
                     }
+                }
+            } else if ("stat".equals(parts[0])) {
+                try {
+                    DhtRequestHandler.insertSearchStatistics(source.getConnection(), new KadId(Hash.EMULE), 10, "S");
+                } catch(SQLException e) {
+                    log.error("unable to allocate connection");
                 }
             }
         }

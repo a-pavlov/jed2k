@@ -246,10 +246,13 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             KadId target = null;
 
+            String stype = null;
             if (p instanceof Kad2SearchKeysReq) {
                 target = ((Kad2SearchKeysReq)(p)).getTarget();
+                stype = "K";
             } else {
                 target = ((Kad2SearchSourcesReq)p).getTarget();
+                stype = "S";
             }
 
             Kad2SearchResHeader header = new Kad2SearchResHeader(new KadId(Hash.EMULE), target);
@@ -303,6 +306,9 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                     , address
                     , target
                     , total);
+            assert stype != null;
+            assert target != null;
+            insertSearchStatistics(conn, target, total, stype);
         } catch(SQLException e) {
             log.error("[PS] SQL exception {}", e);
         } catch (JED2KException e) {
@@ -322,6 +328,21 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             if (socket != null) {
                 socket.close();
             }
+        }
+    }
+
+    public static void insertSearchStatistics(final Connection conn, final KadId kadId, int count, final String type) {
+        assert conn != null;
+        try {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO kad.search_statistics(kad_id, res_count, type) values(?, ?, ?)");
+            ps.setString(1, kadId.toString());
+            ps.setInt(2, count);
+            ps.setString(3, type);
+            ps.executeUpdate();
+        } catch(SQLException e) {
+            log.error("[PS] log search SQL failed {}", e);
+        } catch(Exception e) {
+            log.error("[PS] log search failed {}", e);
         }
     }
 

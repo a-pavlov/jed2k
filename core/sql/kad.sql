@@ -28,5 +28,19 @@ create table kad.keywords (
 
 create index keywords_update_indx on kad.keywords(last_update);
 
+create table kad.search_statistics (
+    id bigserial not null
+    , kad_id character(32) not null
+    , ts timestamp not null default current_timestamp
+    , res_count int not null
+    , type varchar(2)
+    , constraint ss_pk primary key(id)
+);
+
+create index ss_kad_indx on kad.search_statistics(kad_id);
+create index ss_res_count_indx on kad.search_statistics(res_count);
+
 grant all on table kad.sources to kad;
 grant all on table kad.keywords to kad;
+grant all on table kad.search_statistics to kad;
+grant usage, select on sequence kad.search_statistics_id_seq to kad;
