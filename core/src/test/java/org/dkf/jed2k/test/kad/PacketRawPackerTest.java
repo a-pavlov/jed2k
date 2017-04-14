@@ -1,11 +1,10 @@
 package org.dkf.jed2k.test.kad;
 
 import org.dkf.jed2k.exception.JED2KException;
+import org.dkf.jed2k.kad.server.Kad2SearchResHeader;
 import org.dkf.jed2k.kad.server.PacketRawPacker;
-import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.PacketKey;
-import org.dkf.jed2k.protocol.UInt16;
+import org.dkf.jed2k.protocol.*;
+import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadPacketHeader;
 import org.dkf.jed2k.protocol.kad.PacketCombiner;
 import org.junit.Before;
@@ -21,12 +20,7 @@ import static org.junit.Assert.*;
  */
 public class PacketRawPackerTest {
     private PacketCombiner pc = new PacketCombiner();
-    private KadPacketHeader kph = new KadPacketHeader();
-
-    @Before
-    public void setup() {
-        kph.reset(new PacketKey((byte)0x01, (byte)0x02), 0);
-    }
+    private Serializable kph = new Kad2SearchResHeader(new KadId(Hash.EMULE), new KadId(Hash.LIBED2K));
 
     @Test
     public void testPacking() throws JED2KException {

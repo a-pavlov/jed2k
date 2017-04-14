@@ -7,6 +7,7 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.ReqDispatcher;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.*;
 import org.dkf.jed2k.protocol.tag.Tag;
@@ -243,11 +244,16 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             byte[] buf = new byte[4096];
             ByteBuffer buffer = ByteBuffer.wrap(buf);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
-            PacketCombiner pc = new PacketCombiner();
+            KadId target = null;
 
-            KadPacketHeader kph = new KadPacketHeader();
-            kph.reset(pc.classToKey(Kad2SearchRes.class), 0);
-            PacketRawPacker prp = new PacketRawPacker(buffer, kph);
+            if (p instanceof Kad2SearchKeysReq) {
+                target = ((Kad2SearchKeysReq)(p)).getTarget();
+            } else {
+                target = ((Kad2SearchSourcesReq)p).getTarget();
+            }
+
+            Kad2SearchResHeader header = new Kad2SearchResHeader(new KadId(Hash.EMULE), target);
+            PacketRawPacker prp = new PacketRawPacker(buffer, header);
 
             conn = ds.getConnection();
             if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
@@ -255,11 +261,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             PreparedStatement ps = conn.prepareStatement(String.format("SELECT packet FROM kad.keywords WHERE kad_id = ?"
                     , (p instanceof Kad2SearchKeysReq)?"keywords":"sources"));
 
-            if (p instanceof Kad2SearchKeysReq) {
-                ps.setString(1, ((Kad2SearchKeysReq)(p)).getTarget().toString());
-            } else {
-                ps.setString(1, ((Kad2SearchSourcesReq)p).getTarget().toString());
-            }
+            ps.setString(1, target.toString());
 
             int total = 0;
             ResultSet rs = ps.executeQuery();
@@ -273,7 +275,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                         if (socket == null) socket = new DatagramSocket();
                         ByteBuffer b = prp.releaseBuffer();
                         DatagramPacket dp = new DatagramPacket(buf, b.remaining(), address.getAddress(), address.getPort());
-                        log.debug("send dp {} to {}", b.remaining(), address);
+                        log.debug("send dp {} to {} target {}", b.remaining(), address, target);
                         socket.send(dp);
                         buffer.clear();
                     }
@@ -291,14 +293,15 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
                 ByteBuffer b = prp.releaseBuffer();
                 if (socket == null) socket = new DatagramSocket();
                 DatagramPacket dp = new DatagramPacket(buf, b.remaining(), address.getAddress(), address.getPort());
-                log.debug("send dp {} to {}", b.remaining(), address);
+                log.debug("send dp {} to {} target {}", b.remaining(), address, target);
                 socket.send(dp);
                 buffer.clear();
             }
 
-            log.debug("processed search {} from {} request with result count {}"
+            log.debug("processed search {} from {} request {} with result count {}"
                     , (p instanceof Kad2SearchKeysReq)?"keywords":"sources"
                     , address
+                    , target
                     , total);
         } catch(SQLException e) {
             log.error("[PS] SQL exception {}", e);
