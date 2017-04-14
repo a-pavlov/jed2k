@@ -93,7 +93,8 @@ public abstract class FindData extends Traversal {
             Direct d = newTraversal();
             for(final Endpoint e: nodeImpl.getRouterNodes()) {
                 // persistent node has port + 1 of router node
-                d.addNode(new Endpoint(e.getIP(), e.getPort() + 1), target, e.getPort(), (byte)0);
+                log.debug("[find data] add router node to search {}", new Endpoint(e.getIP(), e.getPort()));
+                d.addNode(new Endpoint(e.getIP(), e.getPort()), target, e.getPort(), (byte)0);
             }
 
             for(final Observer o: results) {
