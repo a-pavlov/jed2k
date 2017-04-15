@@ -3,12 +3,14 @@ package org.dkf.jed2k.kad;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.Session;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.LinkedList;
 
 /**
  * Created by inkpot on 26.12.2016.
@@ -29,6 +31,9 @@ public class Initiator implements Runnable {
             try {
                 DhtTracker tracker = s.getDhtTracker();
                 if (tracker != null && tracker.needBootstrap()) {
+                    // try to bootstrap on empty external list using internal router nodes
+                    tracker.bootstrap(new LinkedList<Endpoint>());
+                    // download nodes.dat
                     byte[] data = IOUtils.toByteArray(new URI(sourceUrl));
                     ByteBuffer buffer = ByteBuffer.wrap(data);
                     log.debug("[initiator] downloaded nodes.dat size {}", buffer.remaining());
