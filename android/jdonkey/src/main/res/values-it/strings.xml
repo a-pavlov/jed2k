@@ -80,7 +80,7 @@
     <string name="common_settings">Impostazioni generali</string>
     <string name="confirm_download">Confermare Il download</string>
     <string name="connect_on_start_server">Ricollegare</string>
-    <string name="connect_on_start_server_summary">Collegare all'ultimo server connesso su start</string>
+    <string name="connect_on_start_server_summary">Collegare all\'ultimo server connesso su start</string>
     <string name="device_storage">Dispositivo\'Archiviazione</string>
     <string name="finishing">Completamento</string>
     <string name="listen_port">Porta in ascolto</string>
@@ -120,7 +120,7 @@
     <string name="storage_picker_treeuri_error">Errore imprevisto raccolta per il percorso di archiviazione</string>
     <string name="storage_picker_treeuri_not_directory">Il percorso selezionato non è una directory</string>
     <string name="storage_picker_treeuri_null">Nessun percorso di archiviazione è stato selezionato</string>
-    <string name="storage_setting_confirm_dialog_text">Mi rendo conto che tutti i file scaricati attraverso eMule su una scheda SD, saranno rimossi da ANDROID\n. L'applicazione Mule, verrà rimossa dal dispositivo. Ricordiamo che l'Azienda non si assume alcuna responsabilità per eventuali file persi.</string>
+    <string name="storage_setting_confirm_dialog_text">Mi rendo conto che tutti i file scaricati attraverso eMule su una scheda SD, saranno rimossi da ANDROID\n. L\'applicazione Mule, verrà rimossa dal dispositivo. Ricordiamo che l\'Azienda non si assume alcuna responsabilità per eventuali file persi.</string>
     <string name="torrent_url_added">Link ED2K aggiunto per i trasferimenti.</string>
     <string name="transfer_state_completed">Completato</string>
     <string name="transfer_state_downloading">Scaricamento</string>
@@ -167,7 +167,7 @@
     <string name="transfers_select_completed">completato</string>
     <string name="transfers_select_downloading">download</string>
     <string name="transfers_settings">Impostazioni trasferimenti</string>
-    <string name="forward_ports_summary">Port forwarding sul router. l'UPnP deve essere attivato sul router</string>
+    <string name="forward_ports_summary">Port forwarding sul router. l\'UPnP deve essere attivato sul router</string>
     <string name="forward_ports_title">Port forward</string>
     <string name="server_add">Aggiungi</string>
     <string name="server_add_descr">Descrizione</string>
