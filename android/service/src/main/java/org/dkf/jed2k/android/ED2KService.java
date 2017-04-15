@@ -28,6 +28,7 @@ import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.kad.NodeEntry;
 import org.dkf.jed2k.protocol.Container;
+import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -330,7 +331,11 @@ public class ED2KService extends Service {
                     InetSocketAddress address = new InetSocketAddress(ghCfg.getKadStorageDescription().getIp()
                             , ghCfg.getKadStorageDescription().getPorts().get(rnd.nextInt(ghCfg.getKadStorageDescription().getPorts().size())));
                     dhtTracker.setStoragePoint(address);
-                    log.info("storage point configured to {}", address);
+                    Endpoint sp = Endpoint.fromInet(address);
+                    dhtTracker.addRouterNodes(new Endpoint(sp.getIP(), sp.getPort() + 1));
+                    log.info("storage point configured to {} router node configured to {}"
+                            , address
+                            , new Endpoint(sp.getIP(), sp.getPort() + 1));
                 } catch(Exception e) {
                     log.warn("Unable to configure storage point address {}", e);
                 }

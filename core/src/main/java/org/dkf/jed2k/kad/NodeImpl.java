@@ -22,10 +22,7 @@ import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by inkpot on 22.11.2016.
@@ -47,6 +44,7 @@ public class NodeImpl implements ReqDispatcher {
     private boolean firewalled = true;
     private long lastFirewalledCheck = 0;
     private InetSocketAddress storagePoint;
+    private Set<Endpoint> routerNodes = new TreeSet<>();
 
     public NodeImpl(final DhtTracker tracker
             , final KadId id
@@ -60,6 +58,10 @@ public class NodeImpl implements ReqDispatcher {
         this.table = new RoutingTable(id, BUCKET_SIZE);
         this.port = port;
         this.storagePoint = storagePoint;
+    }
+
+    public void addRouterNode(final Endpoint ep) {
+        routerNodes.add(ep);
     }
 
     public void addNode(final Endpoint ep, final KadId id) throws JED2KException {
@@ -169,6 +171,10 @@ public class NodeImpl implements ReqDispatcher {
         log.debug("[node] bootstrap with {} nodes", nodes.size());
         Traversal t = new Bootstrap(this, self);
         for(Endpoint ep: nodes) {
+            t.addEntry(new KadId(), ep, Observer.FLAG_INITIAL, 0, (byte)0);
+        }
+
+        for(final Endpoint ep: routerNodes) {
             t.addEntry(new KadId(), ep, Observer.FLAG_INITIAL, 0, (byte)0);
         }
 
@@ -501,8 +507,16 @@ public class NodeImpl implements ReqDispatcher {
         storagePoint = address;
     }
 
+    public InetSocketAddress getStoragePoint() {
+        return storagePoint;
+    }
+
     private void addSourceIp(final KadSearchEntry entry, final Endpoint ep) {
         if (entry.getInfo().contains(Tag.tag(Tag.TAG_SOURCEIP, null, 0))) return;
         entry.getInfo().addFirst(Tag.tag(Tag.TAG_SOURCEIP, null, ep.getIP()));
+    }
+
+    public Set<Endpoint> getRouterNodes() {
+        return routerNodes;
     }
 }
