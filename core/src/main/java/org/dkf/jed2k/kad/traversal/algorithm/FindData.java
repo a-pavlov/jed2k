@@ -14,6 +14,7 @@ import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.ObserverCompareRef;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -91,10 +92,12 @@ public abstract class FindData extends Traversal {
 
         try {
             Direct d = newTraversal();
-            for(final Endpoint e: nodeImpl.getRouterNodes()) {
-                // persistent node has port + 1 of router node
-                log.debug("[find data] add router node to search {}", new Endpoint(e.getIP(), e.getPort()));
-                d.addNode(new Endpoint(e.getIP(), e.getPort()), target, e.getPort(), (byte)0);
+            InetSocketAddress sa = nodeImpl.getStoragePoint();
+
+            if (sa != null) {
+                Endpoint sp = Endpoint.fromInet(sa);
+                log.debug("[find data] add router node to search {}", sp);
+                d.addNode(sp, target, sp.getPort(), (byte)0);
             }
 
             for(final Observer o: results) {

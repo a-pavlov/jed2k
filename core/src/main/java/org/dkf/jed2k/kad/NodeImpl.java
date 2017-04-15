@@ -507,6 +507,10 @@ public class NodeImpl implements ReqDispatcher {
         storagePoint = address;
     }
 
+    public InetSocketAddress getStoragePoint() {
+        return storagePoint;
+    }
+
     private void addSourceIp(final KadSearchEntry entry, final Endpoint ep) {
         if (entry.getInfo().contains(Tag.tag(Tag.TAG_SOURCEIP, null, 0))) return;
         entry.getInfo().addFirst(Tag.tag(Tag.TAG_SOURCEIP, null, ep.getIP()));

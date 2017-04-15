@@ -331,8 +331,11 @@ public class ED2KService extends Service {
                     InetSocketAddress address = new InetSocketAddress(ghCfg.getKadStorageDescription().getIp()
                             , ghCfg.getKadStorageDescription().getPorts().get(rnd.nextInt(ghCfg.getKadStorageDescription().getPorts().size())));
                     dhtTracker.setStoragePoint(address);
-                    dhtTracker.addRouterNodes(Endpoint.fromInet(address));
-                    log.info("storage point configured to {} router added", address);
+                    Endpoint sp = Endpoint.fromInet(address);
+                    dhtTracker.addRouterNodes(new Endpoint(sp.getIP(), sp.getPort() + 1));
+                    log.info("storage point configured to {} router node configured to {}"
+                            , address
+                            , new Endpoint(sp.getIP(), sp.getPort() + 1));
                 } catch(Exception e) {
                     log.warn("Unable to configure storage point address {}", e);
                 }
