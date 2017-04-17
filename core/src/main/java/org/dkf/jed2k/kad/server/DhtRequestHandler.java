@@ -261,7 +261,7 @@ public class DhtRequestHandler implements Runnable, ReqDispatcher {
             conn = ds.getConnection();
             if (conn == null) throw new JED2KException(ErrorCode.NO_AVAILABLE_SQL_CONNECTIONS);
 
-            PreparedStatement ps = conn.prepareStatement(String.format("SELECT packet FROM kad.keywords WHERE kad_id = ?"
+            PreparedStatement ps = conn.prepareStatement(String.format("SELECT packet FROM kad.keywords WHERE kad_id = ? LIMIT 100"
                     , (p instanceof Kad2SearchKeysReq)?"keywords":"sources"));
 
             ps.setString(1, target.toString());
