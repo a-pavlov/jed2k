@@ -97,7 +97,7 @@
                 android:title="@string/transfers_max_total_connections"
                 jdonkey:picker_defaultValue="200"
                 jdonkey:picker_endRange="200"
-                jdonkey:picker_startRange="10"/>
+                jdonkey:picker_startRange="2"/>
 
         <CheckBoxPreference
             android:key="jmule.prefs.gui.show_transfers_on_download_start"
