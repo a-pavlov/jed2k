@@ -150,14 +150,14 @@ public class DhtTracker extends Thread {
         // process user's command every second
         long tickIntervalMs = Time.currentTime() - lastTick;
         if (tickIntervalMs >= 1000) {
+            node.tick();
+
             lastTick = Time.currentTime();
             Runnable r = commands.poll();
             while(r != null) {
                 r.run();
                 r = commands.poll();
             }
-
-            node.tick();
         }
     }
 

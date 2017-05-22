@@ -4,7 +4,6 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.UInt8;
 import org.junit.Test;
 
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -32,7 +31,7 @@ public class UInt8Test{
         assertTrue(uint8(0xff0f).compareTo(uint8(0x0f)) == 0);
     }
 
-    @Test(expected=BufferUnderflowException.class)
+    @Test(expected=JED2KException.class)
     public void testSerialize() throws JED2KException {
         byte[] data = { (byte)1, (byte)2, (byte)3 };
         ByteBuffer nb = ByteBuffer.wrap(data);

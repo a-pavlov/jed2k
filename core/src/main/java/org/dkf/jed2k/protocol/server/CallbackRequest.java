@@ -1,8 +1,10 @@
 package org.dkf.jed2k.protocol.server;
 
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.Utils.sizeof;
@@ -16,7 +18,13 @@ public class CallbackRequest implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        clientId = src.getInt();
+        try {
+            clientId = src.getInt();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return src;
     }
 

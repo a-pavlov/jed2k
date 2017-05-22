@@ -2,9 +2,11 @@ package org.dkf.jed2k.protocol.kad;
 
 import lombok.Data;
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -16,7 +18,13 @@ public class Kad2FirewalledRes implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        ip = Utils.ntohl(src.getInt());
+        try {
+            ip = Utils.ntohl(src.getInt());
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return src;
     }
 

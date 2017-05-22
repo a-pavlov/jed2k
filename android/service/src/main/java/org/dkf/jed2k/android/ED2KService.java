@@ -495,7 +495,8 @@ public class ED2KService extends Service {
     private void createTransferNotification(final String title, final String extra, final Hash hash) {
         TransferHandle handle = session.findTransfer(hash);
         if (handle.isValid()) {
-            buildNotification(title, handle.getFile().getName(), extra);
+            File f = handle.getFile();
+            buildNotification(title, f!=null?f.getName():"", extra);
         }
     }
 

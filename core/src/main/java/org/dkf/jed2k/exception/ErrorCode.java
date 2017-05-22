@@ -24,6 +24,8 @@ public enum ErrorCode implements BaseErrorCode {
     FILE_IO_ERROR(18, "File I/O error occured"),
     UNABLE_TO_DELETE_FILE(19, "Unable to delete file"),
     INTERNAL_ERROR(20, "Internal product error"),
+    BUFFER_UNDERFLOW_EXCEPTION(21, "Buffer underflow exception"),
+    BUFFER_GET_EXCEPTION(22, "Buffer get method raised common exception"),
 
 
     TAG_TYPE_UNKNOWN(30, "Tag type unknown"),
@@ -63,6 +65,7 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_EXCEPTION(76, "Unknown exception on port mapping"),
 
     DHT_REQUEST_ALREADY_RUNNING(80, "DHT request with the same hash already in progress"),
+    DHT_TRACKER_ABORTED(81, "DHT tracker was already aborted at the moment"),
 
     LINK_MAILFORMED(90, "Incorrect link format"),
     URI_SYNTAX_ERROR(91, "URI has incorrect syntax"),

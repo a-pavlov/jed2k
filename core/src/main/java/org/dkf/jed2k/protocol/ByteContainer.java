@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.protocol.Unsigned.*;
@@ -38,7 +39,13 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
         size.get(src);
         if (size.intValue() > 0) {
             value = new byte[size.intValue()];
-            src.get(value);
+            try {
+                src.get(value);
+            } catch(BufferUnderflowException e) {
+                throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+            } catch(Exception e) {
+                throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+            }
         }
 
         return src;

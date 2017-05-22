@@ -1,10 +1,12 @@
 package org.dkf.jed2k.protocol.client;
 
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Dispatchable;
 import org.dkf.jed2k.protocol.Dispatcher;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.Utils.sizeof;
@@ -14,7 +16,13 @@ public class Hello extends HelloAnswer implements Dispatchable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        hashLength = src.get();
+        try {
+            hashLength = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return super.get(src);
     }
 

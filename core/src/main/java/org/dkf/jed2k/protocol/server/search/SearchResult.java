@@ -2,10 +2,12 @@ package org.dkf.jed2k.protocol.server.search;
 
 import lombok.Getter;
 import lombok.ToString;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.Utils.sizeof;
@@ -19,7 +21,13 @@ public class SearchResult extends SoftSerializable implements Dispatchable {
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         results.get(src);
-        moreResults = src.get();
+        try {
+            moreResults = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return src;
     }
 
@@ -37,7 +45,13 @@ public class SearchResult extends SoftSerializable implements Dispatchable {
     @Override
     public ByteBuffer get(ByteBuffer src, int limit) throws JED2KException {
         results.get(src);
-        if (limit - results.bytesCount() > 0) moreResults = src.get();
+        try {
+            if (limit - results.bytesCount() > 0) moreResults = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return src;
     }
 

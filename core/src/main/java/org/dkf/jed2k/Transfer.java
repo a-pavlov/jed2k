@@ -445,7 +445,8 @@ public class Transfer {
     }
 
     void onPieceHashCompleted(final int pieceIndex, final Hash hash) {
-        assert(hash != null);
+        assert hash != null;
+        assert hashSet.size() > pieceIndex;
 
         if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
             log.error("restore piece due to expected hash {} is not equal with calculated {}",

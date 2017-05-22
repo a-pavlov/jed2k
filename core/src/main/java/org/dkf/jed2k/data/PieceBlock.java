@@ -1,9 +1,11 @@
 package org.dkf.jed2k.data;
 
 import org.dkf.jed2k.Constants;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -99,8 +101,14 @@ public class PieceBlock implements Comparable<PieceBlock>, Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        pieceIndex = src.getInt();
-        pieceBlock = src.getInt();
+        try {
+            pieceIndex = src.getInt();
+            pieceBlock = src.getInt();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return src;
     }
 

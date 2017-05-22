@@ -1,9 +1,11 @@
 package org.dkf.jed2k.protocol.kad;
 
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Hash;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.zip.CRC32;
@@ -39,8 +41,14 @@ public class KadId extends Hash {
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         for (short i = 0; i < value.length; ++i) {
-            byte b = src.get();
-            value[(i / 4)*4 + 3 - (i % 4)] = b;
+            try {
+                byte b = src.get();
+                value[(i / 4)*4 + 3 - (i % 4)] = b;
+            } catch(BufferUnderflowException e) {
+                throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+            } catch(Exception e) {
+                throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+            }
         }
 
         return src;

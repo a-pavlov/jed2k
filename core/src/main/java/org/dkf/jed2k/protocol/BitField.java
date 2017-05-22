@@ -1,8 +1,10 @@
 package org.dkf.jed2k.protocol;
 
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -191,7 +193,13 @@ public class BitField implements Iterable<Boolean>, Serializable {
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         int size = src.getShort();
         byte[] temp = new byte[bitsToBytes(size)];
-        src.get(temp);
+        try {
+            src.get(temp);
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         assign(temp, size);
         return src;
     }
