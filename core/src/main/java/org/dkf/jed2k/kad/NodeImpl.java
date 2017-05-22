@@ -92,7 +92,9 @@ public class NodeImpl implements ReqDispatcher {
 
     public void addTraversalAlgorithm(final Traversal ta) throws JED2KException {
         if (runningRequests.contains(ta)) throw new JED2KException(ErrorCode.DHT_REQUEST_ALREADY_RUNNING);
+        if (isAborted()) throw new JED2KException(ErrorCode.DHT_TRACKER_ABORTED);
         assert !runningRequests.contains(ta);
+        assert !isAborted();
         runningRequests.add(ta);
     }
 
@@ -106,6 +108,8 @@ public class NodeImpl implements ReqDispatcher {
     }
 
     public void tick() {
+        assert !isAborted();
+
         rpc.tick();
         if (!runningRequests.isEmpty()) {
             log.trace("[node] running requests {}", runningRequests.size());
@@ -165,6 +169,10 @@ public class NodeImpl implements ReqDispatcher {
 
     public void abort() {
         tracker = null;
+    }
+
+    public boolean isAborted()  {
+        return tracker == null;
     }
 
     public void bootstrap(final List<Endpoint> nodes) throws JED2KException {
@@ -264,6 +272,11 @@ public class NodeImpl implements ReqDispatcher {
 
     public boolean invoke(final Serializable s, final Endpoint ep, final Observer o) {
         try {
+            assert tracker != null;
+
+            // that shouldn'd happen, but still
+            if (tracker == null) throw new JED2KException(ErrorCode.INTERNAL_ERROR);
+
             if (tracker.write(s, ep.toInetSocketAddress())) {
                 // register transaction if packet was sent
                 rpc.invoke(o);
@@ -321,6 +334,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2Ping p, InetSocketAddress address) {
+        assert tracker != null;
         final Endpoint ep = Endpoint.fromInet(address);
         Kad2Pong pong = new Kad2Pong();
         pong.getPortUdp().assign(port);
@@ -330,6 +344,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2HelloReq p, InetSocketAddress address) {
+        assert tracker != null;
         final Endpoint ep = Endpoint.fromInet(address);
         Kad2HelloRes hello = new Kad2HelloRes();
         hello.setKid(getSelf());
@@ -341,11 +356,13 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2SearchNotesReq p, InetSocketAddress address) {
+        assert tracker != null;
         log.debug("[node] temporary ignore kad search notes request");
     }
 
     @Override
     public void process(Kad2Req p, InetSocketAddress address) {
+        assert tracker != null;
         final Endpoint ep = Endpoint.fromInet(address);
         int searchType = p.getSearchType() & 0x1F;
         if (searchType != FindData.KADEMLIA_FIND_NODE
@@ -370,6 +387,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2BootstrapReq p, InetSocketAddress address) {
+        assert tracker != null;
         List<NodeEntry> entries = table.forEach(new Filter<NodeEntry>() {
             private int counter = 20;
             @Override
@@ -407,6 +425,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2PublishKeysReq p, InetSocketAddress address) {
+        assert tracker != null;
         log.debug("[node] publish keys {} distance {}"
                 , p.getSources().size()
                 , KadId.distance(self, p.getKeywordId()));
@@ -447,6 +466,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2PublishSourcesReq p, InetSocketAddress address) {
+        assert tracker != null;
         log.debug("[node] publish sources {} distance {}"
                 , p.getFileId()
                 , KadId.distance(self, p.getFileId()));
@@ -478,6 +498,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2FirewalledReq p, InetSocketAddress address) {
+        assert tracker != null;
         final Endpoint ep = Endpoint.fromInet(address);
         log.debug("[node] firewalled request received {}", address);
         Kad2FirewalledRes kfr = new Kad2FirewalledRes();
@@ -487,6 +508,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2SearchKeysReq p, InetSocketAddress address) {
+        assert tracker != null;
         if (index != null) {
             sendSearchResult(address, (p).getTarget(), index.getFileByHash(p.getTarget()));
         } else {
@@ -496,6 +518,7 @@ public class NodeImpl implements ReqDispatcher {
 
     @Override
     public void process(Kad2SearchSourcesReq p, InetSocketAddress address) {
+        assert tracker != null;
         if (index != null) {
             sendSearchResult(address, p.getTarget(), index.getSourceByHash(p.getTarget()));
         } else {

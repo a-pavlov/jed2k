@@ -7,7 +7,6 @@ import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.client.HashSetAnswer;
 import org.dkf.jed2k.protocol.kad.KadId;
 
 import java.util.*;
@@ -45,7 +44,7 @@ public abstract class Traversal {
      */
     public void start() throws JED2KException {
         log.debug("[traversal] start");
-        nodeImpl.addTraversalAlgorithm(this); // throws exception in case of duplicate of kad id in running requests
+        nodeImpl.addTraversalAlgorithm(this); // throws exception in case of duplicate of kad id in running requests or tracker already aborted
         numTargetNodes = nodeImpl.getTable().getBucketSize()*2;
         nodeImpl.getTable().touchBucket(target);
         branchFactor = nodeImpl.getSearchBranching();

@@ -65,6 +65,7 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_EXCEPTION(76, "Unknown exception on port mapping"),
 
     DHT_REQUEST_ALREADY_RUNNING(80, "DHT request with the same hash already in progress"),
+    DHT_TRACKER_ABORTED(81, "DHT tracker was already aborted at the moment"),
 
     LINK_MAILFORMED(90, "Incorrect link format"),
     URI_SYNTAX_ERROR(91, "URI has incorrect syntax"),
