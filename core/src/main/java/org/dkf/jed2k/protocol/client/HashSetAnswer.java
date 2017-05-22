@@ -1,13 +1,15 @@
 package org.dkf.jed2k.protocol.client;
 
+import lombok.Data;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
 
 import java.nio.ByteBuffer;
 
+@Data
 public class HashSetAnswer implements Serializable, Dispatchable {
-    public final Hash hash = new Hash();
-    public final Container<UInt16, Hash> parts = Container.makeShort(Hash.class);
+    private final Hash hash = new Hash();
+    private final Container<UInt16, Hash> parts = Container.makeShort(Hash.class);
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {

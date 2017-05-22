@@ -642,8 +642,14 @@ public class PeerConnection extends Connection {
             throws JED2KException {
         log.debug("{} << hashset answer", endpoint);
         if (transfer != null) {
-            transfer.setHashSet(value.hash, value.parts);
-            write(new StartUpload(transfer.hash()));
+            if (transfer.hash().equals(value.getHash()) && transfer.hash().equals(Hash.fromHashSet(value.getParts()))) {
+                transfer.setHashSet(value.getHash(), value.getParts());
+                write(new StartUpload(transfer.hash()));
+            } else {
+                log.warn("incorrect hash set answer {} for transfer hash {}"
+                    , value.getHash()
+                    , transfer.hash());
+            }
         } else {
             close(ErrorCode.NO_TRANSFER);
         }
@@ -1071,7 +1077,7 @@ public class PeerConnection extends Connection {
      * submit hashing task to executor
      * @param pieceIndex index of piece which hash should be calculated
      * @param t - transfer ?
-     * @return future of hasshing operation result
+     * @return future of hashing operation result
      */
     Future<AsyncOperationResult> asyncHash(int pieceIndex, final Transfer t) {
         return session.submitDiskTask(new AsyncHash(t, pieceIndex));
