@@ -6,6 +6,7 @@ import org.dkf.jed2k.TransferStatus;
 import org.dkf.jed2k.Utils;
 import org.dkf.jmule.Engine;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -45,11 +46,15 @@ public class ED2KTransfer implements Transfer {
     }
 
     public String getDisplayName() {
-        return handle.getFile().getName();
+        File f = handle.getFile();
+        if (f != null) return f.getName();
+        return "";
     }
 
     public String getFilePath() {
-        return handle.getFile().getAbsolutePath();
+        File f = handle.getFile();
+        if (f != null) return f.getAbsolutePath();
+        return "";
     }
 
 
@@ -133,7 +138,8 @@ public class ED2KTransfer implements Transfer {
 
     @Override
     public String toLink() {
-        return Utils.formatLink(handle.getFile().getName(), handle.getSize(), handle.getHash());
+        File f = handle.getFile();
+        return Utils.formatLink(f!=null?f.getName():"", handle.getSize(), handle.getHash());
     }
 
     @Override
