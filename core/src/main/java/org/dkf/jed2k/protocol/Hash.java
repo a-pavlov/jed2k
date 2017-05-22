@@ -1,8 +1,10 @@
 package org.dkf.jed2k.protocol;
 
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collection;
@@ -138,7 +140,13 @@ public class Hash implements Serializable, Comparable<Hash> {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        return src.get(value);
+        try {
+            return src.get(value);
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
     }
 
     @Override

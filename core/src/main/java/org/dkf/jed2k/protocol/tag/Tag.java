@@ -8,6 +8,7 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -314,16 +315,22 @@ public final class Tag implements Serializable {
         }
     }
 
-    private static class FloatSerial implements Serializable {
+    public static class FloatSerial implements Serializable {
         public float value;
 
-        FloatSerial(float value) {
+        public FloatSerial(float value) {
             this.value = value;
         }
 
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
-            value = src.getFloat();
+            try {
+                value = src.getFloat();
+            } catch(BufferUnderflowException e) {
+                throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+            } catch(Exception e) {
+                throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+            }
             return src;
         }
 
@@ -343,17 +350,23 @@ public final class Tag implements Serializable {
         }
     }
 
-    private static class BooleanSerial implements Serializable {
+    public static class BooleanSerial implements Serializable {
         public boolean value;
 
-        BooleanSerial(boolean value) {
+        public BooleanSerial(boolean value) {
             this.value = value;
         }
 
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
-            value = (src.get() == 0x00);
-            return src;
+            try {
+                value = (src.get() == 0x00);
+                return src;
+            } catch(BufferUnderflowException e) {
+                throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+            } catch(Exception e) {
+                throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+            }
         }
 
         @Override
@@ -373,9 +386,13 @@ public final class Tag implements Serializable {
         }
     }
 
-    private static class StringSerial implements Serializable {
+    public static class StringSerial implements Serializable {
         public byte type;
         byte[] value = null;
+
+        public StringSerial() {
+
+        }
 
         StringSerial(byte type, byte[] value) {
             this.type = type;
@@ -384,15 +401,21 @@ public final class Tag implements Serializable {
 
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
-            short size = 0;
-            if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16) {
-                size = (short)(type - Tag.TAGTYPE_STR1 + 1);
-            } else {
-                size = src.getShort();
-            }
+            try {
+                short size = 0;
+                if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16) {
+                    size = (short)(type - Tag.TAGTYPE_STR1 + 1);
+                } else {
+                    size = src.getShort();
+                }
 
-            value = new byte[size];
-            return src.get(value);
+                value = new byte[size];
+                return src.get(value);
+            } catch(BufferUnderflowException e) {
+                throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+            } catch(Exception e) {
+                throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+            }
         }
 
         @Override
@@ -430,7 +453,7 @@ public final class Tag implements Serializable {
         }
     }
 
-    public final class BoolArraySerial implements Serializable {
+    public static final class BoolArraySerial implements Serializable {
         private final UInt16 length = uint16();
         private byte value[] = null;
 
@@ -444,7 +467,13 @@ public final class Tag implements Serializable {
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
             length.get(src);
             value = new byte[length.intValue() / 8];
-            return src.get(value);
+            try {
+                return src.get(value);
+            } catch(BufferUnderflowException e) {
+                throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+            } catch(Exception e) {
+                throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+            }
         }
 
         @Override
@@ -473,19 +502,25 @@ public final class Tag implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        this.type = src.get();
+        try {
+            this.type = src.get();
 
-        if ((type & 0x80) != 0){
-            type = (byte)(type & 0x7f);
-            id = src.get();
-        } else {
-            ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());
-            bc.get(src);
-            if (bc.getSize().intValue() == 1) {
-                id = bc.getValue()[0];
+            if ((type & 0x80) != 0){
+                type = (byte)(type & 0x7f);
+                id = src.get();
             } else {
-                name = bc.asString();   // use strong format here!
+                ByteContainer<UInt16> bc = new ByteContainer<UInt16>(uint16());
+                bc.get(src);
+                if (bc.getSize().intValue() == 1) {
+                    id = bc.getValue()[0];
+                } else {
+                    name = bc.asString();   // use strong format here!
+                }
             }
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
         }
 
         switch(type){

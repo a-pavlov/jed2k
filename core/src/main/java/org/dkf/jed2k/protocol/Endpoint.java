@@ -5,6 +5,7 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 
 import java.net.InetSocketAddress;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -58,11 +59,17 @@ public final class Endpoint implements Serializable, Comparable<Endpoint> {
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         assert(src.order() == ByteOrder.LITTLE_ENDIAN);
-        ip = src.getInt();
-        UInt16 p = new UInt16(0);
-        p.get(src);
-        port = p.intValue();
-        return src;
+        try {
+            ip = src.getInt();
+            UInt16 p = new UInt16(0);
+            p.get(src);
+            port = p.intValue();
+            return src;
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
     }
 
     @Override

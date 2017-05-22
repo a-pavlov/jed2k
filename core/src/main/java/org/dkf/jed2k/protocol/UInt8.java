@@ -1,7 +1,9 @@
 package org.dkf.jed2k.protocol;
 
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.Utils.sizeof;
@@ -68,7 +70,14 @@ public class UInt8 extends UNumber implements Comparable<UInt8> {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        container = src.get();
+        try {
+            container = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
+
         return src;
     }
 

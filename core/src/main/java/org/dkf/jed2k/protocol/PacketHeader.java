@@ -1,7 +1,9 @@
 package org.dkf.jed2k.protocol;
 
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.Utils.byte2String;
@@ -41,9 +43,15 @@ public class PacketHeader implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        protocol = src.get();
-        size = src.getInt();
-        packet = src.get();
+        try {
+            protocol = src.get();
+            size = src.getInt();
+            packet = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return src;
     }
 

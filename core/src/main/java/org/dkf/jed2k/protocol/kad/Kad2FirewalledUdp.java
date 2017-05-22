@@ -1,11 +1,13 @@
 package org.dkf.jed2k.protocol.kad;
 
 import org.dkf.jed2k.Utils;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt16;
 import org.dkf.jed2k.protocol.Unsigned;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -17,7 +19,13 @@ public class Kad2FirewalledUdp implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        errorCode = src.get();
+        try {
+            errorCode = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return portTcp.get(src);
     }
 

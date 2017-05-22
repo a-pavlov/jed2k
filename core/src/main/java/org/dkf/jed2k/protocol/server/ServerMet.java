@@ -10,6 +10,7 @@ import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.tag.Tag;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -117,7 +118,13 @@ public class ServerMet implements Serializable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        header = src.get();
+        try {
+            header = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         if (header != MET_HEADER && header != MET_HEADER_WITH_LARGEFILES) {
             log.warn("server met file header is incorrect: {}", (int)header);
         }

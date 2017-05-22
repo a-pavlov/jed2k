@@ -24,6 +24,8 @@ public enum ErrorCode implements BaseErrorCode {
     FILE_IO_ERROR(18, "File I/O error occured"),
     UNABLE_TO_DELETE_FILE(19, "Unable to delete file"),
     INTERNAL_ERROR(20, "Internal product error"),
+    BUFFER_UNDERFLOW_EXCEPTION(21, "Buffer underflow exception"),
+    BUFFER_GET_EXCEPTION(22, "Buffer get method raised common exception"),
 
 
     TAG_TYPE_UNKNOWN(30, "Tag type unknown"),

@@ -1,7 +1,9 @@
 package org.dkf.jed2k.protocol;
 
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -50,7 +52,13 @@ public class UInt32 extends UNumber implements Comparable<UInt32>{
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         assert(src.order() == ByteOrder.LITTLE_ENDIAN);
-        value = src.getInt();
+        try {
+            value = src.getInt();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return src;
     }
 

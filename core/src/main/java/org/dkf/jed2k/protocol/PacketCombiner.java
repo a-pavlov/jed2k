@@ -6,6 +6,7 @@ import org.dkf.jed2k.util.HexDump;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.zip.DataFormatException;
@@ -47,7 +48,15 @@ public abstract class PacketCombiner {
         if (header.key().protocol == ProtocolType.OP_PACKEDPROT.value || header.key().protocol == ProtocolType.OP_KAD_COMPRESSED_UDP.value) {
             byte[] compressedData = new byte[src.remaining()];
             byte[] plainData = new byte[src.remaining()*10];
-            src.get(compressedData);
+
+            try {
+                src.get(compressedData);
+            } catch(BufferUnderflowException e) {
+                throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+            } catch(Exception e) {
+                throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+            }
+
             Inflater decompresser = new Inflater();
             decompresser.setInput(compressedData, 0, compressedData.length);
             int resultLength = 0;

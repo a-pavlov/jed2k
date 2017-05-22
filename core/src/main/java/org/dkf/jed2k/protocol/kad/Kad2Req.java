@@ -3,11 +3,13 @@ package org.dkf.jed2k.protocol.kad;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.ReqDispatcher;
 import org.dkf.jed2k.protocol.Serializable;
 
 import java.net.InetSocketAddress;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -23,7 +25,13 @@ public class Kad2Req implements Serializable, KadDispatchable {
 
     @Override
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
-        searchType = src.get();
+        try {
+            searchType = src.get();
+        } catch(BufferUnderflowException e) {
+            throw new JED2KException(ErrorCode.BUFFER_UNDERFLOW_EXCEPTION);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
+        }
         return receiver.get(target.get(src));
     }
 
