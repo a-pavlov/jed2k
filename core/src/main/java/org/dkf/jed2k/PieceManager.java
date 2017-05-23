@@ -42,7 +42,7 @@ public class PieceManager extends BlocksEnumerator {
      * @param b block
      * @param buffer data source
      */
-    public LinkedList<ByteBuffer> writeBlock(PieceBlock b, final ByteBuffer buffer) throws JED2KException {
+    public List<ByteBuffer> writeBlock(PieceBlock b, final ByteBuffer buffer) throws JED2KException {
         FileChannel c = handler.getWriteChannel();
         assert c != null;
         long bytesOffset = b.blocksOffset()* Constants.BLOCK_SIZE;
@@ -79,7 +79,7 @@ public class PieceManager extends BlocksEnumerator {
      * @return free buffers
      * @throws JED2KException
      */
-    public LinkedList<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, long  fileSize) throws JED2KException {
+    public List<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, long  fileSize) throws JED2KException {
         FileChannel c = handler.getReadChannel();
         assert c != null;
         assert(fileSize > 0);
@@ -103,7 +103,9 @@ public class PieceManager extends BlocksEnumerator {
 
         // register buffer as usual in blocks manager and return free blocks
         assert(buffer.remaining() == b.size(fileSize));
-        return mgr.registerBlock(b.pieceBlock, buffer);
+        List<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
+        assert res != null;
+        return res;
     }
 
     public Hash hashPiece(int pieceIndex) {

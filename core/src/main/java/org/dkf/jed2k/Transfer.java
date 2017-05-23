@@ -414,7 +414,7 @@ public class Transfer {
         session.pushAlert(new TransferFinishedAlert(hash()));
     }
 
-    void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final BaseErrorCode ec) {
+    void onBlockWriteCompleted(final PieceBlock b, final List<ByteBuffer> buffers, final BaseErrorCode ec) {
         log.debug("block {} write completed: {} free buffers: {}",
                 b, ec, (buffers!=null)?buffers.size():0);
 

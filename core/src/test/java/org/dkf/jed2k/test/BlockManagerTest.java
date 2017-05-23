@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeSet;
 import java.util.logging.Logger;
@@ -54,10 +54,10 @@ public class BlockManagerTest {
             buffer.position(i*(int)Constants.BLOCK_SIZE);
             ByteBuffer localBuffer = buffer.slice();
             localBuffer.limit((int)Constants.BLOCK_SIZE);
-            LinkedList<ByteBuffer> res = bm.registerBlock(i, localBuffer);
+            List<ByteBuffer> res = bm.registerBlock(i, localBuffer);
             assertFalse(res.isEmpty());
             assertEquals(1, res.size());
-            assertEquals(localBuffer, res.getFirst());
+            assertEquals(localBuffer, res.get(0));
         }
 
         assertTrue(bm.pieceHash() != null);
@@ -97,7 +97,7 @@ public class BlockManagerTest {
             ByteBuffer localBuffer = buffer.slice();
             localBuffer.limit((int)Constants.BLOCK_SIZE);
             assertTrue(src.add(localBuffer));
-            LinkedList<ByteBuffer> res = bm.registerBlock(pos, localBuffer);
+            List<ByteBuffer> res = bm.registerBlock(pos, localBuffer);
             if (res != null) {
                 for(ByteBuffer bb: res) {
                     assertTrue(bb != null);

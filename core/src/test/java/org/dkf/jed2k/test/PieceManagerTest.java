@@ -14,9 +14,10 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by ap197_000 on 23.08.2016.
@@ -62,14 +63,14 @@ public class PieceManagerTest {
     public void testNormalRestore() throws IOException, JED2KException {
         File f = folder.newFile("pm1.dat");
         PieceManager pm = new PieceManager(new DesktopFileHandler(f), 3, 3);
-        LinkedList<ByteBuffer> res0 = pm.writeBlock(new PieceBlock(0, 0), getBuffer(new PieceBlock(0, 0), Constants.BLOCK_SIZE_INT));
+        List<ByteBuffer> res0 = pm.writeBlock(new PieceBlock(0, 0), getBuffer(new PieceBlock(0, 0), Constants.BLOCK_SIZE_INT));
         assertEquals(1, res0.size());
-        LinkedList<ByteBuffer> res1 = pm.writeBlock(new PieceBlock(1, 0), getBuffer(new PieceBlock(1, 0), Constants.BLOCK_SIZE_INT));
+        List<ByteBuffer> res1 = pm.writeBlock(new PieceBlock(1, 0), getBuffer(new PieceBlock(1, 0), Constants.BLOCK_SIZE_INT));
 
         // restore piece manager using external block
         PieceManager rpm = new PieceManager(new DesktopFileHandler(f), 3, 3);
         ByteBuffer b = ByteBuffer.allocate(Constants.BLOCK_SIZE_INT);
-        LinkedList<ByteBuffer> rres = rpm.restoreBlock(new PieceBlock(0, 0), b, Constants.BLOCK_SIZE_INT*Constants.BLOCKS_PER_PIECE*2+123);
+        List<ByteBuffer> rres = rpm.restoreBlock(new PieceBlock(0, 0), b, Constants.BLOCK_SIZE_INT*Constants.BLOCKS_PER_PIECE*2+123);
         assertEquals(1, rres.size());
 
         // prepare buffers for piece 0.0
@@ -92,5 +93,32 @@ public class PieceManagerTest {
         while(res1.get(0).hasRemaining()) {
             assertEquals(res1.get(0).get(), rres.get(0).get());
         }
+    }
+
+    @Test
+    public void testSparseLoadingInterruption() throws IOException, JED2KException {
+        File f = folder.newFile("pm1.dat");
+        PieceManager pm = new PieceManager(new DesktopFileHandler(f), 3, 3);
+        List<ByteBuffer> res0 = pm.writeBlock(new PieceBlock(0, 10), getBuffer(new PieceBlock(0, 10), Constants.BLOCK_SIZE_INT));
+        assertTrue(res0.isEmpty());
+        List<ByteBuffer> res1 = pm.writeBlock(new PieceBlock(0, 11), getBuffer(new PieceBlock(0, 11), Constants.BLOCK_SIZE_INT));
+        List<ByteBuffer> res2 = pm.writeBlock(new PieceBlock(0, 12), getBuffer(new PieceBlock(0, 12), Constants.BLOCK_SIZE_INT));
+        assertTrue(res1.isEmpty());
+        assertTrue(res2.isEmpty());
+        List<ByteBuffer> res3 = pm.writeBlock(new PieceBlock(1, 2), getBuffer(new PieceBlock(1, 2), Constants.BLOCK_SIZE_INT));
+        List<ByteBuffer> res4 = pm.writeBlock(new PieceBlock(1, 1), getBuffer(new PieceBlock(1, 1), Constants.BLOCK_SIZE_INT));
+        assertTrue(res3.isEmpty());
+        assertTrue(res4.isEmpty());
+        List<ByteBuffer> terminateBuffers = pm.releaseFile();
+        assertEquals(5, terminateBuffers.size());
+    }
+
+    @Test
+    public void testReverseRelease() throws IOException, JED2KException {
+        File f = folder.newFile("pm1.dat");
+        PieceManager pm = new PieceManager(new DesktopFileHandler(f), 3, 3);
+        assertTrue(pm.writeBlock(new PieceBlock(1, 2), getBuffer(new PieceBlock(1, 2), Constants.BLOCK_SIZE_INT)).isEmpty());
+        assertTrue(pm.writeBlock(new PieceBlock(1, 1), getBuffer(new PieceBlock(1, 1), Constants.BLOCK_SIZE_INT)).isEmpty());
+        assertEquals(3, pm.writeBlock(new PieceBlock(1, 0), getBuffer(new PieceBlock(1, 0), Constants.BLOCK_SIZE_INT)).size());
     }
 }
