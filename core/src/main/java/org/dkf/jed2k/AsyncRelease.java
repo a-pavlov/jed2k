@@ -19,7 +19,7 @@ public class AsyncRelease implements Callable<AsyncOperationResult> {
     @Override
     public AsyncOperationResult call() throws Exception {
         try {
-            transfer.pm.releaseFile();
+            transfer.getPieceManager().releaseFile();
         } catch(JED2KException e) {
             return new AsyncReleaseResult(e.getErrorCode(), transfer);
         }

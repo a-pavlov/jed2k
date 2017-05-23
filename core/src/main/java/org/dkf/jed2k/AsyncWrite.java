@@ -33,7 +33,7 @@ public class AsyncWrite implements Callable<AsyncOperationResult> {
     @Override
     public AsyncOperationResult call() throws Exception {
         try {
-            return new AsyncWriteResult(block, transfer.pm.writeBlock(block, buffer), transfer, ErrorCode.NO_ERROR);
+            return new AsyncWriteResult(block, transfer.getPieceManager().writeBlock(block, buffer), transfer, ErrorCode.NO_ERROR);
         } catch(JED2KException e) {
             return new AsyncWriteResult(block, new LinkedList<ByteBuffer>(){{addLast(buffer);}}, transfer, e.getErrorCode());
         }

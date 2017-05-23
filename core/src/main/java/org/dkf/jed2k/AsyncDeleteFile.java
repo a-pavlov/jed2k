@@ -14,7 +14,7 @@ public class AsyncDeleteFile implements Callable<AsyncOperationResult> {
 
     @Override
     public AsyncOperationResult call() throws Exception {
-        transfer.pm.deleteFile();
+        transfer.getPieceManager().deleteFile();
         return new AsyncDeleteResult(transfer);
     }
 }

@@ -1,5 +1,6 @@
 package org.dkf.jed2k;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.BaseErrorCode;
@@ -9,8 +10,6 @@ import org.dkf.jed2k.protocol.BitField;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.TransferResumeData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -18,10 +17,9 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+@Slf4j
 public class Transfer {
     public static long INVALID_ETA = -1;
-
-    private Logger log = LoggerFactory.getLogger(Transfer.class);
 
     /**
      * transfer's file hash
@@ -75,7 +73,7 @@ public class Transfer {
     /**
      * disk io
      */
-    PieceManager pm = null;
+    private PieceManager pm = null;
 
     /**
      * async disk io futures

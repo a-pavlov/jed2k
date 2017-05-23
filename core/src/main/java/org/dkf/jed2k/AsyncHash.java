@@ -18,7 +18,7 @@ public class AsyncHash implements Callable<AsyncOperationResult> {
 
     @Override
     public AsyncOperationResult call() throws Exception {
-        Hash h = transfer.pm.hashPiece(pieceIndex);
+        Hash h = transfer.getPieceManager().hashPiece(pieceIndex);
         return new AsyncHashResult(h, transfer, pieceIndex);
     }
 }
