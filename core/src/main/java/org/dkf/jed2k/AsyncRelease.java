@@ -1,7 +1,6 @@
 package org.dkf.jed2k;
 
 import org.dkf.jed2k.exception.ErrorCode;
-import org.dkf.jed2k.exception.JED2KException;
 
 import java.util.concurrent.Callable;
 
@@ -18,12 +17,6 @@ public class AsyncRelease implements Callable<AsyncOperationResult> {
 
     @Override
     public AsyncOperationResult call() throws Exception {
-        try {
-            transfer.getPieceManager().releaseFile();
-        } catch(JED2KException e) {
-            return new AsyncReleaseResult(e.getErrorCode(), transfer);
-        }
-
-        return new AsyncReleaseResult(ErrorCode.NO_ERROR, transfer);
+        return new AsyncReleaseResult(ErrorCode.NO_ERROR, transfer, transfer.getPieceManager().releaseFile());
     }
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by inkpot on 15.07.2016.
@@ -115,10 +116,26 @@ public class PieceManager extends BlocksEnumerator {
 
     /**
      * close file and release resources
-     * @throws JED2KException
+     * @return list of ByteBuffers for buffer pool deallocation
      */
-    public void releaseFile() throws JED2KException {
+    public List<ByteBuffer> releaseFile() {
         handler.close();
+        return abort();
+    }
+
+    /**
+     * abort piece manager - clear all block managers buffers and remove them
+     * @return
+     */
+    public List<ByteBuffer> abort() {
+        List<ByteBuffer> res = new LinkedList<>();
+        for(BlockManager mgr: blockMgrs) {
+            res.addAll(mgr.getBuffers());
+        }
+
+        blockMgrs.clear();
+
+        return res;
     }
 
     /**

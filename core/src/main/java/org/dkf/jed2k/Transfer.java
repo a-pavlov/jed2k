@@ -458,8 +458,15 @@ public class Transfer {
         needSaveResumeData = true;
     }
 
-    void onReleaseFile(final BaseErrorCode c) {
-        log.debug("release file completed {}", c);
+    void onReleaseFile(final BaseErrorCode c, final List<ByteBuffer> buffers) {
+        assert buffers != null;
+        log.debug("release file completed {} release byte buffers count {}"
+                , c
+                , buffers.size());
+        // return buffers to pool
+        for (ByteBuffer buffer : buffers) {
+            session.bufferPool.deallocate(buffer, Time.currentTime());
+        }
     }
 
     /**

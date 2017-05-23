@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by inkpot on 17.07.2016.
@@ -72,6 +73,19 @@ public class BlockManager {
         int res = 0;
         for(ByteBuffer b: buffers) {
             if (b != null) ++res;
+        }
+
+        return res;
+    }
+
+    /**
+     *
+     * @return list of active buffers
+     */
+    public List<ByteBuffer> getBuffers() {
+        List<ByteBuffer> res = new LinkedList<>();
+        for(ByteBuffer b: buffers) {
+            if (b != null) res.add(b);
         }
 
         return res;
