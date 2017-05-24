@@ -26,6 +26,8 @@ public enum ErrorCode implements BaseErrorCode {
     INTERNAL_ERROR(20, "Internal product error"),
     BUFFER_UNDERFLOW_EXCEPTION(21, "Buffer underflow exception"),
     BUFFER_GET_EXCEPTION(22, "Buffer get method raised common exception"),
+    WRONG_HASHSET(23, "Wrong hash set"),
+    HASH_MISMATCH(24, "Hash mismatch"),
 
 
     TAG_TYPE_UNKNOWN(30, "Tag type unknown"),

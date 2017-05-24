@@ -299,6 +299,14 @@ public class PiecePicker extends BlocksEnumerator {
         return downloadingPieces;
     }
 
+    /**
+     *
+     * @return total pieces in this piece manager
+     */
+    public int getPieceCount() {
+        return pieceStatus.length;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

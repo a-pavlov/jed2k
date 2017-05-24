@@ -623,8 +623,17 @@ public class PeerConnection extends Connection {
             } else {
                 // file contains only one hash, so set hash set with that one hash
                 final Hash h = value.hash;
-                transfer.setHashSet(h, new ArrayList<Hash>() {{ add(h); }});
-                write(new StartUpload(transfer.hash()));
+                if (transfer.hash().equals(value.hash)) {
+                    transfer.setHashSet(h, new ArrayList<Hash>() {{
+                        add(h);
+                    }});
+                    write(new StartUpload(transfer.hash()));
+                } else {
+                    log.warn("hash from response {} mismatch transfer's hash {}"
+                        , value.hash
+                        , transfer.hash());
+                    close(ErrorCode.HASH_MISMATCH);
+                }
             }
         } else {
             close(ErrorCode.NO_TRANSFER);
@@ -642,13 +651,16 @@ public class PeerConnection extends Connection {
             throws JED2KException {
         log.debug("{} << hashset answer", endpoint);
         if (transfer != null) {
-            if (transfer.hash().equals(value.getHash()) && transfer.hash().equals(Hash.fromHashSet(value.getParts()))) {
+            if (transfer.hash().equals(value.getHash())
+                    && transfer.hash().equals(Hash.fromHashSet(value.getParts()))
+                    && transfer.getPicker().getPieceCount() == value.getParts().size()) {
                 transfer.setHashSet(value.getHash(), value.getParts());
                 write(new StartUpload(transfer.hash()));
             } else {
                 log.warn("incorrect hash set answer {} for transfer hash {}"
                     , value.getHash()
                     , transfer.hash());
+                close(ErrorCode.WRONG_HASHSET);
             }
         } else {
             close(ErrorCode.NO_TRANSFER);

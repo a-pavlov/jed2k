@@ -380,11 +380,6 @@ public class Transfer {
     }
 
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
-        // TODO - add few checks here
-        // 1. check common hash is compatible with hash set
-        // 2. check hash set dataSize
-        // 3. compare new hash set and previous?
-        // now copy first hash set to transfer
         if (hashSet.isEmpty()) {
             log.debug("{} hash set received {}", hash(), hs.size());
             hashSet.addAll(hs);
