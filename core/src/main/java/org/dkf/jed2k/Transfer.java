@@ -442,8 +442,10 @@ public class Transfer {
         assert hashSet.size() > pieceIndex;
 
         if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
-            log.error("restore piece due to expected hash {} is not equal with calculated {}",
-                    hashSet.get(pieceIndex), hash);
+            log.error("restore piece {} due to expected hash {} != {} was calculated"
+                    , pieceIndex
+                    , hashSet.get(pieceIndex)
+                    , hash);
             picker.restorePiece(pieceIndex);
         }
         else {
