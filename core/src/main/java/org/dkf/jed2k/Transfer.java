@@ -359,7 +359,7 @@ public class Transfer {
         }
 
         aioFutures.clear();
-        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
+        session.aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
     }
 
     void pause() {

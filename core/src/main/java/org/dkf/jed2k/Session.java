@@ -60,6 +60,7 @@ public class Session extends Thread {
     private Statistics accumulator = new Statistics();
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
+    LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
 
     /**
      * external DHT tracker object
@@ -328,6 +329,22 @@ public class Session extends Thread {
 
         // second tick on server connection
         if (serverConection != null) serverConection.secondTick(tickIntervalMS);
+
+        while(!aioFutures.isEmpty()) {
+            Future<AsyncOperationResult> res = aioFutures.peek();
+            if (!res.isDone()) break;
+
+            try {
+                res.get().onCompleted();
+            } catch (InterruptedException e) {
+                log.warn("session aio future InterruptedException {}", e);
+            } catch( ExecutionException e) {
+                log.warn("session aio future ExecutionException {}", e);
+            }
+            finally {
+                aioFutures.poll();
+            }
+        }
 
         // TODO - run second tick on peer connections
         // execute user's commands

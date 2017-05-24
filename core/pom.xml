@@ -5,7 +5,7 @@
 
     <groupId>org.dkf</groupId>
     <artifactId>jed2k</artifactId>
-    <version>0.0.1</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>jed2k</name>
