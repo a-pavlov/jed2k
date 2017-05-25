@@ -22,6 +22,7 @@ public class BlockManager {
     private int lastHashedBlock = -1;
     private ByteBuffer[] buffers;
     private int piece;
+    private byte[] trash = {0, 2};
 
     public BlockManager(int piece, int buffersCount) {
         this.piece = piece;
@@ -46,6 +47,7 @@ public class BlockManager {
                 assert(buffers[i] != null);
                 assert(buffers[i].hasRemaining());
                 hasher.update(buffers[i]);
+                //hasher.update(trash);
                 assert(!buffers[i].hasRemaining());
                 freeBuffers.add(buffers[i]);
                 buffers[i] = null;

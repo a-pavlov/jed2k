@@ -284,6 +284,8 @@ public class Transfer {
     }
 
 	void secondTick(final Statistics accumulator, long tickIntervalMS) {
+        assert !released;
+
         if (!isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
 
             if (nextTimeForSourcesRequest < Time.currentTime()) {
@@ -467,8 +469,11 @@ public class Transfer {
             session.bufferPool.deallocate(buffer, Time.currentTime());
         }
 
-        // self remove transfer from processing map
-        session.transfers.remove(hash);
+        released = true;
+    }
+
+    public boolean isReleased() {
+        return released;
     }
 
     /**

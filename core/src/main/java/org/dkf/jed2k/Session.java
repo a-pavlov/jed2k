@@ -321,11 +321,13 @@ public class Session extends Thread {
     }
 
     public void secondTick(long currentSessionTime, long tickIntervalMS) {
-        List<Transfer> localTransfers = new LinkedList<>();
-        localTransfers.addAll(transfers.values());
 
-        for(final Transfer t: localTransfers) {
-            t.secondTick(accumulator, tickIntervalMS);
+        Iterator<Map.Entry<Hash, Transfer>> itr = transfers.entrySet().iterator();
+
+        while(itr.hasNext()) {
+            Map.Entry<Hash, Transfer> entry = itr.next();
+            if (entry.getValue().isReleased()) itr.remove();
+            else entry.getValue().secondTick(accumulator, tickIntervalMS);
         }
 
         // second tick on server connection
@@ -395,11 +397,12 @@ public class Session extends Thread {
             for(int i = 0; i < 5; ++i) {
                 log.debug("wait transfers");
 
-                localTransfers.clear();
-                localTransfers.addAll(transfers.values());
+                Iterator<Map.Entry<Hash, Transfer>> itr = transfers.entrySet().iterator();
 
-                for(final Transfer t: localTransfers) {
-                    t.secondTick(accumulator, Time.currentTime());
+                while(itr.hasNext()) {
+                    Map.Entry<Hash, Transfer> entry = itr.next();
+                    if (entry.getValue().isReleased()) itr.remove();
+                    else entry.getValue().secondTick(accumulator, 1000);
                 }
 
                 if (transfers.isEmpty()) break;
