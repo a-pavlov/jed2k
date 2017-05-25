@@ -60,7 +60,6 @@ public class Session extends Thread {
     private Statistics accumulator = new Statistics();
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
-    LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
 
     /**
      * external DHT tracker object
@@ -330,22 +329,6 @@ public class Session extends Thread {
         // second tick on server connection
         if (serverConection != null) serverConection.secondTick(tickIntervalMS);
 
-        while(!aioFutures.isEmpty()) {
-            Future<AsyncOperationResult> res = aioFutures.peek();
-            if (!res.isDone()) break;
-
-            try {
-                res.get().onCompleted();
-            } catch (InterruptedException e) {
-                log.warn("session aio future InterruptedException {}", e);
-            } catch( ExecutionException e) {
-                log.warn("session aio future ExecutionException {}", e);
-            }
-            finally {
-                aioFutures.poll();
-            }
-        }
-
         // TODO - run second tick on peer connections
         // execute user's commands
         Runnable r = commands.poll();
@@ -401,8 +384,34 @@ public class Session extends Thread {
 
             // abort all transfers
             for(final Transfer t: transfers.values()) {
-                t.abort();
+                t.abort(false);
             }
+
+            // 5 seconds for close all transfers
+            for(int i = 0; i < 5; ++i) {
+                log.debug("wait transfers");
+
+                for(final Transfer t: transfers.values()) {
+                    t.secondTick(accumulator, Time.currentTime());
+                }
+
+                if (transfers.isEmpty()) break;
+
+                try {
+                    Thread.sleep(1000);
+                } catch(Exception e) {
+                    log.error("sleep error {}", e);
+                }
+            }
+
+            if (!transfers.isEmpty()) {
+                log.warn("not all transfers finished work");
+                for(final Transfer t: transfers.values()) {
+                    log.warn("transfer {} is not finished", t.hash());
+                }
+            }
+
+
 
             ArrayList<PeerConnection> localConnections = (ArrayList<PeerConnection>) connections.clone();
             for(final PeerConnection c: localConnections) {
@@ -673,16 +682,13 @@ public class Session extends Thread {
         return new TransferHandle(this, transfers.get(h));
     }
 
-    public void removeTransfer(final Hash h, final boolean removeFile) {
+    public void removeTransfer(final Hash h, final boolean deleteFile) {
         commands.add(new Runnable() {
             @Override
             public void run() {
                     Transfer t = transfers.get(h);
                     if (t != null) {
-                        // add delete file here
-                        t.abort();
-                        if (removeFile) t.deleteFile();
-                        transfers.remove(h);
+                        t.abort(deleteFile);
                         pushAlert(new TransferRemovedAlert(h));
                     }
             }

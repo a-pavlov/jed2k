@@ -96,6 +96,8 @@ public class Transfer {
 
     private SpeedMonitor speedMon = new SpeedMonitor(30);
 
+    private boolean released = false;
+
     public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
         this.hash = atp.getHash();
@@ -317,9 +319,9 @@ public class Transfer {
             try {
                 res.get().onCompleted();
             } catch (InterruptedException e) {
-                // TODO - handle it
+                log.warn("second tick aio InterruptedException {}", e);
             } catch( ExecutionException e) {
-                // TODO - handle it
+                log.warn("second tick aio ExecutionException {}", e);
             }
             finally {
                 aioFutures.poll();
@@ -347,8 +349,11 @@ public class Transfer {
      * cancel all disk i/o operations
      * release file
      */
-    void abort() {
-        log.debug("{} abort", hash);
+    void abort(boolean deleteFile) {
+        log.debug("abort transfer {} file {}"
+                , hash
+                , deleteFile?"delete":"save");
+
         if (abort) return;
         abort = true;
         disconnectAll(ErrorCode.TRANSFER_ABORTED);
@@ -359,7 +364,7 @@ public class Transfer {
         }
 
         aioFutures.clear();
-        session.aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
+        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this, deleteFile)));
     }
 
     void pause() {
@@ -373,10 +378,6 @@ public class Transfer {
         pause = false;
         needSaveResumeData = true;
         session.pushAlert(new TransferResumedAlert(hash));
-    }
-
-    void deleteFile() {
-        aioFutures.addLast(session.submitDiskTask(new AsyncDeleteFile(this)));
     }
 
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
@@ -404,7 +405,7 @@ public class Transfer {
         // policy will know transfer is finished automatically via call isFinished on transfer
         // async release file
         setState(TransferStatus.TransferState.FINISHED);
-        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
+        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this, false)));
         needSaveResumeData = true;
         session.pushAlert(new TransferFinishedAlert(hash()));
     }
@@ -460,10 +461,14 @@ public class Transfer {
         log.debug("release file completed {} release byte buffers count {}"
                 , c
                 , buffers.size());
-        // return buffers to pool
+
+
         for (ByteBuffer buffer : buffers) {
             session.bufferPool.deallocate(buffer, Time.currentTime());
         }
+
+        // self remove transfer from processing map
+        session.transfers.remove(hash);
     }
 
     /**

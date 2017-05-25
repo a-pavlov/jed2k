@@ -120,8 +120,14 @@ public class PieceManager extends BlocksEnumerator {
      * close file and release resources
      * @return list of ByteBuffers for buffer pool deallocation
      */
-    public List<ByteBuffer> releaseFile() {
+    public List<ByteBuffer> releaseFile(boolean deleteFile) {
         handler.close();
+        try {
+            if (deleteFile) handler.deleteFile();
+        } catch(JED2KException e) {
+            log.error("unable to delete file {}", e);
+        }
+
         return abort();
     }
 

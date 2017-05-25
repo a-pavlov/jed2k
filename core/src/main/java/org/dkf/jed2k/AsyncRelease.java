@@ -10,13 +10,15 @@ import java.util.concurrent.Callable;
 public class AsyncRelease implements Callable<AsyncOperationResult> {
 
     private final Transfer transfer;
+    private final boolean deleteFile;
 
-    public AsyncRelease(final Transfer t) {
+    public AsyncRelease(final Transfer t, boolean deleteFile) {
         transfer = t;
+        this.deleteFile = deleteFile;
     }
 
     @Override
     public AsyncOperationResult call() throws Exception {
-        return new AsyncReleaseResult(ErrorCode.NO_ERROR, transfer, transfer.getPieceManager().releaseFile());
+        return new AsyncReleaseResult(ErrorCode.NO_ERROR, transfer, transfer.getPieceManager().releaseFile(deleteFile));
     }
 }

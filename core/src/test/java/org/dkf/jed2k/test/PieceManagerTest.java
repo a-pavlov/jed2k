@@ -109,7 +109,7 @@ public class PieceManagerTest {
         List<ByteBuffer> res4 = pm.writeBlock(new PieceBlock(1, 1), getBuffer(new PieceBlock(1, 1), Constants.BLOCK_SIZE_INT));
         assertTrue(res3.isEmpty());
         assertTrue(res4.isEmpty());
-        List<ByteBuffer> terminateBuffers = pm.releaseFile();
+        List<ByteBuffer> terminateBuffers = pm.releaseFile(false);
         assertEquals(5, terminateBuffers.size());
         for(final ByteBuffer bb: terminateBuffers) {
             pool.deallocate(bb, 1000);
