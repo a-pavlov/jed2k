@@ -321,9 +321,11 @@ public class Session extends Thread {
     }
 
     public void secondTick(long currentSessionTime, long tickIntervalMS) {
-        for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
-            Hash key = entry.getKey();
-            entry.getValue().secondTick(accumulator, tickIntervalMS);
+        List<Transfer> localTransfers = new LinkedList<>();
+        localTransfers.addAll(transfers.values());
+
+        for(final Transfer t: localTransfers) {
+            t.secondTick(accumulator, tickIntervalMS);
         }
 
         // second tick on server connection
@@ -387,11 +389,16 @@ public class Session extends Thread {
                 t.abort(false);
             }
 
+
+            List<Transfer> localTransfers = new LinkedList<>();
             // 5 seconds for close all transfers
             for(int i = 0; i < 5; ++i) {
                 log.debug("wait transfers");
 
-                for(final Transfer t: transfers.values()) {
+                localTransfers.clear();
+                localTransfers.addAll(transfers.values());
+
+                for(final Transfer t: localTransfers) {
                     t.secondTick(accumulator, Time.currentTime());
                 }
 
@@ -410,8 +417,6 @@ public class Session extends Thread {
                     log.warn("transfer {} is not finished", t.hash());
                 }
             }
-
-
 
             ArrayList<PeerConnection> localConnections = (ArrayList<PeerConnection>) connections.clone();
             for(final PeerConnection c: localConnections) {
