@@ -22,6 +22,7 @@ import okio.Timeout;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.disk.DesktopFileHandler;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
