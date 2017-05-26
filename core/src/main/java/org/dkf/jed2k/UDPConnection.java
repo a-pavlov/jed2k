@@ -10,7 +10,6 @@ import org.dkf.jed2k.protocol.PacketHeader;
 import org.dkf.jed2k.protocol.Serializable;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
@@ -28,7 +27,7 @@ public class UDPConnection {
     private ByteBuffer bufferOutgoing;
     private LinkedList<Pair<Serializable, Endpoint>> outgoingOrder =
             new LinkedList<Pair<Serializable, Endpoint> >();
-    private boolean writeInProgress = false;
+
     private SelectionKey key = null;
     private Statistics stat = new Statistics();
     final Session session;
@@ -44,9 +43,9 @@ public class UDPConnection {
             channel.configureBlocking(false);
             key = channel.register(session.selector, SelectionKey.OP_READ, this);
         } catch(ClosedChannelException e) {
-
+            log.error("[udp] closed channel exception {}", e.getMessage());
         } catch(IOException e) {
-
+            log.error("[udp] i/o exception {}", e.getMessage());
         }
     }
 
@@ -54,15 +53,14 @@ public class UDPConnection {
         try {
             channel.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("[udp] channel close exception {}", e.getMessage());
         }
     }
 
     public void onReadable() throws JED2KException {
         bufferIncoming.clear();
         try {
-            SocketAddress addr = channel.receive(bufferIncoming);
+            channel.receive(bufferIncoming);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -73,18 +71,15 @@ public class UDPConnection {
         stat.receiveBytes(bufferIncoming.remaining(), 0);
         PacketHeader header = new PacketHeader();
         header.get(bufferIncoming);
-        Serializable packet = packetCombainer.unpack(header, bufferIncoming);
-        // send packet to dispather
-        // Serializable packet = packetCombainer.unpack(header, bufferIncoming);
+        packetCombainer.unpack(header, bufferIncoming);
     }
 
     public void onWriteable() {
         try {
             bufferOutgoing.clear();
             Pair<Serializable, Endpoint> point = outgoingOrder.poll();
-            writeInProgress = point != null;
+
             if (point != null) {
-                writeInProgress = true;
                 if (!packetCombainer.pack(point.left, bufferOutgoing)) throw new JED2KException(ErrorCode.FAIL);
                 bufferOutgoing.flip();
                 stat.sendBytes(bufferOutgoing.remaining(), 0);

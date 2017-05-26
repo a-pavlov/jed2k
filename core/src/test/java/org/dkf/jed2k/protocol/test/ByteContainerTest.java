@@ -25,7 +25,7 @@ public class ByteContainerTest{
         ByteContainer<UInt8> bc = new ByteContainer<UInt8>(uint8());
         bc.get(nb);
         assertEquals(7, bc.getSize().intValue());
-        assertEquals(new String("  012  "), bc.asString());
+        assertEquals("  012  ", bc.asString());
     }
 
     @Test
@@ -37,7 +37,7 @@ public class ByteContainerTest{
         ByteContainer<UInt32> bc = new ByteContainer<UInt32>(uint32());
         bc.get(nb);
         assertEquals(7, bc.getSize().intValue());
-        assertEquals(new String("  012  "), bc.asString());
+        assertEquals("  012  ", bc.asString());
     }
 
     @Test

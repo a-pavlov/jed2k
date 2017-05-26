@@ -183,25 +183,19 @@ public class GatewayDevice {
         String soapAction = "\"" + service + "#" + action + "\"";
         StringBuilder soapBody = new StringBuilder();
 
-        soapBody.append("<?xml version=\"1.0\"?>\r\n" +
-                "<SOAP-ENV:Envelope " +
-                "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
-                "SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
-                "<SOAP-ENV:Body>" +
-                "<m:" + action + " xmlns:m=\"" + service + "\">");
+        soapBody.append("<?xml version=\"1.0\"?>\r\n" + "<SOAP-ENV:Envelope " + "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" " + "SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" + "<SOAP-ENV:Body>" + "<m:").append(action).append(" xmlns:m=\"").append(service).append("\">");
 
         if (args != null && args.size() > 0) {
 
             Set<Map.Entry<String, String>> entrySet = args.entrySet();
 
             for (Map.Entry<String, String> entry : entrySet) {
-                soapBody.append("<" + entry.getKey() + ">" + entry.getValue() +
-                        "</" + entry.getKey() + ">");
+                soapBody.append("<").append(entry.getKey()).append(">").append(entry.getValue()).append("</").append(entry.getKey()).append(">");
             }
 
         }
 
-        soapBody.append("</m:" + action + ">");
+        soapBody.append("</m:").append(action).append(">");
         soapBody.append("</SOAP-ENV:Body></SOAP-ENV:Envelope>");
 
         URL postUrl = new URL(url);
@@ -260,12 +254,9 @@ public class GatewayDevice {
                 serviceType, "GetStatusInfo", null);
 
         String connectionStatus = nameValue.get("NewConnectionStatus");
-        if (connectionStatus != null
-                && connectionStatus.equalsIgnoreCase("Connected")) {
-            return true;
-        }
+        return connectionStatus != null
+                && connectionStatus.equalsIgnoreCase("Connected");
 
-        return false;
     }
 
     /**
@@ -419,6 +410,7 @@ public class GatewayDevice {
             portMappingEntry.setInternalPort(
                     Integer.parseInt(nameValue.get("NewInternalPort")));
         } catch (Exception e) {
+
         }
 
         try {

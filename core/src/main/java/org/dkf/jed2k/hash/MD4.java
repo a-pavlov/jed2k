@@ -80,8 +80,8 @@ public  class MD4 extends MessageDigest implements Cloneable
      */
     private MD4 (MD4 md) {
         this();
-        context = (int[])md.context.clone();
-        buffer = (byte[])md.buffer.clone();
+        context = md.context.clone();
+        buffer = md.buffer.clone();
         count = md.count;
     }
 

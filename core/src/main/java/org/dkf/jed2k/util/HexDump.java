@@ -37,7 +37,7 @@ public class HexDump {
         StringBuilder sb = new StringBuilder();
 
         int processedBytes = 0;
-        int j = 0;
+        int j;
         for (j = 0; j < count; j++ ) {
             if (j != 0 && j % 16 == 0) {
                 appendCharacters(bytes, sb, j + offset - processedBytes, processedBytes);

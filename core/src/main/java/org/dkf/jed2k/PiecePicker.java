@@ -35,7 +35,7 @@ public class PiecePicker extends BlocksEnumerator {
         super(pieceCount, blocksInLastPiece);
     	assert(pieceCount > 0);
         pieceStatus = new byte[pieceCount];
-        Arrays.fill(pieceStatus, (byte)PieceState.NONE.value);
+        Arrays.fill(pieceStatus, PieceState.NONE.value);
     }
 
     /**

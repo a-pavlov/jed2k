@@ -4,8 +4,8 @@ import org.dkf.jed2k.protocol.Hash;
 
 public class Settings {
     public Hash userAgent = new Hash(Hash.LIBED2K);
-    public String modName = new String("jed2k");
-    public String clientName = new String("jed2k");
+    public String modName = "jed2k";
+    public String clientName = "jed2k";
     public int listenPort = 4661;
     public int udpPort = 4662;
     public int version = 0x3c;

@@ -281,10 +281,10 @@ public class PeerConnection extends Connection {
                     (supportSecIdent       << 4*4) |
                     (sourceExchange1Ver    << 4*3) |
                     (extendedRequestsVer   << 4*2) |
-                    (acceptCommentVer      << 4*1) |
-                    (noViewSharedFiles     << 1*2) |
-                    (multiPacket           << 1*1) |
-                    (supportsPreview       << 1*0);
+                    (acceptCommentVer      << 4) |
+                    (noViewSharedFiles     << 2) |
+                    (multiPacket           << 1) |
+                    supportsPreview;
         }
 
         public void assign(int value) {
@@ -295,10 +295,10 @@ public class PeerConnection extends Connection {
             supportSecIdent      = (value >> 4*4) & 0x0f;
             sourceExchange1Ver   = (value >> 4*3) & 0x0f;
             extendedRequestsVer  = (value >> 4*2) & 0x0f;
-            acceptCommentVer     = (value >> 4*1) & 0x0f;
-            noViewSharedFiles    = (value >> 1*2) & 0x01;
-            multiPacket          = (value >> 1*1) & 0x01;
-            supportsPreview      = (value >> 1*0) & 0x01;
+            acceptCommentVer     = (value >> 4) & 0x0f;
+            noViewSharedFiles    = (value >> 2) & 0x01;
+            multiPacket          = (value >> 1) & 0x01;
+            supportsPreview      = value & 0x01;
         }
     }
 

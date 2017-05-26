@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import static junit.framework.Assert.*;
@@ -33,14 +32,13 @@ public class TagTest {
             {   /* 2 bytes list size*/      (byte)0x09, (byte)0x00,
                 /*1 byte*/          (byte)(Tag.TAGTYPE_UINT8 | 0x80),   (byte)0x10, (byte)0xED,
                 /*2 bytes*/         (byte)(Tag.TAGTYPE_UINT16 | 0x80),  (byte)0x11, (byte)0x0A, (byte)0x0D,
-                /*8 bytes*/         (byte)(Tag.TAGTYPE_UINT64),         (byte)0x04, (byte)0x00, (byte)0x30, (byte)0x31, (byte)0x32, (byte)0x33, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08,
-                /*variable string*/ (byte)(Tag.TAGTYPE_STRING),         (byte)0x04, (byte)0x00, (byte)'A',  (byte)'B',  (byte)'C',  (byte)'D',  (byte)0x06, (byte)0x00, 'S', 'T', 'R', 'I', 'N', 'G',
-                /*defined string*/  (byte)(Tag.TAGTYPE_STR5),           (byte)0x04, (byte)0x00, (byte)'I',  (byte)'V',  (byte)'A',  (byte)'N',  (byte)'A',  (byte)'P',  (byte)'P', (byte)'L', (byte)'E',
+                /*8 bytes*/         Tag.TAGTYPE_UINT64,         (byte)0x04, (byte)0x00, (byte)0x30, (byte)0x31, (byte)0x32, (byte)0x33, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08,
+                /*variable string*/ Tag.TAGTYPE_STRING,         (byte)0x04, (byte)0x00, (byte)'A',  (byte)'B',  (byte)'C',  (byte)'D',  (byte)0x06, (byte)0x00, 'S', 'T', 'R', 'I', 'N', 'G',
+                /*defined string*/  Tag.TAGTYPE_STR5,           (byte)0x04, (byte)0x00, (byte)'I',  (byte)'V',  (byte)'A',  (byte)'N',  (byte)'A',  (byte)'P',  (byte)'P', (byte)'L', (byte)'E',
                 /*blob*/            (byte)(Tag.TAGTYPE_BLOB | 0x80),    (byte)0x0A, (byte)0x03, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x0D, (byte)0x0A, (byte)0x0B,
                 /*float*/           (byte)(Tag.TAGTYPE_FLOAT32 | 0x80), (byte)0x15, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04,
                 /*bool*/            (byte)(Tag.TAGTYPE_BOOL | 0x80),    (byte)0x15, (byte)0x01,
                 /*hash*/            (byte)(Tag.TAGTYPE_HASH16 | 0x80),  (byte)0x20, (byte)0x00, (byte)0x01, (byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05, (byte)0x06, (byte)0x07, (byte)0x08, (byte)0x09, (byte)0x0A, (byte)0x0B, (byte)0x0C, (byte)0x0D, (byte)0x0E, (byte)0x0F };
-        ArrayList<Tag> atags = new ArrayList<Tag>();
         Container<UInt16, Tag> tags = new Container<UInt16, Tag>(uint16(), Tag.class);
         ByteBuffer nb = ByteBuffer.wrap(source);
         nb.order(ByteOrder.LITTLE_ENDIAN);
@@ -61,7 +59,7 @@ public class TagTest {
 
         assertTrue(itr.hasNext());
         t = itr.next();
-        assertEquals(0x0807060504030201l, t.longValue());
+        assertEquals(0x0807060504030201L, t.longValue());
         assertEquals(1 + 2 + "0123".length() + 8, t.bytesCount());
 
         assertTrue(itr.hasNext());

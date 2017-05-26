@@ -54,10 +54,7 @@ public class Hash implements Serializable, Comparable<Hash> {
         assert(value.length == MD4.HASH_SIZE);
         if (value.length != MD4.HASH_SIZE) return INVALID;
         Hash res = new Hash();
-        for(int i = 0; i < MD4.HASH_SIZE; ++i) {
-            res.value[i] = value[i];
-        }
-
+        System.arraycopy(value, 0, res.value, 0, MD4.HASH_SIZE);
         return res;
     }
 

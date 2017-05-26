@@ -107,11 +107,7 @@ public final class Endpoint implements Serializable, Comparable<Endpoint> {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Endpoint && compareTo((Endpoint)o) == 0) {
-            return true;
-        }
-
-        return false;
+        return o instanceof Endpoint && compareTo((Endpoint) o) == 0;
     }
 
     @Override

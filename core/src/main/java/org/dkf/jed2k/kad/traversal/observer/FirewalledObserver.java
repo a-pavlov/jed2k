@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
-import org.dkf.jed2k.protocol.kad.Kad2FirewalledReq;
 import org.dkf.jed2k.protocol.kad.Kad2FirewalledRes;
 import org.dkf.jed2k.protocol.kad.KadId;
 

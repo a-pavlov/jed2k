@@ -22,7 +22,7 @@ public abstract class Pool<T> {
 
     public T allocate() {
         T b = freeBuffers.poll();
-        Long releaseTime = bufferReleaseTimes.poll();
+        bufferReleaseTimes.poll();
         assert(freeBuffers.size() == bufferReleaseTimes.size());
 
         if (b == null && allocatedBuffersCount < maxBuffersCount) {

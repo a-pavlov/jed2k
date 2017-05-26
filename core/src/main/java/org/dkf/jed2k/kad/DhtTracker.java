@@ -349,7 +349,6 @@ public class DhtTracker extends Thread {
         log.debug("[tracker] search keyword {}", key);
         MD4 md4 = new MD4();
         md4.update(key.getBytes());
-        Kad2SearchKeysReq req = new Kad2SearchKeysReq();
         node.searchKeywords(KadId.fromBytes(md4.digest()), l);
     }
 

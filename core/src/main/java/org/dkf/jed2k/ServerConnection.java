@@ -311,7 +311,7 @@ public class ServerConnection extends Connection {
     }
 
     void sendFileSourcesRequest(final Hash h, final long size) {
-        long hi = (size >>> 32) & 0xFFFFFFFF;
+        long hi = size >>> 32;
         long lo = size & 0xFFFFFFFF;
         write(new GetFileSources(h, (int)hi, (int)lo));
     }

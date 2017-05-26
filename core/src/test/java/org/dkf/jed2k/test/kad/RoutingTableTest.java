@@ -94,12 +94,9 @@ public class RoutingTableTest {
         RoutingTable table = new RoutingTable(target, 10);
         Set<KadId> entries = new HashSet<>();
         for(int i = 0; i < 10; ++i) {
-            while(true) {
-                KadId id = getDistinctId();
-                entries.add(id);
-                table.addNode(new NodeEntry(id, new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true, 0, (byte)0));
-                break;
-            }
+            KadId id = getDistinctId();
+            entries.add(id);
+            table.addNode(new NodeEntry(id, new Endpoint(rnd.nextInt(), rnd.nextInt(9999)), true, 0, (byte)0));
         }
 
         assertEquals(10, table.getSize().left.intValue());

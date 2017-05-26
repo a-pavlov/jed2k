@@ -19,7 +19,7 @@ public class AddTransferParams implements Serializable {
     private final UInt64 size = new UInt64();
     private final ByteContainer<UInt16> filepath = new ByteContainer<UInt16>(Unsigned.uint16());
     private final UInt8 paused = Unsigned.uint8();
-    public Optional<TransferResumeData> resumeData = new Optional(TransferResumeData.class);
+    public Optional<TransferResumeData> resumeData = new Optional<>(TransferResumeData.class);
     private FileHandler handler;
 
     public AddTransferParams() {

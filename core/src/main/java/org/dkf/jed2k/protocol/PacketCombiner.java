@@ -59,7 +59,7 @@ public abstract class PacketCombiner {
 
             Inflater decompresser = new Inflater();
             decompresser.setInput(compressedData, 0, compressedData.length);
-            int resultLength = 0;
+            int resultLength;
             try {
                 resultLength = decompresser.inflate(plainData);
                 log.trace("Compressed data size {} uncompressed data size {}", compressedData.length, resultLength);
@@ -84,7 +84,7 @@ public abstract class PacketCombiner {
 
         PacketKey key = header.key();
         Class<? extends Serializable> clazz = keyToPacket(key);
-        Serializable ph = null;
+        Serializable ph;
 
         if (clazz != null) {
             try {
@@ -102,16 +102,12 @@ public abstract class PacketCombiner {
             ph = new BytesSkipper(serviceSize(header));
         }
 
-        try {
-            if (ph instanceof SoftSerializable) {
-                SoftSerializable ssp = (SoftSerializable)ph;
-                assert(ssp != null);
-                ssp.get(src, serviceSize(header));
-            } else {
-                ph.get(src);
-            }
-        } catch(JED2KException e) {
-            throw e;
+        if (ph instanceof SoftSerializable) {
+            SoftSerializable ssp = (SoftSerializable)ph;
+            assert(ssp != null);
+            ssp.get(src, serviceSize(header));
+        } else {
+            ph.get(src);
         }
 
         return ph;

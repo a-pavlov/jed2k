@@ -38,7 +38,7 @@ public class HashTest{
         assertEquals(h, Hash.INVALID);
         assertEquals(h, Hash.fromString("00000000000000000000000000000000"));
         assertEquals(Hash.TERMINAL, Hash.fromBytes(terminal));
-        assertEquals(new String("31D6CFE0D16AE931B73C59D7E0C089C0"), Hash.TERMINAL.toString());
+        assertEquals("31D6CFE0D16AE931B73C59D7E0C089C0", Hash.TERMINAL.toString());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class HashTest{
     @Test
     public void testHashing() {
         LinkedList<Pair<Long, Hash>> llh = new LinkedList<Pair<Long, Hash>>();
-        llh.push(Pair.make(100l, Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5")));
+        llh.push(Pair.make(100L, Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5")));
         llh.push(Pair.make(Constants.PIECE_SIZE, Hash.fromString("E76BADB8F958D7685B4549D874699EE9")));
         llh.push(Pair.make(Constants.PIECE_SIZE+1, Hash.fromString("49EC2B5DEF507DEA73E106FEDB9697EE")));
         if (notAndroidPlatform) llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
@@ -86,7 +86,7 @@ public class HashTest{
             assertEquals(p.left.intValue(), src.length);
 
             Long pieces = Utils.divCeil(p.left, Constants.PIECE_SIZE);
-            assertTrue(pieces.compareTo(0l) == 1);
+            assertTrue(pieces.compareTo(0L) == 1);
             LinkedList<Hash> part_hashset = new LinkedList<Hash>();
             Long capacity = p.left;
             MD4 hasher = new MD4();
@@ -152,7 +152,7 @@ public class HashTest{
     @Test
     public void testByteBufferHashing() {
         LinkedList<Pair<Long, Hash>> llh = new LinkedList<Pair<Long, Hash>>();
-        llh.push(Pair.make(100l, Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5")));
+        llh.push(Pair.make(100L, Hash.fromString("1AA8AFE3018B38D9B4D880D0683CCEB5")));
         llh.push(Pair.make(Constants.PIECE_SIZE, Hash.fromString("E76BADB8F958D7685B4549D874699EE9")));
         llh.push(Pair.make(Constants.PIECE_SIZE+1, Hash.fromString("49EC2B5DEF507DEA73E106FEDB9697EE")));
         if (notAndroidPlatform) llh.push(Pair.make(Constants.PIECE_SIZE*4, Hash.fromString("9385DCEF4CB89FD5A4334F5034C28893")));
@@ -170,7 +170,7 @@ public class HashTest{
             assertEquals(p.left.intValue(), src.remaining());
 
             Long pieces = Utils.divCeil(p.left, Constants.PIECE_SIZE);
-            assertTrue(pieces.compareTo(0l) == 1);
+            assertTrue(pieces.compareTo(0L) == 1);
             LinkedList<Hash> part_hashset = new LinkedList<Hash>();
             Long capacity = p.left;
             MD4 hasher = new MD4();

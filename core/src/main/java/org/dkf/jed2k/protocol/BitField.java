@@ -8,10 +8,8 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 public class BitField implements Iterable<Boolean>, Serializable {
-    private static Logger log = Logger.getLogger(BitField.class.getName());
 
     byte[]  m_bytes;
     int m_size = 0;

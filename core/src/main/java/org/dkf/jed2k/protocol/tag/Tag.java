@@ -402,7 +402,7 @@ public final class Tag implements Serializable {
         @Override
         public ByteBuffer get(ByteBuffer src) throws JED2KException {
             try {
-                short size = 0;
+                short size;
                 if (type >= Tag.TAGTYPE_STR1 && type <= Tag.TAGTYPE_STR16) {
                     size = (short)(type - Tag.TAGTYPE_STR1 + 1);
                 } else {
@@ -449,7 +449,7 @@ public final class Tag implements Serializable {
                 e.printStackTrace();
             }
 
-            return new String();
+            return "";
         }
     }
 
@@ -773,7 +773,7 @@ public final class Tag implements Serializable {
 
     public static Tag tag(byte id, String name, String value) throws JED2KException {
         byte type = Tag.TAGTYPE_STRING;
-        byte[] bytes = null;
+        byte[] bytes;
 
         try {
             bytes = value.getBytes("UTF-8");

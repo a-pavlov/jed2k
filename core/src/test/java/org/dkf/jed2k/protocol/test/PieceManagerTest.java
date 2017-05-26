@@ -33,7 +33,6 @@ public class PieceManagerTest {
             buffer.put((byte)(i/Constants.BLOCKS_PER_PIECE));
         }
 
-        int pos = buffer.position();
         assert(buffer.position() >= Constants.PIECE_SIZE - 4);
         buffer.flip();
         byte[] data = new byte[(int)Constants.PIECE_SIZE];

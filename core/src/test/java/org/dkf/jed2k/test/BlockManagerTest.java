@@ -34,7 +34,7 @@ public class BlockManagerTest {
             buffer.putInt(rnd.nextInt());
         }
 
-        int pos = buffer.position();
+
         assert(buffer.position() >= Constants.PIECE_SIZE - 4);
         buffer.flip();
         byte[] data = new byte[(int)Constants.PIECE_SIZE];

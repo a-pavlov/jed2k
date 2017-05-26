@@ -1,6 +1,7 @@
 package org.dkf.jed2k.data;
 
 import java.util.AbstractList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 /**
@@ -17,9 +18,7 @@ public class Region extends AbstractList<Range> {
 	}
 
 	public Region(Range[] ranges) {
-		for(Range r: ranges) {
-			segments.add(r);
-		}
+		Collections.addAll(segments, ranges);
 	}
 
 	public boolean empty() {

@@ -37,7 +37,7 @@ public class PieceBlock implements Comparable<PieceBlock>, Serializable {
     }
 
     public static PieceBlock mkBlock(final PeerRequest r) {
-        return new PieceBlock((int)r.piece, (int)(r.start / Constants.BLOCK_SIZE));
+        return new PieceBlock(r.piece, (int)(r.start / Constants.BLOCK_SIZE));
     }
 
     /**

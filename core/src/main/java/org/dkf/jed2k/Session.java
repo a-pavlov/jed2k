@@ -393,8 +393,6 @@ public class Session extends Thread {
                 t.abort(false);
             }
 
-
-            List<Transfer> localTransfers = new LinkedList<>();
             // 5 seconds for close all transfers
             for(int i = 0; i < 5; ++i) {
                 log.debug("wait transfers");
@@ -608,7 +606,6 @@ public class Session extends Thread {
     	commands.add(new Runnable() {
 			@Override
 			public void run() {
-				boolean relisten = (settings.listenPort != s.listenPort);
 				settings = s;
 				listen();
 			}
@@ -743,7 +740,6 @@ public class Session extends Thread {
             //log.finest("connectNewPeers with transfers count " + numTransfers);
             while (enumerateCandidates) {
                 for (Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
-                    Hash key = entry.getKey();
                     Transfer t = entry.getValue();
 
                     if (t.wantMorePeers()) {
