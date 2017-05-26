@@ -1,4 +1,4 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.disk;
 
 import org.dkf.jed2k.exception.BaseErrorCode;
 

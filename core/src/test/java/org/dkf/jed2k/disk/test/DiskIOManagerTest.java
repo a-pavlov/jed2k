@@ -1,6 +1,6 @@
 package org.dkf.jed2k.disk.test;
 
-import org.dkf.jed2k.AsyncOperationResult;
+import org.dkf.jed2k.disk.AsyncOperationResult;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.junit.Test;

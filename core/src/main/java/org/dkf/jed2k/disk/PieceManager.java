@@ -1,6 +1,9 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.disk;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.BlockManager;
+import org.dkf.jed2k.BlocksEnumerator;
+import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -153,7 +156,7 @@ public class PieceManager extends BlocksEnumerator {
         handler.deleteFile();
     }
 
-    final File getFile() {
+    public final File getFile() {
         return handler.getFile();
     }
 }

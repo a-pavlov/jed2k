@@ -1,5 +1,6 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.disk;
 
+import org.dkf.jed2k.Transfer;
 import org.dkf.jed2k.exception.BaseErrorCode;
 
 import java.nio.ByteBuffer;

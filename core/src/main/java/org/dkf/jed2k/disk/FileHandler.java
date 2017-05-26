@@ -1,4 +1,4 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.disk;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;

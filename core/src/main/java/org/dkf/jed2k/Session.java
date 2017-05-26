@@ -4,6 +4,8 @@ import org.bitlet.weupnp.GatewayDevice;
 import org.bitlet.weupnp.GatewayDiscover;
 import org.bitlet.weupnp.PortMappingEntry;
 import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.disk.AsyncOperationResult;
+import org.dkf.jed2k.disk.FileHandler;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;

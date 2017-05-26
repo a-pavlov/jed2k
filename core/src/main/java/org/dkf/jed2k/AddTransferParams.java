@@ -1,6 +1,8 @@
 package org.dkf.jed2k;
 
 import lombok.Getter;
+import org.dkf.jed2k.disk.DesktopFileHandler;
+import org.dkf.jed2k.disk.FileHandler;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
 

@@ -3,6 +3,10 @@ package org.dkf.jed2k;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.data.PieceBlock;
+import org.dkf.jed2k.disk.AsyncOperationResult;
+import org.dkf.jed2k.disk.AsyncRelease;
+import org.dkf.jed2k.disk.AsyncRestore;
+import org.dkf.jed2k.disk.PieceManager;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -412,7 +416,7 @@ public class Transfer {
         session.pushAlert(new TransferFinishedAlert(hash()));
     }
 
-    void onBlockWriteCompleted(final PieceBlock b, final List<ByteBuffer> buffers, final BaseErrorCode ec) {
+    public void onBlockWriteCompleted(final PieceBlock b, final List<ByteBuffer> buffers, final BaseErrorCode ec) {
         log.debug("block {} write completed: {} free buffers: {}",
                 b, ec, (buffers!=null)?buffers.size():0);
 
@@ -440,7 +444,7 @@ public class Transfer {
         }
     }
 
-    void onPieceHashCompleted(final int pieceIndex, final Hash hash) {
+    public void onPieceHashCompleted(final int pieceIndex, final Hash hash) {
         assert hash != null;
         assert hashSet.size() > pieceIndex;
 
@@ -458,7 +462,7 @@ public class Transfer {
         needSaveResumeData = true;
     }
 
-    void onReleaseFile(final BaseErrorCode c, final List<ByteBuffer> buffers) {
+    public void onReleaseFile(final BaseErrorCode c, final List<ByteBuffer> buffers) {
         assert buffers != null;
         log.debug("release file completed {} release byte buffers count {}"
                 , c

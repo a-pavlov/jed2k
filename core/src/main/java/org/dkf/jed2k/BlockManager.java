@@ -70,7 +70,7 @@ public class BlockManager {
         return piece;
     }
 
-    final int getByteBuffersCount() {
+    public final int getByteBuffersCount() {
         int res = 0;
         for(ByteBuffer b: buffers) {
             if (b != null) ++res;
