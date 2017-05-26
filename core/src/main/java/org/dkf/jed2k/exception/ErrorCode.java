@@ -65,6 +65,7 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_SAX_ERROR(74, "SAX parsing exception on port mapping"),
     PORT_MAPPING_CONFIG_ERROR(75, "Configuration exception on port mapping"),
     PORT_MAPPING_EXCEPTION(76, "Unknown exception on port mapping"),
+    PORT_MAPPING_COMMAND_REJECTED(77, "Mapping command was rejected"),
 
     DHT_REQUEST_ALREADY_RUNNING(80, "DHT request with the same hash already in progress"),
     DHT_TRACKER_ABORTED(81, "DHT tracker was already aborted at the moment"),

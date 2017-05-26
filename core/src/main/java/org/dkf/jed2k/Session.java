@@ -885,68 +885,79 @@ public class Session extends Thread {
         return Pair.make(dr, ur);
     }
 
-    public void startUPnP() {
-        upnpService.submit(new Runnable() {
+    public void startUPnP() throws JED2KException {
+        try {
+            if (upnpService.isShutdown()) return;
 
-            @Override
-            public void run() {
-                assert discover != null;
-                BaseErrorCode ec = ErrorCode.NO_ERROR;
-                // TODO - fix unsynchronized access to settings
-                int port = settings.listenPort;
-                try {
-                    discover.discover();
-                    device = discover.getValidGateway();
-                    if (device != null) {
-                        final String[] protocols = {"TCP", "UDP"};
-                        for(final String protocol: protocols) {
-                            PortMappingEntry portMapping = new PortMappingEntry();
-                            if (!device.getSpecificPortMappingEntry(port, protocol, portMapping)) {
-                                InetAddress localAddress = device.getLocalAddress();
-                                if (device.addPortMapping(port, port, localAddress.getHostAddress(), protocol, "JED2K")) {
-                                    // ok, mapping added
-                                    log.info("[session] port mapped {} for {}", port, protocol);
+            upnpService.submit(new Runnable() {
+
+                @Override
+                public void run() {
+                    assert discover != null;
+                    BaseErrorCode ec = ErrorCode.NO_ERROR;
+                    // TODO - fix unsynchronized access to settings
+                    int port = settings.listenPort;
+                    try {
+                        discover.discover();
+                        device = discover.getValidGateway();
+                        if (device != null) {
+                            final String[] protocols = {"TCP", "UDP"};
+                            for (final String protocol : protocols) {
+                                PortMappingEntry portMapping = new PortMappingEntry();
+                                if (!device.getSpecificPortMappingEntry(port, protocol, portMapping)) {
+                                    InetAddress localAddress = device.getLocalAddress();
+                                    if (device.addPortMapping(port, port, localAddress.getHostAddress(), protocol, "JED2K")) {
+                                        // ok, mapping added
+                                        log.info("[session] port mapped {} for {}", port, protocol);
+                                    } else {
+                                        log.info("[session] port {} mapping error for {}", port, protocol);
+                                        ec = ErrorCode.PORT_MAPPING_ERROR;
+                                    }
                                 } else {
-                                    log.info("[session] port {} mapping error for {}", port, protocol);
-                                    ec = ErrorCode.PORT_MAPPING_ERROR;
+                                    log.debug("[session] port {} already mapped for {}", port, protocol);
+                                    ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                                 }
-                            } else {
-                                log.debug("[session] port {} already mapped for {}", port, protocol);
-                                ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                             }
+                        } else {
+                            log.debug("[session] can not find gateway device");
+                            ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
                         }
-                    } else {
-                        log.debug("[session] can not find gateway device");
-                        ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_IO_ERROR;
+                    } catch (SAXException e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_SAX_ERROR;
+                    } catch (ParserConfigurationException e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_CONFIG_ERROR;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_EXCEPTION;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_IO_ERROR;
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_SAX_ERROR;
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_CONFIG_ERROR;
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_EXCEPTION;
-                }
 
-                pushAlert(new PortMapAlert(port, port, ec));
-            }
-        });
+                    pushAlert(new PortMapAlert(port, port, ec));
+                }
+            });
+        } catch(RejectedExecutionException e) {
+            throw new JED2KException(ErrorCode.PORT_MAPPING_COMMAND_REJECTED);
+        }
     }
 
-    public void stopUPnP() {
-        upnpService.submit(new Runnable() {
-            @Override
-            public void run() {
-                stopUPnPImpl("TCP");
-                stopUPnPImpl("UDP");
-                device = null;
-            }
-        });
+    public void stopUPnP() throws JED2KException {
+        try {
+            if (upnpService.isShutdown()) return;
+            upnpService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    stopUPnPImpl("TCP");
+                    stopUPnPImpl("UDP");
+                    device = null;
+                }
+            });
+        } catch(RejectedExecutionException e) {
+            throw new JED2KException(ErrorCode.PORT_MAPPING_COMMAND_REJECTED);
+        }
     }
 
     private void stopUPnPImpl(final String protocol) {

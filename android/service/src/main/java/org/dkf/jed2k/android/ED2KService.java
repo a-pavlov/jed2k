@@ -214,8 +214,14 @@ public class ED2KService extends Service {
         session.start();
         startBackgroundOperations();
         startingInProgress = false;
-        // TODO - useless call here, fix behaviour
-        if (forwardPorts) session.startUPnP(); else session.stopUPnP();
+
+        try {
+            if (forwardPorts) session.startUPnP();
+            else session.stopUPnP();
+        } catch(JED2KException e) {
+            log.error("start upnp error {}", e);
+        }
+
         log.info("session started!");
     }
 
@@ -1009,13 +1015,17 @@ public class ED2KService extends Service {
     }
 
     public void setForwardPort(boolean forward) {
-        forwardPorts = forward;
-        if (session != null) {
-            if (forward) {
-                session.startUPnP();
-            } else {
-                session.stopUPnP();
+        try {
+            forwardPorts = forward;
+            if (session != null) {
+                if (forward) {
+                    session.startUPnP();
+                } else {
+                    session.stopUPnP();
+                }
             }
+        } catch(JED2KException e) {
+            log.error("upnp command raised exception {}", e);
         }
     }
 
