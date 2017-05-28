@@ -13,16 +13,18 @@ public class AsyncReleaseResult implements AsyncOperationResult {
     final BaseErrorCode code;
     final Transfer transfer;
     final List<ByteBuffer> buffers;
+    final boolean deleteFile;
 
-    AsyncReleaseResult(final BaseErrorCode c, final Transfer t, final List<ByteBuffer> buffers) {
+    AsyncReleaseResult(final BaseErrorCode c, final Transfer t, final List<ByteBuffer> buffers, boolean deleteFile) {
         code = c;
         transfer = t;
         this.buffers = buffers;
+        this.deleteFile = deleteFile;
     }
 
     @Override
     public void onCompleted() {
-        transfer.onReleaseFile(code, buffers);
+        transfer.onReleaseFile(code, buffers, deleteFile);
     }
 
     @Override

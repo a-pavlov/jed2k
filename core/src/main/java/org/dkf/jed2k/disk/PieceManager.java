@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.NonWritableChannelException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,6 +67,12 @@ public class PieceManager extends BlocksEnumerator {
         catch(IOException e) {
             log.error("i/o error on write block {}", e);
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        } catch(NonWritableChannelException e) {
+            log.error("i/o error non writeable channel writing {}", e);
+            throw new JED2KException(ErrorCode.NON_WRITEABLE_CHANNEL);
+        } catch(Exception e) {
+            log.error("common error on write block on disk {}", e);
+            throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
 
         // stage 2 - prepare hash and return obsolete blocks if possible

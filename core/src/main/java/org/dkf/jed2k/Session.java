@@ -328,7 +328,7 @@ public class Session extends Thread {
 
         while(itr.hasNext()) {
             Map.Entry<Hash, Transfer> entry = itr.next();
-            if (entry.getValue().isReleased()) itr.remove();
+            if (entry.getValue().isDeleted()) itr.remove();
             else entry.getValue().secondTick(accumulator, tickIntervalMS);
         }
 

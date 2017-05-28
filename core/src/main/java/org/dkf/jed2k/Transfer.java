@@ -101,6 +101,7 @@ public class Transfer {
     private SpeedMonitor speedMon = new SpeedMonitor(30);
 
     private boolean released = false;
+    private boolean deleted = false;
 
     public Transfer(Session s, final AddTransferParams atp) throws JED2KException {
         assert(s != null);
@@ -374,7 +375,10 @@ public class Transfer {
         }
 
         aioFutures.clear();
-        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this, deleteFile)));
+
+        //if (!isFinished() || deleteFile) {
+            aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this, deleteFile)));
+        //} else released = true;
     }
 
     void pause() {
@@ -466,11 +470,12 @@ public class Transfer {
         needSaveResumeData = true;
     }
 
-    public void onReleaseFile(final BaseErrorCode c, final List<ByteBuffer> buffers) {
+    public void onReleaseFile(final BaseErrorCode c, final List<ByteBuffer> buffers, boolean deleteFile) {
         assert buffers != null;
-        log.debug("release file completed {} release byte buffers count {}"
+        log.debug("release file completed {} release byte buffers count {} file {}"
                 , c
-                , buffers.size());
+                , buffers.size()
+                , deleteFile?"delete":"save");
 
 
         for (ByteBuffer buffer : buffers) {
@@ -478,10 +483,15 @@ public class Transfer {
         }
 
         released = true;
+        this.deleted = deleteFile;
     }
 
     public boolean isReleased() {
         return released;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 
     /**

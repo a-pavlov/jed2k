@@ -28,6 +28,7 @@ public enum ErrorCode implements BaseErrorCode {
     BUFFER_GET_EXCEPTION(22, "Buffer get method raised common exception"),
     WRONG_HASHSET(23, "Wrong hash set"),
     HASH_MISMATCH(24, "Hash mismatch"),
+    NON_WRITEABLE_CHANNEL(25, "Non writeable channel "),
 
 
     TAG_TYPE_UNKNOWN(30, "Tag type unknown"),

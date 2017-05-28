@@ -20,6 +20,6 @@ public class AsyncRelease implements Callable<AsyncOperationResult> {
 
     @Override
     public AsyncOperationResult call() throws Exception {
-        return new AsyncReleaseResult(ErrorCode.NO_ERROR, transfer, transfer.getPieceManager().releaseFile(deleteFile));
+        return new AsyncReleaseResult(ErrorCode.NO_ERROR, transfer, transfer.getPieceManager().releaseFile(deleteFile), deleteFile);
     }
 }
