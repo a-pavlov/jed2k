@@ -174,7 +174,11 @@ public class Transfer {
             //aioFutures.addLast(session.submitDiskTask(new AsyncRestore(this, b, size, buffer)));
         }
 
-        if (isFinished()) setState(TransferStatus.TransferState.FINISHED);
+        if (isFinished()) {
+            // for finished transfers no need to save resume data
+            setState(TransferStatus.TransferState.FINISHED);
+            needSaveResumeData = false;
+        }
     }
 
     public Hash hash() {

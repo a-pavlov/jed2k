@@ -394,21 +394,21 @@ public class Session extends Thread {
             }
 
             // 5 seconds for close all transfers
-            for(int i = 0; i < 5; ++i) {
-                log.debug("wait transfers");
+            for(int i = 0; i < 50; ++i) {
+                log.info("[session] wait transfers {}", transfers.size());
 
                 Iterator<Map.Entry<Hash, Transfer>> itr = transfers.entrySet().iterator();
 
                 while(itr.hasNext()) {
                     Map.Entry<Hash, Transfer> entry = itr.next();
                     if (entry.getValue().isReleased()) itr.remove();
-                    else entry.getValue().secondTick(accumulator, 1000);
+                    else entry.getValue().secondTick(accumulator, 100);
                 }
 
                 if (transfers.isEmpty()) break;
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch(Exception e) {
                     log.error("sleep error {}", e);
                 }
