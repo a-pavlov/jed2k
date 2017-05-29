@@ -6,6 +6,7 @@ import org.bitlet.weupnp.PortMappingEntry;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.disk.AsyncOperationResult;
 import org.dkf.jed2k.disk.FileHandler;
+import org.dkf.jed2k.disk.TransferCallable;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -62,6 +63,16 @@ public class Session extends Thread {
     private Statistics accumulator = new Statistics();
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
+
+    /**
+     * async disk io futures
+     */
+    LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
+
+    /**
+     * async originators
+     */
+    LinkedList<Transfer> aioOrigins = new LinkedList<>();
 
     /**
      * external DHT tracker object
@@ -327,13 +338,13 @@ public class Session extends Thread {
         Iterator<Map.Entry<Hash, Transfer>> itr = transfers.entrySet().iterator();
 
         while(itr.hasNext()) {
-            Map.Entry<Hash, Transfer> entry = itr.next();
-            if (entry.getValue().isDeleted()) itr.remove();
-            else entry.getValue().secondTick(accumulator, tickIntervalMS);
+            itr.next().getValue().secondTick(accumulator, tickIntervalMS);
         }
 
         // second tick on server connection
         if (serverConection != null) serverConection.secondTick(tickIntervalMS);
+
+        processDiskTasks();
 
         // TODO - run second tick on peer connections
         // execute user's commands
@@ -350,7 +361,6 @@ public class Session extends Thread {
 
     @Override
     public void run() {
-        // TODO - remove all possible exceptions from this cycle!
         try {
             log.debug("Session started");
             selector = Selector.open();
@@ -393,19 +403,13 @@ public class Session extends Thread {
                 t.abort(false);
             }
 
+            transfers.clear();
+
             // 5 seconds for close all transfers
             for(int i = 0; i < 50; ++i) {
-                log.info("[session] wait transfers {}", transfers.size());
-
-                Iterator<Map.Entry<Hash, Transfer>> itr = transfers.entrySet().iterator();
-
-                while(itr.hasNext()) {
-                    Map.Entry<Hash, Transfer> entry = itr.next();
-                    if (entry.getValue().isReleased()) itr.remove();
-                    else entry.getValue().secondTick(accumulator, 100);
-                }
-
-                if (transfers.isEmpty()) break;
+                log.info("process disk tasks {} iteration", i);
+                processDiskTasks();
+                if (aioFutures.isEmpty()) break;
 
                 try {
                     Thread.sleep(100);
@@ -414,8 +418,8 @@ public class Session extends Thread {
                 }
             }
 
-            if (!transfers.isEmpty()) {
-                log.warn("not all transfers finished work");
+            if (!aioFutures.isEmpty()) {
+                log.warn("not all futures completed");
                 for(final Transfer t: transfers.values()) {
                     log.warn("transfer {} is not finished", t.getHash());
                 }
@@ -696,6 +700,7 @@ public class Session extends Thread {
                     Transfer t = transfers.get(h);
                     if (t != null) {
                         t.abort(deleteFile);
+                        transfers.remove(t.getHash());
                         pushAlert(new TransferRemovedAlert(h));
                     }
             }
@@ -812,8 +817,52 @@ public class Session extends Thread {
      * @param task special task
      * @return future
      */
-    public Future<AsyncOperationResult> submitDiskTask(Callable<AsyncOperationResult> task) {
-        return diskIOService.submit(task);
+    public void submitDiskTask(TransferCallable<AsyncOperationResult> task) {
+        assert task.getTransfer() != null;
+        aioFutures.add(diskIOService.submit(task));
+        aioOrigins.add(task.getTransfer());
+        assert aioFutures.size() == aioOrigins.size();
+    }
+
+    public void removeDiskTask(final Transfer t) {
+        assert aioFutures.size() == aioOrigins.size();
+        Iterator<Transfer> trItr = aioOrigins.iterator();
+        Iterator<Future<AsyncOperationResult>> fItr = aioFutures.iterator();
+        while(trItr.hasNext()) {
+            Future<AsyncOperationResult> future = fItr.next();
+            Transfer tran = trItr.next();
+
+            if (tran == t) {
+                future.cancel(false);
+                trItr.remove();
+                fItr.remove();
+            }
+        }
+    }
+
+    private void processDiskTasks() {
+        assert aioOrigins.size() == aioFutures.size();
+        Iterator<Future<AsyncOperationResult>> fItr = aioFutures.iterator();
+        Iterator<Transfer> oItr = aioOrigins.iterator();
+
+        while (oItr.hasNext()) {
+            Future<AsyncOperationResult> res = fItr.next();
+            Transfer t = oItr.next();
+            if (!res.isDone()) break;
+
+            try {
+                res.get().onCompleted();
+            } catch (InterruptedException e) {
+                log.warn("second tick aio InterruptedException {}", e);
+            } catch (ExecutionException e) {
+                log.warn("second tick aio ExecutionException {}", e);
+            } finally {
+                oItr.remove();
+                fItr.remove();
+            }
+        }
+
+        assert aioFutures.size() == aioOrigins.size();
     }
 
     @Override

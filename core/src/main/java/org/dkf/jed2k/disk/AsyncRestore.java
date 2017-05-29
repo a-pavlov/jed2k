@@ -7,19 +7,17 @@ import org.dkf.jed2k.exception.JED2KException;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
-import java.util.concurrent.Callable;
 
 /**
  * Created by inkpot on 24.08.2016.
  */
-public class AsyncRestore implements Callable<AsyncOperationResult> {
-    private final Transfer transfer;
+public class AsyncRestore extends TransferCallable<AsyncOperationResult> {
     private final PieceBlock block;
     private final long fileSize;
     private final ByteBuffer buffer;
 
     public AsyncRestore(final Transfer t, final PieceBlock b, long fs, final ByteBuffer bf) {
-        transfer = t;
+        super(t);
         block = b;
         fileSize = fs;
         buffer = bf;
@@ -28,9 +26,15 @@ public class AsyncRestore implements Callable<AsyncOperationResult> {
     @Override
     public AsyncOperationResult call() throws Exception {
         try {
-            return new AsyncWriteResult(block, transfer.getPieceManager().restoreBlock(block, buffer, fileSize), transfer, ErrorCode.NO_ERROR);
+            return new AsyncWriteResult(block
+                    , getTransfer().getPieceManager().restoreBlock(block, buffer, fileSize)
+                    , getTransfer()
+                    , ErrorCode.NO_ERROR);
         } catch(JED2KException e) {
-            return new AsyncWriteResult(block, new LinkedList<ByteBuffer>(){{addLast(buffer);}}, transfer, e.getErrorCode());
+            return new AsyncWriteResult(block
+                    , new LinkedList<ByteBuffer>(){{addLast(buffer);}}
+                    , getTransfer()
+                    , e.getErrorCode());
         }
     }
 }

@@ -79,7 +79,5 @@ public class SessionTest {
         session.abort();
         session.join();
         assertTrue(session.getTransfers().isEmpty());
-
-
     }
 }

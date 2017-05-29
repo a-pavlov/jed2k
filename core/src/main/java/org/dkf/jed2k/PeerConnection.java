@@ -4,7 +4,6 @@ import org.dkf.jed2k.data.PeerRequest;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.data.Region;
 import org.dkf.jed2k.disk.AsyncHash;
-import org.dkf.jed2k.disk.AsyncOperationResult;
 import org.dkf.jed2k.disk.AsyncWrite;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
@@ -27,7 +26,6 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.Future;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -897,11 +895,11 @@ public class PeerConnection extends Connection {
                     // in that case no need to re-write block to disk and request getHash
                     if (wasDownloading) {
                         // add write task to executor and add future to transfer
-                        transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
+                        asyncWrite(pb.block, pb.buffer, transfer);
 
                         // run async getHash calculation
                         if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
-                            transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
+                            asyncHash(pb.block.pieceIndex, transfer);
                         }
                     } else {
                         log.warn("{} block {} wasn't downloading, do not write"
@@ -1083,9 +1081,9 @@ public class PeerConnection extends Connection {
      * @param t actual transfer
      * @return future of result for async operation
      */
-    Future<AsyncOperationResult> asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
+    void asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
         transfer.getPicker().markAsWriting(b);
-        return session.submitDiskTask(new AsyncWrite(b, buffer, t));
+        session.submitDiskTask(new AsyncWrite(b, buffer, t));
     }
 
     /**
@@ -1094,8 +1092,8 @@ public class PeerConnection extends Connection {
      * @param t - transfer ?
      * @return future of hashing operation result
      */
-    Future<AsyncOperationResult> asyncHash(int pieceIndex, final Transfer t) {
-        return session.submitDiskTask(new AsyncHash(t, pieceIndex));
+    void asyncHash(int pieceIndex, final Transfer t) {
+        session.submitDiskTask(new AsyncHash(t, pieceIndex));
     }
 
     /**
