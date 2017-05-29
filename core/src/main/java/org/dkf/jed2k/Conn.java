@@ -177,8 +177,7 @@ public class Conn {
                     Alert a = s.popAlert();
                     while(a != null) {
                         if (a instanceof SearchResultAlert) {
-                            List<SearchEntry> se = ((SearchResultAlert)a).getResults();
-                            globalSearchRes = se;
+                            globalSearchRes = ((SearchResultAlert)a).getResults();
                             globalSearchRes.sort(new Comparator<SearchEntry>() {
                                 @Override
                                 public int compare(SearchEntry o1, SearchEntry o2) {

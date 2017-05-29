@@ -165,7 +165,8 @@ public class BitField implements Iterable<Boolean>, Serializable {
 
     @Override
     public Iterator<Boolean> iterator() {
-        Iterator<Boolean> it = new Iterator<Boolean>() {
+
+        return new Iterator<Boolean>() {
             private int currentIndex = 0;
 
             @Override
@@ -183,8 +184,6 @@ public class BitField implements Iterable<Boolean>, Serializable {
                 assert(false);
             }
         };
-
-        return it;
     }
 
     @Override

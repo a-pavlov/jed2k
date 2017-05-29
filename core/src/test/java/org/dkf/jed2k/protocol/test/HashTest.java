@@ -51,11 +51,10 @@ public class HashTest{
 
         ByteBuffer buff = ByteBuffer.allocate(MD4.HASH_SIZE);
         buff.order(ByteOrder.LITTLE_ENDIAN);
-        ByteBuffer nbw = buff;
-        Hash.LIBED2K.put(nbw);
+        Hash.LIBED2K.put(buff);
         buff.flip();
         Hash h2 = new Hash();
-        h2.get(nbw);
+        h2.get(buff);
         assertEquals(Hash.LIBED2K, h2);
     }
 

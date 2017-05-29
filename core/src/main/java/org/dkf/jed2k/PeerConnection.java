@@ -509,11 +509,11 @@ public class PeerConnection extends Connection {
         // extract client information
         assignRemotePeerInformation(value);
         endpoint.assign(value.point);
-        Hash h = session.callbacks.get(value.point);
+        Hash h = session.callbacks.get(value.point.getIP());
         Transfer t = null;
 
         if (h != null) {
-            session.callbacks.remove(value.point);
+            session.callbacks.remove(value.point.getIP());
             t = session.transfers.get(h);
         }
 

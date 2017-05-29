@@ -39,7 +39,7 @@ public class EMuleLink {
     public static EMuleLink fromString(final String uri) throws JED2KException {
         if (uri == null) throw new JED2KException(ErrorCode.LINK_MAILFORMED);
 
-        String decUri = null;
+        String decUri;
         try {
             decUri = URLDecoder.decode(uri, "UTF-8");
         }

@@ -109,11 +109,10 @@ public final class Utils {
      */
     public static int htonl(byte[] order) {
         assert(order.length == 4);
-        int res =  ((int)order[0] << 24)
+        return ((int)order[0] << 24)
                 | (((int)order[1] << 16) & 0x00FF0000)
                 | (((int)order[2] << 8) & 0x0000FF00)
                 | (((int)order[3]) & 0xFF);
-        return res;
     }
 
     public static int htonl(int ip) {
@@ -130,11 +129,10 @@ public final class Utils {
      */
     public static int packToNetworkByteOrder(byte[] order) {
         assert(order.length == 4);
-        int res =  ((int)order[3] << 24)
+        return ((int)order[3] << 24)
                 | (((int)order[2] << 16) & 0x00FF0000)
                 | (((int)order[1] << 8) & 0x0000FF00)
                 | (((int)order[0]) & 0xFF);
-        return res;
     }
 
     /**
@@ -229,12 +227,11 @@ public final class Utils {
     }
 
     public static String formatLink(final String fileName, long fileSize, final Hash hash) {
-        String sb = "ed2k://|file|" +
+        return "ed2k://|file|" +
                 fileName + "|" +
                 fileSize + "|" +
                 hash.toString() +
                 "|/";
-        return sb;
     }
 
     public static boolean isBit(int value, int mask) {
