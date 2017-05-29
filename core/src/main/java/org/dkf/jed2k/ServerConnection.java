@@ -248,7 +248,7 @@ public class ServerConnection extends Connection {
                     sendCallbackRequest(endpoint.getIP());
                     session.callbacks.put(endpoint.getIP(), value.hash);
                 } else {
-                    log.debug("to hash {} added endpoint {}", value.hash, endpoint);
+                    log.debug("to getHash {} added endpoint {}", value.hash, endpoint);
                     try {
                         transfer.addPeer(endpoint, PeerInfo.SERVER);
                     } catch(JED2KException e) {

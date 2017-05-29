@@ -157,7 +157,7 @@ public class Conn {
             }
         }
 
-        String hashSession = System.getProperty("session.hash");
+        String hashSession = System.getProperty("session.getHash");
         if (hashSession != null) {
             startSettings.userAgent = Hash.fromString(hashSession);
         }
@@ -335,7 +335,7 @@ public class Conn {
 
                         if (filepath != null && filesize != 0) {
                             StringBuilder sb = new StringBuilder();
-                            sb.append("Transfer ").append(filepath).append(" hash: ");
+                            sb.append("Transfer ").append(filepath).append(" getHash: ");
                             sb.append(sfe.getHash().toString()).append(" dataSize: ");
                             sb.append(filesize);
                             handles.add(addTransfer(s, sfe.getHash(), filesize, filepath.toFile()));

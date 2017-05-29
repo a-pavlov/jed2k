@@ -26,7 +26,7 @@ public enum ErrorCode implements BaseErrorCode {
     INTERNAL_ERROR(20, "Internal product error"),
     BUFFER_UNDERFLOW_EXCEPTION(21, "Buffer underflow exception"),
     BUFFER_GET_EXCEPTION(22, "Buffer get method raised common exception"),
-    WRONG_HASHSET(23, "Wrong hash set"),
+    WRONG_HASHSET(23, "Wrong getHash set"),
     HASH_MISMATCH(24, "Hash mismatch"),
     NON_WRITEABLE_CHANNEL(25, "Non writeable channel "),
 
@@ -36,7 +36,7 @@ public enum ErrorCode implements BaseErrorCode {
     TAG_TO_INT_INVALID(32, "Tag to int conversion error"),
     TAG_TO_LONG_INVALID(33, "Tag to long conversion error"),
     TAG_TO_FLOAT_INVALID(34, "Tag to float conversion error"),
-    TAG_TO_HASH_INVALID(35, "Tag to hash conversion error"),
+    TAG_TO_HASH_INVALID(35, "Tag to getHash conversion error"),
     TAG_FROM_STRING_INVALID_CP(36, "Tag from string creation error invalid code page"),
     TAG_TO_BLOB_INVALID(37, "Tag to blob conversion error"),
     TAG_TO_BSOB_INVALID(38, "Tag to bsob coversion error"),
@@ -68,7 +68,7 @@ public enum ErrorCode implements BaseErrorCode {
     PORT_MAPPING_EXCEPTION(76, "Unknown exception on port mapping"),
     PORT_MAPPING_COMMAND_REJECTED(77, "Mapping command was rejected"),
 
-    DHT_REQUEST_ALREADY_RUNNING(80, "DHT request with the same hash already in progress"),
+    DHT_REQUEST_ALREADY_RUNNING(80, "DHT request with the same getHash already in progress"),
     DHT_TRACKER_ABORTED(81, "DHT tracker was already aborted at the moment"),
 
     LINK_MAILFORMED(90, "Incorrect link format"),

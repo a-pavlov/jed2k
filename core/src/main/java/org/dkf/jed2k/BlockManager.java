@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by inkpot on 17.07.2016.
  * this class designed to store information about dedicated piece
- * and partial hash
+ * and partial getHash
  */
 public class BlockManager {
     private static final Logger log = LoggerFactory.getLogger(BlockManager.class);
@@ -36,7 +36,7 @@ public class BlockManager {
         assert(buffer.hasRemaining());
         assert(blockIndex < buffers.length);
         freeBuffers.clear();
-        // have no holes - hash all contiguous blocks
+        // have no holes - getHash all contiguous blocks
         assert(buffers[blockIndex] == null);
         buffers[blockIndex] = buffer;
         if (lastHashedBlock + 1 == blockIndex) {

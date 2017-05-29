@@ -26,7 +26,7 @@ public class Transfer {
     public static long INVALID_ETA = -1;
 
     /**
-     * transfer's file hash
+     * transfer's file getHash
      */
     private Hash hash;
 
@@ -182,7 +182,7 @@ public class Transfer {
         }
     }
 
-    public Hash hash() {
+    public Hash getHash() {
         return hash;
     }
 
@@ -396,7 +396,7 @@ public class Transfer {
 
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
         if (hashSet.isEmpty()) {
-            log.debug("{} hash set received {}", hash(), hs.size());
+            log.debug("{} getHash set received {}", getHash(), hs.size());
             hashSet.addAll(hs);
             needSaveResumeData = true;
         }
@@ -421,7 +421,7 @@ public class Transfer {
         setState(TransferStatus.TransferState.FINISHED);
         aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this, false)));
         needSaveResumeData = true;
-        session.pushAlert(new TransferFinishedAlert(hash()));
+        session.pushAlert(new TransferFinishedAlert(getHash()));
     }
 
     public void onBlockWriteCompleted(final PieceBlock b, final List<ByteBuffer> buffers, final BaseErrorCode ec) {
@@ -457,7 +457,7 @@ public class Transfer {
         assert hashSet.size() > pieceIndex;
 
         if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
-            log.error("restore piece {} due to expected hash {} != {} was calculated"
+            log.error("restore piece {} due to expected getHash {} != {} was calculated"
                     , pieceIndex
                     , hashSet.get(pieceIndex)
                     , hash);

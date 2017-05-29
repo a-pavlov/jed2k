@@ -250,7 +250,7 @@ public class RoutingTable {
             }
             else if (existing != null) {
                 assert !existing.left.getId().equals(e.getId());
-                log.debug("[table] node {} exists but hash is not match, remove it", e);
+                log.debug("[table] node {} exists but getHash is not match, remove it", e);
                 // this is the same IP and port, but with
                 // a new node ID. remove the old entry and
                 // replace it with this new ID

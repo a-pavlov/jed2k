@@ -353,7 +353,7 @@ public class DhtTracker extends Thread {
     }
 
     /**
-     * search file sources by hash
+     * search file sources by getHash
      * if tracker aborted simply returns empty list
      * @param hash of file
      * @param fileSize size of file

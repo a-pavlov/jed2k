@@ -304,7 +304,7 @@ public class Policy extends AbstractCollection<Peer> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("policy transfer: ").append(transfer!=null?transfer.hash().toString():"?").append(" peers: ");
+        sb.append("policy transfer: ").append(transfer!=null?transfer.getHash().toString():"?").append(" peers: ");
         for(final Peer p: peers) {
             sb.append(p.toString());
         }

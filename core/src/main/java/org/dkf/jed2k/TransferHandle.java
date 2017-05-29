@@ -38,7 +38,7 @@ public class TransferHandle implements Comparable<TransferHandle> {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                return t.hash();
+                return t.getHash();
             }
         }
 

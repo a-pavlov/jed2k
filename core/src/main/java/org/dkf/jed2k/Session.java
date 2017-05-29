@@ -138,7 +138,7 @@ public class Session extends Thread {
                                         try {
                                             id = new KadId(Hash.fromString(t.stringValue()));
                                         } catch(JED2KException e) {
-                                            log.warn("[session] unable to extract buddy hash {}", e);
+                                            log.warn("[session] unable to extract buddy getHash {}", e);
                                         }
                                         break;
                                     case Tag.TAG_ENCRYPTION:
@@ -417,7 +417,7 @@ public class Session extends Thread {
             if (!transfers.isEmpty()) {
                 log.warn("not all transfers finished work");
                 for(final Transfer t: transfers.values()) {
-                    log.warn("transfer {} is not finished", t.hash());
+                    log.warn("transfer {} is not finished", t.getHash());
                 }
             }
 
@@ -633,7 +633,7 @@ public class Session extends Thread {
     /**
      * create new transfer in session or return previous
      * method synchronized with session second tick method
-     * @param h hash of file(transfer)
+     * @param h getHash of file(transfer)
      * @param size of file
      * @return TransferHandle with valid transfer of without
      */
@@ -863,11 +863,11 @@ public class Session extends Thread {
                 for(final Transfer t: transfers.values()) {
                     if (t.isNeedSaveResumeData()) {
                         try {
-                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFile(), t.isPaused());
+                            AddTransferParams atp = new AddTransferParams(t.getHash(), t.getCreateTime(), t.size(), t.getFile(), t.isPaused());
                             atp.resumeData.setData(t.resumeData());
-                            pushAlert(new TransferResumeDataAlert(t.hash(), atp));
+                            pushAlert(new TransferResumeDataAlert(t.getHash(), atp));
                         } catch(JED2KException e) {
-                            log.error("prepare resume data for {} failed {}", t.hash(), e);
+                            log.error("prepare resume data for {} failed {}", t.getHash(), e);
                         }
                     }
                 }
@@ -980,7 +980,7 @@ public class Session extends Thread {
 
     /**
      * debug only method to run search source from external process
-     * @param h hash of file
+     * @param h getHash of file
      * @param size size of file
      */
     public synchronized void dhtDebugSearch(final Hash h, long size) {

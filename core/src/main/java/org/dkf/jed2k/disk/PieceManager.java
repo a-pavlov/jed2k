@@ -75,7 +75,7 @@ public class PieceManager extends BlocksEnumerator {
             throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
 
-        // stage 2 - prepare hash and return obsolete blocks if possible
+        // stage 2 - prepare getHash and return obsolete blocks if possible
         return mgr.registerBlock(b.pieceBlock, buffer);
     }
 
