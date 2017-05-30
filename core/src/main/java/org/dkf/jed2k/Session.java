@@ -14,6 +14,7 @@ import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.KadSearchEntryDistinct;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.pool.BufferPool;
+import org.dkf.jed2k.pool.Pool;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.SearchEntry;
@@ -55,7 +56,7 @@ public class Session extends Thread {
     private ByteBuffer skipDataBuffer = null;
     private byte[] zBuffer = null;
     long zBufferLastAllocatedTime = 0;
-    BufferPool bufferPool = null;
+    private BufferPool bufferPool = null;
     private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
     private ExecutorService upnpService = Executors.newSingleThreadExecutor();
     private AtomicBoolean finished = new AtomicBoolean(false);
@@ -400,7 +401,7 @@ public class Session extends Thread {
 
             // abort all transfers
             for(final Transfer t: transfers.values()) {
-                t.abort(false);
+                t.abort(false, true);   // hard abort tasks to exit as soon as possible. buffers leak possible
             }
 
             transfers.clear();
@@ -699,7 +700,7 @@ public class Session extends Thread {
             public void run() {
                     Transfer t = transfers.get(h);
                     if (t != null) {
-                        t.abort(deleteFile);
+                        t.abort(deleteFile, false); // abort transfer, but do not cancel disk tasks to avoid buffers leaking
                         transfers.remove(t.getHash());
                         pushAlert(new TransferRemovedAlert(h));
                     }
@@ -800,6 +801,10 @@ public class Session extends Thread {
         }
 
         return skipDataBuffer.duplicate();
+    }
+
+    Pool<ByteBuffer> getBufferPool() {
+        return bufferPool;
     }
 
     /**

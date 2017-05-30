@@ -1060,7 +1060,7 @@ public class PeerConnection extends Connection {
                 picker.abortDownload(pb.block, getPeer());
                 if (pb.buffer != null) {
                     pb.buffer.clear();
-                    session.bufferPool.deallocate(pb.buffer, Time.currentTime());
+                    session.getBufferPool().deallocate(pb.buffer, Time.currentTime());
                 }
             }
         }

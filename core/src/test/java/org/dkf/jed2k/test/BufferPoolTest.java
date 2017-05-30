@@ -16,26 +16,26 @@ public class BufferPoolTest {
     @Test
     public void testBufferPool() {
         BufferPool bp = new BufferPool(4);
-        assertEquals(0, bp.totalAllocatedBuffers());
-        assertEquals(0, bp.cachedBuffers());
+        assertEquals(0, bp.getAllocatedBuffersCount());
+        assertEquals(0, bp.getCachedBuffersCount());
         LinkedList<ByteBuffer> allocated = new LinkedList<ByteBuffer>();
         for(int i = 0; i < 4; ++i) {
             allocated.add(bp.allocate());
             assertTrue(allocated.getLast() != null);
-            assertEquals(i+1, bp.totalAllocatedBuffers());
-            assertEquals(0, bp.cachedBuffers());
+            assertEquals(i+1, bp.getAllocatedBuffersCount());
+            assertEquals(0, bp.getCachedBuffersCount());
         }
 
         assertTrue(bp.allocate() == null);
         for(int i = 0; i < 2; ++i) {
             bp.deallocate(allocated.poll(), i);
-            assertEquals(i+1, bp.cachedBuffers());
-            assertEquals(4-i-1, bp.totalAllocatedBuffers());
+            assertEquals(i+1, bp.getCachedBuffersCount());
+            assertEquals(4-i-1, bp.getAllocatedBuffersCount());
         }
 
         assertTrue(bp.allocate() != null);
-        assertEquals(1, bp.cachedBuffers());
-        assertEquals(3, bp.totalAllocatedBuffers());
+        assertEquals(1, bp.getCachedBuffersCount());
+        assertEquals(3, bp.getAllocatedBuffersCount());
     }
 
     @Test
@@ -53,14 +53,14 @@ public class BufferPoolTest {
             bp.deallocate(allocated.poll(), 10L);
         }
 
-        assertEquals(2, bp.cachedBuffers());
+        assertEquals(2, bp.getCachedBuffersCount());
         for(int i = 0; i < 2; ++i) {
             allocated.add(bp.allocate());
             assertTrue(allocated.getLast() != null);
         }
 
         assertTrue(bp.allocate() == null);
-        assertEquals(0, bp.cachedBuffers());
+        assertEquals(0, bp.getCachedBuffersCount());
     }
 
     @Test
@@ -76,10 +76,10 @@ public class BufferPoolTest {
             bp.deallocate(allocated.poll(), 10L);
         }
 
-        assertEquals(6, bp.cachedBuffers());
+        assertEquals(6, bp.getCachedBuffersCount());
         bp.setMaxBuffersCount(2);
-        assertEquals(2, bp.cachedBuffers());
-        assertEquals(0, bp.totalAllocatedBuffers());
+        assertEquals(2, bp.getCachedBuffersCount());
+        assertEquals(0, bp.getAllocatedBuffersCount());
         bp.setMaxBuffersCount(8);
 
         for(int i = 0; i < 6; ++i) {
@@ -87,17 +87,17 @@ public class BufferPoolTest {
             assertTrue(allocated.getLast() != null);
         }
 
-        assertEquals(6, bp.totalAllocatedBuffers());
-        assertEquals(0, bp.cachedBuffers());
+        assertEquals(6, bp.getAllocatedBuffersCount());
+        assertEquals(0, bp.getCachedBuffersCount());
 
         while(allocated.size() > 2) {
             bp.deallocate(allocated.poll(), 10L);
         }
 
-        assertEquals(4, bp.cachedBuffers());
+        assertEquals(4, bp.getCachedBuffersCount());
         bp.setMaxBuffersCount(2);
-        assertEquals(0, bp.cachedBuffers());
-        assertEquals(2, bp.totalAllocatedBuffers());
+        assertEquals(0, bp.getCachedBuffersCount());
+        assertEquals(2, bp.getAllocatedBuffersCount());
         assertTrue(bp.allocate() == null);
     }
 

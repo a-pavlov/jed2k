@@ -153,8 +153,9 @@ public class Transfer {
             picker.downloadPiece(b.pieceIndex);
             ByteBuffer buffer = session.allocatePoolBuffer();
             if (buffer == null) {
-                log.warn("{} have no enough buffers to restore transfer {} ",
-                        session.bufferPool, b);
+                log.warn("{} have no enough buffers to restore transfer {} "
+                        , session.getBufferPool()
+                        , b);
                 return;
             }
 
@@ -331,8 +332,10 @@ public class Transfer {
      * abort all connections
      * cancel all disk i/o operations
      * release file
+     * @param deleteFile - delete target file on disk
+     * @param interruptTasksInOrder - cancel disk tasks already submitted for this transfer. can be cause of buffers leaking
      */
-    void abort(boolean deleteFile) {
+    void abort(boolean deleteFile, boolean interruptTasksInOrder) {
         log.debug("abort transfer {} file {}"
                 , hash
                 , deleteFile?"delete":"save");
@@ -340,7 +343,7 @@ public class Transfer {
         if (abort) return;
         abort = true;
         disconnectAll(ErrorCode.TRANSFER_ABORTED);
-        session.removeDiskTask(this);
+        if (interruptTasksInOrder) session.removeDiskTask(this);
         session.submitDiskTask(new AsyncRelease(this, deleteFile));
     }
 
@@ -394,7 +397,7 @@ public class Transfer {
         // return buffers to pool
         if (buffers != null) {
             for (ByteBuffer buffer : buffers) {
-                session.bufferPool.deallocate(buffer, Time.currentTime());
+                session.getBufferPool().deallocate(buffer, Time.currentTime());
             }
 
             buffers.clear();
@@ -442,8 +445,10 @@ public class Transfer {
 
 
         for (ByteBuffer buffer : buffers) {
-            session.bufferPool.deallocate(buffer, Time.currentTime());
+            session.getBufferPool().deallocate(buffer, Time.currentTime());
         }
+
+        log.debug("buffers status: {}", session.getBufferPool().toString());
     }
 
     /**

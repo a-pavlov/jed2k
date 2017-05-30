@@ -115,7 +115,7 @@ public class PieceManagerTest {
             pool.deallocate(bb, 1000);
         }
 
-        assertEquals(0, pool.totalAllocatedBuffers());
+        assertEquals(0, pool.getAllocatedBuffersCount());
     }
 
     @Test
@@ -125,12 +125,12 @@ public class PieceManagerTest {
         assertTrue(pm.writeBlock(new PieceBlock(1, 2), getBuffer(new PieceBlock(1, 2), Constants.BLOCK_SIZE_INT)).isEmpty());
         assertTrue(pm.writeBlock(new PieceBlock(1, 1), getBuffer(new PieceBlock(1, 1), Constants.BLOCK_SIZE_INT)).isEmpty());
         List<ByteBuffer> buffers = pm.writeBlock(new PieceBlock(1, 0), getBuffer(new PieceBlock(1, 0), Constants.BLOCK_SIZE_INT));
-        assertEquals(3, pool.totalAllocatedBuffers());
+        assertEquals(3, pool.getAllocatedBuffersCount());
         assertEquals(3, buffers.size());
         for(final ByteBuffer bb: buffers) {
             pool.deallocate(bb, 1000);
         }
 
-        assertEquals(0, pool.totalAllocatedBuffers());
+        assertEquals(0, pool.getAllocatedBuffersCount());
     }
 }
