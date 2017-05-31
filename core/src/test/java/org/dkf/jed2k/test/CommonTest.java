@@ -59,7 +59,7 @@ public class CommonTest {
         }
 
         for(int i = 0; i < (int)Constants.PIECE_SIZE; ++i) {
-            assertEquals((template.get(i/(int)Constants.BLOCK_SIZE) != null)?template.get(i/(int)Constants.BLOCK_SIZE):0, data[i]);
+            assertEquals((template.get(i/(int)Constants.BLOCK_SIZE) != null)?template.get(i/(int)Constants.BLOCK_SIZE).intValue():0, data[i]);
         }
     }
 
