@@ -66,12 +66,15 @@ public class PieceManager extends BlocksEnumerator {
         }
         catch(IOException e) {
             log.error("i/o error on write block {}", e);
+            handler.close();
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
         } catch(NonWritableChannelException e) {
             log.error("i/o error non writeable channel writing {}", e);
+            handler.close();
             throw new JED2KException(ErrorCode.NON_WRITEABLE_CHANNEL);
         } catch(Exception e) {
             log.error("common error on write block on disk {}", e);
+            handler.close();
             throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
 

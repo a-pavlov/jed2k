@@ -831,6 +831,7 @@ public class Session extends Thread {
 
     public void removeDiskTask(final Transfer t) {
         assert aioFutures.size() == aioOrigins.size();
+
         Iterator<Transfer> trItr = aioOrigins.iterator();
         Iterator<Future<AsyncOperationResult>> fItr = aioFutures.iterator();
         while(trItr.hasNext()) {
@@ -847,13 +848,12 @@ public class Session extends Thread {
 
     private void processDiskTasks() {
         assert aioOrigins.size() == aioFutures.size();
-        Iterator<Future<AsyncOperationResult>> fItr = aioFutures.iterator();
-        Iterator<Transfer> oItr = aioOrigins.iterator();
 
-        while (oItr.hasNext()) {
-            Future<AsyncOperationResult> res = fItr.next();
-            Transfer t = oItr.next();
+        while(!aioFutures.isEmpty()) {
+            Future<AsyncOperationResult> res = aioFutures.peek();
             if (!res.isDone()) break;
+            res = aioFutures.poll();
+            Transfer t = aioOrigins.poll();
 
             try {
                 res.get().onCompleted();
@@ -861,9 +861,8 @@ public class Session extends Thread {
                 log.warn("second tick aio InterruptedException {}", e);
             } catch (ExecutionException e) {
                 log.warn("second tick aio ExecutionException {}", e);
-            } finally {
-                oItr.remove();
-                fItr.remove();
+            } catch(Exception e) {
+                log.error("general error on processing async operation result {}", e);
             }
         }
 
