@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel;
 @Slf4j
 public abstract class FileHandler {
     private static final int WRITE = 0;
-    private static final int READ = 0;
+    private static final int READ = 1;
     protected File file;
 
     private FileOutputStream wStream;
@@ -44,7 +44,7 @@ public abstract class FileHandler {
             channels[READ] = rStream.getChannel();
         }
 
-        return channels[WRITE];
+        return channels[READ];
     }
 
     public void close() {
