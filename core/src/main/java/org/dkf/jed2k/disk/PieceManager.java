@@ -66,15 +66,15 @@ public class PieceManager extends BlocksEnumerator {
         }
         catch(IOException e) {
             log.error("i/o error on write block {}", e);
-            handler.close();
+            handler.closeChannels();    // do not use total close since in Android we are not able to open it again
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
         } catch(NonWritableChannelException e) {
             log.error("i/o error non writeable channel writing {}", e);
-            handler.close();
+            handler.closeChannels();    // do not use total close since in Android we are not able to open it again
             throw new JED2KException(ErrorCode.NON_WRITEABLE_CHANNEL);
         } catch(Exception e) {
             log.error("common error on write block on disk {}", e);
-            handler.close();
+            handler.closeChannels();    // do not use total close since in Android we are not able to open it again
             throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
 

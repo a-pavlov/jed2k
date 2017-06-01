@@ -47,7 +47,7 @@ public abstract class FileHandler {
         return channels[READ];
     }
 
-    public void close() {
+    public void closeChannels() {
         for(int i = 0; i < channels.length; ++i) {
             try {
                 if (channels[i] != null) {
@@ -82,6 +82,10 @@ public abstract class FileHandler {
                 rStream = null;
             }
         }
+    }
+
+    public void close() {
+        closeChannels();
     }
 
     public File getFile() {
