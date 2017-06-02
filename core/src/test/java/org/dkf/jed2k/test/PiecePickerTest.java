@@ -400,4 +400,11 @@ public class PiecePickerTest {
             if (picker.numHave() == picker.totalPieces()) break;
         }
     }
+
+    @Test
+    public void trivialTestPiecesCount() {
+        PiecePicker picker = new PiecePicker(3, 42);
+        assertEquals(3, picker.getPieceCount());
+    }
+
 }

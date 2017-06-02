@@ -205,7 +205,6 @@ public class NodeImpl implements ReqDispatcher {
             // else use KAD id from observer
             Traversal ta = o.getAlgorithm();
             assert ta != null;
-            KadId originId = o.getId();
 
             if (s instanceof Kad2HelloRes) {
                 Kad2HelloRes res = (Kad2HelloRes)s;
@@ -393,10 +392,7 @@ public class NodeImpl implements ReqDispatcher {
             @Override
             public boolean allow(NodeEntry nodeEntry) {
                 --counter;
-                if (counter >= 0) {
-                    return true;
-                }
-                return false;
+                return counter >= 0;
             }
         }, new Filter<NodeEntry>() {
             @Override

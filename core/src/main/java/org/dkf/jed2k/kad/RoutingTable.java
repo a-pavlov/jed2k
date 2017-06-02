@@ -250,7 +250,7 @@ public class RoutingTable {
             }
             else if (existing != null) {
                 assert !existing.left.getId().equals(e.getId());
-                log.debug("[table] node {} exists but hash is not match, remove it", e);
+                log.debug("[table] node {} exists but getHash is not match, remove it", e);
                 // this is the same IP and port, but with
                 // a new node ID. remove the old entry and
                 // replace it with this new ID
@@ -268,7 +268,7 @@ public class RoutingTable {
             // a new IP address just claimed this node-ID
             // ignore it
             NodeEntry n = bucket.getLiveNodes().get(j);
-            if (!n.equals(e.getEndpoint())) return ret;
+            if (!n.getEndpoint().equals(e.getEndpoint())) return ret;
 
             // we already have the node in our bucket
             // just move it to the back since it was
@@ -282,9 +282,8 @@ public class RoutingTable {
 
         if (Utils.indexOf(bucket.getReplacements(), new FindByKadId(e.getId())) != -1) return ret;
 
-        if (RESTRICT_ROUTING_IPS) {
+        /*if (RESTRICT_ROUTING_IPS) {
             // don't allow multiple entries from IPs very close to each other
-            /*
             j = std::find_if(b->begin(), b->end(), boost::bind(&compare_ip_cidr, _1, e));
             if (j != b->end())
             {
@@ -310,8 +309,7 @@ public class RoutingTable {
                 #endif
                 return ret;
             }
-            */
-        }
+        }*/
 
         // if the node was not present in our list
         // we will only insert it if there is room

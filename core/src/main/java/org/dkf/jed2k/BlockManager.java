@@ -8,11 +8,12 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by inkpot on 17.07.2016.
  * this class designed to store information about dedicated piece
- * and partial hash
+ * and partial getHash
  */
 public class BlockManager {
     private static final Logger log = LoggerFactory.getLogger(BlockManager.class);
@@ -28,16 +29,17 @@ public class BlockManager {
         Arrays.fill(buffers, null);
     }
 
-    public LinkedList<ByteBuffer> registerBlock(int blockIndex, ByteBuffer buffer) {
+    public List<ByteBuffer> registerBlock(int blockIndex, ByteBuffer buffer) {
         log.debug("register block {} last hashed block {}", blockIndex, lastHashedBlock);
+        List<ByteBuffer> freeBuffers = new LinkedList<>();
         assert pieceHash == null;
         assert(buffer.hasRemaining());
         assert(blockIndex < buffers.length);
-        // have no holes - hash all contiguous blocks
+        freeBuffers.clear();
+        // have no holes - getHash all contiguous blocks
         assert(buffers[blockIndex] == null);
         buffers[blockIndex] = buffer;
         if (lastHashedBlock + 1 == blockIndex) {
-            LinkedList<ByteBuffer> res = new LinkedList<>();
             for(int i = blockIndex; i != buffers.length; ++i) {
                 if (buffers[i] != null) lastHashedBlock++; else break;
                 assert(lastHashedBlock == i);
@@ -45,14 +47,12 @@ public class BlockManager {
                 assert(buffers[i].hasRemaining());
                 hasher.update(buffers[i]);
                 assert(!buffers[i].hasRemaining());
-                res.addLast(buffers[i]);
+                freeBuffers.add(buffers[i]);
                 buffers[i] = null;
             }
-
-            return res;
         }
 
-        return null;
+        return freeBuffers;
     }
 
     public Hash pieceHash() {
@@ -68,10 +68,23 @@ public class BlockManager {
         return piece;
     }
 
-    final int getByteBuffersCount() {
+    public final int getByteBuffersCount() {
         int res = 0;
         for(ByteBuffer b: buffers) {
             if (b != null) ++res;
+        }
+
+        return res;
+    }
+
+    /**
+     *
+     * @return list of active buffers
+     */
+    public List<ByteBuffer> getBuffers() {
+        List<ByteBuffer> res = new LinkedList<>();
+        for(ByteBuffer b: buffers) {
+            if (b != null) res.add(b);
         }
 
         return res;

@@ -11,7 +11,7 @@ import static org.dkf.jed2k.Utils.sizeof;
 
 public class NumericEntry implements Serializable {
 
-    private static long UINT_MAX = 0xffffffffl;
+    private static long UINT_MAX = 0xffffffffL;
     private long value;
     private byte operator;
     private ByteContainer<UInt16> tag;

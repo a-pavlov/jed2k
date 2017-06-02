@@ -248,7 +248,7 @@ public class ServerConnection extends Connection {
                     sendCallbackRequest(endpoint.getIP());
                     session.callbacks.put(endpoint.getIP(), value.hash);
                 } else {
-                    log.debug("to hash {} added endpoint {}", value.hash, endpoint);
+                    log.debug("to getHash {} added endpoint {}", value.hash, endpoint);
                     try {
                         transfer.addPeer(endpoint, PeerInfo.SERVER);
                     } catch(JED2KException e) {
@@ -311,7 +311,7 @@ public class ServerConnection extends Connection {
     }
 
     void sendFileSourcesRequest(final Hash h, final long size) {
-        long hi = (size >>> 32) & 0xFFFFFFFF;
+        long hi = size >>> 32;
         long lo = size & 0xFFFFFFFF;
         write(new GetFileSources(h, (int)hi, (int)lo));
     }

@@ -157,7 +157,7 @@ public class Conn {
             }
         }
 
-        String hashSession = System.getProperty("session.hash");
+        String hashSession = System.getProperty("session.getHash");
         if (hashSession != null) {
             startSettings.userAgent = Hash.fromString(hashSession);
         }
@@ -177,8 +177,7 @@ public class Conn {
                     Alert a = s.popAlert();
                     while(a != null) {
                         if (a instanceof SearchResultAlert) {
-                            List<SearchEntry> se = ((SearchResultAlert)a).getResults();
-                            globalSearchRes = se;
+                            globalSearchRes = ((SearchResultAlert)a).getResults();
                             globalSearchRes.sort(new Comparator<SearchEntry>() {
                                 @Override
                                 public int compare(SearchEntry o1, SearchEntry o2) {
@@ -335,7 +334,7 @@ public class Conn {
 
                         if (filepath != null && filesize != 0) {
                             StringBuilder sb = new StringBuilder();
-                            sb.append("Transfer ").append(filepath).append(" hash: ");
+                            sb.append("Transfer ").append(filepath).append(" getHash: ");
                             sb.append(sfe.getHash().toString()).append(" dataSize: ");
                             sb.append(filesize);
                             handles.add(addTransfer(s, sfe.getHash(), filesize, filepath.toFile()));
@@ -477,7 +476,7 @@ public class Conn {
                     idata.setEntries(tracker.getTrackerState());
                     tracker.abort();
                 } else {
-                    log.warn("[CONN] DHT tracker is null, but shtstop command issued");
+                    log.warn("[CONN] DHT tracker is null, but dhtstop command issued");
                 }
             }
             else if (parts[0].compareTo("bootstrap") == 0) {
@@ -513,6 +512,18 @@ public class Conn {
                         pw.write(tracker.getRoutingTableStatus());
                     }
                 }
+            }
+            else if(parts[0].compareTo("cl") == 0) {
+                for(TransferHandle handle: handles) {
+                    if (handle.isValid()) {
+                        log.debug("remove transfer {}", handle.getHash());
+                        s.removeTransfer(handle.getHash(), true);
+                    } else {
+                        log.warn("invalid handle detected");
+                    }
+                }
+
+                handles.clear();
             }
             else {
                 log.warn("[CONN] unknown command started from {}", parts[0]);

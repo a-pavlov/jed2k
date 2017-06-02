@@ -209,7 +209,8 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
 
     @Override
     public Iterator<DownloadingPiece.Block> iterator() {
-        Iterator<DownloadingPiece.Block> it = new Iterator<DownloadingPiece.Block>() {
+
+        return new Iterator<Block>() {
             private int currentIndex = 0;
 
             @Override
@@ -219,7 +220,7 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
             }
 
             @Override
-            public DownloadingPiece.Block next() {
+            public Block next() {
                 return blocks[currentIndex++];
             }
 
@@ -228,8 +229,6 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
                 throw new UnsupportedOperationException();
             }
         };
-
-        return it;
     }
 
     @Override

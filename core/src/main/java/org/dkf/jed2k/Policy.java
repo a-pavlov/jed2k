@@ -27,8 +27,7 @@ public class Policy extends AbstractCollection<Peer> {
     public boolean isConnectCandidate(final Peer pe) {
         assert(pe != null);
         // TODO - use fail count parameter here
-        if (pe.hasConnection() || !pe.isConnectable() || pe.getFailCount() > 10) return false;
-        return true;
+        return !(pe.hasConnection() || !pe.isConnectable() || pe.getFailCount() > 10);
     }
 
     public boolean isEraseCandidate(Peer pe) {
@@ -123,8 +122,7 @@ public class Policy extends AbstractCollection<Peer> {
         boolean lhsLocal = Utils.isLocalAddress(lhs.getEndpoint());
         boolean rhsLocal = Utils.isLocalAddress(rhs.getEndpoint());
         if (lhsLocal != rhsLocal) {
-            if (lhsLocal) return true;
-            return false;
+            return lhsLocal;
         }
 
         if (lhs.getLastConnected() != rhs.getLastConnected())
@@ -160,13 +158,11 @@ public class Policy extends AbstractCollection<Peer> {
 
         // prefer to drop peers whose only source is resume data
         if (lhsResumeDataSource != rhsResumeDataSource) {
-            if (lhsResumeDataSource) return true;
-            return false;
+            return lhsResumeDataSource;
         }
 
         if (lhs.connectable != rhs.connectable) {
-            if (!lhs.connectable) return true;
-            return false;
+            return !lhs.connectable;
         }
 
         return false;
@@ -308,7 +304,7 @@ public class Policy extends AbstractCollection<Peer> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("policy transfer: ").append(transfer!=null?transfer.hash().toString():"?").append(" peers: ");
+        sb.append("policy transfer: ").append(transfer!=null?transfer.getHash().toString():"?").append(" peers: ");
         for(final Peer p: peers) {
             sb.append(p.toString());
         }

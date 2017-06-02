@@ -35,12 +35,12 @@ public class PiecePicker extends BlocksEnumerator {
         super(pieceCount, blocksInLastPiece);
     	assert(pieceCount > 0);
         pieceStatus = new byte[pieceCount];
-        Arrays.fill(pieceStatus, (byte)PieceState.NONE.value);
+        Arrays.fill(pieceStatus, PieceState.NONE.value);
     }
 
     /**
      * return piece to picker
-     * it might happen when calculated piece hash doesn't match provided
+     * it might happen when calculated piece getHash doesn't match provided
      * @param index - index of piece
      */
     public DownloadingPiece getDownloadingPiece(int index) {
@@ -243,7 +243,7 @@ public class PiecePicker extends BlocksEnumerator {
     }
 
     /**
-     * mark piece as "we have" - piece flushed to disk and hash value verified
+     * mark piece as "we have" - piece flushed to disk and getHash value verified
      * @param pieceIndex index of piece
      */
     public void weHave(int pieceIndex) {
@@ -297,6 +297,14 @@ public class PiecePicker extends BlocksEnumerator {
 
     public List<DownloadingPiece> getDownloadingQueue() {
         return downloadingPieces;
+    }
+
+    /**
+     *
+     * @return total pieces in this piece manager
+     */
+    public int getPieceCount() {
+        return pieceStatus.length;
     }
 
     @Override

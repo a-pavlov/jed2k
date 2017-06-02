@@ -26,8 +26,8 @@ public class TransferHandleTest {
         Assume.assumeTrue(!System.getProperty("java.runtime.name").toLowerCase().startsWith("android"));
         session = Mockito.mock(Session.class);
         transfer = Mockito.mock(Transfer.class);
-        when(transfer.hash()).thenReturn(Hash.EMULE);
-        when(transfer.size()).thenReturn(1000l);
+        when(transfer.getHash()).thenReturn(Hash.EMULE);
+        when(transfer.size()).thenReturn(1000L);
     }
 
     @Test
@@ -36,7 +36,7 @@ public class TransferHandleTest {
         TransferHandle h1 = new TransferHandle(session, transfer);
         TransferHandle h2 = new TransferHandle(session);
         assertFalse(h1.equals(h2));
-        assertEquals(1000l, h1.getSize());
+        assertEquals(1000L, h1.getSize());
         assertEquals(0, h2.getSize());
     }
 

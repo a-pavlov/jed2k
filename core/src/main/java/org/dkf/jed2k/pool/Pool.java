@@ -1,10 +1,13 @@
 package org.dkf.jed2k.pool;
 
+import lombok.Getter;
+
 import java.util.LinkedList;
 
 /**
  * Created by apavlov on 06.03.17.
  */
+@Getter
 public abstract class Pool<T> {
     private int maxBuffersCount = 0;
     private int allocatedBuffersCount = 0;
@@ -22,7 +25,7 @@ public abstract class Pool<T> {
 
     public T allocate() {
         T b = freeBuffers.poll();
-        Long releaseTime = bufferReleaseTimes.poll();
+        bufferReleaseTimes.poll();
         assert(freeBuffers.size() == bufferReleaseTimes.size());
 
         if (b == null && allocatedBuffersCount < maxBuffersCount) {
@@ -47,18 +50,14 @@ public abstract class Pool<T> {
         assert(freeBuffers.size() == bufferReleaseTimes.size());
         allocatedBuffersCount--;
         // add free buffer to cache only if limit not exceeded
-        if (maxBuffersCount > allocatedBuffersCount + cachedBuffers()) {
+        if (maxBuffersCount > allocatedBuffersCount + getCachedBuffersCount()) {
             freeBuffers.addFirst(b);
             bufferReleaseTimes.addFirst(sessionTime);
         }
     }
 
-    public int cachedBuffers() {
+    public int getCachedBuffersCount() {
         return freeBuffers.size();
-    }
-
-    public int totalAllocatedBuffers() {
-        return allocatedBuffersCount;
     }
 
     int reduceCache(int cacheSize) {
@@ -88,7 +87,7 @@ public abstract class Pool<T> {
         assert(maxBuffers > 0);
         if (maxBuffers < maxBuffersCount) {
             // ok, max buffers count less than previous, try to reduce cache
-            int newCacheSize = Math.max(cachedBuffers() - (maxBuffersCount - maxBuffers), 0);
+            int newCacheSize = Math.max(getCachedBuffersCount() - (maxBuffersCount - maxBuffers), 0);
             reduceCache(newCacheSize);
         }
 

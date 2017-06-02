@@ -57,7 +57,6 @@ public class PolicyTest {
     @Test
     public void testDuplicateInsert() throws JED2KException {
         Assume.assumeTrue(notAndroidPlatform);
-        Peer ps[] = {p1, p2, p3, p4};
         Policy p = new Policy(transfer);
         assertTrue(p.addPeer(p1));
         assertFalse(p.addPeer(p1));
@@ -133,7 +132,7 @@ public class PolicyTest {
         LinkedList<Peer> peers = new LinkedList<>();
         Policy p = new Policy(transfer);
         for(int i = 0; i < Policy.MAX_PEER_LIST_SIZE; ++i) {
-            peers.add(new Peer(new Endpoint(new InetSocketAddress("192.168.0." + new Integer(i+1).toString(), i+2000)), true, 0));
+            peers.add(new Peer(new Endpoint(new InetSocketAddress("192.168.0." + Integer.toString(i + 1), i+2000)), true, 0));
             p.addPeer(peers.peekLast());
         }
 

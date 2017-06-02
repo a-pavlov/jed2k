@@ -97,7 +97,8 @@ public class Container<N extends UNumber, E extends Serializable> extends Abstra
     }
 
     public final E get(int i) {
-        assert(i < holder().size());
+        int s = holder().size();
+        assert i < s;
         return holder().get(i);
     }
 

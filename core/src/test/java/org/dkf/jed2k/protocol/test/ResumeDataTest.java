@@ -47,7 +47,7 @@ public class ResumeDataTest {
         TransferResumeData trd2 = new TransferResumeData();
         trd2.get(bb);
         assertFalse(bb.hasRemaining());
-        //assertEquals(trd2.hash, trd.hash);
+        //assertEquals(trd2.getHash, trd.getHash);
         //assertEquals(trd2.size, trd.size);
         assertEquals(trd2.hashes.size(), trd.hashes.size());
         Iterator<Hash> itr = trd.hashes.iterator();

@@ -3,6 +3,8 @@ package org.dkf.jed2k;
 import org.dkf.jed2k.data.PeerRequest;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.data.Region;
+import org.dkf.jed2k.disk.AsyncHash;
+import org.dkf.jed2k.disk.AsyncWrite;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -24,7 +26,6 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.Future;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -278,10 +279,10 @@ public class PeerConnection extends Connection {
                     (supportSecIdent       << 4*4) |
                     (sourceExchange1Ver    << 4*3) |
                     (extendedRequestsVer   << 4*2) |
-                    (acceptCommentVer      << 4*1) |
-                    (noViewSharedFiles     << 1*2) |
-                    (multiPacket           << 1*1) |
-                    (supportsPreview       << 1*0);
+                    (acceptCommentVer      << 4) |
+                    (noViewSharedFiles     << 2) |
+                    (multiPacket           << 1) |
+                    supportsPreview;
         }
 
         public void assign(int value) {
@@ -292,10 +293,10 @@ public class PeerConnection extends Connection {
             supportSecIdent      = (value >> 4*4) & 0x0f;
             sourceExchange1Ver   = (value >> 4*3) & 0x0f;
             extendedRequestsVer  = (value >> 4*2) & 0x0f;
-            acceptCommentVer     = (value >> 4*1) & 0x0f;
-            noViewSharedFiles    = (value >> 1*2) & 0x01;
-            multiPacket          = (value >> 1*1) & 0x01;
-            supportsPreview      = (value >> 1*0) & 0x01;
+            acceptCommentVer     = (value >> 4) & 0x0f;
+            noViewSharedFiles    = (value >> 2) & 0x01;
+            multiPacket          = (value >> 1) & 0x01;
+            supportsPreview      = value & 0x01;
         }
     }
 
@@ -368,7 +369,7 @@ public class PeerConnection extends Connection {
 
     public HelloAnswer prepareHello(final HelloAnswer hello) throws JED2KException {
         hello.hash.assign(session.getUserAgent());
-        //Utils.fingerprint(hello.hash, (byte)'M', (byte)'L');
+        //Utils.fingerprint(hello.getHash, (byte)'M', (byte)'L');
         hello.point.setIP(session.getClientId());
         hello.point.setPort(session.getListenPort());
 
@@ -508,11 +509,11 @@ public class PeerConnection extends Connection {
         // extract client information
         assignRemotePeerInformation(value);
         endpoint.assign(value.point);
-        Hash h = session.callbacks.get(value.point);
+        Hash h = session.callbacks.get(value.point.getIP());
         Transfer t = null;
 
         if (h != null) {
-            session.callbacks.remove(value.point);
+            session.callbacks.remove(value.point.getIP());
             t = session.transfers.get(h);
         }
 
@@ -530,7 +531,7 @@ public class PeerConnection extends Connection {
             throws JED2KException {
         assignRemotePeerInformation(value);
         if (transfer != null) {
-            write(new FileRequest(transfer.hash()));
+            write(new FileRequest(transfer.getHash()));
         }
     }
 
@@ -599,8 +600,8 @@ public class PeerConnection extends Connection {
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
         log.debug("{} << file answer", endpoint);
-        if (transfer != null && value.hash.equals(transfer.hash())) {
-            write(new FileStatusRequest(transfer.hash()));
+        if (transfer != null && value.hash.equals(transfer.getHash())) {
+            write(new FileStatusRequest(transfer.getHash()));
         } else {
             close(ErrorCode.NO_TRANSFER);
         }
@@ -619,12 +620,21 @@ public class PeerConnection extends Connection {
         remotePieces = value.bitfield;
         if (transfer != null) {
             if (transfer.size() >= Constants.PIECE_SIZE) {
-                write(new HashSetRequest(transfer.hash()));
+                write(new HashSetRequest(transfer.getHash()));
             } else {
-                // file contains only one hash, so set hash set with that one hash
+                // file contains only one getHash, so set getHash set with that one getHash
                 final Hash h = value.hash;
-                transfer.setHashSet(h, new ArrayList<Hash>() {{ add(h); }});
-                write(new StartUpload(transfer.hash()));
+                if (transfer.getHash().equals(value.hash)) {
+                    transfer.setHashSet(h, new ArrayList<Hash>() {{
+                        add(h);
+                    }});
+                    write(new StartUpload(transfer.getHash()));
+                } else {
+                    log.warn("getHash from response {} mismatch transfer's getHash {}"
+                        , value.hash
+                        , transfer.getHash());
+                    close(ErrorCode.HASH_MISMATCH);
+                }
             }
         } else {
             close(ErrorCode.NO_TRANSFER);
@@ -642,13 +652,16 @@ public class PeerConnection extends Connection {
             throws JED2KException {
         log.debug("{} << hashset answer", endpoint);
         if (transfer != null) {
-            if (transfer.hash().equals(value.getHash()) && transfer.hash().equals(Hash.fromHashSet(value.getParts()))) {
+            if (transfer.getHash().equals(value.getHash())
+                    && transfer.getHash().equals(Hash.fromHashSet(value.getParts()))
+                    && transfer.getPicker().getPieceCount() == value.getParts().size()) {
                 transfer.setHashSet(value.getHash(), value.getParts());
-                write(new StartUpload(transfer.hash()));
+                write(new StartUpload(transfer.getHash()));
             } else {
-                log.warn("incorrect hash set answer {} for transfer hash {}"
+                log.warn("incorrect getHash set answer {} for transfer getHash {}"
                     , value.getHash()
-                    , transfer.hash());
+                    , transfer.getHash());
+                close(ErrorCode.WRONG_HASHSET);
             }
         } else {
             close(ErrorCode.NO_TRANSFER);
@@ -879,14 +892,14 @@ public class PeerConnection extends Connection {
 
                     // was downloading means block was in downdloading or none state
                     // possibly block was already written in end game mode and/or finished
-                    // in that case no need to re-write block to disk and request hash
+                    // in that case no need to re-write block to disk and request getHash
                     if (wasDownloading) {
                         // add write task to executor and add future to transfer
-                        transfer.aioFutures.addLast(asyncWrite(pb.block, pb.buffer, transfer));
+                        asyncWrite(pb.block, pb.buffer, transfer);
 
-                        // run async hash calculation
+                        // run async getHash calculation
                         if (transfer.getPicker().isPieceFinished(recvReq.piece) && !wasFinished) {
-                            transfer.aioFutures.addLast(asyncHash(pb.block.pieceIndex, transfer));
+                            asyncHash(pb.block.pieceIndex, transfer);
                         }
                     } else {
                         log.warn("{} block {} wasn't downloading, do not write"
@@ -1020,7 +1033,7 @@ public class PeerConnection extends Connection {
         LinkedList<PieceBlock> blocks = new LinkedList<PieceBlock>();
         PiecePicker picker = transfer.getPicker();
         picker.pickPieces(blocks, Constants.REQUEST_QUEUE_SIZE, getPeer(), speed());
-        RequestParts64 reqp = new RequestParts64(transfer.hash());
+        RequestParts64 reqp = new RequestParts64(transfer.getHash());
 
         while(!blocks.isEmpty() && downloadQueue.size() < Constants.REQUEST_QUEUE_SIZE) {
             PieceBlock b = blocks.poll();
@@ -1047,7 +1060,7 @@ public class PeerConnection extends Connection {
                 picker.abortDownload(pb.block, getPeer());
                 if (pb.buffer != null) {
                     pb.buffer.clear();
-                    session.bufferPool.deallocate(pb.buffer, Time.currentTime());
+                    session.getBufferPool().deallocate(pb.buffer, Time.currentTime());
                 }
             }
         }
@@ -1068,19 +1081,19 @@ public class PeerConnection extends Connection {
      * @param t actual transfer
      * @return future of result for async operation
      */
-    Future<AsyncOperationResult> asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
+    void asyncWrite(final PieceBlock b, final ByteBuffer buffer, final Transfer t) {
         transfer.getPicker().markAsWriting(b);
-        return session.submitDiskTask(new AsyncWrite(b, buffer, t));
+        session.submitDiskTask(new AsyncWrite(b, buffer, t));
     }
 
     /**
      * submit hashing task to executor
-     * @param pieceIndex index of piece which hash should be calculated
+     * @param pieceIndex index of piece which getHash should be calculated
      * @param t - transfer ?
      * @return future of hashing operation result
      */
-    Future<AsyncOperationResult> asyncHash(int pieceIndex, final Transfer t) {
-        return session.submitDiskTask(new AsyncHash(t, pieceIndex));
+    void asyncHash(int pieceIndex, final Transfer t) {
+        session.submitDiskTask(new AsyncHash(t, pieceIndex));
     }
 
     /**

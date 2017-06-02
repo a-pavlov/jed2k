@@ -22,8 +22,9 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 9
-        versionName "0.9"
+        versionCode 10
+        versionName "1.0"
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -31,8 +32,6 @@ android {
         main {
             java {
                 srcDirs += '../../core/src/main/java'
-                exclude '**/Conn.java'
-                exclude '**/Kad.java'
                 exclude '**/FUtils.java'
                 //include '../../core/src/main/resources/server.met'
             }
@@ -47,6 +46,8 @@ android {
             java {
                 srcDirs += '../../core/src/test/java'
                 exclude '**/FUtilsTest.java'
+                exclude '**/Conn.java'
+                exclude '**/Kad.java'
             }
 
             resources {

@@ -15,7 +15,7 @@ import java.util.Iterator;
 public final class Utils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
-    public static final String byte2String(byte[] value) {
+    public static String byte2String(byte[] value) {
         if (value == null) return "";
         char[] hexChars = new char[value.length * 2];
         for ( int j = 0; j < value.length; j++ ) {
@@ -27,34 +27,34 @@ public final class Utils {
         return new String(hexChars);
     }
 
-    public static final String byte2String(byte value) {
+    public static String byte2String(byte value) {
         byte b[] = {value};
         return byte2String(b);
     }
 
-    public static final int sizeof(byte value) {
+    public static int sizeof(byte value) {
         return 1;
     }
 
-    public static final int sizeof(short value) {
+    public static int sizeof(short value) {
         return 2;
     }
 
-    public static final int sizeof(int value) {
+    public static int sizeof(int value) {
         return 4;
     }
 
-    public static final int sizeof(float value) {
+    public static int sizeof(float value) {
         return 4;
     }
 
-    public static final int sizeof(long value) { return 8; }
+    public static int sizeof(long value) { return 8; }
 
-    public static final int sizeof(boolean value) {
+    public static int sizeof(boolean value) {
         return 1;
     }
 
-    public static final int sizeof(Serializable s) {
+    public static int sizeof(Serializable s) {
         return s.bytesCount();
     }
 
@@ -109,11 +109,10 @@ public final class Utils {
      */
     public static int htonl(byte[] order) {
         assert(order.length == 4);
-        int res =  ((int)order[0] << 24)
+        return ((int)order[0] << 24)
                 | (((int)order[1] << 16) & 0x00FF0000)
                 | (((int)order[2] << 8) & 0x0000FF00)
                 | (((int)order[3]) & 0xFF);
-        return res;
     }
 
     public static int htonl(int ip) {
@@ -130,11 +129,10 @@ public final class Utils {
      */
     public static int packToNetworkByteOrder(byte[] order) {
         assert(order.length == 4);
-        int res =  ((int)order[3] << 24)
+        return ((int)order[3] << 24)
                 | (((int)order[2] << 16) & 0x00FF0000)
                 | (((int)order[1] << 8) & 0x0000FF00)
                 | (((int)order[0]) & 0xFF);
-        return res;
     }
 
     /**
@@ -225,16 +223,15 @@ public final class Utils {
         assert(Constants.HIGHEST_LOWID_ED2K >= 0);
         long l = v;
         l &= 0xFFFFFFFFL;
-        return l < (long)Constants.HIGHEST_LOWID_ED2K;
+        return l < Constants.HIGHEST_LOWID_ED2K;
     }
 
     public static String formatLink(final String fileName, long fileSize, final Hash hash) {
-        StringBuilder sb = new StringBuilder();
-        return sb.append("ed2k://|file|")
-                .append(fileName).append("|")
-                .append(fileSize).append("|")
-                .append(hash.toString())
-                .append("|/").toString();
+        return "ed2k://|file|" +
+                fileName + "|" +
+                fileSize + "|" +
+                hash.toString() +
+                "|/";
     }
 
     public static boolean isBit(int value, int mask) {

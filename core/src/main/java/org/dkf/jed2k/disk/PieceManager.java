@@ -1,6 +1,9 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.disk;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.BlockManager;
+import org.dkf.jed2k.BlocksEnumerator;
+import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -10,7 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.NonWritableChannelException;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by inkpot on 15.07.2016.
@@ -41,7 +46,7 @@ public class PieceManager extends BlocksEnumerator {
      * @param b block
      * @param buffer data source
      */
-    public LinkedList<ByteBuffer> writeBlock(PieceBlock b, final ByteBuffer buffer) throws JED2KException {
+    public List<ByteBuffer> writeBlock(PieceBlock b, final ByteBuffer buffer) throws JED2KException {
         FileChannel c = handler.getWriteChannel();
         assert c != null;
         long bytesOffset = b.blocksOffset()* Constants.BLOCK_SIZE;
@@ -61,10 +66,19 @@ public class PieceManager extends BlocksEnumerator {
         }
         catch(IOException e) {
             log.error("i/o error on write block {}", e);
+            handler.closeChannels();    // do not use total close since in Android we are not able to open it again
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        } catch(NonWritableChannelException e) {
+            log.error("i/o error non writeable channel writing {}", e);
+            handler.closeChannels();    // do not use total close since in Android we are not able to open it again
+            throw new JED2KException(ErrorCode.NON_WRITEABLE_CHANNEL);
+        } catch(Exception e) {
+            log.error("common error on write block on disk {}", e);
+            handler.closeChannels();    // do not use total close since in Android we are not able to open it again
+            throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
 
-        // stage 2 - prepare hash and return obsolete blocks if possible
+        // stage 2 - prepare getHash and return obsolete blocks if possible
         return mgr.registerBlock(b.pieceBlock, buffer);
     }
 
@@ -78,7 +92,7 @@ public class PieceManager extends BlocksEnumerator {
      * @return free buffers
      * @throws JED2KException
      */
-    public LinkedList<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, long  fileSize) throws JED2KException {
+    public List<ByteBuffer> restoreBlock(PieceBlock b, ByteBuffer buffer, long  fileSize) throws JED2KException {
         FileChannel c = handler.getReadChannel();
         assert c != null;
         assert(fileSize > 0);
@@ -102,7 +116,9 @@ public class PieceManager extends BlocksEnumerator {
 
         // register buffer as usual in blocks manager and return free blocks
         assert(buffer.remaining() == b.size(fileSize));
-        return mgr.registerBlock(b.pieceBlock, buffer);
+        List<ByteBuffer> res = mgr.registerBlock(b.pieceBlock, buffer);
+        assert res != null;
+        return res;
     }
 
     public Hash hashPiece(int pieceIndex) {
@@ -115,10 +131,32 @@ public class PieceManager extends BlocksEnumerator {
 
     /**
      * close file and release resources
-     * @throws JED2KException
+     * @return list of ByteBuffers for buffer pool deallocation
      */
-    public void releaseFile() throws JED2KException {
+    public List<ByteBuffer> releaseFile(boolean deleteFile) {
         handler.close();
+        try {
+            if (deleteFile) handler.deleteFile();
+        } catch(JED2KException e) {
+            log.error("unable to delete file {}", e);
+        }
+
+        return abort();
+    }
+
+    /**
+     * abort piece manager - clear all block managers buffers and remove them
+     * @return
+     */
+    public List<ByteBuffer> abort() {
+        List<ByteBuffer> res = new LinkedList<>();
+        for(BlockManager mgr: blockMgrs) {
+            res.addAll(mgr.getBuffers());
+        }
+
+        blockMgrs.clear();
+
+        return res;
     }
 
     /**
@@ -128,7 +166,7 @@ public class PieceManager extends BlocksEnumerator {
         handler.deleteFile();
     }
 
-    final File getFile() {
+    public final File getFile() {
         return handler.getFile();
     }
 }

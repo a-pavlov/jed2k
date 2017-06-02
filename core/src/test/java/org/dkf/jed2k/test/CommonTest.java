@@ -59,7 +59,7 @@ public class CommonTest {
         }
 
         for(int i = 0; i < (int)Constants.PIECE_SIZE; ++i) {
-            assertEquals((template.get(i/(int)Constants.BLOCK_SIZE) != null)?template.get(i/(int)Constants.BLOCK_SIZE):0, data[i]);
+            assertEquals((template.get(i/(int)Constants.BLOCK_SIZE) != null)?template.get(i/(int)Constants.BLOCK_SIZE).intValue():0, data[i]);
         }
     }
 
@@ -152,5 +152,30 @@ public class CommonTest {
         Exception e = new NotYetConnectedException();
         log.error("error: {}", e);
         log.error("{}", e.getMessage());
+    }
+
+    @Test
+    public void testListRemovingByItr() {
+        List<Integer> ls = new LinkedList<>();
+        List<Integer> ls2 = new LinkedList<>();
+        ls.addAll(Arrays.asList(1, 2, 3, 4, 5));
+        ls2.addAll(Arrays.asList(1, 2, 3, 4, 5));
+
+        Iterator<Integer> itr = ls.iterator();
+        Iterator<Integer> itr2 = ls2.iterator();
+        while(itr.hasNext()) {
+            Integer i = itr.next();
+            Integer i2 = itr2.next();
+
+            if (i > 4) break;
+
+            if (i > 2) {
+                itr.remove();
+                itr2.remove();
+            }
+        }
+
+        assertEquals(ls.size(), ls2.size());
+        assertEquals(3, ls.size());
     }
 }

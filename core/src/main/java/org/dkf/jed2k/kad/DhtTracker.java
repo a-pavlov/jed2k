@@ -349,12 +349,11 @@ public class DhtTracker extends Thread {
         log.debug("[tracker] search keyword {}", key);
         MD4 md4 = new MD4();
         md4.update(key.getBytes());
-        Kad2SearchKeysReq req = new Kad2SearchKeysReq();
         node.searchKeywords(KadId.fromBytes(md4.digest()), l);
     }
 
     /**
-     * search file sources by hash
+     * search file sources by getHash
      * if tracker aborted simply returns empty list
      * @param hash of file
      * @param fileSize size of file

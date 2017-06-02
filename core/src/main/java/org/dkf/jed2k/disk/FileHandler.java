@@ -1,4 +1,4 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.disk;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel;
 @Slf4j
 public abstract class FileHandler {
     private static final int WRITE = 0;
-    private static final int READ = 0;
+    private static final int READ = 1;
     protected File file;
 
     private FileOutputStream wStream;
@@ -44,10 +44,10 @@ public abstract class FileHandler {
             channels[READ] = rStream.getChannel();
         }
 
-        return channels[WRITE];
+        return channels[READ];
     }
 
-    public void close() {
+    public void closeChannels() {
         for(int i = 0; i < channels.length; ++i) {
             try {
                 if (channels[i] != null) {
@@ -82,6 +82,10 @@ public abstract class FileHandler {
                 rStream = null;
             }
         }
+    }
+
+    public void close() {
+        closeChannels();
     }
 
     public File getFile() {

@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.test;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.PacketHeader;
@@ -21,6 +22,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.dkf.jed2k.protocol.tag.Tag.tag;
 import static org.junit.Assert.assertFalse;
 
+@Slf4j
 public class PacketCombinerTest {
 
     // packet 1
@@ -36,7 +38,7 @@ public class PacketCombinerTest {
         try {
             login.properties.add(tag(Tag.CT_NAME, null, "jed2k"));
         } catch(JED2KException e) {
-
+            log.error("exception in initialization {}", e);
         }
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
     }

@@ -1,7 +1,11 @@
 package org.dkf.jed2k;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.data.PieceBlock;
+import org.dkf.jed2k.disk.AsyncRelease;
+import org.dkf.jed2k.disk.AsyncRestore;
+import org.dkf.jed2k.disk.PieceManager;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -9,22 +13,17 @@ import org.dkf.jed2k.protocol.BitField;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.TransferResumeData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
+@Slf4j
 public class Transfer {
     public static long INVALID_ETA = -1;
 
-    private Logger log = LoggerFactory.getLogger(Transfer.class);
-
     /**
-     * transfer's file hash
+     * transfer's file getHash
      */
     private Hash hash;
 
@@ -75,12 +74,7 @@ public class Transfer {
     /**
      * disk io
      */
-    PieceManager pm = null;
-
-    /**
-     * async disk io futures
-     */
-    LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
+    private PieceManager pm = null;
 
     /**
      * hashes of file's pieces
@@ -159,8 +153,9 @@ public class Transfer {
             picker.downloadPiece(b.pieceIndex);
             ByteBuffer buffer = session.allocatePoolBuffer();
             if (buffer == null) {
-                log.warn("{} have no enough buffers to restore transfer {} ",
-                        session.bufferPool, b);
+                log.warn("{} have no enough buffers to restore transfer {} "
+                        , session.getBufferPool()
+                        , b);
                 return;
             }
 
@@ -168,12 +163,17 @@ public class Transfer {
             lastResumeBlock = b;
             asyncRestoreBlock(b, buffer);
             //aioFutures.addLast(session.submitDiskTask(new AsyncRestore(this, b, size, buffer)));
+
         }
 
-        if (isFinished()) setState(TransferStatus.TransferState.FINISHED);
+        if (isFinished()) {
+            // for finished transfers no need to save resume data
+            setState(TransferStatus.TransferState.FINISHED);
+            needSaveResumeData = false;
+        }
     }
 
-    public Hash hash() {
+    public Hash getHash() {
         return hash;
     }
 
@@ -284,6 +284,7 @@ public class Transfer {
     }
 
 	void secondTick(final Statistics accumulator, long tickIntervalMS) {
+
         if (!isPaused() && !isAborted() && !isFinished() && connections.isEmpty()) {
 
             if (nextTimeForSourcesRequest < Time.currentTime()) {
@@ -309,24 +310,7 @@ public class Transfer {
 
         accumulator.add(stat);
         stat.secondTick(tickIntervalMS);
-
         speedMon.addSample(stat.downloadRate());
-
-        while(!aioFutures.isEmpty()) {
-            Future<AsyncOperationResult> res = aioFutures.peek();
-            if (!res.isDone()) break;
-
-            try {
-                res.get().onCompleted();
-            } catch (InterruptedException e) {
-                // TODO - handle it
-            } catch( ExecutionException e) {
-                // TODO - handle it
-            }
-            finally {
-                aioFutures.poll();
-            }
-        }
     }
 
     public Statistics statistics() {
@@ -348,20 +332,19 @@ public class Transfer {
      * abort all connections
      * cancel all disk i/o operations
      * release file
+     * @param deleteFile - delete target file on disk
+     * @param interruptTasksInOrder - cancel disk tasks already submitted for this transfer. can be cause of buffers leaking
      */
-    void abort() {
-        log.debug("{} abort", hash);
+    void abort(boolean deleteFile, boolean interruptTasksInOrder) {
+        log.debug("abort transfer {} file {}"
+                , hash
+                , deleteFile?"delete":"save");
+
         if (abort) return;
         abort = true;
         disconnectAll(ErrorCode.TRANSFER_ABORTED);
-
-        // cancel all async operations
-        for(Future<AsyncOperationResult> f: aioFutures) {
-            f.cancel(false);
-        }
-
-        aioFutures.clear();
-        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
+        if (interruptTasksInOrder) session.removeDiskTask(this);
+        session.submitDiskTask(new AsyncRelease(this, deleteFile));
     }
 
     void pause() {
@@ -377,18 +360,9 @@ public class Transfer {
         session.pushAlert(new TransferResumedAlert(hash));
     }
 
-    void deleteFile() {
-        aioFutures.addLast(session.submitDiskTask(new AsyncDeleteFile(this)));
-    }
-
     void setHashSet(final Hash hash, final AbstractCollection<Hash> hs) {
-        // TODO - add few checks here
-        // 1. check common hash is compatible with hash set
-        // 2. check hash set dataSize
-        // 3. compare new hash set and previous?
-        // now copy first hash set to transfer
         if (hashSet.isEmpty()) {
-            log.debug("{} hash set received {}", hash(), hs.size());
+            log.debug("{} getHash set received {}", getHash(), hs.size());
             hashSet.addAll(hs);
             needSaveResumeData = true;
         }
@@ -411,19 +385,19 @@ public class Transfer {
         // policy will know transfer is finished automatically via call isFinished on transfer
         // async release file
         setState(TransferStatus.TransferState.FINISHED);
-        aioFutures.addLast(session.submitDiskTask(new AsyncRelease(this)));
+        session.submitDiskTask(new AsyncRelease(this, false));
         needSaveResumeData = true;
-        session.pushAlert(new TransferFinishedAlert(hash()));
+        session.pushAlert(new TransferFinishedAlert(getHash()));
     }
 
-    void onBlockWriteCompleted(final PieceBlock b, final LinkedList<ByteBuffer> buffers, final BaseErrorCode ec) {
+    public void onBlockWriteCompleted(final PieceBlock b, final List<ByteBuffer> buffers, final BaseErrorCode ec) {
         log.debug("block {} write completed: {} free buffers: {}",
                 b, ec, (buffers!=null)?buffers.size():0);
 
         // return buffers to pool
         if (buffers != null) {
             for (ByteBuffer buffer : buffers) {
-                session.bufferPool.deallocate(buffer, Time.currentTime());
+                session.getBufferPool().deallocate(buffer, Time.currentTime());
             }
 
             buffers.clear();
@@ -444,13 +418,15 @@ public class Transfer {
         }
     }
 
-    void onPieceHashCompleted(final int pieceIndex, final Hash hash) {
+    public void onPieceHashCompleted(final int pieceIndex, final Hash hash) {
         assert hash != null;
         assert hashSet.size() > pieceIndex;
 
         if (hash != null && (hashSet.get(pieceIndex).compareTo(hash) != 0)) {
-            log.error("restore piece due to expected hash {} is not equal with calculated {}",
-                    hashSet.get(pieceIndex), hash);
+            log.error("restore piece {} due to expected getHash {} != {} was calculated"
+                    , pieceIndex
+                    , hashSet.get(pieceIndex)
+                    , hash);
             picker.restorePiece(pieceIndex);
         }
         else {
@@ -460,8 +436,19 @@ public class Transfer {
         needSaveResumeData = true;
     }
 
-    void onReleaseFile(final BaseErrorCode c) {
-        log.debug("release file completed {}", c);
+    public void onReleaseFile(final BaseErrorCode c, final List<ByteBuffer> buffers, boolean deleteFile) {
+        assert buffers != null;
+        log.debug("release file completed {} release byte buffers count {} file {}"
+                , c
+                , buffers.size()
+                , deleteFile?"delete":"save");
+
+
+        for (ByteBuffer buffer : buffers) {
+            session.getBufferPool().deallocate(buffer, Time.currentTime());
+        }
+
+        log.debug("buffers status: {}", session.getBufferPool().toString());
     }
 
     /**
@@ -584,7 +571,7 @@ public class Transfer {
     }
 
     public void asyncRestoreBlock(final PieceBlock b, final ByteBuffer buffer) {
-        aioFutures.addLast(session.submitDiskTask(new AsyncRestore(this, b, size, buffer)));
+        session.submitDiskTask(new AsyncRestore(this, b, size, buffer));
     }
 
     public final List<PeerInfo> getPeersInfo() {

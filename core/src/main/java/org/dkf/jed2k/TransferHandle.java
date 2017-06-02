@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class TransferHandle implements Comparable<TransferHandle> {
     private WeakReference<Transfer> transfer;
-    private Session ses;
+    private final Session ses;
 
     public TransferHandle(final Session s) {
         assert s != null;
@@ -38,7 +38,7 @@ public class TransferHandle implements Comparable<TransferHandle> {
         Transfer t = transfer.get();
         if (t != null) {
             synchronized (ses) {
-                return t.hash();
+                return t.getHash();
             }
         }
 

@@ -1,9 +1,9 @@
 package org.dkf.jed2k.protocol.test;
 
 import org.dkf.jed2k.Constants;
-import org.dkf.jed2k.DesktopFileHandler;
-import org.dkf.jed2k.PieceManager;
 import org.dkf.jed2k.data.PieceBlock;
+import org.dkf.jed2k.disk.DesktopFileHandler;
+import org.dkf.jed2k.disk.PieceManager;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Hash;
@@ -33,7 +33,6 @@ public class PieceManagerTest {
             buffer.put((byte)(i/Constants.BLOCKS_PER_PIECE));
         }
 
-        int pos = buffer.position();
         assert(buffer.position() >= Constants.PIECE_SIZE - 4);
         buffer.flip();
         byte[] data = new byte[(int)Constants.PIECE_SIZE];

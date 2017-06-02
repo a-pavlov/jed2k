@@ -203,7 +203,7 @@ public abstract class Traversal {
             // we do get a late response, keep the handler
             // around for some more, but open up the slot
             // by increasing the branch factor
-            assert Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT) != true;
+            assert !Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT);
             //if (!Utils.isBit(o.getFlags(), Observer.FLAG_SHORT_TIMEOUT))
             ++branchFactor;
             o.setFlags(o.getFlags() | Observer.FLAG_SHORT_TIMEOUT);

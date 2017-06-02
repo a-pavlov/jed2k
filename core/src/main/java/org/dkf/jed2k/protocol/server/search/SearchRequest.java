@@ -104,13 +104,10 @@ public class SearchRequest implements Serializable {
     }
 
     private static boolean isOperator(Serializable value) {
-        if (value instanceof BooleanEntry ||
-                value instanceof  OpenParen ||
-                value instanceof CloseParen) {
-            return true;
-        }
+        return value instanceof BooleanEntry ||
+                value instanceof OpenParen ||
+                value instanceof CloseParen;
 
-        return false;
     }
 
     private static void appendItem(final ArrayList<Serializable> dst, final Serializable sre) throws JED2KException {
@@ -449,7 +446,7 @@ public class SearchRequest implements Serializable {
             int mediaLength,
             int mediaBitrate,
             String value) throws JED2KException {
-        ArrayList<Serializable> a = new ArrayList<Serializable>();
+        ArrayList<Serializable> a;
         a = string2Entries(minSize, maxSize, sourcesCount, completeSourcesCount,
                 fileType, fileExtension, codec, mediaLength, mediaBitrate, value);
         log.debug(dbgString(a));

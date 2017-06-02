@@ -17,11 +17,11 @@ public class StatisticsTest {
     @Test
     public void testFading() {
         Statistics stat = new Statistics();
-        assertEquals(0l, stat.totalPayloadDownload());
-        assertEquals(0l, stat.totalProtocolDownload());
-        stat.receiveBytes(100l, 20000l);
-        assertEquals(100l, stat.totalProtocolDownload());
-        assertEquals(20000l, stat.totalPayloadDownload());
+        assertEquals(0L, stat.totalPayloadDownload());
+        assertEquals(0L, stat.totalProtocolDownload());
+        stat.receiveBytes(100L, 20000L);
+        assertEquals(100L, stat.totalProtocolDownload());
+        assertEquals(20000L, stat.totalPayloadDownload());
         stat.secondTick(1000);
 
         for(int i = 0; i < 10; ++i) {
@@ -36,7 +36,7 @@ public class StatisticsTest {
             stat.secondTick(1000 + rnd.nextInt(33));
         }
 
-        assertEquals(0l, stat.downloadPayloadRate());
-        assertEquals(0l, stat.downloadRate());
+        assertEquals(0L, stat.downloadPayloadRate());
+        assertEquals(0L, stat.downloadRate());
     }
 }

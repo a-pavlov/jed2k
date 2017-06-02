@@ -41,10 +41,10 @@ public class SynchronizedArrayPoolTest {
             bp.deallocateSync(allocated.poll(), 10L);
         }
 
-        assertEquals(6, bp.cachedBuffers());
+        assertEquals(6, bp.getCachedBuffersCount());
         bp.setMaxBuffersCountSync(2);
-        assertEquals(2, bp.cachedBuffers());
-        assertEquals(0, bp.totalAllocatedBuffers());
+        assertEquals(2, bp.getCachedBuffersCount());
+        assertEquals(0, bp.getAllocatedBuffersCount());
         bp.setMaxBuffersCountSync(8);
 
         for(int i = 0; i < 6; ++i) {
@@ -52,17 +52,17 @@ public class SynchronizedArrayPoolTest {
             assertTrue(allocated.getLast() != null);
         }
 
-        assertEquals(6, bp.totalAllocatedBuffers());
-        assertEquals(0, bp.cachedBuffers());
+        assertEquals(6, bp.getAllocatedBuffersCount());
+        assertEquals(0, bp.getCachedBuffersCount());
 
         while(allocated.size() > 2) {
             bp.deallocateSync(allocated.poll(), 10L);
         }
 
-        assertEquals(4, bp.cachedBuffers());
+        assertEquals(4, bp.getCachedBuffersCount());
         bp.setMaxBuffersCountSync(2);
-        assertEquals(0, bp.cachedBuffers());
-        assertEquals(2, bp.totalAllocatedBuffers());
+        assertEquals(0, bp.getCachedBuffersCount());
+        assertEquals(2, bp.getAllocatedBuffersCount());
         assertTrue(bp.allocateSync() == null);
     }
 }

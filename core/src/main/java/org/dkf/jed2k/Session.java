@@ -4,6 +4,9 @@ import org.bitlet.weupnp.GatewayDevice;
 import org.bitlet.weupnp.GatewayDiscover;
 import org.bitlet.weupnp.PortMappingEntry;
 import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.disk.AsyncOperationResult;
+import org.dkf.jed2k.disk.FileHandler;
+import org.dkf.jed2k.disk.TransferCallable;
 import org.dkf.jed2k.exception.BaseErrorCode;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -11,6 +14,7 @@ import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.KadSearchEntryDistinct;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.pool.BufferPool;
+import org.dkf.jed2k.pool.Pool;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.SearchEntry;
@@ -52,7 +56,7 @@ public class Session extends Thread {
     private ByteBuffer skipDataBuffer = null;
     private byte[] zBuffer = null;
     long zBufferLastAllocatedTime = 0;
-    BufferPool bufferPool = null;
+    private BufferPool bufferPool = null;
     private ExecutorService diskIOService = Executors.newSingleThreadExecutor();
     private ExecutorService upnpService = Executors.newSingleThreadExecutor();
     private AtomicBoolean finished = new AtomicBoolean(false);
@@ -60,6 +64,16 @@ public class Session extends Thread {
     private Statistics accumulator = new Statistics();
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
+
+    /**
+     * async disk io futures
+     */
+    LinkedList<Future<AsyncOperationResult> > aioFutures = new LinkedList<Future<AsyncOperationResult>>();
+
+    /**
+     * async originators
+     */
+    LinkedList<Transfer> aioOrigins = new LinkedList<>();
 
     /**
      * external DHT tracker object
@@ -136,7 +150,7 @@ public class Session extends Thread {
                                         try {
                                             id = new KadId(Hash.fromString(t.stringValue()));
                                         } catch(JED2KException e) {
-                                            log.warn("[session] unable to extract buddy hash {}", e);
+                                            log.warn("[session] unable to extract buddy getHash {}", e);
                                         }
                                         break;
                                     case Tag.TAG_ENCRYPTION:
@@ -321,13 +335,17 @@ public class Session extends Thread {
     }
 
     public void secondTick(long currentSessionTime, long tickIntervalMS) {
-        for(Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
-            Hash key = entry.getKey();
-            entry.getValue().secondTick(accumulator, tickIntervalMS);
+
+        Iterator<Map.Entry<Hash, Transfer>> itr = transfers.entrySet().iterator();
+
+        while(itr.hasNext()) {
+            itr.next().getValue().secondTick(accumulator, tickIntervalMS);
         }
 
         // second tick on server connection
         if (serverConection != null) serverConection.secondTick(tickIntervalMS);
+
+        processDiskTasks();
 
         // TODO - run second tick on peer connections
         // execute user's commands
@@ -344,7 +362,6 @@ public class Session extends Thread {
 
     @Override
     public void run() {
-        // TODO - remove all possible exceptions from this cycle!
         try {
             log.debug("Session started");
             selector = Selector.open();
@@ -384,7 +401,29 @@ public class Session extends Thread {
 
             // abort all transfers
             for(final Transfer t: transfers.values()) {
-                t.abort();
+                t.abort(false, true);   // hard abort tasks to exit as soon as possible. buffers leak possible
+            }
+
+            transfers.clear();
+
+            // 5 seconds for close all transfers
+            for(int i = 0; i < 50; ++i) {
+                log.info("process disk tasks {} iteration", i);
+                processDiskTasks();
+                if (aioFutures.isEmpty()) break;
+
+                try {
+                    Thread.sleep(100);
+                } catch(Exception e) {
+                    log.error("sleep error {}", e);
+                }
+            }
+
+            if (!aioFutures.isEmpty()) {
+                log.warn("not all futures completed");
+                for(final Transfer t: transfers.values()) {
+                    log.warn("transfer {} is not finished", t.getHash());
+                }
             }
 
             ArrayList<PeerConnection> localConnections = (ArrayList<PeerConnection>) connections.clone();
@@ -572,7 +611,6 @@ public class Session extends Thread {
     	commands.add(new Runnable() {
 			@Override
 			public void run() {
-				boolean relisten = (settings.listenPort != s.listenPort);
 				settings = s;
 				listen();
 			}
@@ -600,7 +638,7 @@ public class Session extends Thread {
     /**
      * create new transfer in session or return previous
      * method synchronized with session second tick method
-     * @param h hash of file(transfer)
+     * @param h getHash of file(transfer)
      * @param size of file
      * @return TransferHandle with valid transfer of without
      */
@@ -656,16 +694,14 @@ public class Session extends Thread {
         return new TransferHandle(this, transfers.get(h));
     }
 
-    public void removeTransfer(final Hash h, final boolean removeFile) {
+    public void removeTransfer(final Hash h, final boolean deleteFile) {
         commands.add(new Runnable() {
             @Override
             public void run() {
                     Transfer t = transfers.get(h);
                     if (t != null) {
-                        // add delete file here
-                        t.abort();
-                        if (removeFile) t.deleteFile();
-                        transfers.remove(h);
+                        t.abort(deleteFile, false); // abort transfer, but do not cancel disk tasks to avoid buffers leaking
+                        transfers.remove(t.getHash());
                         pushAlert(new TransferRemovedAlert(h));
                     }
             }
@@ -710,7 +746,6 @@ public class Session extends Thread {
             //log.finest("connectNewPeers with transfers count " + numTransfers);
             while (enumerateCandidates) {
                 for (Map.Entry<Hash, Transfer> entry : transfers.entrySet()) {
-                    Hash key = entry.getKey();
                     Transfer t = entry.getValue();
 
                     if (t.wantMorePeers()) {
@@ -768,6 +803,10 @@ public class Session extends Thread {
         return skipDataBuffer.duplicate();
     }
 
+    Pool<ByteBuffer> getBufferPool() {
+        return bufferPool;
+    }
+
     /**
      * provide one per session temporary buffer for inflate z data
      * @return common z buffer for decompress compressed data
@@ -783,8 +822,51 @@ public class Session extends Thread {
      * @param task special task
      * @return future
      */
-    public Future<AsyncOperationResult> submitDiskTask(Callable<AsyncOperationResult> task) {
-        return diskIOService.submit(task);
+    public void submitDiskTask(TransferCallable<AsyncOperationResult> task) {
+        assert task.getTransfer() != null;
+        aioFutures.add(diskIOService.submit(task));
+        aioOrigins.add(task.getTransfer());
+        assert aioFutures.size() == aioOrigins.size();
+    }
+
+    public void removeDiskTask(final Transfer t) {
+        assert aioFutures.size() == aioOrigins.size();
+
+        Iterator<Transfer> trItr = aioOrigins.iterator();
+        Iterator<Future<AsyncOperationResult>> fItr = aioFutures.iterator();
+        while(trItr.hasNext()) {
+            Future<AsyncOperationResult> future = fItr.next();
+            Transfer tran = trItr.next();
+
+            if (tran == t) {
+                future.cancel(false);
+                trItr.remove();
+                fItr.remove();
+            }
+        }
+    }
+
+    private void processDiskTasks() {
+        assert aioOrigins.size() == aioFutures.size();
+
+        while(!aioFutures.isEmpty()) {
+            Future<AsyncOperationResult> res = aioFutures.peek();
+            if (!res.isDone()) break;
+            res = aioFutures.poll();
+            Transfer t = aioOrigins.poll();
+
+            try {
+                res.get().onCompleted();
+            } catch (InterruptedException e) {
+                log.warn("second tick aio InterruptedException {}", e);
+            } catch (ExecutionException e) {
+                log.warn("second tick aio ExecutionException {}", e);
+            } catch(Exception e) {
+                log.error("general error on processing async operation result {}", e);
+            }
+        }
+
+        assert aioFutures.size() == aioOrigins.size();
     }
 
     @Override
@@ -834,11 +916,11 @@ public class Session extends Thread {
                 for(final Transfer t: transfers.values()) {
                     if (t.isNeedSaveResumeData()) {
                         try {
-                            AddTransferParams atp = new AddTransferParams(t.hash(), t.getCreateTime(), t.size(), t.getFile(), t.isPaused());
+                            AddTransferParams atp = new AddTransferParams(t.getHash(), t.getCreateTime(), t.size(), t.getFile(), t.isPaused());
                             atp.resumeData.setData(t.resumeData());
-                            pushAlert(new TransferResumeDataAlert(t.hash(), atp));
+                            pushAlert(new TransferResumeDataAlert(t.getHash(), atp));
                         } catch(JED2KException e) {
-                            log.error("prepare resume data for {} failed {}", t.hash(), e);
+                            log.error("prepare resume data for {} failed {}", t.getHash(), e);
                         }
                     }
                 }
@@ -852,68 +934,79 @@ public class Session extends Thread {
         return Pair.make(dr, ur);
     }
 
-    public void startUPnP() {
-        upnpService.submit(new Runnable() {
+    public void startUPnP() throws JED2KException {
+        try {
+            if (upnpService.isShutdown()) return;
 
-            @Override
-            public void run() {
-                assert discover != null;
-                BaseErrorCode ec = ErrorCode.NO_ERROR;
-                // TODO - fix unsynchronized access to settings
-                int port = settings.listenPort;
-                try {
-                    discover.discover();
-                    device = discover.getValidGateway();
-                    if (device != null) {
-                        final String[] protocols = {"TCP", "UDP"};
-                        for(final String protocol: protocols) {
-                            PortMappingEntry portMapping = new PortMappingEntry();
-                            if (!device.getSpecificPortMappingEntry(port, protocol, portMapping)) {
-                                InetAddress localAddress = device.getLocalAddress();
-                                if (device.addPortMapping(port, port, localAddress.getHostAddress(), protocol, "JED2K")) {
-                                    // ok, mapping added
-                                    log.info("[session] port mapped {} for {}", port, protocol);
+            upnpService.submit(new Runnable() {
+
+                @Override
+                public void run() {
+                    assert discover != null;
+                    BaseErrorCode ec = ErrorCode.NO_ERROR;
+                    // TODO - fix unsynchronized access to settings
+                    int port = settings.listenPort;
+                    try {
+                        discover.discover();
+                        device = discover.getValidGateway();
+                        if (device != null) {
+                            final String[] protocols = {"TCP", "UDP"};
+                            for (final String protocol : protocols) {
+                                PortMappingEntry portMapping = new PortMappingEntry();
+                                if (!device.getSpecificPortMappingEntry(port, protocol, portMapping)) {
+                                    InetAddress localAddress = device.getLocalAddress();
+                                    if (device.addPortMapping(port, port, localAddress.getHostAddress(), protocol, "JED2K")) {
+                                        // ok, mapping added
+                                        log.info("[session] port mapped {} for {}", port, protocol);
+                                    } else {
+                                        log.info("[session] port {} mapping error for {}", port, protocol);
+                                        ec = ErrorCode.PORT_MAPPING_ERROR;
+                                    }
                                 } else {
-                                    log.info("[session] port {} mapping error for {}", port, protocol);
-                                    ec = ErrorCode.PORT_MAPPING_ERROR;
+                                    log.debug("[session] port {} already mapped for {}", port, protocol);
+                                    ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                                 }
-                            } else {
-                                log.debug("[session] port {} already mapped for {}", port, protocol);
-                                ec = ErrorCode.PORT_MAPPING_ALREADY_MAPPED;
                             }
+                        } else {
+                            log.debug("[session] can not find gateway device");
+                            ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
                         }
-                    } else {
-                        log.debug("[session] can not find gateway device");
-                        ec = ErrorCode.PORT_MAPPING_NO_DEVICE;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_IO_ERROR;
+                    } catch (SAXException e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_SAX_ERROR;
+                    } catch (ParserConfigurationException e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_CONFIG_ERROR;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ec = ErrorCode.PORT_MAPPING_EXCEPTION;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_IO_ERROR;
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_SAX_ERROR;
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_CONFIG_ERROR;
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    ec = ErrorCode.PORT_MAPPING_EXCEPTION;
-                }
 
-                pushAlert(new PortMapAlert(port, port, ec));
-            }
-        });
+                    pushAlert(new PortMapAlert(port, port, ec));
+                }
+            });
+        } catch(RejectedExecutionException e) {
+            throw new JED2KException(ErrorCode.PORT_MAPPING_COMMAND_REJECTED);
+        }
     }
 
-    public void stopUPnP() {
-        upnpService.submit(new Runnable() {
-            @Override
-            public void run() {
-                stopUPnPImpl("TCP");
-                stopUPnPImpl("UDP");
-                device = null;
-            }
-        });
+    public void stopUPnP() throws JED2KException {
+        try {
+            if (upnpService.isShutdown()) return;
+            upnpService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    stopUPnPImpl("TCP");
+                    stopUPnPImpl("UDP");
+                    device = null;
+                }
+            });
+        } catch(RejectedExecutionException e) {
+            throw new JED2KException(ErrorCode.PORT_MAPPING_COMMAND_REJECTED);
+        }
     }
 
     private void stopUPnPImpl(final String protocol) {
@@ -940,7 +1033,7 @@ public class Session extends Thread {
 
     /**
      * debug only method to run search source from external process
-     * @param h hash of file
+     * @param h getHash of file
      * @param size size of file
      */
     public synchronized void dhtDebugSearch(final Hash h, long size) {

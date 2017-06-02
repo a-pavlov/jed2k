@@ -1,4 +1,4 @@
-package org.dkf.jed2k;
+package org.dkf.jed2k.disk;
 
 import org.dkf.jed2k.exception.BaseErrorCode;
 
@@ -8,6 +8,7 @@ import org.dkf.jed2k.exception.BaseErrorCode;
  * Created by inkpot on 14.07.2016.
  */
 public interface AsyncOperationResult {
+
     /**
      * callback on operation
      */

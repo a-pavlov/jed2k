@@ -7,14 +7,12 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class BitFieldTest {
-    private static Logger log = Logger.getLogger(BitFieldTest.class.getName());
 
     @Test
     public void initializationTest() {

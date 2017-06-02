@@ -12,6 +12,7 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+@SuppressWarnings("UnusedAssignment")
 public class SearchTest {
 
     @Test
@@ -28,7 +29,7 @@ public class SearchTest {
         };
 
         for(int i = 0; i < bracket_expr.length; ++i) {
-            SearchRequest sr = SearchRequest.makeRequest(0,0,0,0,"", "", "", 0, 0, bracket_expr[i]);
+            SearchRequest.makeRequest(0,0,0,0,"", "", "", 0, 0, bracket_expr[i]);
         }
     }
 
@@ -58,22 +59,22 @@ public class SearchTest {
 
     @Test(expected = JED2KException.class)
     public void testIncorrectOpenB() throws JED2KException {
-        SearchRequest sr = SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, ") A");
+        SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, ") A");
     }
 
     @Test(expected = JED2KException.class)
     public void testIncorrectBrkCount() throws JED2KException {
-        SearchRequest sr = SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, "(( A)");
+        SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, "(( A)");
     }
 
     @Test(expected = JED2KException.class)
     public void testIncorrectBrkCount2() throws JED2KException {
-        SearchRequest sr = SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, "(((A))(");
+        SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, "(((A))(");
     }
 
     @Test(expected = JED2KException.class)
     public void testEndOfOperator() throws JED2KException {
-        SearchRequest sr = SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, "(A)AND");
+        SearchRequest.makeRequest(0,0,0,0, "", "", "", 0, 0, "(A)AND");
     }
 
     /*
@@ -99,11 +100,11 @@ public class SearchTest {
 
     @Test(expected = JED2KException.class)
     public void testOverflowParam() throws JED2KException {
-        SearchRequest sr = SearchRequest.makeRequest(40, 70, 20,0, SearchRequest.ED2KFTSTR_AUDIO, "1234567890122345678900000", "", 0, 0, "X1");
+        SearchRequest.makeRequest(40, 70, 20,0, SearchRequest.ED2KFTSTR_AUDIO, "1234567890122345678900000", "", 0, 0, "X1");
     }
 
     @Test(expected = JED2KException.class)
     public void testTooComplex() throws JED2KException {
-        SearchRequest sr = SearchRequest.makeRequest(40, 70, 20,0, SearchRequest.ED2KFTSTR_AUDIO, "1234567890122345678900000", "", 0, 0, "40, 70, 20,0, libed2k::ED2KFTSTR_AUDIO, \"\", \"\", 0, 0, \"X1 X2 X3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 y z d NOT K\"");
+        SearchRequest.makeRequest(40, 70, 20,0, SearchRequest.ED2KFTSTR_AUDIO, "1234567890122345678900000", "", 0, 0, "40, 70, 20,0, libed2k::ED2KFTSTR_AUDIO, \"\", \"\", 0, 0, \"X1 X2 X3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 y z d NOT K\"");
     }
 }

@@ -43,7 +43,6 @@ public class IdChange extends SoftSerializable implements Dispatchable {
 
             if (limit >= sizeof(auxPort)) {
                 auxPort = src.getInt();
-                limit -= sizeof(auxPort);
             }
 
             return src;

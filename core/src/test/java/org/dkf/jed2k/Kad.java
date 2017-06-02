@@ -279,7 +279,7 @@ public class Kad {
                         log.info("[KAD] storage point disabled in github");
                     }
                 } catch(Exception e) {
-
+                    log.error("[KAD] exception on sp {}", e);
                 }
             }
             else if ("router".equals(parts[0])) {
