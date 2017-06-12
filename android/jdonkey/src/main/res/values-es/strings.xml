@@ -217,4 +217,5 @@
     <string name="nodes_link_open_error_text">No se puede agregar nodos a Kad - verificación ED2K núcleo se inicia y Kademlia es activado</string>
     <string name="nodes_link_open_error_title">Los nodos</string>
     <string name="intent_link_parse_error">No se puede analizar el vínculo</string>
+    <string name="complete_sources">Completa %1$d</string>
 </resources>

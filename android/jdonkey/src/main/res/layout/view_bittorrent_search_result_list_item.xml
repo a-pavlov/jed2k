@@ -94,7 +94,16 @@
             android:layout_alignBaseline="@id/view_bittorrent_search_result_list_item_text_source"
             android:layout_marginLeft="6dp"
             android:layout_toRightOf="@id/view_bittorrent_search_result_list_item_text_source"
-            android:text="@string/dummy_sources" />
+            android:text="@string/search_item_sources" />
+        <TextView
+            android:id="@+id/view_bittorrent_search_result_list_item_text_comp_percent"
+            style="@style/ListItemExtra"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/view_bittorrent_search_result_list_item_text_seeds"
+            android:layout_marginLeft="6dp"
+            android:layout_toRightOf="@id/view_bittorrent_search_result_list_item_text_seeds"
+            android:text="@string/complete_sources" />
     </RelativeLayout>
 
 </LinearLayout>

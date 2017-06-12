@@ -216,4 +216,5 @@
     <string name="nodes_link_open_error_text">Impossibile aggiungere nodi Kad - check ED2K core è iniziato e Kademlia è attivato</string>
     <string name="nodes_link_open_error_title">I nodi</string>
     <string name="intent_link_parse_error">In grado di analizzare link</string>
+    <string name="complete_sources">Completa %1$d</string>
 </resources>
