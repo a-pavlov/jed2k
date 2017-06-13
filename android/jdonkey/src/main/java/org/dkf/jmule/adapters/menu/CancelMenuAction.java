@@ -44,28 +44,19 @@ public class CancelMenuAction extends MenuAction {
 
     private final Transfer transfer;
     private final boolean deleteData;
-    private final boolean deleteTorrent;
 
 
-    public CancelMenuAction(Context context, Transfer transfer, boolean deleteData) {
-        super(context, R.drawable.contextmenu_icon_stop_transfer, (deleteData) ? R.string.cancel_delete_menu_action : (transfer.isComplete()) ? R.string.clear_complete : R.string.cancel_menu_action);
-        this.transfer = transfer;
-        this.deleteData = deleteData;
-        this.deleteTorrent = deleteData;
-    }
-
-    public CancelMenuAction(Context context, Transfer transfer, boolean deleteTorrent, boolean deleteData) {
+    public CancelMenuAction(Context context, Transfer transfer, boolean removeFile) {
         super(context, R.drawable.ic_delete_forever_black_24dp, R.string.remove_torrent_and_data);
         this.transfer = transfer;
-        this.deleteTorrent = deleteTorrent;
-        this.deleteData = deleteData;
+        this.deleteData = removeFile;
     }
 
     @Override
     protected void onClick(final Context context) {
         CancelMenuActionDialog.newInstance(
                 transfer,
-                deleteData, deleteTorrent, this).
+                deleteData, this).
                 show(((Activity)getContext()).getFragmentManager());
     }
 
@@ -73,17 +64,13 @@ public class CancelMenuAction extends MenuAction {
     public static class CancelMenuActionDialog extends AbstractDialog {
         private static Transfer transfer;
         private static boolean deleteData;
-        private static boolean deleteTorrent;
         private static CancelMenuAction cancelMenuAction;
-        private CheckBox cbRemoveFile;
 
         public static CancelMenuActionDialog newInstance(Transfer t,
-                                                  boolean delete_data,
-                                                  boolean delete_torrent,
+                                                  boolean removeFile,
                                                   CancelMenuAction cancel_menu_action) {
             transfer = t;
-            deleteData = delete_data;
-            deleteTorrent = delete_torrent;
+            deleteData = removeFile;
             cancelMenuAction = cancel_menu_action;
             return new CancelMenuActionDialog();
         }
