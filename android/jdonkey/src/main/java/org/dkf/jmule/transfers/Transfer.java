@@ -75,7 +75,7 @@ public interface Transfer {
 
     public boolean isComplete();
 
-    public void remove();
+    public void remove(boolean removeFile);
 
     public List<PeerInfo> getItems();
 

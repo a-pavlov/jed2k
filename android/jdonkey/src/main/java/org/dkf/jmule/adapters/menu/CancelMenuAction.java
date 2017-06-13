@@ -24,7 +24,12 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.protocol.server.search.BooleanEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.transfers.Transfer;
@@ -64,11 +69,13 @@ public class CancelMenuAction extends MenuAction {
                 show(((Activity)getContext()).getFragmentManager());
     }
 
+    @Getter
     public static class CancelMenuActionDialog extends AbstractDialog {
         private static Transfer transfer;
         private static boolean deleteData;
         private static boolean deleteTorrent;
         private static CancelMenuAction cancelMenuAction;
+        private CheckBox cbRemoveFile;
 
         public static CancelMenuActionDialog newInstance(Transfer t,
                                                   boolean delete_data,
@@ -82,7 +89,7 @@ public class CancelMenuAction extends MenuAction {
         }
 
         public CancelMenuActionDialog() {
-            super(R.layout.dialog_default);
+            super(R.layout.dialog_default_checkbox);
         }
 
         @Override
@@ -90,21 +97,41 @@ public class CancelMenuAction extends MenuAction {
 
             int yes_no_cancel_transfer_id = R.string.yes_no_cancel_transfer_question;
 
-            TextView dialogTitle = findView(dlg, R.id.dialog_default_title);
+            TextView dialogTitle = findView(dlg, R.id.dialog_default_checkbox_title);
             dialogTitle.setText(R.string.cancel_transfer);
 
-            TextView dialogText = findView(dlg, R.id.dialog_default_text);
+            TextView dialogText = findView(dlg, R.id.dialog_default_checkbox_text);
             dialogText.setText((deleteData) ? R.string.yes_no_cancel_delete_transfer_question : yes_no_cancel_transfer_id);
-
+            CheckBox cbRemoveFile = findView(dlg, R.id.dialog_default_checkbox_show);
+            cbRemoveFile.setText(R.string.yes_no_dialog_remove_file);
 
             // Set the save button action
-            Button noButton = findView(dlg, R.id.dialog_default_button_no);
+            Button noButton = findView(dlg, R.id.dialog_default_checkbox_button_no);
             noButton.setText(R.string.cancel);
-            Button yesButton = findView(dlg, R.id.dialog_default_button_yes);
+            Button yesButton = findView(dlg, R.id.dialog_default_checkbox_button_yes);
             yesButton.setText(android.R.string.ok);
+            boolean removeFile[] = {deleteData};
 
             noButton.setOnClickListener(new NegativeButtonOnClickListener(dlg));
-            yesButton.setOnClickListener(new PositiveButtonOnClickListener(transfer, deleteTorrent, deleteData, cancelMenuAction, dlg));
+            yesButton.setOnClickListener(new PositiveButtonOnClickListener(transfer
+                    , removeFile
+                    , cancelMenuAction
+                    , dlg));
+
+            cbRemoveFile.setOnCheckedChangeListener(new RemoveFileChecked(removeFile));
+        }
+    }
+
+    private static class RemoveFileChecked implements CompoundButton.OnCheckedChangeListener {
+        private final boolean removeFile[];
+
+        public RemoveFileChecked(final boolean removeFile[]) {
+            this.removeFile = removeFile;
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            removeFile[0] = isChecked;
         }
     }
 
@@ -121,32 +148,31 @@ public class CancelMenuAction extends MenuAction {
         }
     }
 
+    @Slf4j
     private static class PositiveButtonOnClickListener implements View.OnClickListener {
         private final Transfer transfer;
-        private final boolean deleteTorrent;
-        private final boolean deleteData;
+        private final boolean removeFile[];
         private final Dialog dlg;
+
         @SuppressWarnings("unused")
         private final CancelMenuAction cancelMenuAction;
 
         PositiveButtonOnClickListener(Transfer transfer,
-                                      boolean deleteTorrent,
-                                      boolean deleteData,
+                                      final boolean removeFile[],
                                       CancelMenuAction cancelMenuAction,
                                       Dialog dialog) {
             this.transfer = transfer;
-            this.deleteTorrent = deleteTorrent;
-            this.deleteData = deleteData;
-            this.cancelMenuAction = cancelMenuAction;
             this.dlg = dialog;
+            this.removeFile = removeFile;
+            this.cancelMenuAction = cancelMenuAction;
         }
 
         @Override
         public void onClick(View view) {
-            Thread t = new Thread("Delete files - " + transfer.getDisplayName()) {
+            Thread t = new Thread("Delete transfer - " + transfer.getDisplayName() + " file: " + (removeFile[0]?"remove":"save")) {
                 @Override
                 public void run() {
-                    transfer.remove();
+                    transfer.remove(removeFile[0]);
                 }
             };
 

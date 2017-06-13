@@ -368,7 +368,7 @@ public final class TransferManager {
         }
 
         @Override
-        public void remove() {
+        public void remove(boolean removeFile) {
 
         }
 
