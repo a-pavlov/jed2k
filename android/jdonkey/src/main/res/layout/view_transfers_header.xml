@@ -33,7 +33,8 @@
         android:layout_marginRight="8dp"
         android:background="@null"
         android:contentDescription="@null"
-        android:src="@drawable/ic_menu_moreoverflow" />
+        android:src="@drawable/ic_menu_moreoverflow"
+		android:visibility="gone"/>
 
 	<ImageButton
         android:id="@+id/view_transfers_header_button_add_transfer"
@@ -42,7 +43,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="5dp"
-        android:layout_toLeftOf="@+id/view_transfers_header_button_menu"
+        android:layout_alignParentRight="true"
         android:background="@null"
         android:contentDescription="@null"
         android:src="@drawable/add_transfer" />
