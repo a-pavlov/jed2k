@@ -68,8 +68,8 @@
     <string name="dummy_size" translatable="false">[Size]</string>
     <string name="dummy_extra" translatable="false">[Extra]</string>
     <string name="dummy_seeds" translatable="false">[Seeds]</string>
-    <string name="yes_no_cancel_transfer_question">Are you sure you want to stop and remove this download from the list (no data will be erased)?</string>
-    <string name="yes_no_cancel_delete_transfer_question">Are you sure you want to cancel this download (downloaded data so far will be erased)?</string>
+    <string name="yes_no_cancel_transfer_question">Are you sure you want to stop and remove this download from the list?</string>
+    <string name="yes_no_cancel_delete_transfer_question">Are you sure you want to cancel this download?</string>
     <string name="yes_no_cancel_cancel_transfer">Are you sure you want to cancel this download?</string>
     <string name="yes_no_dialog_remove_file">Remove file</string>
     <string name="cancel_transfer">Cancel Transfer</string>

@@ -53,8 +53,8 @@
     <string name="media_type_torrents">Торренты</string>
     <string name="search">Поиск</string>
     <string name="transfers">Загрузки</string>
-    <string name="yes_no_cancel_transfer_question">Вы уверены, что хотите остановить и удалить из списка это скачивание (Данные не будут удалены)?</string>
-    <string name="yes_no_cancel_delete_transfer_question">Вы уверены, что хотите отменить это скачивание (Скаченная информация будет удалена)?</string>
+    <string name="yes_no_cancel_transfer_question">Вы уверены, что хотите остановить и удалить из списка это скачивание?</string>
+    <string name="yes_no_cancel_delete_transfer_question">Вы уверены, что хотите отменить это скачивание?</string>
     <string name="cancel_transfer">Отменить передачу</string>
     <string name="pause_torrent_menu_action">Пауза</string>
     <string name="resume_torrent_menu_action">Возобновить</string>
@@ -204,6 +204,7 @@
     <string name="nodes_link_open_error_title">Ноды</string>
     <string name="intent_link_parse_error">Не могу распознать ссылку</string>
     <string name="complete_sources">Полные %1$d</string>
+    <string name="yes_no_dialog_remove_file">Удалить файл</string>
 
     <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
 </resources>

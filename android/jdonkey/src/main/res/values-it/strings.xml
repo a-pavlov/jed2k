@@ -53,8 +53,8 @@
     <string name="media_type_torrents">Torrent</string>
     <string name="search">Cerca</string>
     <string name="transfers">Transferimenti</string>
-    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere questo download ed eliminarlo dalla lista (i dati scaricati non verranno persi)?</string>
-    <string name="yes_no_cancel_delete_transfer_question">Sei sicuro di voler eliminare questo download (i dati scaricati verranno persi)?</string>
+    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere questo download ed eliminarlo dalla lista?</string>
+    <string name="yes_no_cancel_delete_transfer_question">Sei sicuro di voler eliminare questo download?</string>
     <string name="cancel_transfer">Cancella trasferimento</string>
     <string name="pause_torrent_menu_action">Pausa</string>
     <string name="resume_torrent_menu_action">Riprendi</string>
@@ -217,4 +217,5 @@
     <string name="nodes_link_open_error_title">I nodi</string>
     <string name="intent_link_parse_error">In grado di analizzare link</string>
     <string name="complete_sources">Completa %1$d</string>
+    <string name="yes_no_dialog_remove_file">Rimuovere file</string>
 </resources>

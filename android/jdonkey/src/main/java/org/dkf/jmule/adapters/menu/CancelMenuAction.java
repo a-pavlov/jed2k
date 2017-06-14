@@ -81,13 +81,11 @@ public class CancelMenuAction extends MenuAction {
         @Override
         protected void initComponents(Dialog dlg, Bundle savedInstanceState) {
 
-            int yes_no_cancel_transfer_id = R.string.yes_no_cancel_transfer_question;
-
             TextView dialogTitle = findView(dlg, R.id.dialog_default_checkbox_title);
-            dialogTitle.setText(R.string.cancel_transfer);
+            dialogTitle.setText(R.string.remove_torrent_and_data);
 
             TextView dialogText = findView(dlg, R.id.dialog_default_checkbox_text);
-            dialogText.setText((deleteData) ? R.string.yes_no_cancel_delete_transfer_question : yes_no_cancel_transfer_id);
+            dialogText.setText((deleteData) ? R.string.yes_no_cancel_delete_transfer_question : R.string.yes_no_cancel_transfer_question);
             CheckBox cbRemoveFile = findView(dlg, R.id.dialog_default_checkbox_show);
             cbRemoveFile.setChecked(deleteData);
             cbRemoveFile.setText(R.string.yes_no_dialog_remove_file);
