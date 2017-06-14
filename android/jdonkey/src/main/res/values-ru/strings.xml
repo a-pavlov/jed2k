@@ -42,8 +42,6 @@
     <string name="cant_open_file">Извините, не знаем, чем открыть этот файл.</string>
     <string name="download_added_to_queue">1 файл будет загружен</string>
     <string name="open_menu_action">Открыть %s</string>
-    <string name="cancel_menu_action">Остановить передачу</string>
-    <string name="cancel_delete_menu_action">Остановить и удалить файлы</string>
     <string name="media_type_all_types">Все типы</string>
     <string name="media_type_documents">Книги/Документы</string>
     <string name="media_type_applications">Приложения</string>
@@ -55,10 +53,8 @@
     <string name="transfers">Загрузки</string>
     <string name="yes_no_cancel_transfer_question">Вы уверены, что хотите остановить и удалить из списка это скачивание?</string>
     <string name="yes_no_cancel_delete_transfer_question">Вы уверены, что хотите отменить это скачивание?</string>
-    <string name="cancel_transfer">Отменить передачу</string>
     <string name="pause_torrent_menu_action">Пауза</string>
     <string name="resume_torrent_menu_action">Возобновить</string>
-    <string name="clear_complete">Удалить завершенные</string>
     <string name="im_on_it">Я в...</string>
     <string name="show_transfers_on_download_start">Показывать передачи данных при старте скачивания</string>
     <string name="dialog_new_transfer_text_text">Вы уверены, что хотите скачать %1$s (%2$s)</string>
@@ -164,7 +160,6 @@
     <string name="pick_the_files_you_want_to_download_from_this_torrent">Выделите файлы</string>
     <string name="forward_ports_summary">Побросить входящий порт на моем роутере. UPnP должно быть активировано на роутере.</string>
     <string name="forward_ports_title">Проброс порта</string>
-    <string name="server_add">Добавить</string>
     <string name="server_add_descr">Описание</string>
     <string name="server_add_name">Имя</string>
     <string name="upnp">Проброс порта на роутере</string>
@@ -198,7 +193,6 @@
     </string>
     <string name="add_transfer_session_stopped_title">Добавление трансфера</string>
     <string name="start_transfer_file_error">Не могу начать закачку - ошибка ввода вывода</string>
-    <string name="start_transfer_internal_error">Внутренняя ошибка</string>
     <string name="start_transfer_success">Закачка добавлена</string>
     <string name="nodes_link_open_error_text">Не могу добавить ноды в Кад - проверьте что ED2K ядро и Кадемлия включены</string>
     <string name="nodes_link_open_error_title">Ноды</string>

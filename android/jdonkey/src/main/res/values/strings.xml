@@ -48,10 +48,8 @@
     <string name="cant_open_file">Sorry, don\'t know how to open this file.</string>
     <string name="download_added_to_queue">1 file will start downloading</string>
     <string name="open_menu_action">Open %s</string>
-    <string name="cancel_menu_action">Stop Transfer</string>
     <string name="search_more_action">Search more</string>
 
-    <string name="cancel_delete_menu_action">Stop and Delete Data</string>
     <string name="remove_torrent_and_data">Remove transfer</string>
     <string name="media_type_all_types">All Types</string>
     <string name="media_type_documents">Books/Docs</string>
@@ -70,12 +68,9 @@
     <string name="dummy_seeds" translatable="false">[Seeds]</string>
     <string name="yes_no_cancel_transfer_question">Are you sure you want to stop and remove this download from the list?</string>
     <string name="yes_no_cancel_delete_transfer_question">Are you sure you want to cancel this download?</string>
-    <string name="yes_no_cancel_cancel_transfer">Are you sure you want to cancel this download?</string>
     <string name="yes_no_dialog_remove_file">Remove file</string>
-    <string name="cancel_transfer">Cancel Transfer</string>
     <string name="pause_torrent_menu_action">Pause</string>
     <string name="resume_torrent_menu_action">Resume</string>
-    <string name="clear_complete">Clear Complete</string>
     <string name="im_on_it">I\'m on it…</string>
     <string name="transfers_settings">Transfers settings</string>
     <string name="transfers_max_downloads_summary">Max Downloads</string>
@@ -170,8 +165,6 @@
     <string name="connect_on_start_server_summary">Connect to last connected server on start</string>
     <string name="show_server_messages_summary">Show messages from server</string>
     <string name="show_server_messages">Server msg</string>
-    <string name="auto_start_service_title" translatable="false">Service auto start</string>
-    <string name="auto_start_service_summary" translatable="false">Start service(if it stopped) on application statup</string>
     <string name="forward_ports_title">Forward ports</string>
     <string name="forward_ports_summary">Forward incoming ports on my router. UPnP must be activated on router</string>
 
@@ -203,8 +196,6 @@
     <string name="server_add_host">Host</string>
     <string name="server_add_port">Port</string>
     <string name="server_add_descr">Descr</string>
-    <string name="server_add">Add</string>
-
 
     <string name="welcome_to_mule">Welcome to Mule on Android</string>
     <string name="storage_path">Storage Path</string>
@@ -238,7 +229,6 @@
     <string name="search_source_type_dht">Kademlia</string>
     <string name="start_transfer_success">Transfer has been added</string>
     <string name="start_transfer_file_error">Unable to start transfer due to I/O exception</string>
-    <string name="start_transfer_internal_error">Internal error on transfer starting</string>
 
     <string name="add_transfer_session_stopped_title">Add transfer</string>
     <string name="add_transfer_session_stopped_body">ED2K core is stopped, unable to add transfer. Please enable core and try again.</string>
