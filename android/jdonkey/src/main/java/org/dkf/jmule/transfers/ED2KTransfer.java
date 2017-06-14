@@ -118,7 +118,7 @@ public class ED2KTransfer implements Transfer {
     @Override
     public void remove(boolean removeFile) {
         log.info("remove transfer {}", removeFile?"and file":"without file");
-        Engine.instance().removeTransfer(handle.getHash(), true);
+        Engine.instance().removeTransfer(handle.getHash(), removeFile);
     }
 
     public List<PeerInfo> getItems() {
