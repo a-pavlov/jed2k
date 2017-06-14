@@ -94,7 +94,7 @@
     <string name="peer_total_bytes_download">Numero totale di byte %1$s</string>
     <string name="please_check_connection_status_before_resuming_download">Si prega di controllare lo stato della connessione ad Internet prima di riprovare.</string>
     <string name="please_enter_valid_url">Si prega di inserire un link valido</string>
-    <string name="remove_torrent_and_data">Rimuovere il trasferimento di file e</string>
+    <string name="remove_torrent_and_data">Rimuovere il trasferimento</string>
     <string name="request_again">Richiesta Di Nuovo</string>
     <string name="retry_search">Riprova</string>
     <string name="saving_to_internal_memory">Il salvataggio nella memoria interna</string>

@@ -29,7 +29,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.dkf.jed2k.protocol.server.search.BooleanEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.transfers.Transfer;
@@ -90,6 +89,7 @@ public class CancelMenuAction extends MenuAction {
             TextView dialogText = findView(dlg, R.id.dialog_default_checkbox_text);
             dialogText.setText((deleteData) ? R.string.yes_no_cancel_delete_transfer_question : yes_no_cancel_transfer_id);
             CheckBox cbRemoveFile = findView(dlg, R.id.dialog_default_checkbox_show);
+            cbRemoveFile.setChecked(deleteData);
             cbRemoveFile.setText(R.string.yes_no_dialog_remove_file);
 
             // Set the save button action

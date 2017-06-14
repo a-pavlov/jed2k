@@ -100,7 +100,7 @@
     <string name="app_shutdown_dlg_title">Выключение</string>
     <string name="app_shutdown_dlg_message">Будет завершена работа всех загрузок и фоновых служб. Вы уверены?</string>
     <string name="try_other_keywords">Попробуйте другие ключевые слова</string>
-    <string name="remove_torrent_and_data">Удалить трансфер и данные</string>
+    <string name="remove_torrent_and_data">Удалить трансфер</string>
     <string name="your_installation_is_complete">Установка завершена.</string>
     <string name="thank_you">Спасибо!</string>
     <string name="keep_in_touch">Оставайся на связи!</string>

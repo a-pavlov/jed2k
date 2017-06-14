@@ -52,7 +52,7 @@
     <string name="search_more_action">Search more</string>
 
     <string name="cancel_delete_menu_action">Stop and Delete Data</string>
-    <string name="remove_torrent_and_data">Remove transfer and file</string>
+    <string name="remove_torrent_and_data">Remove transfer</string>
     <string name="media_type_all_types">All Types</string>
     <string name="media_type_documents">Books/Docs</string>
     <string name="media_type_applications">Applications</string>

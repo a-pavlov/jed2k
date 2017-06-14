@@ -260,7 +260,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
                 R.string.transfers_context_menu_copy_link,
                 R.string.transfers_context_menu_copy_link_copied, download.toLink()));
 
-        items.add(new CancelMenuAction(context.get(), download, true));
+        items.add(new CancelMenuAction(context.get(), download, !download.isComplete()));
         return title;
     }
 

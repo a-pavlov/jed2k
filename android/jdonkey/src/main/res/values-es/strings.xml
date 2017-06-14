@@ -104,7 +104,7 @@
     <string name="thank_you">¡Gracias!</string>
     <string name="keep_in_touch">¡Mantente en contacto!</string>
     <string name="why_we_need_storage_permissions_summary">Mule es un explorador de archivos, y aplicación de descargas, por ende necesitará acceder a los archivos en tus dispositivos de almacenamiento.</string>
-    <string name="remove_torrent_and_data">Quitar la transferencia y el archivo</string>
+    <string name="remove_torrent_and_data">Quitar la transferencia</string>
     <string name="why_we_need_storage_permissions">Por qué necesitamos permisos de almacenamiento.</string>
     <string name="request_again">Intenta nuevamente</string>
     <string name="storage_picker_treeuri_error">Error inesperado seleccionando ruta de almacenamiento</string>
