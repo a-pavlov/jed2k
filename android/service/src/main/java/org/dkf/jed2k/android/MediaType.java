@@ -359,10 +359,11 @@ public class MediaType implements Serializable {
 
     public static int getFileTypeIconId(String ext) {
         MediaType mt = MediaType.getMediaTypeForExtension(ext);
+
         if (mt == null) {
             return R.drawable.question_mark;
         }
-        /*
+
         if (mt.equals(MediaType.getApplicationsMediaType())) {
             return R.drawable.browse_peer_application_icon_selector_menu;
         } else if (mt.equals(MediaType.getAudioMediaType())) {
@@ -377,7 +378,6 @@ public class MediaType implements Serializable {
             return R.drawable.browse_peer_torrent_icon_selector_menu;
         } else {
             return R.drawable.question_mark;
-        }*/
-        return R.drawable.question_mark;
+        }
     }
 }

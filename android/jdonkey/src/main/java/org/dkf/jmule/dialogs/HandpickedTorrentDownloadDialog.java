@@ -66,11 +66,11 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
         // this creates a bundle that gets passed to setArguments(). It's supposed to be ready
         // before the dialog is attached to the underlying activity, after we attach to it, then
         // we are able to use such Bundle to create our adapter.
-        //final TorrentFileEntryList torrentInfoList = getTorrentInfoList(tinfo.files());
-        //boolean[] allChecked = new boolean[torrentInfoList.list.size()];
-        //for (int i=0; i < allChecked.length; i++) {
-        //    allChecked[i] = true;
-        //}
+        final TorrentFileEntryList torrentInfoList = getTorrentInfoList();
+        boolean[] allChecked = new boolean[torrentInfoList.list.size()];
+        for (int i=0; i < allChecked.length; i++) {
+            allChecked[i] = true;
+        }
 
         dlg.onAttach((Activity) ctx);
         dlg.prepareArguments(R.drawable.download_icon,
@@ -87,21 +87,18 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
         return dlg;
     }
 
-/*
-    private static TorrentFileEntryList getTorrentInfoList(FileStorage fileStorage) {
+
+    private static TorrentFileEntryList getTorrentInfoList() {
         TorrentFileEntryList entryList = new TorrentFileEntryList();
-        if (fileStorage != null && fileStorage.numFiles() > 0) {
-            int n = fileStorage.numFiles();
-            for (int i=0; i < n; i++) {
-                entryList.add(new TorrentFileEntry(i,
-                        fileStorage.fileName(i),
-                        fileStorage.filePath(i),
-                        fileStorage.fileSize(i)));
-            }
+        for (int i=0; i < 10; i++) {
+            entryList.add(new TorrentFileEntry(i,
+                    "Some human name.mp3",
+                    "/home/apavlov/dev/123.mp3",
+                    10000*i));
         }
         return entryList;
     }
-*/
+
     @Override
     protected View.OnClickListener createOnYesListener(AbstractConfirmListDialog dlg) {
         return new OnStartDownloadsClickListener(getActivity(), dlg);
@@ -119,7 +116,7 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
     public List<TorrentFileEntry> deserializeData(String listDataInJSON) {
         //final TorrentFileEntryList torrentFileEntryList = JsonUtils.toObject(listDataInJSON, TorrentFileEntryList.class);
         //return torrentFileEntryList.list;
-        return new LinkedList<TorrentFileEntry>();
+        return getTorrentInfoList().list;
     }
 
     @Override
@@ -134,8 +131,9 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
             outState.putByteArray(BUNDLE_KEY_TORRENT_INFO_DATA, torrentInfo.bencode());
             outState.putString(BUNDLE_KEY_MAGNET_URI, magnetUri);
         }
-        super.onSaveInstanceState(outState); //saves the torrentInfo in bytes.
         */
+        super.onSaveInstanceState(outState); //saves the torrentInfo in bytes.
+
     }
 
     @Override
@@ -149,8 +147,9 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
             torrentInfo = TorrentInfo.bdecode(torrentInfoData);
             magnetUri = arguments.getString(BUNDLE_KEY_MAGNET_URI, null);
         }
-        super.initComponents(dlg, savedInstanceState);
         */
+        super.initComponents(dlg, savedInstanceState);
+
     }
 
     //private TorrentInfo getTorrentInfo() {

@@ -1,5 +1,6 @@
 package org.dkf.jmule.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -12,6 +13,7 @@ import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jmule.R;
+import org.dkf.jmule.dialogs.HandpickedTorrentDownloadDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,11 @@ public class ServerAddView extends LinearLayout implements View.OnKeyListener {
 
     @Override
     public boolean onKey(View view, int i, KeyEvent keyEvent) {
+
+
+        HandpickedTorrentDownloadDialog dialog = HandpickedTorrentDownloadDialog.newInstance(getContext(), "xxx");
+        dialog.show(((Activity)getContext()).getFragmentManager());
+        /*
         log.info("key {}", keyEvent);
         if (i == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_UP) {
             log.info("enter");
@@ -79,7 +86,7 @@ public class ServerAddView extends LinearLayout implements View.OnKeyListener {
 
             return true;
         }
-
+*/
         return false;
     }
 }
