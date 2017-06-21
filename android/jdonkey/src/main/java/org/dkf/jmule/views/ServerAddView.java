@@ -52,11 +52,6 @@ public class ServerAddView extends LinearLayout implements View.OnKeyListener {
 
     @Override
     public boolean onKey(View view, int i, KeyEvent keyEvent) {
-
-
-        HandpickedTorrentDownloadDialog dialog = HandpickedTorrentDownloadDialog.newInstance(getContext(), "xxx");
-        dialog.show(((Activity)getContext()).getFragmentManager());
-        /*
         log.info("key {}", keyEvent);
         if (i == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_UP) {
             log.info("enter");
@@ -86,7 +81,6 @@ public class ServerAddView extends LinearLayout implements View.OnKeyListener {
 
             return true;
         }
-*/
         return false;
     }
 }
