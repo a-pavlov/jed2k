@@ -1,6 +1,5 @@
 package org.dkf.jmule.views;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -13,7 +12,6 @@ import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jmule.R;
-import org.dkf.jmule.dialogs.HandpickedTorrentDownloadDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

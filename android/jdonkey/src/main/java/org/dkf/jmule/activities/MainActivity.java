@@ -49,7 +49,7 @@ import org.dkf.jmule.R;
 import org.dkf.jmule.StoragePicker;
 import org.dkf.jmule.activities.internal.MainController;
 import org.dkf.jmule.activities.internal.MainMenuAdapter;
-import org.dkf.jmule.dialogs.HandpickedTorrentDownloadDialog;
+import org.dkf.jmule.dialogs.HandpickedCollectionDownloadDialog;
 import org.dkf.jmule.dialogs.SDPermissionDialog;
 import org.dkf.jmule.dialogs.YesNoDialog;
 import org.dkf.jmule.fragments.MainFragment;
@@ -275,7 +275,8 @@ public class MainActivity extends AbstractActivity implements
                 if (uri != null && uri.startsWith("content")) {
                     List<EMuleLink> links = parseCollectionContent(this, Uri.parse(uri));
                     if (!links.isEmpty()) {
-                        HandpickedTorrentDownloadDialog dialog = HandpickedTorrentDownloadDialog.newInstance(this, "xxx");
+                        controller.showTransfers(TransferStatus.ALL);
+                        HandpickedCollectionDownloadDialog dialog = HandpickedCollectionDownloadDialog.newInstance(this, links);
                         dialog.show(getFragmentManager());
                     }
                     return;
