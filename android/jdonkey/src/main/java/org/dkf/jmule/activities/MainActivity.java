@@ -274,11 +274,19 @@ public class MainActivity extends AbstractActivity implements
                 final String uri = intent.getDataString();
                 if (uri != null && uri.startsWith("content")) {
                     List<EMuleLink> links = parseCollectionContent(this, Uri.parse(uri));
-                    if (!links.isEmpty()) {
-                        controller.showTransfers(TransferStatus.ALL);
-                        HandpickedCollectionDownloadDialog dialog = HandpickedCollectionDownloadDialog.newInstance(this, links);
-                        dialog.show(getFragmentManager());
+
+                    if (!Engine.instance().isStarted()) {
+                        UIUtils.showInformationDialog(this
+                                , R.string.add_transfer_session_stopped_body
+                                , R.string.add_transfer_session_stopped_title
+                                ,false
+                                , null);
+                        return;
                     }
+
+                    controller.showTransfers(TransferStatus.ALL);
+                    HandpickedCollectionDownloadDialog dialog = HandpickedCollectionDownloadDialog.newInstance(this, links);
+                    dialog.show(getFragmentManager());
                     return;
                 }
 

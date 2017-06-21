@@ -29,6 +29,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.MediaType;
 import org.dkf.jed2k.util.Ref;
+import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.util.UIUtils;
 
@@ -289,6 +290,9 @@ public class HandpickedCollectionDownloadDialog extends AbstractConfirmListDialo
             for (EMuleLink selectedFileEntry : results) {
                 //selection[selectedFileEntry.getIndex()] = true;
                 log.info("start download {}", selectedFileEntry.getStringValue());
+                if (Engine.instance().isStarted()) {
+                    Engine.instance().downloadLink(selectedFileEntry);
+                }
             }
 
             //Engine.instance().getThreadPool().execute(new Runnable() {

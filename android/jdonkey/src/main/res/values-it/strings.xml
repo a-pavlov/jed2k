@@ -212,4 +212,5 @@
     <string name="intent_link_parse_error">In grado di analizzare link</string>
     <string name="complete_sources">Completa %1$d</string>
     <string name="yes_no_dialog_remove_file">Rimuovere file</string>
+    <string name="emule_collection">EMule collection</string>
 </resources>

@@ -213,4 +213,5 @@
     <string name="intent_link_parse_error">No se puede analizar el vínculo</string>
     <string name="complete_sources">Completa %1$d</string>
     <string name="yes_no_dialog_remove_file">La eliminación de un archivo</string>
+    <string name="emule_collection">EMule recogida</string>
 </resources>
