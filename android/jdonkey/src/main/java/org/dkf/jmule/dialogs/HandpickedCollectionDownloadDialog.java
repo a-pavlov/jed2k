@@ -86,36 +86,14 @@ public class HandpickedCollectionDownloadDialog extends AbstractConfirmListDialo
     }
 
 
-    /*
-    private static TorrentFileEntryList getTorrentInfoList() {
-        TorrentFileEntryList entryList = new TorrentFileEntryList();
-        for (int i=0; i < 10; i++) {
-            entryList.add(new TorrentFileEntry(i,
-                    "Some human name.mp3",
-                    "/home/apavlov/dev/123.mp3",
-                    10000*i));
-        }
-        return entryList;
-    }
-*/
-
     @Override
     protected View.OnClickListener createOnYesListener(AbstractConfirmListDialog dlg) {
         return new OnStartDownloadsClickListener(getActivity(), dlg);
     }
 
-    /*
-    @Override
-    void prepareArguments(int dialogIcon, String dialogTitle, String dialogText, String listDataInJSON, SelectionMode selectionMode) {
-        super.prepareArguments(dialogIcon, dialogTitle, dialogText, listDataInJSON, selectionMode);
-        onSaveInstanceState(getArguments());
-    }
-    */
 
     @Override
     public List<EMuleLink> deserializeData(String listDataInJSON) {
-        //final TorrentFileEntryList torrentFileEntryList = JsonUtils.toObject(listDataInJSON, TorrentFileEntryList.class);
-        //return torrentFileEntryList.list;
         return links;
     }
 
@@ -127,27 +105,12 @@ public class HandpickedCollectionDownloadDialog extends AbstractConfirmListDialo
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        /*if (outState!=null && torrentInfo != null) {
-            outState.putByteArray(BUNDLE_KEY_TORRENT_INFO_DATA, torrentInfo.bencode());
-            outState.putString(BUNDLE_KEY_MAGNET_URI, magnetUri);
-        }
-        */
         super.onSaveInstanceState(outState); //saves the torrentInfo in bytes.
 
     }
 
     @Override
     protected void initComponents(Dialog dlg, Bundle savedInstanceState) {
-        /*
-        byte[] torrentInfoData;
-        Bundle arguments = getArguments();
-        if (this.torrentInfo == null &&
-                arguments != null &&
-            (torrentInfoData=arguments.getByteArray(BUNDLE_KEY_TORRENT_INFO_DATA))!=null) {
-            torrentInfo = TorrentInfo.bdecode(torrentInfoData);
-            magnetUri = arguments.getString(BUNDLE_KEY_MAGNET_URI, null);
-        }
-        */
         super.initComponents(dlg, savedInstanceState);
 
     }
@@ -266,10 +229,6 @@ public class HandpickedCollectionDownloadDialog extends AbstractConfirmListDialo
                     log.info("about to startTorrentPartialDownload()");
                     startTorrentPartialDownload(ctxRef.get(), checked);
                     dlg.dismiss();
-
-                    //if (ctxRef.get() instanceof Activity) {
-                    //    Offers.showInterstitialOfferIfNecessary((Activity) ctxRef.get());
-                    //}
                 }
             }
         }
@@ -294,18 +253,6 @@ public class HandpickedCollectionDownloadDialog extends AbstractConfirmListDialo
                     Engine.instance().downloadLink(selectedFileEntry);
                 }
             }
-
-            //Engine.instance().getThreadPool().execute(new Runnable() {
-            //    @Override
-            //    public void run() {
-                    //BTEngine.getInstance().download(theDialog.getTorrentInfo(),
-                    //        null,
-                    //        selection,
-                    //        theDialog.getMagnetUri());
-           //         UIUtils.showTransfersOnDownloadStart(context);
-            //    }
-            //});
-
         }
     }
 
