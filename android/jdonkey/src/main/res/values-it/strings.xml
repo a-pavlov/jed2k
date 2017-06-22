@@ -213,4 +213,7 @@
     <string name="complete_sources">Completa %1$d</string>
     <string name="yes_no_dialog_remove_file">Rimuovere file</string>
     <string name="emule_collection">EMule collection</string>
+    <string name="add_collection_session_stopped_title">Aggiungi raccolta</string>
+    <string name="add_collection_session_stopped_body">ED2K core è fermato, in grado di aggiungere raccolta. Si prega di abilitare i core e provare di nuovo.</string>
+    <string name="add_collection_empty">Raccolta di file è vuota o non è in grado di analizzare</string>
 </resources>
