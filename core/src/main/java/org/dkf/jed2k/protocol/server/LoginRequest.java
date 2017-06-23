@@ -27,7 +27,7 @@ public class LoginRequest extends UsualPacket {
     public static int CAPABLE_UNICODE           = SRVCAP_UNICODE;
     public static int CAPABLE_LARGEFILES        = SRVCAP_LARGEFILES;
 
-    public static int JED2K_VERSION_MAJOR    = 0;
+    public static int JED2K_VERSION_MAJOR    = 1;
     public static int JED2K_VERSION_MINOR    = 1;
     public static int JED2K_VERSION_TINY     = 0;
 }

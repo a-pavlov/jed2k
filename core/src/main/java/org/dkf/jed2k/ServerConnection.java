@@ -243,10 +243,16 @@ public class ServerConnection extends Connection {
             throws JED2KException {
         Transfer transfer = session.transfers.get(value.hash);
         if (transfer != null) {
+            log.debug("onFoundSources {}", value.sources.size());
+            log.debug("session: {}", Utils.isLowId(session.clientId)?"LOW":"HI");
             for(final Endpoint endpoint: value.sources) {
-                if (Utils.isLowId(endpoint.getIP()) && !Utils.isLowId(session.clientId) && !session.callbacks.containsKey(endpoint.getIP())) {
-                    sendCallbackRequest(endpoint.getIP());
-                    session.callbacks.put(endpoint.getIP(), value.hash);
+                if (Utils.isLowId(endpoint.getIP())) {
+                    log.debug("Low ID endpoint detected {}", endpoint);
+                    if (!Utils.isLowId(session.clientId) && !session.callbacks.containsKey(endpoint.getIP())) {
+                        log.debug("send callback request to {} for hash {}", endpoint, value.hash);
+                        sendCallbackRequest(endpoint.getIP());
+                        session.callbacks.put(endpoint.getIP(), value.hash);
+                    }
                 } else {
                     log.debug("to getHash {} added endpoint {}", value.hash, endpoint);
                     try {

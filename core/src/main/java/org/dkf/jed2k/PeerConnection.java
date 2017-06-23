@@ -184,6 +184,11 @@ public class PeerConnection extends Connection {
      */
     private Endpoint endpoint;
 
+    /**
+     * for imcoming connections external originator is true
+     */
+    private boolean externalOriginator;
+
     PeerConnection(Endpoint point,
             ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer,
@@ -194,6 +199,7 @@ public class PeerConnection extends Connection {
         this.transfer = transfer;
         endpoint = point;
         this.peerInfo = peerInfo;
+        this.externalOriginator = false;
     }
 
     PeerConnection(ByteBuffer incomingBuffer,
@@ -204,6 +210,7 @@ public class PeerConnection extends Connection {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session, socket);
         endpoint = new Endpoint();
         peerInfo = null;
+        externalOriginator = true;
     }
 
     public static PeerConnection make(SocketChannel socket, Session session) throws JED2KException {
@@ -507,23 +514,28 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientHello(Hello value) throws JED2KException {
         // extract client information
+        log.debug("onClientHello");
         assignRemotePeerInformation(value);
         endpoint.assign(value.point);
         Hash h = session.callbacks.get(value.point.getIP());
         Transfer t = null;
 
+        log.debug("extracted hash {}", h!=null?h.toString():"null");
+
         if (h != null) {
             session.callbacks.remove(value.point.getIP());
             t = session.transfers.get(h);
+            log.debug("extracted transfer {}", t!=null?t.toString():"null");
         }
+
+        write(prepareHello(new HelloAnswer()));
 
         // attach incoming peer to transfer
         // will throw exception and close socket if transfer not in appropriate state
         if (t != null) {
             t.attachPeer(this);
+            write(new FileRequest(t.getHash()));
         }
-
-        write(prepareHello(new HelloAnswer()));
     }
 
     @Override
