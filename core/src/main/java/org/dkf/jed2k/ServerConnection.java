@@ -85,7 +85,12 @@ public class ServerConnection extends Connection {
         login.properties.add(tag(Tag.CT_SERVER_FLAGS, null, capability));
         login.properties.add(tag(Tag.CT_NAME, null, session.settings.clientName));
         login.properties.add(tag(Tag.CT_EMULE_VERSION, null, versionClient));
-        log.debug("login ", login);
+        log.debug("login {}\nVERSION {} SERVER_FLAGS {} EMULE_VERSION {}"
+                , login
+                , version
+                , capability
+                , versionClient);
+
         return login;
     }
 

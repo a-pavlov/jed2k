@@ -255,12 +255,14 @@ public class Transfer {
     }
 
     void attachPeer(PeerConnection c) throws JED2KException {
+        assert c != null;
         if (isPaused()) throw new JED2KException(ErrorCode.TRANSFER_PAUSED);
         if (isAborted()) throw new JED2KException(ErrorCode.TRANSFER_ABORTED);
         if (isFinished()) throw new JED2KException(ErrorCode.TRANSFER_FINISHED);
         policy.newConnection(c);
         connections.add(c);
         session.connections.add(c);
+        c.setTransfer(this);
     }
 
     public void callPolicy(Peer peerInfo, PeerConnection c) {

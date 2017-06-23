@@ -184,10 +184,6 @@ public class PeerConnection extends Connection {
      */
     private Endpoint endpoint;
 
-    /**
-     * for imcoming connections external originator is true
-     */
-    private boolean externalOriginator;
 
     PeerConnection(Endpoint point,
             ByteBuffer incomingBuffer,
@@ -199,7 +195,6 @@ public class PeerConnection extends Connection {
         this.transfer = transfer;
         endpoint = point;
         this.peerInfo = peerInfo;
-        this.externalOriginator = false;
     }
 
     PeerConnection(ByteBuffer incomingBuffer,
@@ -210,7 +205,6 @@ public class PeerConnection extends Connection {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session, socket);
         endpoint = new Endpoint();
         peerInfo = null;
-        externalOriginator = true;
     }
 
     public static PeerConnection make(SocketChannel socket, Session session) throws JED2KException {
@@ -611,8 +605,12 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
-        log.debug("{} << file answer", endpoint);
+        log.debug("<< file answer {} {}"
+                , endpoint
+                , value);
+
         if (transfer != null && value.hash.equals(transfer.getHash())) {
+            log.debug("file status request >> {}", endpoint);
             write(new FileStatusRequest(transfer.getHash()));
         } else {
             close(ErrorCode.NO_TRANSFER);
@@ -1127,6 +1125,16 @@ public class PeerConnection extends Connection {
         i.setStrModVersion(remotePeerInfo.modVersion);
         i.setSourceFlag((getPeer()!=null)?getPeer().getSourceFlag():0);
         return i;
+    }
+
+    /**
+     * setup transfer in connection
+     * @param t transfer
+     */
+    public void setTransfer(final Transfer t) {
+        assert transfer == null;
+        assert t != null;
+        transfer = t;
     }
 
     @Override
