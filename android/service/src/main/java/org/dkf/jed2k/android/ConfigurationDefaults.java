@@ -108,6 +108,24 @@ final class ConfigurationDefaults {
             sm.addServer(ServerMet.ServerMetEntry.create("195.154.109.229" , 4232, "!! www.Sharing-Devils.org No.1 ...", "www.Sharing-Devils.to"));
             sm.addServer(ServerMet.ServerMetEntry.create("85.204.50.116", 4232, "!! www.Sharing-Devils.to No.3 !!", "www.Sharing-Devils.to"));
             sm.addServer(ServerMet.ServerMetEntry.create("222.40.142.3", 40072, "emule lover server No.1", null));
+            sm.addServer(ServerMet.ServerMetEntry.create("46.105.126.71", 4661, "46.105.126.71", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("47.152.162.186" ,28288, "47.152.162.186", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("85.204.50.116",4232, "85.204.50.116", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("89.187.142.38",4646, "89.187.142.38", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("91.210.106.133",4232, "91.210.106.133", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("92.248.128.222",4661, "92.248.128.222", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("95.67.24.195",62347, "95.67.24.195", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("139.162.109.200",9911, "139.162.109.200", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("139.219.233.252",40072, "139.219.233.252", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("153.125.234.211",31493, "153.125.234.211", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("176.103.48.36",4184, "176.103.48.36", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("176.103.56.98",2442, "176.103.56.98", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("176.103.56.135",2442, "176.103.56.135", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("180.166.24.38",14142, "180.166.24.38", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("195.154.83.5",7111, "195.154.83.5", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("195.154.128.49",4232, "195.154.128.49", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("212.83.184.152",7111, "212.83.184.152", ""));
+            sm.addServer(ServerMet.ServerMetEntry.create("213.152.168.189",8593, "213.152.168.189", ""));
             //sm.addServer(ServerMet.ServerMetEntry.create("emule.is74.ru", 4661, "IS74", "IS 74 emule server"));
             defaultValues.put(Constants.PREF_KEY_SERVERS_LIST, sm);
         } catch(JED2KException e) {

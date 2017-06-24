@@ -53,6 +53,7 @@ import org.dkf.jmule.R;
 import org.dkf.jmule.StoragePicker;
 import org.dkf.jmule.activities.internal.MainController;
 import org.dkf.jmule.activities.internal.MainMenuAdapter;
+import org.dkf.jmule.dialogs.HandpickedCollectionDownloadDialog;
 import org.dkf.jmule.dialogs.SDPermissionDialog;
 import org.dkf.jmule.dialogs.YesNoDialog;
 import org.dkf.jmule.fragments.MainFragment;
@@ -68,17 +69,12 @@ import org.dkf.jmule.views.preference.StoragePreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * @author gubatron
@@ -229,6 +225,31 @@ public class MainActivity extends AbstractActivity implements
         });
     }
 
+    private static List<EMuleLink> parseCollectionContent(Context context, Uri uri) {
+        InputStream inStream = null;
+        List<EMuleLink> res = new LinkedList<>();
+
+        try {
+            inStream = context.getContentResolver().openInputStream(uri);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
+            String str;
+            while ((str = reader.readLine()) != null) {
+                log.info("read line from content {}", str);
+                try {
+                    res.add(EMuleLink.fromString(str));
+                } catch(JED2KException e) {
+                    log.warn("unable to parse line in collection {}, skip", e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("error when reading file {} {}", uri, e);
+        } finally {
+            IOUtils.closeQuietly(inStream);
+        }
+
+        return res;
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         log.info("[main activity] on new intent {}", intent);
@@ -246,7 +267,35 @@ public class MainActivity extends AbstractActivity implements
         // view action here - check type of link and load data
         if (action != null && action.equals("android.intent.action.VIEW")) {
             try {
-                EMuleLink link = EMuleLink.fromString(intent.getDataString());
+                final String uri = intent.getDataString();
+                if (uri != null && uri.startsWith("content")) {
+                    List<EMuleLink> links = parseCollectionContent(this, Uri.parse(uri));
+                    log.info("link size {}", links.size());
+
+                    if (!Engine.instance().isStarted()) {
+                        UIUtils.showInformationDialog(this
+                                , R.string.add_collection_session_stopped_body
+                                , R.string.add_collection_session_stopped_title
+                                ,false
+                                , null);
+                        return;
+                    }
+
+                    if (!links.isEmpty()) {
+                        controller.showTransfers(TransferStatus.ALL);
+                        HandpickedCollectionDownloadDialog dialog = HandpickedCollectionDownloadDialog.newInstance(this, links);
+                        dialog.show(getFragmentManager());
+                    } else {
+                        UIUtils.showInformationDialog(this
+                                , R.string.add_collection_empty
+                                , R.string.add_collection_session_stopped_title
+                                ,false
+                                , null);
+                    }
+                    return;
+                }
+
+                EMuleLink link = EMuleLink.fromString(uri);
 
                 if (link.getType().equals(EMuleLink.LinkType.SERVER)) {
                     ServerMet sm = new ServerMet();

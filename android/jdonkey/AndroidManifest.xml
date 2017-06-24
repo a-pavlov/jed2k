@@ -43,7 +43,7 @@
         <activity
             android:name="org.dkf.jmule.activities.MainActivity"
             android:label="@string/app_name" >
-            <intent-filter>q
+            <intent-filter>
                 <action android:name="org.dkf.jmule.android.ACTION_SHOW_TRANSFERS" />
                 <action android:name="org.dkf.jmule.android.ACTION_REQUEST_SHUTDOWN" />
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -54,6 +54,29 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="ed2k"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:mimeType="*/*" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\..*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.emulecollection" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.emulecollection" />
             </intent-filter>
         </activity>
 

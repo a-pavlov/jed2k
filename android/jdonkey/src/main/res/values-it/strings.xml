@@ -42,8 +42,6 @@
     <string name="cant_open_file">Siamo spiacenti ma il file non può essere aperto</string>
     <string name="download_added_to_queue">1 file sta per essere scaricato</string>
     <string name="open_menu_action">Apri %s</string>
-    <string name="cancel_menu_action">Ferma il trasferimento</string>
-    <string name="cancel_delete_menu_action">Ferma ed elimina i dati</string>
     <string name="media_type_all_types">Tutti i tipi</string>
     <string name="media_type_documents">Libri/Documenti</string>
     <string name="media_type_applications">Applicazioni</string>
@@ -53,12 +51,10 @@
     <string name="media_type_torrents">Torrent</string>
     <string name="search">Cerca</string>
     <string name="transfers">Transferimenti</string>
-    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere questo download ed eliminarlo dalla lista (i dati scaricati non verranno persi)?</string>
-    <string name="yes_no_cancel_delete_transfer_question">Sei sicuro di voler eliminare questo download (i dati scaricati verranno persi)?</string>
-    <string name="cancel_transfer">Cancella trasferimento</string>
+    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere questo download ed eliminarlo dalla lista?</string>
+    <string name="yes_no_cancel_delete_transfer_question">Sei sicuro di voler eliminare questo download?</string>
     <string name="pause_torrent_menu_action">Pausa</string>
     <string name="resume_torrent_menu_action">Riprendi</string>
-    <string name="clear_complete">Cancellazione completa</string>
     <string name="im_on_it">Ci sono…</string>
     <string name="show_transfers_on_download_start">Mostra trasferimenti all\'inizio del download</string>
     <string name="dialog_new_transfer_text_text">Sei sicuro di voler scaricare %1$s (%2$s)</string>
@@ -94,7 +90,7 @@
     <string name="peer_total_bytes_download">Numero totale di byte %1$s</string>
     <string name="please_check_connection_status_before_resuming_download">Si prega di controllare lo stato della connessione ad Internet prima di riprovare.</string>
     <string name="please_enter_valid_url">Si prega di inserire un link valido</string>
-    <string name="remove_torrent_and_data">Rimuovere il trasferimento di file e</string>
+    <string name="remove_torrent_and_data">Rimuovere il trasferimento</string>
     <string name="request_again">Richiesta Di Nuovo</string>
     <string name="retry_search">Riprova</string>
     <string name="saving_to_internal_memory">Il salvataggio nella memoria interna</string>
@@ -169,7 +165,6 @@
     <string name="transfers_settings">Impostazioni trasferimenti</string>
     <string name="forward_ports_summary">Port forwarding sul router. l\'UPnP deve essere attivato sul router</string>
     <string name="forward_ports_title">Port forward</string>
-    <string name="server_add">Aggiungi</string>
     <string name="server_add_descr">Descrizione</string>
     <string name="server_add_name">Nome</string>
 
@@ -211,9 +206,14 @@
     <string name="link_download_failed">Impossibile scaricare la lista dei server, si prega di riprovare più tardi
     </string>
     <string name="start_transfer_file_error">Impossibile avviare il trasferimento a causa di un errore I/O</string>
-    <string name="start_transfer_internal_error">Errore interno nell\'avvio del trasferimento</string>
     <string name="start_transfer_success">Il trasferimento è stato aggiunto</string>
     <string name="nodes_link_open_error_text">Impossibile aggiungere nodi Kad - check ED2K core è iniziato e Kademlia è attivato</string>
     <string name="nodes_link_open_error_title">I nodi</string>
     <string name="intent_link_parse_error">In grado di analizzare link</string>
+    <string name="complete_sources">Completa %1$d</string>
+    <string name="yes_no_dialog_remove_file">Rimuovere file</string>
+    <string name="emule_collection">EMule collection</string>
+    <string name="add_collection_session_stopped_title">Aggiungi raccolta</string>
+    <string name="add_collection_session_stopped_body">ED2K core è fermato, in grado di aggiungere raccolta. Si prega di abilitare i core e provare di nuovo.</string>
+    <string name="add_collection_empty">Raccolta di file è vuota o non è in grado di analizzare</string>
 </resources>

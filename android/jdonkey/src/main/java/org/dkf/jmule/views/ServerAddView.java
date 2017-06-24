@@ -79,7 +79,6 @@ public class ServerAddView extends LinearLayout implements View.OnKeyListener {
 
             return true;
         }
-
         return false;
     }
 }

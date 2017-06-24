@@ -516,7 +516,19 @@ public class Conn {
             else if(parts[0].compareTo("cl") == 0) {
                 for(TransferHandle handle: handles) {
                     if (handle.isValid()) {
-                        log.debug("remove transfer {}", handle.getHash());
+                        log.debug("remove transfer {} without removing file", handle.getHash());
+                        s.removeTransfer(handle.getHash(), false);
+                    } else {
+                        log.warn("invalid handle detected");
+                    }
+                }
+
+                handles.clear();
+            }
+            else if(parts[0].compareTo("clr") == 0) {
+                for(TransferHandle handle: handles) {
+                    if (handle.isValid()) {
+                        log.debug("remove transfer {} with file", handle.getHash());
                         s.removeTransfer(handle.getHash(), true);
                     } else {
                         log.warn("invalid handle detected");

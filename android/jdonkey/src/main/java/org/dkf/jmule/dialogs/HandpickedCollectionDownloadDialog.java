@@ -24,13 +24,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.MediaType;
 import org.dkf.jed2k.util.Ref;
+import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.util.UIUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -43,122 +44,75 @@ import java.util.*;
  *
  */
 @SuppressWarnings("WeakerAccess") // We need the class to be public so that the dialog can be rotated (via Reflection)
-public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<HandpickedTorrentDownloadDialog.TorrentFileEntry> {
-    private static Logger LOG = LoggerFactory.getLogger(HandpickedTorrentDownloadDialog.class);
-    private String magnetUri;
-    private static final String BUNDLE_KEY_TORRENT_INFO_DATA = "torrentInfoData";
-    private static final String BUNDLE_KEY_MAGNET_URI = "magnetUri";
+@Slf4j
+public class HandpickedCollectionDownloadDialog extends AbstractConfirmListDialog<EMuleLink> {
+    private List<EMuleLink> links;
 
-    public HandpickedTorrentDownloadDialog() {
-        super();
-    }
+    public HandpickedCollectionDownloadDialog() { super();  }
 
-    public static HandpickedTorrentDownloadDialog newInstance(
+    public static HandpickedCollectionDownloadDialog newInstance(
             Context ctx,
-            String magnetUri) {
+            final List<EMuleLink> links) {
         //
         // ideas:  - pre-selected file(s) to just check the one(s)
         //         - passing a file path
         //         - passing a byte[] to create the tinfo from.
 
-        HandpickedTorrentDownloadDialog dlg = new HandpickedTorrentDownloadDialog();
+        HandpickedCollectionDownloadDialog dlg = new HandpickedCollectionDownloadDialog();
 
         // this creates a bundle that gets passed to setArguments(). It's supposed to be ready
         // before the dialog is attached to the underlying activity, after we attach to it, then
         // we are able to use such Bundle to create our adapter.
-        //final TorrentFileEntryList torrentInfoList = getTorrentInfoList(tinfo.files());
-        //boolean[] allChecked = new boolean[torrentInfoList.list.size()];
-        //for (int i=0; i < allChecked.length; i++) {
-        //    allChecked[i] = true;
-        //}
+
+        boolean[] allChecked = new boolean[links.size()];
+        for (int i=0; i < allChecked.length; i++) {
+            allChecked[i] = true;
+        }
 
         dlg.onAttach((Activity) ctx);
         dlg.prepareArguments(R.drawable.download_icon,
-                "Torrent info here",
+                ctx.getString(R.string.emule_collection),
                 ctx.getString(R.string.pick_the_files_you_want_to_download_from_this_torrent),
                 "parameters",
                 SelectionMode.MULTIPLE_SELECTION);
         final Bundle arguments = dlg.getArguments();
         //arguments.putByteArray(BUNDLE_KEY_TORRENT_INFO_DATA, tinfo.bencode());
-        arguments.putString(BUNDLE_KEY_MAGNET_URI, magnetUri);
+        //arguments.putString(BUNDLE_KEY_MAGNET_URI, magnetUri);
         //arguments.putBooleanArray(BUNDLE_KEY_CHECKED_OFFSETS, allChecked);
+        dlg.links = links;
 
         dlg.setOnYesListener(new OnStartDownloadsClickListener(ctx, dlg));
         return dlg;
     }
 
-/*
-    private static TorrentFileEntryList getTorrentInfoList(FileStorage fileStorage) {
-        TorrentFileEntryList entryList = new TorrentFileEntryList();
-        if (fileStorage != null && fileStorage.numFiles() > 0) {
-            int n = fileStorage.numFiles();
-            for (int i=0; i < n; i++) {
-                entryList.add(new TorrentFileEntry(i,
-                        fileStorage.fileName(i),
-                        fileStorage.filePath(i),
-                        fileStorage.fileSize(i)));
-            }
-        }
-        return entryList;
-    }
-*/
+
     @Override
     protected View.OnClickListener createOnYesListener(AbstractConfirmListDialog dlg) {
         return new OnStartDownloadsClickListener(getActivity(), dlg);
     }
 
-    /*
-    @Override
-    void prepareArguments(int dialogIcon, String dialogTitle, String dialogText, String listDataInJSON, SelectionMode selectionMode) {
-        super.prepareArguments(dialogIcon, dialogTitle, dialogText, listDataInJSON, selectionMode);
-        onSaveInstanceState(getArguments());
-    }
-    */
 
     @Override
-    public List<TorrentFileEntry> deserializeData(String listDataInJSON) {
-        //final TorrentFileEntryList torrentFileEntryList = JsonUtils.toObject(listDataInJSON, TorrentFileEntryList.class);
-        //return torrentFileEntryList.list;
-        return new LinkedList<TorrentFileEntry>();
+    public List<EMuleLink> deserializeData(String listDataInJSON) {
+        return links;
     }
 
     @Override
-    public ConfirmListDialogDefaultAdapter<TorrentFileEntry> createAdapter(Context context, List<TorrentFileEntry> listData, SelectionMode selectionMode, Bundle bundle) {
+    public ConfirmListDialogDefaultAdapter<EMuleLink> createAdapter(Context context, List<EMuleLink> listData, SelectionMode selectionMode, Bundle bundle) {
         Collections.sort(listData, new NameComparator());
         return new HandpickedTorrentFileEntriesDialogAdapter(context, listData, selectionMode);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        /*if (outState!=null && torrentInfo != null) {
-            outState.putByteArray(BUNDLE_KEY_TORRENT_INFO_DATA, torrentInfo.bencode());
-            outState.putString(BUNDLE_KEY_MAGNET_URI, magnetUri);
-        }
         super.onSaveInstanceState(outState); //saves the torrentInfo in bytes.
-        */
+
     }
 
     @Override
     protected void initComponents(Dialog dlg, Bundle savedInstanceState) {
-        /*
-        byte[] torrentInfoData;
-        Bundle arguments = getArguments();
-        if (this.torrentInfo == null &&
-                arguments != null &&
-            (torrentInfoData=arguments.getByteArray(BUNDLE_KEY_TORRENT_INFO_DATA))!=null) {
-            torrentInfo = TorrentInfo.bdecode(torrentInfoData);
-            magnetUri = arguments.getString(BUNDLE_KEY_MAGNET_URI, null);
-        }
         super.initComponents(dlg, savedInstanceState);
-        */
-    }
 
-    //private TorrentInfo getTorrentInfo() {
-    //    return torrentInfo;
-    //}
-
-    public String getMagnetUri() {
-        return magnetUri;
     }
 
     private static class TorrentFileEntryList {
@@ -198,32 +152,32 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
         }
     }
 
-    private class HandpickedTorrentFileEntriesDialogAdapter extends ConfirmListDialogDefaultAdapter<TorrentFileEntry> {
+    private class HandpickedTorrentFileEntriesDialogAdapter extends ConfirmListDialogDefaultAdapter<EMuleLink> {
 
         HandpickedTorrentFileEntriesDialogAdapter(Context context,
-                                                  List<TorrentFileEntry> list,
+                                                  List<EMuleLink> list,
                                                   SelectionMode selectionMode) {
             super(context, list, selectionMode);
         }
 
         @Override
-        public CharSequence getItemTitle(TorrentFileEntry data) {
-            return data.getDisplayName();
+        public CharSequence getItemTitle(EMuleLink data) {
+            return data.getStringValue();
         }
 
         @Override
-        public long getItemSize(TorrentFileEntry data) {
-            return data.getSize();
+        public long getItemSize(EMuleLink data) {
+            return data.getNumberValue();
         }
 
         @Override
-        public CharSequence getItemThumbnailUrl(TorrentFileEntry data) {
+        public CharSequence getItemThumbnailUrl(EMuleLink data) {
             return null;
         }
 
         @Override
-        public int getItemThumbnailResourceId(TorrentFileEntry data) {
-            return MediaType.getFileTypeIconId(FilenameUtils.getExtension(data.getPath()));
+        public int getItemThumbnailResourceId(EMuleLink data) {
+            return MediaType.getFileTypeIconId(FilenameUtils.getExtension(data.getStringValue()));
         }
 
         @Override
@@ -237,8 +191,8 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
                 return null;
             }
             long totalBytes = 0;
-            for (TorrentFileEntry entry : (Set<TorrentFileEntry>) checked) {
-                totalBytes += entry.getSize();
+            for (EMuleLink entry : (Set<EMuleLink>) checked) {
+                totalBytes += entry.getNumberValue();
             }
             return UIUtils.getBytesInHuman(totalBytes);
         }
@@ -263,61 +217,49 @@ public class HandpickedTorrentDownloadDialog extends AbstractConfirmListDialog<H
                 final AbstractConfirmListDialog dlg = dlgRef.get();
 
                 final AbstractConfirmListDialog.SelectionMode selectionMode = dlg.getSelectionMode();
-                List<TorrentFileEntry> checked = (selectionMode == AbstractConfirmListDialog.SelectionMode.NO_SELECTION) ?
-                        (List<TorrentFileEntry>) dlg.getList() :
-                        new ArrayList<TorrentFileEntry>();
+                List<EMuleLink> checked = (selectionMode == AbstractConfirmListDialog.SelectionMode.NO_SELECTION) ?
+                        (List<EMuleLink>) dlg.getList() :
+                        new ArrayList<EMuleLink>();
 
                 if (checked.isEmpty()) {
                     checked.addAll(dlg.getChecked());
                 }
 
                 if (!checked.isEmpty()) {
-                    LOG.info("about to startTorrentPartialDownload()");
+                    log.info("about to startTorrentPartialDownload()");
                     startTorrentPartialDownload(ctxRef.get(), checked);
                     dlg.dismiss();
-
-                    //if (ctxRef.get() instanceof Activity) {
-                    //    Offers.showInterstitialOfferIfNecessary((Activity) ctxRef.get());
-                    //}
                 }
             }
         }
 
-        private void startTorrentPartialDownload(final Context context, List<TorrentFileEntry> results) {
+        private void startTorrentPartialDownload(final Context context, List<EMuleLink> results) {
             if (context == null ||
                 !Ref.alive(dlgRef) ||
                 results == null ||
                 dlgRef.get().getList() == null ||
                 results.size() > dlgRef.get().getList().size()) {
-                LOG.warn("can't startTorrentPartialDownload()");
+                log.warn("can't startTorrentPartialDownload()");
                 return;
             }
 
-            final HandpickedTorrentDownloadDialog theDialog = (HandpickedTorrentDownloadDialog) dlgRef.get();
+            final HandpickedCollectionDownloadDialog theDialog = (HandpickedCollectionDownloadDialog) dlgRef.get();
 
             final boolean[] selection = new boolean[theDialog.getList().size()];
-            for (TorrentFileEntry selectedFileEntry : results) {
-                selection[selectedFileEntry.getIndex()] = true;
+            for (EMuleLink selectedFileEntry : results) {
+                //selection[selectedFileEntry.getIndex()] = true;
+                log.info("start download {}", selectedFileEntry.getStringValue());
+                if (Engine.instance().isStarted()) {
+                    Engine.instance().downloadLink(selectedFileEntry);
+                }
             }
-
-            //Engine.instance().getThreadPool().execute(new Runnable() {
-            //    @Override
-            //    public void run() {
-                    //BTEngine.getInstance().download(theDialog.getTorrentInfo(),
-                    //        null,
-                    //        selection,
-                    //        theDialog.getMagnetUri());
-           //         UIUtils.showTransfersOnDownloadStart(context);
-            //    }
-            //});
-
         }
     }
 
-    private static class NameComparator implements Comparator<TorrentFileEntry> {
+    private static class NameComparator implements Comparator<EMuleLink> {
         @Override
-        public int compare(TorrentFileEntry left, TorrentFileEntry right) {
-            return left.getDisplayName().compareTo(right.getDisplayName());
+        public int compare(EMuleLink left, EMuleLink right) {
+            return left.getStringValue().compareTo(right.getStringValue());
         }
     }
 }

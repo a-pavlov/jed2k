@@ -184,6 +184,7 @@ public class PeerConnection extends Connection {
      */
     private Endpoint endpoint;
 
+
     PeerConnection(Endpoint point,
             ByteBuffer incomingBuffer,
             ByteBuffer outgoingBuffer,
@@ -507,23 +508,28 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientHello(Hello value) throws JED2KException {
         // extract client information
+        log.debug("onClientHello");
         assignRemotePeerInformation(value);
         endpoint.assign(value.point);
         Hash h = session.callbacks.get(value.point.getIP());
         Transfer t = null;
 
+        log.debug("extracted hash {}", h!=null?h.toString():"null");
+
         if (h != null) {
             session.callbacks.remove(value.point.getIP());
             t = session.transfers.get(h);
+            log.debug("extracted transfer {}", t!=null?t.toString():"null");
         }
+
+        write(prepareHello(new HelloAnswer()));
 
         // attach incoming peer to transfer
         // will throw exception and close socket if transfer not in appropriate state
         if (t != null) {
             t.attachPeer(this);
+            write(new FileRequest(t.getHash()));
         }
-
-        write(prepareHello(new HelloAnswer()));
     }
 
     @Override
@@ -599,8 +605,12 @@ public class PeerConnection extends Connection {
     @Override
     public void onClientFileAnswer(FileAnswer value)
             throws JED2KException {
-        log.debug("{} << file answer", endpoint);
+        log.debug("<< file answer {} {}"
+                , endpoint
+                , value);
+
         if (transfer != null && value.hash.equals(transfer.getHash())) {
+            log.debug("file status request >> {}", endpoint);
             write(new FileStatusRequest(transfer.getHash()));
         } else {
             close(ErrorCode.NO_TRANSFER);
@@ -1115,6 +1125,16 @@ public class PeerConnection extends Connection {
         i.setStrModVersion(remotePeerInfo.modVersion);
         i.setSourceFlag((getPeer()!=null)?getPeer().getSourceFlag():0);
         return i;
+    }
+
+    /**
+     * setup transfer in connection
+     * @param t transfer
+     */
+    public void setTransfer(final Transfer t) {
+        assert transfer == null;
+        assert t != null;
+        transfer = t;
     }
 
     @Override

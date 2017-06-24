@@ -1,5 +1,6 @@
 package org.dkf.jmule.transfers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.TransferStatus;
@@ -15,6 +16,7 @@ import java.util.List;
  * this class is simple facade of transfer handle with cache transfer status feature to avoid
  * extra requests to session
  */
+@Slf4j
 public class ED2KTransfer implements Transfer {
 
     private final TransferHandle handle;
@@ -113,8 +115,10 @@ public class ED2KTransfer implements Transfer {
         return handle.isFinished();
     }
 
-    public void remove() {
-        Engine.instance().removeTransfer(handle.getHash(), true);
+    @Override
+    public void remove(boolean removeFile) {
+        log.info("remove transfer {}", removeFile?"and file":"without file");
+        Engine.instance().removeTransfer(handle.getHash(), removeFile);
     }
 
     public List<PeerInfo> getItems() {

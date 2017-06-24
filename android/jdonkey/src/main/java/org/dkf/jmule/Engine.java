@@ -359,6 +359,20 @@ public final class Engine implements AlertListener {
         return null;
     }
 
+    public Transfer downloadLink(final EMuleLink link) {
+        try {
+            return new ED2KTransfer(service.addTransfer(link.getHash()
+                    , link.getNumberValue()
+                    , new File(ConfigurationManager.instance().getStoragePath(), link.getStringValue())));
+        } catch(JED2KException e) {
+            log.error("download link error {}", e);
+        } catch(Exception e) {
+            log.error("download link error {}", e.toString());
+        }
+
+        return null;
+    }
+
     public Transfer startDownload(final String slink) {
         try {
             if (service != null) {

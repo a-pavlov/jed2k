@@ -438,7 +438,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         }
 
         @Override
-        protected void populateView(View view, ServerEntry item) {
+        protected void populateView(View view, final ServerEntry item) {
             ImageView icon = findView(view, R.id.view_preference_servers_list_item_icon);
             TextView label = findView(view, R.id.view_preference_servers_list_item_label);
             TextView description = findView(view, R.id.view_preference_servers_list_item_description);
@@ -446,6 +446,18 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
             TextView userId = findView(view, R.id.view_server_user_id);
             label.setText(item.name + " [" + item.ip + ":" + Integer.toString(item.port) + "]");
             description.setText(item.description);
+            icon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Engine.instance().isStarted()) {
+                        if (item.connStatus == ServerEntry.ConnectionStatus.DISCONNECTED) {
+                            Engine.instance().connectTo(item.getIdentifier(), item.ip, item.port);
+                        } else {
+                            Engine.instance().disconnectFrom();
+                        }
+                    }
+                }
+            });
 
             switch(item.connStatus) {
                 case CONNECTED:

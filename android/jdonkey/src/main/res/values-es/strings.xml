@@ -42,8 +42,6 @@
     <string name="cant_open_file">Lo siento, no sé cómo abrir este archivo.</string>
     <string name="download_added_to_queue">1 archivo comenzará a descargarse</string>
     <string name="open_menu_action">Abrir %s</string>
-    <string name="cancel_menu_action">Parar la Transferencia</string>
-    <string name="cancel_delete_menu_action">Parar y borrar los datos</string>
     <string name="media_type_all_types">Todos los Tipos</string>
     <string name="media_type_documents">Libros/Docs</string>
     <string name="media_type_applications">Aplicaciones</string>
@@ -53,12 +51,10 @@
     <string name="media_type_torrents">Torrents</string>
     <string name="search">Buscar</string>
     <string name="transfers">Transferencias</string>
-    <string name="yes_no_cancel_transfer_question">¿Seguro que quieres parar y eliminar esta descarga de la lista? (No se eliminará ningún dato)</string>
-    <string name="yes_no_cancel_delete_transfer_question">¿Seguro que quieres cancelar esta descarga? (Los datos descargados hasta ahora se borrarán)</string>
-    <string name="cancel_transfer">Cancelar Transferencia</string>
+    <string name="yes_no_cancel_transfer_question">¿Seguro que quieres parar y eliminar esta descarga de la lista?</string>
+    <string name="yes_no_cancel_delete_transfer_question">¿Seguro que quieres cancelar esta descarga?</string>
     <string name="pause_torrent_menu_action">Pausa</string>
     <string name="resume_torrent_menu_action">Resumir</string>
-    <string name="clear_complete">Borrar Descargas Terminadas</string>
     <string name="im_on_it">Estoy en ello…</string>
     <string name="show_transfers_on_download_start">Mostrar Transferencias al comienzo de la descarga</string>
     <string name="dialog_new_transfer_text_text">¿Estás seguro de que quieres descargar %1$s (%2$s)?</string>
@@ -104,7 +100,7 @@
     <string name="thank_you">¡Gracias!</string>
     <string name="keep_in_touch">¡Mantente en contacto!</string>
     <string name="why_we_need_storage_permissions_summary">Mule es un explorador de archivos, y aplicación de descargas, por ende necesitará acceder a los archivos en tus dispositivos de almacenamiento.</string>
-    <string name="remove_torrent_and_data">Quitar la transferencia y el archivo</string>
+    <string name="remove_torrent_and_data">Quitar la transferencia</string>
     <string name="why_we_need_storage_permissions">Por qué necesitamos permisos de almacenamiento.</string>
     <string name="request_again">Intenta nuevamente</string>
     <string name="storage_picker_treeuri_error">Error inesperado seleccionando ruta de almacenamiento</string>
@@ -166,7 +162,6 @@
     <string name="transfers_settings">Las transferencias de configuración</string>
     <string name="forward_ports_summary">Adelante entrantes a los puertos en mi router. UPnP debe ser activado en el router</string>
     <string name="forward_ports_title">La redirección de puertos</string>
-    <string name="server_add">Agregar</string>
     <string name="server_add_descr">Descripción</string>
     <string name="server_add_name">Nombre</string>
 
@@ -212,9 +207,14 @@
         más tarde
     </string>
     <string name="start_transfer_file_error">No se puede iniciar el traslado, debido a que I/O de excepción</string>
-    <string name="start_transfer_internal_error">Error interno en la transferencia de partida</string>
     <string name="start_transfer_success">La transferencia ha sido añadido</string>
     <string name="nodes_link_open_error_text">No se puede agregar nodos a Kad - verificación ED2K núcleo se inicia y Kademlia es activado</string>
     <string name="nodes_link_open_error_title">Los nodos</string>
     <string name="intent_link_parse_error">No se puede analizar el vínculo</string>
+    <string name="complete_sources">Completa %1$d</string>
+    <string name="yes_no_dialog_remove_file">La eliminación de un archivo</string>
+    <string name="emule_collection">EMule recogida</string>
+    <string name="add_collection_session_stopped_title">Añadir colección</string>
+    <string name="add_collection_session_stopped_body">ED2K núcleo se detiene, no se puede agregar la colección. Por favor habilite núcleo e inténtelo de nuevo.</string>
+    <string name="add_collection_empty">Archivo de la colección está vacía o no se puede analizar</string>
 </resources>
