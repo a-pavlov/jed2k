@@ -786,7 +786,7 @@ public class Session extends Thread {
      * allocate new fixed size byte buffer from session's buffer pool
      * @return byte buffer from common session buffer pool
      */
-    public ByteBuffer allocatePoolBuffer() {
+    public ByteBuffer allocatePoolBuffer() throws JED2KException {
         return bufferPool.allocate();
     }
 

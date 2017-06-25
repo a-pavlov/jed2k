@@ -39,7 +39,7 @@ public class PieceManagerTest {
         return (byte)(b.pieceIndex* Constants.BLOCKS_PER_PIECE + b.pieceBlock);
     }
 
-    ByteBuffer getBuffer(final PieceBlock b, int dataSize) {
+    ByteBuffer getBuffer(final PieceBlock b, int dataSize) throws JED2KException {
         ByteBuffer buffer = pool.allocate();
         buffer.limit(dataSize);
         byte data = getBlockContent(b);
