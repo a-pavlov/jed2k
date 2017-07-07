@@ -217,4 +217,5 @@
     <string name="add_collection_session_stopped_title">Añadir colección</string>
     <string name="add_collection_session_stopped_body">ED2K núcleo se detiene, no se puede agregar la colección. Por favor habilite núcleo e inténtelo de nuevo.</string>
     <string name="add_collection_empty">Archivo de la colección está vacía o no se puede analizar</string>
+    <string name="search_params_invalid_number">Número no válido en parámetros numéricos para la búsqueda</string>
 </resources>

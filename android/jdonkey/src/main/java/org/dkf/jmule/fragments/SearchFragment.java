@@ -290,8 +290,8 @@ public final class SearchFragment extends AbstractFragment implements
         } catch(NumberFormatException e) {
             log.error("Number format exception on input {}", e);
             UIUtils.showInformationDialog(getView().getContext()
+                    , R.string.search_params_invalid_number
                     , R.string.search_failed_title
-                    , R.string.search_params_not_number
                     , true
                     , null);
         }
