@@ -242,4 +242,6 @@
     <string name="intent_link_parse_error">Unable to parse link</string>
     <string name="nodes_link_open_error_title">Nodes</string>
     <string name="nodes_link_open_error_text">Unable to add nodes to Kad - check ED2K core is started and Kademlia is activated</string>
+    <string name="search_failed_title">Search failed</string>
+    <string name="search_params_not_number">Not number in numeric parameters for search</string>
 </resources>
