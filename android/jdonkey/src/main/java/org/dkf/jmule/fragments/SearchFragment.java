@@ -165,14 +165,6 @@ public final class SearchFragment extends AbstractFragment implements
         searchParametersView = findView(view, R.id.fragment_search_parameters);
         searchParametersView.setVisibility(View.GONE);
 
-        /*promotions = findView(view, R.id.fragment_search_promos);
-        promotions.setOnPromotionClickListener(new OnPromotionClickListener() {
-            @Override
-            public void onPromotionClick(PromotionsView v, Slide slide) {
-                startPromotionDownload(slide);
-            }
-        });
-*/
         searchProgress = findView(view, R.id.fragment_search_search_progress);
         searchProgress.setCurrentQueryReporter(this);
 
@@ -521,41 +513,7 @@ public final class SearchFragment extends AbstractFragment implements
             fragment.cancelSearch();
         }
     }
-/*
-    private static class LoadSlidesTask extends AsyncTask<Void, Void, List<Slide>> {
 
-        private final WeakReference<SearchFragment> fragment;
-
-        LoadSlidesTask(SearchFragment fragment) {
-            this.fragment = new WeakReference<>(fragment);
-        }
-
-        @Override
-        protected List<Slide> doInBackground(Void... params) {
-            try {
-                HttpClient http = HttpClientFactory.getInstance(HttpClientFactory.HttpContext.SEARCH);
-                String url = String.format("%s?from=android&fw=%s&sdk=%s", Constants.SERVER_PROMOTIONS_URL, Constants.FROSTWIRE_VERSION_STRING, Build.VERSION.SDK_INT);
-                String json = http.get(url);
-                SlideList slides = JsonUtils.toObject(json, SlideList.class);
-                // yes, these requests are done only once per session.
-                //LOG.info("SearchFragment.LoadSlidesTask performed http request to " + url);
-                return slides.slides;
-            } catch (Throwable e) {
-                LOG.error("Error loading slides from url", e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Slide> result) {
-            SearchFragment f = fragment.get();
-            if (f != null && result != null && !result.isEmpty()) {
-                f.slides = result;
-                f.promotions.setSlides(result);
-            }
-        }
-    }
-*/
     private static final class FileTypeCounter {
         public int numAudio = 0;
         public int numVideo = 0;
@@ -616,69 +574,4 @@ public final class SearchFragment extends AbstractFragment implements
             this.numOther = 0;
         }
     }
-/*
-    private static class OnRateClickAdapter extends ClickAdapter<SearchFragment> {
-        private final WeakReference<RichNotification> ratingReminderRef;
-        private final ConfigurationManager CM;
-
-        OnRateClickAdapter(final SearchFragment owner, final RichNotification ratingReminder, final ConfigurationManager CM) {
-            super(owner);
-            ratingReminderRef = Ref.weak(ratingReminder);
-            this.CM = CM;
-        }
-
-        @Override
-        public void onClick(SearchFragment owner, View v) {
-            if (Ref.alive(ratingReminderRef)) {
-                ratingReminderRef.get().setVisibility(View.GONE);
-            }
-            CM.setBoolean(Constants.PREF_KEY_GUI_ALREADY_RATED_US_IN_MARKET, true);
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("market://details?id=" + Constants.APP_PACKAGE_NAME));
-            try {
-                owner.startActivity(intent);
-            } catch (Throwable ignored) {
-            }
-        }
-    }
-
-    private static class OnFeedbackClickAdapter extends ClickAdapter<SearchFragment> {
-        private final WeakReference<RichNotification> ratingReminderRef;
-        private final ConfigurationManager CM;
-
-        OnFeedbackClickAdapter(SearchFragment owner, final RichNotification ratingReminder, final ConfigurationManager CM) {
-            super(owner);
-            ratingReminderRef = Ref.weak(ratingReminder);
-            this.CM = CM;
-        }
-
-        @Override
-        public void onClick(SearchFragment owner, View v) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@frostwire.com"});
-            String plusOrBasic = (Constants.IS_GOOGLE_PLAY_DISTRIBUTION) ? "basic" : "plus";
-            intent.putExtra(Intent.EXTRA_SUBJECT, String.format("[Feedback - frostwire-android (%s) - v%s b%s]", plusOrBasic, Constants.FROSTWIRE_VERSION_STRING, Constants.FROSTWIRE_BUILD));
-
-            String body = String.format("\n\nAndroid SDK: %d\nAndroid RELEASE: %s (%s)\nManufacturer-Model: %s - %s\nDevice: %s\nBoard: %s\nCPU ABI: %s\nCPU ABI2: %s\n\n",
-                    Build.VERSION.SDK_INT,
-                    Build.VERSION.RELEASE,
-                    Build.VERSION.CODENAME,
-                    Build.MANUFACTURER,
-                    Build.MODEL,
-                    Build.DEVICE,
-                    Build.BOARD,
-                    Build.CPU_ABI,
-                    Build.CPU_ABI2);
-
-            intent.putExtra(Intent.EXTRA_TEXT, body);
-            owner.startActivity(Intent.createChooser(intent, owner.getString(R.string.choose_email_app)));
-
-            if (Ref.alive(ratingReminderRef)) {
-                ratingReminderRef.get().setVisibility(View.GONE);
-            }
-            CM.setBoolean(Constants.PREF_KEY_GUI_ALREADY_RATED_US_IN_MARKET, true);
-        }
-    }
-    */
 }
