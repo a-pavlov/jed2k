@@ -216,4 +216,5 @@
     <string name="add_collection_session_stopped_title">Aggiungi raccolta</string>
     <string name="add_collection_session_stopped_body">ED2K core è fermato, in grado di aggiungere raccolta. Si prega di abilitare i core e provare di nuovo.</string>
     <string name="add_collection_empty">Raccolta di file è vuota o non è in grado di analizzare</string>
+    <string name="search_params_invalid_number">Non valido numero di parametri numerici per la ricerca</string>
 </resources>
