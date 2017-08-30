@@ -81,6 +81,9 @@ public class EMuleLink {
                 throw new JED2KException(ErrorCode.NUMBER_FORMAT_ERROR);
             } catch(UnsupportedEncodingException e) {
                 throw new JED2KException(ErrorCode.UNSUPPORTED_ENCODING);
+            } catch (Exception e) {
+                // here illegal argument exception most likely, but it doesn't matter
+                throw new JED2KException(ErrorCode.INTERNAL_ERROR);
             }
         }
 

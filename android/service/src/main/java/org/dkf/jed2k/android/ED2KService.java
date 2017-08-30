@@ -172,7 +172,12 @@ public class ED2KService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        try {
+            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        } catch(Exception e) {
+            log.warn("cancel all notifications error {}", e);
+        }
+
         setupNotification();
 
         if (intent == null) {
