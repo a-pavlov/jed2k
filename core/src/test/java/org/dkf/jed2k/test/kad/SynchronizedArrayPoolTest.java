@@ -1,12 +1,12 @@
 package org.dkf.jed2k.test.kad;
 
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.pool.SynchronizedArrayPool;
 import org.junit.Test;
 
 import java.util.LinkedList;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 /**
  * Created by apavlov on 06.03.17.
@@ -14,7 +14,7 @@ import static junit.framework.Assert.assertTrue;
 public class SynchronizedArrayPoolTest {
 
     @Test
-    public void testMemoryAllocation() {
+    public void testMemoryAllocation() throws JED2KException {
         SynchronizedArrayPool pool = new SynchronizedArrayPool(100, 10);
         LinkedList<byte[]> buffers = new LinkedList<>();
         for(int i = 0; i < 100; ++i) {
@@ -29,7 +29,7 @@ public class SynchronizedArrayPoolTest {
     }
 
     @Test
-    public void testBufferPoolReduceFull() {
+    public void testBufferPoolReduceFull() throws JED2KException {
         SynchronizedArrayPool bp = new SynchronizedArrayPool(6, 10);
         LinkedList<byte[]> allocated = new LinkedList<>();
         for(int i = 0; i < 6; ++i) {
@@ -63,6 +63,13 @@ public class SynchronizedArrayPoolTest {
         bp.setMaxBuffersCountSync(2);
         assertEquals(0, bp.getCachedBuffersCount());
         assertEquals(2, bp.getAllocatedBuffersCount());
-        assertTrue(bp.allocateSync() == null);
+        boolean alloc = true;
+        try {
+            assertTrue(bp.allocateSync() == null);
+        } catch(JED2KException e) {
+            alloc = false;
+        }
+
+        assertFalse(alloc);
     }
 }

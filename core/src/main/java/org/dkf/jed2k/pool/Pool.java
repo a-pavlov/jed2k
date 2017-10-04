@@ -1,6 +1,9 @@
 package org.dkf.jed2k.pool;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.exception.ErrorCode;
+import org.dkf.jed2k.exception.JED2KException;
 
 import java.util.LinkedList;
 
@@ -8,6 +11,7 @@ import java.util.LinkedList;
  * Created by apavlov on 06.03.17.
  */
 @Getter
+@Slf4j
 public abstract class Pool<T> {
     private int maxBuffersCount = 0;
     private int allocatedBuffersCount = 0;
@@ -21,9 +25,9 @@ public abstract class Pool<T> {
         maxBuffersCount = maxBuffers;
     }
 
-    protected abstract T createObject();
+    protected abstract T createObject() throws JED2KException ;
 
-    public T allocate() {
+    public T allocate() throws JED2KException {
         T b = freeBuffers.poll();
         bufferReleaseTimes.poll();
         assert(freeBuffers.size() == bufferReleaseTimes.size());
@@ -35,7 +39,13 @@ public abstract class Pool<T> {
         if (b != null) {
             allocatedBuffersCount++;
             maxAllocatedCount = Math.max(maxAllocatedCount, allocatedBuffersCount);
+        } else {
+            log.warn("Pool allocate no memory, allocated buffers count {} max buffers {}"
+                    , allocatedBuffersCount
+                    , maxAllocatedCount);
+            throw new JED2KException(ErrorCode.NO_MEMORY);
         }
+
         return b;
     }
 

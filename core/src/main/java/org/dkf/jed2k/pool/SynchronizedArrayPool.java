@@ -1,5 +1,7 @@
 package org.dkf.jed2k.pool;
 
+import org.dkf.jed2k.exception.JED2KException;
+
 /**
  * Created by apavlov on 06.03.17.
  */
@@ -28,7 +30,7 @@ public class SynchronizedArrayPool extends Pool<byte[]> {
         assert false;
     }
 
-    public synchronized byte[] allocateSync() {
+    public synchronized byte[] allocateSync() throws JED2KException {
         return super.allocate();
     }
 

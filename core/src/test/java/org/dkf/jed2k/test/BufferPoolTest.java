@@ -1,20 +1,53 @@
 package org.dkf.jed2k.test;
 
+import org.dkf.jed2k.exception.ErrorCode;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.pool.BufferPool;
+import org.dkf.jed2k.pool.Pool;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 /**
  * Created by inkpot on 08.07.2016.
  */
 public class BufferPoolTest {
+
+    private static class NoAllocator extends Pool<ByteBuffer> {
+
+        public NoAllocator(int maxBuffers) {
+            super(maxBuffers);
+        }
+
+        @Override
+        protected ByteBuffer createObject() throws JED2KException {
+            throw new JED2KException(ErrorCode.NO_MEMORY);
+        }
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testTrivialNoMemory() throws JED2KException {
+        BufferPool bp = new BufferPool(2);
+        assertEquals(0, bp.getAllocatedBuffersCount());
+        assertEquals(0, bp.getCachedBuffersCount());
+        bp.allocate();
+        bp.allocate();
+        bp.allocate();
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testNoMemorySystem() throws JED2KException {
+        Pool bp = new NoAllocator(2);
+        assertEquals(0, bp.getAllocatedBuffersCount());
+        assertEquals(0, bp.getCachedBuffersCount());
+        bp.allocate();
+    }
+
     @Test
-    public void testBufferPool() {
+    public void testBufferPool() throws JED2KException {
         BufferPool bp = new BufferPool(4);
         assertEquals(0, bp.getAllocatedBuffersCount());
         assertEquals(0, bp.getCachedBuffersCount());
@@ -26,7 +59,15 @@ public class BufferPoolTest {
             assertEquals(0, bp.getCachedBuffersCount());
         }
 
-        assertTrue(bp.allocate() == null);
+        boolean alloc = true;
+        try {
+            assertTrue(bp.allocate() == null);
+        } catch(JED2KException e) {
+            alloc = false;
+        }
+
+        assertFalse(alloc);
+
         for(int i = 0; i < 2; ++i) {
             bp.deallocate(allocated.poll(), i);
             assertEquals(i+1, bp.getCachedBuffersCount());
@@ -39,7 +80,7 @@ public class BufferPoolTest {
     }
 
     @Test
-    public void testBufferPoolReduce() {
+    public void testBufferPoolReduce() throws JED2KException {
         BufferPool bp = new BufferPool(10);
         LinkedList<ByteBuffer> allocated = new LinkedList<ByteBuffer>();
         for(int i = 0; i < 6; ++i) {
@@ -48,7 +89,15 @@ public class BufferPoolTest {
         }
 
         bp.setMaxBuffersCount(4);
-        assertTrue(bp.allocate() == null);
+        boolean alloc = true;
+        try {
+            assertTrue(bp.allocate() == null);
+        } catch (JED2KException e) {
+            alloc = false;
+        }
+
+        assertFalse(alloc);
+
         while(allocated.size() > 2) {
             bp.deallocate(allocated.poll(), 10L);
         }
@@ -59,12 +108,19 @@ public class BufferPoolTest {
             assertTrue(allocated.getLast() != null);
         }
 
-        assertTrue(bp.allocate() == null);
+        alloc = true;
+        try {
+            assertTrue(bp.allocate() == null);
+        } catch(JED2KException e) {
+            alloc = false;
+        }
+
+        assertFalse(alloc);
         assertEquals(0, bp.getCachedBuffersCount());
     }
 
     @Test
-    public void testBufferPoolReduceFull() {
+    public void testBufferPoolReduceFull() throws JED2KException {
         BufferPool bp = new BufferPool(6);
         LinkedList<ByteBuffer> allocated = new LinkedList<ByteBuffer>();
         for(int i = 0; i < 6; ++i) {
@@ -98,11 +154,18 @@ public class BufferPoolTest {
         bp.setMaxBuffersCount(2);
         assertEquals(0, bp.getCachedBuffersCount());
         assertEquals(2, bp.getAllocatedBuffersCount());
-        assertTrue(bp.allocate() == null);
+        boolean alloc = true;
+        try {
+            assertTrue(bp.allocate() == null);
+        } catch(JED2KException e) {
+            alloc = false;
+        }
+
+        assertFalse(alloc);
     }
 
     @Test
-    public void testMemoryAllocation() {
+    public void testMemoryAllocation() throws JED2KException {
         BufferPool pool = new BufferPool(100);
         LinkedList<ByteBuffer> buffers = new LinkedList<>();
         for(int i = 0; i < 100; ++i) {

@@ -216,6 +216,10 @@ public class PeerConnection extends Connection {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        } catch(OutOfMemoryError e) {
+            throw new JED2KException(ErrorCode.NO_MEMORY);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
     }
 
@@ -228,6 +232,10 @@ public class PeerConnection extends Connection {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        } catch(OutOfMemoryError e) {
+            throw new JED2KException(ErrorCode.NO_MEMORY);
+        } catch(Exception e) {
+            throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
     }
 
@@ -781,16 +789,6 @@ public class PeerConnection extends Connection {
 
         // if pending block hasn't associated buffer - allocate it
         if (pb.buffer == null) pb.buffer = session.allocatePoolBuffer();
-
-        /**
-         * if buffer pool hasn't free blocks we will get null buffer
-         * throw exception will lead of close connection with no memory error
-         */
-        if (pb.buffer == null) {
-            log.warn("{} can not allocate buffer for block {} current request {}", getEndpoint(), b, r);
-            throw new JED2KException(ErrorCode.NO_MEMORY);
-        }
-
         // prepare buffer for reading data into proper place
         pb.buffer.position((int)r.inBlockOffset());
         pb.buffer.limit((int)(r.inBlockOffset() + r.length));

@@ -142,7 +142,7 @@ public class Transfer {
      * restore partial pieces using step by step: allocate buffer -> async restore -> precess result
      * @param rd resume data
      */
-    void restore(final TransferResumeData rd) {
+    void restore(final TransferResumeData rd) throws JED2KException {
         setHashSet(this.hash, rd.hashes);
 
         for(int i = 0; i < rd.pieces.size(); ++i) {

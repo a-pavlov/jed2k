@@ -18,7 +18,6 @@ import android.widget.RemoteViews;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
-import okio.Timeout;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
@@ -42,10 +41,12 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -172,7 +173,12 @@ public class ED2KService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        try {
+            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        } catch(Exception e) {
+            log.warn("cancel all notifications error {}", e);
+        }
+
         setupNotification();
 
         if (intent == null) {
@@ -242,12 +248,14 @@ public class ED2KService extends Service {
                     scheduledExecutorService.awaitTermination(4, TimeUnit.SECONDS);
 
                     // catch all remain events and process save resume data
-                    Alert a = session.popAlert();
-                    while(a != null) {
-                        if (a instanceof TransferResumeDataAlert) {
-                            saveResumeData((TransferResumeDataAlert)a);
+                    if (session != null) {
+                        Alert a = session.popAlert();
+                        while (a != null) {
+                            if (a instanceof TransferResumeDataAlert) {
+                                saveResumeData((TransferResumeDataAlert) a);
+                            }
+                            a = session.popAlert();
                         }
-                        a = session.popAlert();
                     }
                 } catch(InterruptedException e) {
                     log.error("[ED2K service] alert loop await interrupted {}", e.toString());

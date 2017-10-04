@@ -30,6 +30,7 @@ import android.widget.*;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -44,21 +45,20 @@ import org.dkf.jmule.adapters.SearchResultListAdapter;
 import org.dkf.jmule.dialogs.NewTransferDialog;
 import org.dkf.jmule.tasks.StartDownloadTask;
 import org.dkf.jmule.tasks.Tasks;
+import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.AbstractDialog.OnDialogClickListener;
 import org.dkf.jmule.views.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author gubatron
  * @author aldenml
  */
+@Slf4j
 public final class SearchFragment extends AbstractFragment implements
         MainFragment,
         OnDialogClickListener,
         SearchProgressView.CurrentQueryReporter,
         AlertListener {
-    private static final Logger LOG = LoggerFactory.getLogger(SearchFragment.class);
     private SearchResultListAdapter adapter = null;
 
     private SearchInputView searchInput;
@@ -264,7 +264,7 @@ public final class SearchFragment extends AbstractFragment implements
             adapter = new SearchResultListAdapter(getActivity()) {
                 @Override
                 protected void searchResultClicked(SearchEntry sr) {
-                    LOG.info("start transfer {}", sr.getFileName());
+                    log.info("start transfer {}", sr.getFileName());
                     startTransfer(sr, getString(R.string.download_added_to_queue));
                 }
             };
@@ -290,47 +290,57 @@ public final class SearchFragment extends AbstractFragment implements
         String expression = query.trim();
         if (expression.isEmpty()) return;
 
-        // server search when one server connected and user chose server search or dht is not enabled
-        if (!Engine.instance().getCurrentServerId().isEmpty()
-                && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
-            LOG.info("perform search on servers");
-            awaitingResults = true;
-            adapter.clear();
-            fileTypeCounter.clear();
-            refreshFileTypeCounters(false);
-            currentQuery = query;
-            Engine.instance().performSearch(
-                      searchParametersView.getMinSize()*1024*1024
-                    , searchParametersView.getMaxSize()*1024*1024
-                    , searchParametersView.getSourcesCount()
-                    , searchParametersView.getCompleteSources()
-                    , searchParametersView.getChecked()
-                    , ""
-                    , ""
-                    , 0
-                    , 0
-                    , expression);
+        try {
+            // server search when one server connected and user chose server search or dht is not enabled
+            if (!Engine.instance().getCurrentServerId().isEmpty()
+                    && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
+                log.info("perform search on servers");
+                awaitingResults = true;
+                adapter.clear();
+                fileTypeCounter.clear();
+                refreshFileTypeCounters(false);
+                currentQuery = query;
+                boolean progressEnabled = false;
+                Engine.instance().performSearch(
+                        searchParametersView.getMinSize() * 1024 * 1024
+                        , searchParametersView.getMaxSize() * 1024 * 1024
+                        , searchParametersView.getSourcesCount()
+                        , searchParametersView.getCompleteSources()
+                        , searchParametersView.getChecked()
+                        , ""
+                        , ""
+                        , 0
+                        , 0
+                        , expression);
 
-            searchProgress.setProgressEnabled(true);
-            showSearchView(getView());
-        }
-        // DHT search when dht enabled and user chose kad or no one server connected
-        else if (Engine.instance().isDhtEnabled()
-                && (!searchParametersView.isSearchByServer() || Engine.instance().getCurrentServerId().isEmpty())) {
-            LOG.info("perform search on DHT");
-            awaitingResults = true;
-            adapter.clear();
-            fileTypeCounter.clear();
-            refreshFileTypeCounters(false);
-            currentQuery = query;
-            // takes first item in search expression for DHT search
-            Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]
-                , searchParametersView.getMinSize()*1024*1024
-                , searchParametersView.getMaxSize()*1024*1024
-                , searchParametersView.getSourcesCount()
-                , searchParametersView.getCompleteSources());
-            searchProgress.setProgressEnabled(true);
-            showSearchView(getView());
+                searchProgress.setProgressEnabled(true);
+                showSearchView(getView());
+            }
+            // DHT search when dht enabled and user chose kad or no one server connected
+            else if (Engine.instance().isDhtEnabled()
+                    && (!searchParametersView.isSearchByServer() || Engine.instance().getCurrentServerId().isEmpty())) {
+                log.info("perform search on DHT");
+                awaitingResults = true;
+                adapter.clear();
+                fileTypeCounter.clear();
+                refreshFileTypeCounters(false);
+                currentQuery = query;
+                // takes first item in search expression for DHT search
+                Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]
+                        , searchParametersView.getMinSize() * 1024 * 1024
+                        , searchParametersView.getMaxSize() * 1024 * 1024
+                        , searchParametersView.getSourcesCount()
+                        , searchParametersView.getCompleteSources());
+                searchProgress.setProgressEnabled(true);
+                showSearchView(getView());
+            }
+        } catch(NumberFormatException e) {
+            log.error("Number format exception on input {}", e);
+            UIUtils.showInformationDialog(getView().getContext()
+                    , R.string.search_params_invalid_number
+                    , R.string.search_failed_title
+                    , true
+                    , null);
         }
     }
 
@@ -346,7 +356,7 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void cancelSearch() {
-        LOG.info("cancel search wait res {}", awaitingResults?"YES":"NO");
+        log.info("cancel search wait res {}", awaitingResults?"YES":"NO");
         if (awaitingResults) {
             awaitingResults = false;
             adapter.clear();
@@ -466,7 +476,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     @Override
     public void onSearchResult(final SearchResultAlert alert) {
-        LOG.info("search result size {} more {}", alert.getResults().size(), alert.isHasMoreResults()?"YES":"NO");
+        log.info("search result size {} more {}", alert.getResults().size(), alert.isHasMoreResults()?"YES":"NO");
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -562,41 +572,7 @@ public final class SearchFragment extends AbstractFragment implements
             fragment.cancelSearch();
         }
     }
-/*
-    private static class LoadSlidesTask extends AsyncTask<Void, Void, List<Slide>> {
 
-        private final WeakReference<SearchFragment> fragment;
-
-        LoadSlidesTask(SearchFragment fragment) {
-            this.fragment = new WeakReference<>(fragment);
-        }
-
-        @Override
-        protected List<Slide> doInBackground(Void... params) {
-            try {
-                HttpClient http = HttpClientFactory.getInstance(HttpClientFactory.HttpContext.SEARCH);
-                String url = String.format("%s?from=android&fw=%s&sdk=%s", Constants.SERVER_PROMOTIONS_URL, Constants.FROSTWIRE_VERSION_STRING, Build.VERSION.SDK_INT);
-                String json = http.get(url);
-                SlideList slides = JsonUtils.toObject(json, SlideList.class);
-                // yes, these requests are done only once per session.
-                //LOG.info("SearchFragment.LoadSlidesTask performed http request to " + url);
-                return slides.slides;
-            } catch (Throwable e) {
-                LOG.error("Error loading slides from url", e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Slide> result) {
-            SearchFragment f = fragment.get();
-            if (f != null && result != null && !result.isEmpty()) {
-                f.slides = result;
-                f.promotions.setSlides(result);
-            }
-        }
-    }
-*/
     private static final class FileTypeCounter {
         public int numAudio = 0;
         public int numVideo = 0;
@@ -657,69 +633,4 @@ public final class SearchFragment extends AbstractFragment implements
             this.numOther = 0;
         }
     }
-/*
-    private static class OnRateClickAdapter extends ClickAdapter<SearchFragment> {
-        private final WeakReference<RichNotification> ratingReminderRef;
-        private final ConfigurationManager CM;
-
-        OnRateClickAdapter(final SearchFragment owner, final RichNotification ratingReminder, final ConfigurationManager CM) {
-            super(owner);
-            ratingReminderRef = Ref.weak(ratingReminder);
-            this.CM = CM;
-        }
-
-        @Override
-        public void onClick(SearchFragment owner, View v) {
-            if (Ref.alive(ratingReminderRef)) {
-                ratingReminderRef.get().setVisibility(View.GONE);
-            }
-            CM.setBoolean(Constants.PREF_KEY_GUI_ALREADY_RATED_US_IN_MARKET, true);
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("market://details?id=" + Constants.APP_PACKAGE_NAME));
-            try {
-                owner.startActivity(intent);
-            } catch (Throwable ignored) {
-            }
-        }
-    }
-
-    private static class OnFeedbackClickAdapter extends ClickAdapter<SearchFragment> {
-        private final WeakReference<RichNotification> ratingReminderRef;
-        private final ConfigurationManager CM;
-
-        OnFeedbackClickAdapter(SearchFragment owner, final RichNotification ratingReminder, final ConfigurationManager CM) {
-            super(owner);
-            ratingReminderRef = Ref.weak(ratingReminder);
-            this.CM = CM;
-        }
-
-        @Override
-        public void onClick(SearchFragment owner, View v) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@frostwire.com"});
-            String plusOrBasic = (Constants.IS_GOOGLE_PLAY_DISTRIBUTION) ? "basic" : "plus";
-            intent.putExtra(Intent.EXTRA_SUBJECT, String.format("[Feedback - frostwire-android (%s) - v%s b%s]", plusOrBasic, Constants.FROSTWIRE_VERSION_STRING, Constants.FROSTWIRE_BUILD));
-
-            String body = String.format("\n\nAndroid SDK: %d\nAndroid RELEASE: %s (%s)\nManufacturer-Model: %s - %s\nDevice: %s\nBoard: %s\nCPU ABI: %s\nCPU ABI2: %s\n\n",
-                    Build.VERSION.SDK_INT,
-                    Build.VERSION.RELEASE,
-                    Build.VERSION.CODENAME,
-                    Build.MANUFACTURER,
-                    Build.MODEL,
-                    Build.DEVICE,
-                    Build.BOARD,
-                    Build.CPU_ABI,
-                    Build.CPU_ABI2);
-
-            intent.putExtra(Intent.EXTRA_TEXT, body);
-            owner.startActivity(Intent.createChooser(intent, owner.getString(R.string.choose_email_app)));
-
-            if (Ref.alive(ratingReminderRef)) {
-                ratingReminderRef.get().setVisibility(View.GONE);
-            }
-            CM.setBoolean(Constants.PREF_KEY_GUI_ALREADY_RATED_US_IN_MARKET, true);
-        }
-    }
-    */
 }
