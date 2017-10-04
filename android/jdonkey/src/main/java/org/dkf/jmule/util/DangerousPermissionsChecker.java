@@ -28,6 +28,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jed2k.android.Constants;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
@@ -52,6 +54,7 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
     // HACK: just couldn't find another way, and this saved a lot of overcomplicated logic in the onActivityResult handling activities.
     static long AUDIO_ID_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK = -1;
     static byte FILE_TYPE_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK = -1;
+    public static final int ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE = 0x000C;
 
     private final WeakReference<Activity> activityRef;
     private final int requestCode;
@@ -78,7 +81,6 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
             return;
         }
         Activity activity = activityRef.get();
-
         String[] permissions = null;
         switch (requestCode) {
             case EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE:
@@ -98,6 +100,9 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
                         Manifest.permission.WRITE_SETTINGS
                 };
                 break;
+            case ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE:
+                permissions = new String[] { Manifest.permission.ACCESS_COARSE_LOCATION };
+                break;
         }
 
         if (permissions != null) {
@@ -115,6 +120,8 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
             case WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE:
                 permissionWasGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
+            case ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE:
+                permissionWasGranted = onAccessCoarseLocationPermissionsResult(permissions, grantResults);
             default:
                 break;
         }
@@ -142,6 +149,13 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
         Activity activity = activityRef.get();
         return ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED ||
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED;
+    }
+
+    public boolean hasAskedBefore() {
+        if (requestCode == ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE) {
+            return ConfigurationManager.instance().getBoolean(Constants.ASKED_FOR_ACCESS_COARSE_LOCATION_PERMISSIONS);
+        }
+        return false;
     }
 
     public static boolean handleOnWriteSettingsActivityResult(Activity handlerActivity) {
@@ -230,7 +244,7 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
                     builder.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            shutdownFrostWire();
+                            shutdownMule();
                         }
                     });
                     builder.setPositiveButton(R.string.request_again, new DialogInterface.OnClickListener() {
@@ -248,7 +262,17 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
         return true;
     }
 
-    private void shutdownFrostWire() {
+    private boolean onAccessCoarseLocationPermissionsResult(String[] permissions, int[] grantResults) {
+        for (int i = 0; i < permissions.length; i++) {
+            if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                log.info("ACCESS_COARSE_LOCATION permission granted? {}", (grantResults[i] == PackageManager.PERMISSION_GRANTED));
+                return grantResults[i] == PackageManager.PERMISSION_GRANTED;
+            }
+        }
+        return false;
+    }
+
+    private void shutdownMule() {
         if (!Ref.alive(activityRef)) {
             return;
         }

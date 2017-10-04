@@ -435,40 +435,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    private void openTorrentUrl(Intent intent) {
-        try {
-            //Open a Torrent from a URL or from a local file :), say from Astro File Manager.
-
-            //Show me the transfer tab
-            Intent i = new Intent(this, MainActivity.class);
-            i.setAction(ED2KService.ACTION_SHOW_TRANSFERS);
-            i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(i);
-
-            //go!
-            final String uri = intent.getDataString();
-            intent.setAction(null);
-            if (uri != null) {
-                if (uri.startsWith("file") ||
-                        uri.startsWith("http") ||
-                        uri.startsWith("https") ||
-                        uri.startsWith("magnet")) {
-                    //TransferManager.instance().downloadTorrent(uri, new HandpickedTorrentDownloadDialogOnFetch(this));
-                } else if (uri.startsWith("content")) {
-                    String newUri = saveViewContent(this, Uri.parse(uri), "content-intent.torrent");
-                    if (newUri != null) {
-                        //TransferManager.instance().downloadTorrent(newUri, new HandpickedTorrentDownloadDialogOnFetch(this));
-                    }
-                }
-            } else {
-                log.warn("MainActivity.onNewIntent(): Couldn't start torrent download from Intent's URI, intent.getDataString() -> null");
-                log.warn("(maybe URI is coming in another property of the intent object - #fragmentation)");
-            }
-        } catch (Throwable e) {
-            log.error("Error opening torrent from intent", e);
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -496,6 +462,7 @@ public class MainActivity extends AbstractActivity implements
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
             checkExternalStoragePermissionsOrBindMusicService();
+            checkAccessCoarseLocationPermissions();
         }
     }
 
@@ -526,7 +493,11 @@ public class MainActivity extends AbstractActivity implements
         final DangerousPermissionsChecker writeSettingsChecker =
                 new DangerousPermissionsChecker(this, DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE);
         checkers.put(DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE, writeSettingsChecker);
-        // the permissionGrantedCallBack will be set by whoever uses this during runtime.
+
+        // COARSE
+        final DangerousPermissionsChecker accessCoarseLocationChecker =
+                new DangerousPermissionsChecker(this, DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE);
+        checkers.put(DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE, accessCoarseLocationChecker);
 
         // add more permissions checkers if needed...
         return checkers;
@@ -570,6 +541,17 @@ public class MainActivity extends AbstractActivity implements
         }
 
         checkExternalStoragePermissionsOrBindMusicService();
+        checkAccessCoarseLocationPermissions();
+    }
+
+    private void checkAccessCoarseLocationPermissions() {
+        DangerousPermissionsChecker checker = permissionsCheckers.get(DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE);
+        if (checker != null && !checker.hasAskedBefore()) {
+            checker.requestPermissions();
+            ConfigurationManager.instance().setBoolean(Constants.ASKED_FOR_ACCESS_COARSE_LOCATION_PERMISSIONS, true);
+        } else {
+            log.info("Asked for ACCESS_COARSE_LOCATION before, skipping.");
+        }
     }
 
     private void checkExternalStoragePermissionsOrBindMusicService() {
@@ -578,7 +560,7 @@ public class MainActivity extends AbstractActivity implements
             checker.requestPermissions();
             externalStoragePermissionsRequested = true;
         }// else if (mToken == null && checker != null && !checker.noAccess()) {
-         //   mToken = MusicUtils.bindToService(this, this);
+        //    mToken = MusicUtils.bindToService(this, this);
         //}
     }
 
