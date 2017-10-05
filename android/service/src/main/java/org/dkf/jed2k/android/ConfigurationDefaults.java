@@ -96,7 +96,6 @@ final class ConfigurationDefaults {
         defaultValues.put(Constants.PREF_KEY_FORWARD_PORTS, false);
 
         defaultValues.put(Constants.PREF_KEY_CONNECT_DHT, false);
-        defaultValues.put(Constants.ASKED_FOR_ACCESS_COARSE_LOCATION_PERMISSIONS, false);
 
         // servers section
         ServerMet sm = new ServerMet();
