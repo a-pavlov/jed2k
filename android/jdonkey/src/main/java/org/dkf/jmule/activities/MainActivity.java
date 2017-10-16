@@ -180,28 +180,13 @@ public class MainActivity extends AbstractActivity implements
         initDrawerListener();
         leftDrawer = findView(R.id.activity_main_left_drawer);
         listMenu = findView(R.id.left_drawer);
-        initAdMenuItemListener();
         setupFragments();
         setupMenuItems();
         setupInitialFragment(savedInstanceState);
         //playerSubscription = TimerService.subscribe(((PlayerNotifierView) findView(R.id.activity_main_player_notifier)).getRefresher(), 1);
         onNewIntent(getIntent());
-        //SoftwareUpdater.instance().addConfigurationUpdateListener(this);
         setupActionBar();
         setupDrawer();
-    }
-
-    private void initAdMenuItemListener() {
-        /*menuRemoveAdsItem = findView(R.id.slidermenu_ad_menuitem);
-        RelativeLayout menuAd = findView(R.id.view_ad_menu_item_ad);
-        menuAd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, BuyActivity.class);
-                startActivity(intent);
-            }
-        });
-        */
     }
 
     private void initDrawerListener() {
@@ -210,7 +195,6 @@ public class MainActivity extends AbstractActivity implements
             @Override
             public void onDrawerStateChanged(int newState) {
                 refreshPlayerItem();
-                refreshMenuRemoveAdsItem();
             }
 
             @Override
@@ -441,10 +425,8 @@ public class MainActivity extends AbstractActivity implements
 
         initDrawerListener();
         setupDrawer();
-        initAdMenuItemListener();
 
         refreshPlayerItem();
-        refreshMenuRemoveAdsItem();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_INITIAL_SETTINGS_COMPLETE)) {
             mainResume();
@@ -453,12 +435,8 @@ public class MainActivity extends AbstractActivity implements
             controller.startWizardActivity();
         }
 
-        checkLastSeenVersion();
         registerMainBroadcastReceiver();
         syncSlideMenu();
-
-        //uncomment to test social links dialog
-        //UIUtils.showSocialLinksDialog(this, true, null, "");
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
             checkExternalStoragePermissionsOrBindMusicService();
@@ -616,19 +594,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    private void checkLastSeenVersion() {
-        /*
-        final String lastSeenVersion = ConfigurationManager.instance().getString(Constants.PREF_KEY_CORE_LAST_SEEN_VERSION);
-        if (lastSeenVersion != null && !lastSeenVersion.isEmpty()) {
-            //fresh install
-            ConfigurationManager.instance().setString(Constants.PREF_KEY_CORE_LAST_SEEN_VERSION, Constants.FROSTWIRE_VERSION_STRING);
-        } else if (!Constants.FROSTWIRE_VERSION_STRING.equals(lastSeenVersion)) {
-            //just updated.
-            ConfigurationManager.instance().setString(Constants.PREF_KEY_CORE_LAST_SEEN_VERSION, Constants.FROSTWIRE_VERSION_STRING);
-        }
-        */
-    }
-
     private void toggleDrawer() {
         if (drawerLayout.isDrawerOpen(leftDrawer)) {
             drawerLayout.closeDrawer(leftDrawer);
@@ -691,8 +656,6 @@ public class MainActivity extends AbstractActivity implements
         }
         if (fragment instanceof SearchFragment) {
             menuId = R.id.menu_main_search;
-        //} else if (fragment instanceof BrowsePeerFragment) {
-        //    menuId = R.id.menu_main_library;
         } else if (fragment instanceof TransfersFragment) {
             menuId = R.id.menu_main_transfers;
         }
@@ -734,20 +697,6 @@ public class MainActivity extends AbstractActivity implements
         //if (playerItem != null) {
         //    playerItem.refresh();
         //}
-    }
-
-    private void refreshMenuRemoveAdsItem() {
-        // only visible for basic or debug build
-        /*int visibility = View.GONE;
-        if (Constants.IS_GOOGLE_PLAY_DISTRIBUTION || Constants.IS_BASIC_AND_DEBUG) {
-            // if they haven't paid for ads
-            if (!Products.disabledAds(PlayStore.getInstance()) &&
-                (playerItem == null || playerItem.getVisibility() == View.GONE)) {
-                visibility = View.VISIBLE;
-            }
-        }
-        menuRemoveAdsItem.setVisibility(visibility);
-        */
     }
 
     private void setupMenuItems() {
@@ -994,7 +943,6 @@ public class MainActivity extends AbstractActivity implements
             if (Ref.alive(activityRef)) {
                 MainActivity activity = activityRef.get();
                 activity.refreshPlayerItem();
-                activity.refreshMenuRemoveAdsItem();
                 activity.syncSlideMenu();
             }
         }
