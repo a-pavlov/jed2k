@@ -195,7 +195,11 @@ public class ED2KService extends Service {
     public void onDestroy() {
         log.info("[ED2K service] destructing...");
 
-        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        try {
+            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        } catch(Exception e) {
+            log.error("[ED2K service] cancel all error");
+        }
 
         if (session != null) {
             session.abort();
