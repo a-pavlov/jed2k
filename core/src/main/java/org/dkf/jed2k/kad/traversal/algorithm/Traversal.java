@@ -18,7 +18,7 @@ import java.util.*;
 public abstract class Traversal {
     protected NodeImpl nodeImpl;
     protected KadId target;
-    List<Observer> results = new ArrayList<>();
+    protected List<Observer> results = new ArrayList<>();
 
     int invokeCount = 0;
     int branchFactor = 0;
