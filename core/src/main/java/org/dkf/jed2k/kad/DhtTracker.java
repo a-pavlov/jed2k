@@ -255,6 +255,11 @@ public class DhtTracker extends Thread {
      * expect this method will write data immediately - need to be verified
      */
     public boolean write(final Serializable packet, final InetSocketAddress ep) {
+        if (outgoingOrder == null) {
+            log.error("outgoing order is null! tracker is not started");
+            return false;
+        }
+
         boolean wasInProgress = !outgoingOrder.isEmpty();
         log.debug("[tracker] write was in progress {}", wasInProgress);
         outgoingOrder.add(packet);
@@ -362,7 +367,7 @@ public class DhtTracker extends Thread {
      */
     public synchronized void searchSources(final Hash hash, final long fileSize, final Listener l) throws JED2KException {
         if (aborted) l.process(new LinkedList<KadSearchEntry>());
-        else node.searchSources(new KadId(hash), fileSize, l);
+        else node.searchSources(new KadId(hash), fileSize, l);  // TODO - check this code for running algorithm when tracker is not started!
     }
 
     public synchronized void hello(final InetSocketAddress ep) {
