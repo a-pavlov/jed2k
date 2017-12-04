@@ -46,8 +46,16 @@ public abstract class PacketCombiner {
 
         // special case for packed protocol - both tcp and KAD udp
         if (header.key().protocol == ProtocolType.OP_PACKEDPROT.value || header.key().protocol == ProtocolType.OP_KAD_COMPRESSED_UDP.value) {
-            byte[] compressedData = new byte[src.remaining()];
-            byte[] plainData = new byte[src.remaining()*10];
+            int memSize = src.remaining();
+            byte[] compressedData = null;
+            byte[] plainData = null;
+            try {
+                compressedData = new byte[src.remaining()];
+                plainData = new byte[src.remaining() * 10];
+            } catch(OutOfMemoryError e) {
+                log.error("PacketCombiner out of memory on unpack, memory size {}", memSize*10);
+                throw new JED2KException(ErrorCode.NO_MEMORY);
+            }
 
             try {
                 src.get(compressedData);

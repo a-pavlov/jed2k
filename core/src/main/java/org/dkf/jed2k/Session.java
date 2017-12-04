@@ -399,12 +399,17 @@ public class Session extends Thread {
             // stop server connection
             if (serverConection != null) serverConection.close(ErrorCode.SESSION_STOPPING);
 
+            // traverse on local copy of transfers to avoid ConcurrentModificationException
+            List<Transfer> transfersCopy = new LinkedList<>();
+            transfersCopy.addAll(transfers.values());
+
             // abort all transfers
-            for(final Transfer t: transfers.values()) {
+            for(final Transfer t: transfersCopy) {
                 t.abort(false, true);   // hard abort tasks to exit as soon as possible. buffers leak possible
             }
 
             transfers.clear();
+            transfersCopy.clear();
 
             // 5 seconds for close all transfers
             for(int i = 0; i < 50; ++i) {

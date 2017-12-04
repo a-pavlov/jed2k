@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="rules-0.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/service/build/intermediates/exploded-aar/com.android.support.test/rules/0.4/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/service/build/intermediates/exploded-aar/com.android.support.test/rules/0.4/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../android/android-sdk-linux/extras/android/m2repository/com/android/support/test/rules/0.4/rules-0.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

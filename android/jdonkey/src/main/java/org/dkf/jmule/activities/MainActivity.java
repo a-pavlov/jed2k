@@ -206,7 +206,6 @@ public class MainActivity extends AbstractActivity implements
             @Override
             public void onDrawerStateChanged(int newState) {
                 refreshPlayerItem();
-                refreshMenuRemoveAdsItem();
             }
 
             @Override
@@ -431,40 +430,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    private void openTorrentUrl(Intent intent) {
-        try {
-            //Open a Torrent from a URL or from a local file :), say from Astro File Manager.
-
-            //Show me the transfer tab
-            Intent i = new Intent(this, MainActivity.class);
-            i.setAction(ED2KService.ACTION_SHOW_TRANSFERS);
-            i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(i);
-
-            //go!
-            final String uri = intent.getDataString();
-            intent.setAction(null);
-            if (uri != null) {
-                if (uri.startsWith("file") ||
-                        uri.startsWith("http") ||
-                        uri.startsWith("https") ||
-                        uri.startsWith("magnet")) {
-                    //TransferManager.instance().downloadTorrent(uri, new HandpickedTorrentDownloadDialogOnFetch(this));
-                } else if (uri.startsWith("content")) {
-                    String newUri = saveViewContent(this, Uri.parse(uri), "content-intent.torrent");
-                    if (newUri != null) {
-                        //TransferManager.instance().downloadTorrent(newUri, new HandpickedTorrentDownloadDialogOnFetch(this));
-                    }
-                }
-            } else {
-                log.warn("MainActivity.onNewIntent(): Couldn't start torrent download from Intent's URI, intent.getDataString() -> null");
-                log.warn("(maybe URI is coming in another property of the intent object - #fragmentation)");
-            }
-        } catch (Throwable e) {
-            log.error("Error opening torrent from intent", e);
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -473,7 +438,6 @@ public class MainActivity extends AbstractActivity implements
         setupDrawer();
 
         refreshPlayerItem();
-        refreshMenuRemoveAdsItem();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_INITIAL_SETTINGS_COMPLETE)) {
             mainResume();
@@ -481,12 +445,8 @@ public class MainActivity extends AbstractActivity implements
             controller.startWizardActivity();
         }
 
-        checkLastSeenVersion();
         registerMainBroadcastReceiver();
         syncSlideMenu();
-
-        //uncomment to test social links dialog
-        //UIUtils.showSocialLinksDialog(this, true, null, "");
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
             checkExternalStoragePermissionsOrBindMusicService();
@@ -520,7 +480,6 @@ public class MainActivity extends AbstractActivity implements
         final DangerousPermissionsChecker writeSettingsChecker =
                 new DangerousPermissionsChecker(this, DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE);
         checkers.put(DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE, writeSettingsChecker);
-        // the permissionGrantedCallBack will be set by whoever uses this during runtime.
 
         // add more permissions checkers if needed...
         return checkers;
@@ -603,7 +562,7 @@ public class MainActivity extends AbstractActivity implements
             checker.requestPermissions();
             externalStoragePermissionsRequested = true;
         }// else if (mToken == null && checker != null && !checker.noAccess()) {
-         //   mToken = MusicUtils.bindToService(this, this);
+        //    mToken = MusicUtils.bindToService(this, this);
         //}
     }
 
@@ -677,19 +636,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    private void checkLastSeenVersion() {
-        /*
-        final String lastSeenVersion = ConfigurationManager.instance().getString(Constants.PREF_KEY_CORE_LAST_SEEN_VERSION);
-        if (lastSeenVersion != null && !lastSeenVersion.isEmpty()) {
-            //fresh install
-            ConfigurationManager.instance().setString(Constants.PREF_KEY_CORE_LAST_SEEN_VERSION, Constants.FROSTWIRE_VERSION_STRING);
-        } else if (!Constants.FROSTWIRE_VERSION_STRING.equals(lastSeenVersion)) {
-            //just updated.
-            ConfigurationManager.instance().setString(Constants.PREF_KEY_CORE_LAST_SEEN_VERSION, Constants.FROSTWIRE_VERSION_STRING);
-        }
-        */
-    }
-
     private void toggleDrawer() {
         if (drawerLayout.isDrawerOpen(leftDrawer)) {
             drawerLayout.closeDrawer(leftDrawer);
@@ -752,8 +698,6 @@ public class MainActivity extends AbstractActivity implements
         }
         if (fragment instanceof SearchFragment) {
             menuId = R.id.menu_main_search;
-        //} else if (fragment instanceof BrowsePeerFragment) {
-        //    menuId = R.id.menu_main_library;
         } else if (fragment instanceof TransfersFragment) {
             menuId = R.id.menu_main_transfers;
         }
@@ -795,20 +739,6 @@ public class MainActivity extends AbstractActivity implements
         //if (playerItem != null) {
         //    playerItem.refresh();
         //}
-    }
-
-    private void refreshMenuRemoveAdsItem() {
-        // only visible for basic or debug build
-        /*int visibility = View.GONE;
-        if (Constants.IS_GOOGLE_PLAY_DISTRIBUTION || Constants.IS_BASIC_AND_DEBUG) {
-            // if they haven't paid for ads
-            if (!Products.disabledAds(PlayStore.getInstance()) &&
-                (playerItem == null || playerItem.getVisibility() == View.GONE)) {
-                visibility = View.VISIBLE;
-            }
-        }
-        menuRemoveAdsItem.setVisibility(visibility);
-        */
     }
 
     private void setupMenuItems() {
@@ -1054,7 +984,6 @@ public class MainActivity extends AbstractActivity implements
             if (Ref.alive(activityRef)) {
                 MainActivity activity = activityRef.get();
                 activity.refreshPlayerItem();
-                activity.refreshMenuRemoveAdsItem();
                 activity.syncSlideMenu();
             }
         }

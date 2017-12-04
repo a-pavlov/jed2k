@@ -273,7 +273,7 @@ public class NodeImpl implements ReqDispatcher {
         try {
             assert tracker != null;
 
-            // that shouldn'd happen, but still
+            // that shouldn't happen, but still
             if (tracker == null) throw new JED2KException(ErrorCode.INTERNAL_ERROR);
 
             if (tracker.write(s, ep.toInetSocketAddress())) {

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply from: '../../core/dependencies.gradle'
+apply from: '../dependencies.gradle'
 
 buildscript {
     repositories {
@@ -7,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.3.0'
     }
 }
 
@@ -36,14 +37,14 @@ def manifestVersionName() {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "org.dkf.jmule"
         minSdkVersion 16
-        targetSdkVersion 22
-        versionCode 15
-        versionName "1.5"
+        targetSdkVersion 23
+        versionCode 16
+        versionName "1.6"
     }
 
     sourceSets {
@@ -59,7 +60,6 @@ android {
 
 dependencies {
     compile project(':service')
-    compile 'com.android.support:appcompat-v7:22.2.0'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'

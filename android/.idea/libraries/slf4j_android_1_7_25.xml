@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="slf4j-android-1.7.25">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-android/1.7.25/e14340a44d90c12e05b3ce154dbedf09cd8172f2/slf4j-android-1.7.25.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-android/1.7.25/e0c44598cd9e103f942c4d658e487d3893aa641/slf4j-android-1.7.25-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

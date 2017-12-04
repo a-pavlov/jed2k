@@ -18,7 +18,7 @@ import java.util.*;
 public abstract class Traversal {
     protected NodeImpl nodeImpl;
     protected KadId target;
-    List<Observer> results = new ArrayList<>();
+    protected List<Observer> results = new ArrayList<>();
 
     int invokeCount = 0;
     int branchFactor = 0;
@@ -59,7 +59,6 @@ public abstract class Traversal {
 
     public void done() {
         log.debug("[traversal] done, results size {}", results.size());
-        log.debug(toString());
         results.clear();
         nodeImpl.removeTraversalAlgorithm(this);
     }
@@ -291,27 +290,33 @@ public abstract class Traversal {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Traversal: ")
-                .append(target)
-                .append(" invoke-count ")
-                .append(invokeCount)
-                .append(" branch-factor ")
-                .append(branchFactor)
-                .append(" responses ")
-                .append(responses)
-                .append(" timeouts ")
-                .append(timeouts)
-                .append(" num targets ")
-                .append(numTargetNodes);
-        if (!results.isEmpty()) sb.append("\nresults:\n");
-        for(final Observer o: results) {
-            sb.append(o)
-                    .append(o.getFlagsStr())
-                    .append("\n");
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Traversal: ")
+                    .append(target)
+                    .append(" invoke-count ")
+                    .append(invokeCount)
+                    .append(" branch-factor ")
+                    .append(branchFactor)
+                    .append(" responses ")
+                    .append(responses)
+                    .append(" timeouts ")
+                    .append(timeouts)
+                    .append(" num targets ")
+                    .append(numTargetNodes);
+            if (!results.isEmpty()) sb.append("\nresults:\n");
+            for (final Observer o : results) {
+                sb.append(o)
+                        .append(o.getFlagsStr())
+                        .append("\n");
+            }
+
+            return sb.toString();
+        } catch(Exception e) {
+            log.error("Traversal::toString error {}", e);
         }
 
-        return sb.toString();
+        return "";
     }
 
     public KadId getTarget() {
