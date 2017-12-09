@@ -248,17 +248,19 @@ public class ED2KService extends Service {
             } finally {
 
                 try {
-                    scheduledExecutorService.shutdown();
-                    scheduledExecutorService.awaitTermination(4, TimeUnit.SECONDS);
+                    if (scheduledExecutorService != null) {
+                        scheduledExecutorService.shutdown();
+                        scheduledExecutorService.awaitTermination(4, TimeUnit.SECONDS);
 
-                    // catch all remain events and process save resume data
-                    if (session != null) {
-                        Alert a = session.popAlert();
-                        while (a != null) {
-                            if (a instanceof TransferResumeDataAlert) {
-                                saveResumeData((TransferResumeDataAlert) a);
+                        // catch all remain events and process save resume data
+                        if (session != null) {
+                            Alert a = session.popAlert();
+                            while (a != null) {
+                                if (a instanceof TransferResumeDataAlert) {
+                                    saveResumeData((TransferResumeDataAlert) a);
+                                }
+                                a = session.popAlert();
                             }
-                            a = session.popAlert();
                         }
                     }
                 } catch(InterruptedException e) {
