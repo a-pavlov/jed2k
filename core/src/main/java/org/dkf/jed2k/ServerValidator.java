@@ -5,15 +5,21 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.protocol.SearchEntry;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.lang.reflect.Type;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ServerValidator {
+
+    private static final int OPER_TIMEOUT = 30;
 
     @EqualsAndHashCode
     public static class ServerEntry {
@@ -74,6 +80,46 @@ public class ServerValidator {
 
         } catch (Exception e) {
             log.error("Error {}", e);
+        }
+    }
+
+    /**
+     * validate some host as emule server
+     * start connection analyze alerts and return report
+     * @param host
+     * @param port
+     * @param session
+     * @throws InterruptedException
+     */
+    private void validate(final String host, int port, final Session session) throws InterruptedException {
+        assert host != null;
+        assert port >= 0;
+        long startTime = System.nanoTime();
+        session.connectoTo("Validation...", host, port);
+
+        while(TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime) > OPER_TIMEOUT) {
+            Alert a = session.popAlert();
+
+            while (a != null) {
+                startTime = System.nanoTime();
+
+                if (a instanceof SearchResultAlert) {
+                    List<SearchEntry> se = ((SearchResultAlert) a).getResults();
+                } else if (a instanceof ServerMessageAlert) {
+                    log.info("[CONN] server message: " + ((ServerMessageAlert) a).msg);
+                } else if (a instanceof ServerStatusAlert) {
+                    ServerStatusAlert ssa = (ServerStatusAlert) a;
+                    log.info("[CONN] files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
+                } else if (a instanceof ServerInfoAlert) {
+                    log.info("[CONN] server info: {}", ((ServerInfoAlert) a).info);
+                } else {
+                    log.info("[CONN] unknown alert received: {}", a.toString());
+                }
+
+                a = session.popAlert();
+            }
+
+            Thread.sleep(1000*10);
         }
     }
 
