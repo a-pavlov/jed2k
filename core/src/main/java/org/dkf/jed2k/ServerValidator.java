@@ -3,6 +3,7 @@ package org.dkf.jed2k;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.sun.security.ntlm.Server;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.alert.*;
@@ -77,7 +78,11 @@ public class ServerValidator {
             final String serversExtern = (args.length > 1) ? args[1] : "";
 
             final Session session = new Session(settings);
-
+            session.start();
+            validate("emule.is74.ru", 4661, session);
+            session.abort();
+            session.join();
+            log.info("session finished");
         } catch (Exception e) {
             log.error("Error {}", e);
         }
@@ -91,27 +96,31 @@ public class ServerValidator {
      * @param session
      * @throws InterruptedException
      */
-    private void validate(final String host, int port, final Session session) throws InterruptedException {
+    private static void validate(final String host, int port, final Session session) throws InterruptedException {
         assert host != null;
         assert port >= 0;
         long startTime = System.nanoTime();
         session.connectoTo("Validation...", host, port);
 
-        while(TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime) > OPER_TIMEOUT) {
+        while(TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime) < OPER_TIMEOUT) {
             Alert a = session.popAlert();
 
             while (a != null) {
                 startTime = System.nanoTime();
 
-                if (a instanceof SearchResultAlert) {
-                    List<SearchEntry> se = ((SearchResultAlert) a).getResults();
-                } else if (a instanceof ServerMessageAlert) {
-                    log.info("[CONN] server message: " + ((ServerMessageAlert) a).msg);
+                if (a instanceof ServerConnectionAlert) {
+                    log.info("connected");
+                } else if (a instanceof ServerConectionClosed) {
+                    log.info("disconnected {}", ((ServerConectionClosed)a).code);
                 } else if (a instanceof ServerStatusAlert) {
                     ServerStatusAlert ssa = (ServerStatusAlert) a;
-                    log.info("[CONN] files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
+                    log.info("server files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
                 } else if (a instanceof ServerInfoAlert) {
-                    log.info("[CONN] server info: {}", ((ServerInfoAlert) a).info);
+                    log.info("server info: {}", ((ServerInfoAlert) a).info);
+                } else if (a instanceof ServerMessageAlert) {
+                    log.info("server message {}", ((ServerMessageAlert)a).msg);
+                } else if (a instanceof ServerAlert) {
+                    log.info("server alert received {}", ((ServerAlert)a).identifier);
                 } else {
                     log.info("[CONN] unknown alert received: {}", a.toString());
                 }
@@ -119,8 +128,11 @@ public class ServerValidator {
                 a = session.popAlert();
             }
 
+            log.info("wait alerts");
             Thread.sleep(1000*10);
         }
+
+        session.disconnectFrom();
     }
 
 }
