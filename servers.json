@@ -5,6 +5,8 @@
 		"version": "0",
 		"failures": 0,
 		"lastVerified": "10-10-2012 10:00:03",
-		"description": "some text"
+		"description": "some text",
+		"filesCount": 100,
+		"usersCount": 200
 	}
 ]
