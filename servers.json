@@ -1,8 +1,10 @@
 [{
-		"server": "xx",
-		"ip": "102.44.556.7",
+		"name": "some name",
+		"host": "102.44.556.7",
 		"port": 3945,
 		"version": "0",
+		"failures": 0,
+		"lastVerified": "10-10-2012 10:00:03",
 		"description": "some text"
 	}
 ]
