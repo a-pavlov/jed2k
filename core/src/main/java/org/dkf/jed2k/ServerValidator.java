@@ -4,30 +4,60 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.sun.security.ntlm.Server;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.exception.ErrorCode;
+import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.SearchEntry;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ServerValidator {
 
     private static final int OPER_TIMEOUT = 30;
 
-    @EqualsAndHashCode
+    @EqualsAndHashCode(exclude = {"failures", "lastVerified", "filesCount", "usersCount"})
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
     public static class ServerEntry {
-
+        public String name;
+        public String host;
+        public Integer port;
+        public Integer failures;
+        public String lastVerified;
+        public Integer filesCount;
+        public Integer usersCount;
     }
 
-    private static final Type SERVERS_LIST_TYPE = new TypeToken<List<ServerEntry>>() {
+    public static boolean isValidEntry(final ServerEntry se) {
+        return se.name != null && !se.name.isEmpty() && se.host != null && !se.host.isEmpty() && se.port != null && se.port > 0;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @ToString
+    private static class ServerStatus {
+        private int filesCount;
+        private int usersCount;
+    }
+
+    public static final Type SERVERS_LIST_TYPE = new TypeToken<List<ServerEntry>>() {
     }.getType();
 
     private static final Gson gson = new Gson();
@@ -61,25 +91,38 @@ public class ServerValidator {
                 throw new RuntimeException("Incorrect port");
             }
 
-            List<ServerEntry> servers;
+            List<ServerEntry> svlist;
 
             assert serversLocal != null;
 
             try {
                 JsonReader reader = new JsonReader(new FileReader(serversLocal));
-                servers = gson.fromJson(reader, SERVERS_LIST_TYPE); // contains the whole reviews list
+                svlist = gson.fromJson(reader, SERVERS_LIST_TYPE); // contains the whole reviews list
             } catch(FileNotFoundException e) {
                 log.debug("file not found {}", serversLocal);
-                servers = new LinkedList<>();
+                svlist = new LinkedList<>();
             }
 
-            assert servers != null;
+            assert svlist != null;
 
             final String serversExtern = (args.length > 1) ? args[1] : "";
+            if (!serversExtern.isEmpty()) {
+                try {
+                    byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/servers.json"));
+                    List<ServerEntry> svlistExtern = gson.fromJson(new String(data), SERVERS_LIST_TYPE);
+                    if (svlistExtern != null) {
+                        mergeServersLists(svlist.stream().filter(x -> isValidEntry(x)).collect(Collectors.toList()), svlist);
+                    }
+                } catch(URISyntaxException e) {
+                    log.warn("uri mailformed {}", e.getMessage());
+                } catch (IOException e) {
+                    log.warn("unable to load new servers list {}", e.getMessage());
+                }
+            }
 
             final Session session = new Session(settings);
             session.start();
-            validate("emule.is74.ru", 4661, session);
+            svlist.stream().map(x -> validate(x, session)).collect(Collectors.toList());
             session.abort();
             session.join();
             log.info("session finished");
@@ -91,16 +134,20 @@ public class ServerValidator {
     /**
      * validate some host as emule server
      * start connection analyze alerts and return report
-     * @param host
-     * @param port
      * @param session
      * @throws InterruptedException
      */
-    private static void validate(final String host, int port, final Session session) throws InterruptedException {
-        assert host != null;
-        assert port >= 0;
+    private static ServerEntry validate(final ServerEntry se, final Session session) {
+        ServerEntry res = new ServerEntry();
+        res.name = se.name;
+        res.host = se.host;
+        res.port = se.port;
+        res.failures = se.failures;
+        ServerStatus ss = new ServerStatus(-1, -1);
+
         long startTime = System.nanoTime();
-        session.connectoTo("Validation...", host, port);
+        session.connectoTo("Validation...", se.host, se.port);
+        boolean exitNow = false;
 
         while(TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime) < OPER_TIMEOUT) {
             Alert a = session.popAlert();
@@ -112,9 +159,17 @@ public class ServerValidator {
                     log.info("connected");
                 } else if (a instanceof ServerConectionClosed) {
                     log.info("disconnected {}", ((ServerConectionClosed)a).code);
+                    exitNow = true;
+                    if (!(((ServerConectionClosed)a).code.equals(ErrorCode.NO_ERROR))) {
+                        res.setFailures(res.getFailures() + 1);
+                    }
                 } else if (a instanceof ServerStatusAlert) {
                     ServerStatusAlert ssa = (ServerStatusAlert) a;
                     log.info("server files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
+                    res.setFilesCount(ssa.filesCount);
+                    res.setUsersCount(ssa.usersCount);
+                    res.setFailures(0);
+                    session.disconnectFrom();
                 } else if (a instanceof ServerInfoAlert) {
                     log.info("server info: {}", ((ServerInfoAlert) a).info);
                 } else if (a instanceof ServerMessageAlert) {
@@ -128,11 +183,30 @@ public class ServerValidator {
                 a = session.popAlert();
             }
 
+            if (exitNow) break;
+
             log.info("wait alerts");
-            Thread.sleep(1000*10);
+            try {
+                Thread.sleep(1000 * 10);
+            } catch(InterruptedException e) {
+                log.error("interrupted {}", e);
+                break;
+            }
         }
 
         session.disconnectFrom();
+        return res;
     }
 
+    public static void mergeServersLists(final List<ServerEntry> src, final List<ServerEntry> dst) {
+        Iterator<ServerEntry> itr = dst.iterator();
+        while (itr.hasNext()) {
+            ServerEntry se = itr.next();
+            if (!src.contains(se)) itr.remove();
+        }
+
+        for(final ServerEntry se: src) {
+            if (!dst.contains(se)) dst.add(se);
+        }
+    }
 }

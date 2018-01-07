@@ -1,0 +1,18 @@
+[
+  {
+    "name": "some name",
+    "host": "102.44.556.7",
+    "port": 3945
+  },
+  {
+    "name": "some name2",
+    "host": "",
+    "port": 3945,
+    "version": "0",
+    "failures": 0
+  },
+  {
+    "name": "server1",
+    "host": "1.2.3.4"
+  }
+]

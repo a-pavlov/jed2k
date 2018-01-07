@@ -1,0 +1,35 @@
+[
+  {
+    "name": "some name",
+    "host": "102.44.556.7",
+    "port": 3945,
+    "version": "0",
+    "failures": 0,
+    "lastVerified": "10-10-2012 10:00:03",
+    "description": "some text",
+    "filesCount": 0,
+    "usersCount": 0
+  },
+  {
+    "name": "some name2",
+    "host": "102.44.556.7",
+    "port": 3945,
+    "version": "0",
+    "failures": 0,
+    "lastVerified": "10-10-2012 10:00:03",
+    "description": "some text",
+    "filesCount": 0,
+    "usersCount": 0
+  },
+  {
+    "name": "server1",
+    "host": "1.2.3.4",
+    "port": 1234,
+    "version": "0",
+    "failures": 455,
+    "lastVerified": "10-10-2012 10:00:03",
+    "description": "some text",
+    "filesCount": 0,
+    "usersCount": 0
+  }
+]
