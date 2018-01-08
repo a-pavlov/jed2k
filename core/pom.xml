@@ -56,8 +56,8 @@
                     <maxmem>512m</maxmem>
                     <meminitial>256m</meminitial>
                     <encoding>UTF-8</encoding>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <debug>true</debug>
                     <debuglevel>lines,vars,source</debuglevel>
                 </configuration>
@@ -190,7 +190,6 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
-
 
     </dependencies>
 </project>

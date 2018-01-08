@@ -12,17 +12,13 @@ import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.SearchEntry;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -30,6 +26,7 @@ import java.util.stream.Collectors;
 public class ServerValidator {
 
     private static final int OPER_TIMEOUT = 30;
+    public static final SimpleDateFormat tsFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     @EqualsAndHashCode(exclude = {"failures", "lastVerified", "filesCount", "usersCount"})
     @AllArgsConstructor
@@ -43,6 +40,26 @@ public class ServerValidator {
         public String lastVerified;
         public Integer filesCount;
         public Integer usersCount;
+
+        public long getTsOffset() {
+            if (lastVerified != null) {
+                return Long.parseLong(lastVerified) + (failures!=null?failures.intValue()*2*1000*3600:0);
+            }
+
+            return 0;
+        }
+
+        public void updateStatus(final ServerStatus status) {
+            if (status.filesCount != -1 && status.usersCount != -1) {
+                filesCount = new Integer(status.filesCount);
+                usersCount = new Integer(status.usersCount);
+                failures = new Integer(0);
+            } else {
+                failures = failures!=null?failures+1:new Integer(1);
+            }
+
+            lastVerified = Long.toString(new Date().getTime());
+        }
     }
 
     public static boolean isValidEntry(final ServerEntry se) {
@@ -105,13 +122,13 @@ public class ServerValidator {
 
             assert svlist != null;
 
-            final String serversExtern = (args.length > 1) ? args[1] : "";
+            final String serversExtern = (args.length > 2) ? args[2] : "";
             if (!serversExtern.isEmpty()) {
                 try {
-                    byte[] data = IOUtils.toByteArray(new URI("https://raw.githubusercontent.com/a-pavlov/jed2k/config/servers.json"));
+                    byte[] data = IOUtils.toByteArray(new URI(serversExtern));
                     List<ServerEntry> svlistExtern = gson.fromJson(new String(data), SERVERS_LIST_TYPE);
                     if (svlistExtern != null) {
-                        mergeServersLists(svlist.stream().filter(x -> isValidEntry(x)).collect(Collectors.toList()), svlist);
+                        mergeServersLists(svlistExtern.stream().filter(x -> isValidEntry(x)).collect(Collectors.toList()), svlist);
                     }
                 } catch(URISyntaxException e) {
                     log.warn("uri mailformed {}", e.getMessage());
@@ -122,10 +139,18 @@ public class ServerValidator {
 
             final Session session = new Session(settings);
             session.start();
-            svlist.stream().map(x -> validate(x, session)).collect(Collectors.toList());
+            svlist.stream()
+                    .filter(x -> isValidEntry(x))
+                    .filter(x -> new Date().getTime() > x.getTsOffset())
+                    .forEach(x -> x.updateStatus(validate(x.getHost(), x.getPort(), session)));
+
             session.abort();
             session.join();
             log.info("session finished");
+
+            try (Writer writer = new FileWriter(serversLocal)) {
+                gson.toJson(svlist, writer);
+            }
         } catch (Exception e) {
             log.error("Error {}", e);
         }
@@ -135,18 +160,12 @@ public class ServerValidator {
      * validate some host as emule server
      * start connection analyze alerts and return report
      * @param session
-     * @throws InterruptedException
      */
-    private static ServerEntry validate(final ServerEntry se, final Session session) {
-        ServerEntry res = new ServerEntry();
-        res.name = se.name;
-        res.host = se.host;
-        res.port = se.port;
-        res.failures = se.failures;
+    private static ServerStatus validate(final String host, final int port, final Session session) {
         ServerStatus ss = new ServerStatus(-1, -1);
 
         long startTime = System.nanoTime();
-        session.connectoTo("Validation...", se.host, se.port);
+        session.connectoTo("Validation...", host, port);
         boolean exitNow = false;
 
         while(TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime) < OPER_TIMEOUT) {
@@ -161,14 +180,13 @@ public class ServerValidator {
                     log.info("disconnected {}", ((ServerConectionClosed)a).code);
                     exitNow = true;
                     if (!(((ServerConectionClosed)a).code.equals(ErrorCode.NO_ERROR))) {
-                        res.setFailures(res.getFailures() + 1);
+                        //res.setFailures(res.getFailures() + 1);
                     }
                 } else if (a instanceof ServerStatusAlert) {
                     ServerStatusAlert ssa = (ServerStatusAlert) a;
                     log.info("server files count: {} users count: {}", ssa.filesCount, ssa.usersCount);
-                    res.setFilesCount(ssa.filesCount);
-                    res.setUsersCount(ssa.usersCount);
-                    res.setFailures(0);
+                    ss.setFilesCount(ssa.filesCount);
+                    ss.setUsersCount(ssa.usersCount);
                     session.disconnectFrom();
                 } else if (a instanceof ServerInfoAlert) {
                     log.info("server info: {}", ((ServerInfoAlert) a).info);
@@ -195,7 +213,7 @@ public class ServerValidator {
         }
 
         session.disconnectFrom();
-        return res;
+        return ss;
     }
 
     public static void mergeServersLists(final List<ServerEntry> src, final List<ServerEntry> dst) {

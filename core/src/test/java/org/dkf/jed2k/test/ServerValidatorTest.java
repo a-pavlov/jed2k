@@ -2,12 +2,14 @@ package org.dkf.jed2k.test;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import com.sun.security.ntlm.Server;
 import org.dkf.jed2k.ServerValidator;
 import org.junit.Test;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +17,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.dkf.jed2k.ServerValidator.SERVERS_LIST_TYPE;
 import static org.dkf.jed2k.ServerValidator.isValidEntry;
+import static org.dkf.jed2k.ServerValidator.tsFormat;
 import static org.junit.Assert.assertFalse;
 
 public class ServerValidatorTest {
@@ -108,5 +111,18 @@ public class ServerValidatorTest {
         assertTrue(isValidEntry(svlist.get(0)));
         assertFalse(isValidEntry(svlist.get(1)));
         assertFalse(isValidEntry(svlist.get(2)));
+    }
+
+    @Test
+    public void testServerEntryTimestamp() {
+        ServerValidator.ServerEntry se = new ServerValidator.ServerEntry();
+        se.setFailures(10);
+        assertEquals(0, se.getTsOffset());
+        Date dt = new Date();
+        se.setLastVerified(Long.toString(dt.getTime()));
+        se.setFailures(0);
+        assertEquals(dt, new Date(se.getTsOffset()));
+        se.setFailures(1);
+        assertTrue(dt.compareTo(new Date(se.getTsOffset())) == -1);
     }
 }
