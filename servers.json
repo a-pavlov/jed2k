@@ -1,12 +1,16 @@
 [{
-		"name": "some name",
-		"host": "102.44.556.7",
-		"port": 3945,
-		"version": "0",
-		"failures": 0,
-		"lastVerified": "10-10-2012 10:00:03",
-		"description": "some text",
-		"filesCount": 100,
-		"usersCount": 200
-	}
+		"name": "is74",
+		"host": "emule.is74.ru",
+		"port": 4661
+},
+ {
+ 	"name": "TV Underground",
+	 "host": "176.103.48.36",
+	 "port": "4184"
+ },
+ {
+ 	"name": "TV Underground incorrect",
+	 "host": "176.103.48.35",
+	 "port": "414"
+ }
 ]
