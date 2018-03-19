@@ -42,8 +42,8 @@ android {
         applicationId "org.dkf.jmule"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 16
-        versionName "1.6"
+        versionCode 17
+        versionName "1.7"
     }
 
     sourceSets {
