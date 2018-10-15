@@ -2,27 +2,37 @@ apply plugin: 'com.android.library'
 apply from: '../../core/dependencies.gradle'
 apply from: '../dependencies.gradle'
 
+
 buildscript {
+
     repositories {
+        google()
         jcenter()
     }
-
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:3.2.0'
     }
 }
 
 repositories {
+    google()
     mavenCentral()
+    jcenter()
+
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+
+    maven { url "https://s3.amazonaws.com/moat-sdk-builds" }
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 27
+    buildToolsVersion "28.0.2"
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 22
+        minSdkVersion 19
+        targetSdkVersion 26
         versionCode 12
         versionName "1.2"
 
@@ -64,9 +74,9 @@ android {
 }
 
 dependencies {
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'org.mockito:mockito-core:2.+'
+    androidTestImplementation 'com.android.support.test:runner:0.5'
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation 'org.mockito:mockito-core:2.+'
     // Set this dependency to use JUnit 4 rules
-    androidTestCompile 'com.android.support.test:rules:0.4'
+    androidTestImplementation 'com.android.support.test:rules:0.4'
 }

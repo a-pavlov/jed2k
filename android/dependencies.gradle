@@ -1,5 +1,6 @@
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
-    provided "org.projectlombok:lombok:1.12.6"
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
+    compileOnly "org.projectlombok:lombok:1.16.6"
+    annotationProcessor "org.projectlombok:lombok:1.16.6"
 }
