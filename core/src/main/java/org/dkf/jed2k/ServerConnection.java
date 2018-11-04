@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;
@@ -37,21 +38,26 @@ public class ServerConnection extends Connection {
      */
     private final String identifier;
 
-    private ServerConnection(
-            final String id,
-            ByteBuffer incomingBuffer,
-            ByteBuffer outgoingBuffer,
-            PacketCombiner packetCombiner,
-            Session session) throws IOException {
+    private final InetSocketAddress address;
+
+    private ServerConnection(String identifier
+            , InetSocketAddress address
+            , ByteBuffer incomingBuffer
+            , ByteBuffer outgoingBuffer
+            , PacketCombiner packetCombiner
+            , Session session) throws IOException {
         super(incomingBuffer, outgoingBuffer, packetCombiner, session);
-        identifier = id;
+        this.identifier = identifier;
+        this.address = address;
     }
 
-    public static ServerConnection makeConnection(final String id, Session ses) throws JED2KException {
+    public static ServerConnection makeConnection(String identifier
+            , InetSocketAddress address
+            , Session ses) throws JED2KException {
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(1024);
             ByteBuffer obuff = ByteBuffer.allocate(1048);
-            return  new ServerConnection(id, ibuff, obuff, new PacketCombiner(), ses);
+            return  new ServerConnection(identifier, address, ibuff, obuff, new PacketCombiner(), ses);
         } catch(ClosedChannelException e) {
             throw new JED2KException(ErrorCode.CHANNEL_CLOSED);
         } catch(IOException e) {
@@ -92,6 +98,16 @@ public class ServerConnection extends Connection {
                 , versionClient);
 
         return login;
+    }
+
+    public void connect() throws JED2KException {
+        log.debug("connect to server {}", new Endpoint(address));
+        super.connect(address);
+    }
+
+    @Override
+    public void connect(InetSocketAddress address) throws JED2KException {
+        throw new RuntimeException("generic connect call from server connection");
     }
 
     @Override
@@ -176,6 +192,7 @@ public class ServerConnection extends Connection {
         session.auxPort = 0;
         session.serverConection = null;
         handshakeCompleted = false;
+        session.onServerConnectionClosed(this, ec);
         session.pushAlert(new ServerConectionClosed(identifier, ec));
     }
 
@@ -340,6 +357,10 @@ public class ServerConnection extends Connection {
 
     public final String getIdentifier() {
         return identifier;
+    }
+
+    public final InetSocketAddress getAddress() {
+        return address;
     }
 
     public boolean isHandshakeCompleted() { return handshakeCompleted; }
