@@ -28,7 +28,7 @@ import static org.dkf.jed2k.protocol.tag.Tag.tag;
 
 public class ServerConnection extends Connection {
     private static Logger log = LoggerFactory.getLogger(ServerConnection.class);
-    private long lastPingTime = 0;
+    private long lastPingTime = Time.currentTime();
     private boolean handshakeCompleted = false;
 
     /**
@@ -305,13 +305,20 @@ public class ServerConnection extends Connection {
 
     @Override
     void secondTick(long currentSessionTime) {
-
         super.secondTick(currentSessionTime);
-        // ping server when feature enabled and timeout occured
-        if (session.settings.serverPingTimeout > 0 &&
-                currentSessionTime - lastPingTime > session.settings.serverPingTimeout*1000) {
-            log.debug("Send ping message to server");
-            write(new GetList());
+
+        if (session.settings.serverPingTimeout > 0) {
+            // server ping enabled + server connection timeout verification
+            long currentTime = Time.currentTime();
+
+            if (getMillisecondSinceLastReceive() > session.settings.serverPingTimeout*1.5*1000) {
+                log.info("timeout on server response, close connection");
+                close(ErrorCode.CONNECTION_TIMEOUT);
+            } else if (currentTime - lastPingTime > session.settings.serverPingTimeout*1000) {
+                log.debug("Send ping message to server");
+                lastPingTime = currentTime;
+                write(new GetList());
+            }
         }
     }
 
