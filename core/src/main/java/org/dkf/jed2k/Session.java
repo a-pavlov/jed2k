@@ -65,7 +65,7 @@ public class Session extends Thread {
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
 
-    private final ServerConnectionPolicy serverConnectionPolicy = new ServerConnectionPolicy(2, 5);
+    private final ServerConnectionPolicy serverConnectionPolicy = new ServerConnectionPolicy(5, 5);
 
     /**
      * async disk io futures
@@ -347,11 +347,19 @@ public class Session extends Thread {
         // second tick on server connection or re-connect to server
         if (serverConection != null) {
             serverConection.secondTick(tickIntervalMS);
-        } else {
+        } else if (settings.reconnectoToServer) {
             Pair<String, InetSocketAddress> serverConnectionCandidate = serverConnectionPolicy.getConnectCandidate(currentSessionTime);
 
             if (serverConnectionCandidate != null) {
-                connectoTo(serverConnectionCandidate.getLeft(), serverConnectionCandidate.getRight());
+                try {
+                    serverConection = ServerConnection.makeConnection(serverConnectionCandidate.getLeft()
+                            , serverConnectionCandidate.getRight()
+                            , Session.this);
+                    serverConection.connect();
+                } catch(JED2KException e) {
+                    // emit alert - connect to server failed
+                    log.error("server connection failed {}", e);
+                }
             }
         }
 
@@ -493,6 +501,8 @@ public class Session extends Thread {
         commands.add(new Runnable() {
             @Override
             public void run() {
+                serverConnectionPolicy.removeConnectCandidates();
+
                 if (serverConection != null) {
                     serverConection.close(ErrorCode.NO_ERROR);
                 }
@@ -515,6 +525,8 @@ public class Session extends Thread {
             @Override
             public void run() {
                 try {
+                    serverConnectionPolicy.removeConnectCandidates();
+
                     final InetSocketAddress address = new InetSocketAddress(host, port);
 
                     if (serverConection != null) {
@@ -537,10 +549,14 @@ public class Session extends Thread {
         });
     }
 
+    /**
+     * disconnect from last connected server if connection exists
+     */
     public void disconnectFrom() {
         commands.add(new Runnable() {
             @Override
             public void run() {
+                serverConnectionPolicy.removeConnectCandidates();
                 if (serverConection != null) {
                     serverConection.close(ErrorCode.NO_ERROR);
                 }
@@ -555,12 +571,11 @@ public class Session extends Thread {
 
 
     protected void onServerConnectionClosed(ServerConnection sc, BaseErrorCode ec) {
-
-        //if (ec.getCode() == ErrorCode.CONNECTION_TIMEOUT.getCode()) {
+        if (settings.reconnectoToServer && ec.getCode() != ErrorCode.NO_ERROR.getCode()) {
             serverConnectionPolicy.setServerConnectionFailed(serverConection.getIdentifier()
                     , serverConection.getAddress()
                     , Time.currentTime());
-        //}
+        }
 
         serverConection = null;
     }

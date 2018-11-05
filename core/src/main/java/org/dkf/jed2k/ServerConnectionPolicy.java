@@ -30,7 +30,7 @@ public class ServerConnectionPolicy {
         nextConnectTime = (iteration >= maxReconnects)?-1:currentSessionTime + iteration*reconnectSecondsTimeout*1000;
     }
 
-    public void clear() {
+    public void removeConnectCandidates() {
         iteration = MAX_RETRY_COUNT;
         identifier = null;
         address = null;

@@ -139,6 +139,7 @@ public class Conn {
         startSettings.compressionVersion = compression?1:0;
         startSettings.serverPingTimeout = 20;
         startSettings.listenPort = GLOBAL_PORT;
+        startSettings.reconnectoToServer = true;
 
         LinkedList<Endpoint> systemPeers = new LinkedList<Endpoint>();
         String sp = System.getProperty("session.peers");

@@ -24,7 +24,7 @@ public class ServerConnectionPolicyTest {
         assertEquals(Pair.make("123", new InetSocketAddress("192.168.0.9", 1223)), cc2);
         scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.0.9", 1223), 0);
         assertNull(scp.getConnectCandidate(4000));
-        scp.clear();
+        scp.removeConnectCandidates();
         assertNull(scp.getConnectCandidate(2999));
         scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.0.9", 1223), 0);
         assertNotNull(scp.getConnectCandidate(1000 + 1));
