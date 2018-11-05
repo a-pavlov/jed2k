@@ -18,7 +18,7 @@ public class ServerConnectionPolicy {
         this.maxReconnects = maxReconnects;
     }
 
-    public void setServerConnection(String identifier, InetSocketAddress address, long currentSessionTime) {
+    public void setServerConnectionFailed(String identifier, InetSocketAddress address, long currentSessionTime) {
         if (this.identifier == null || !this.identifier.equals(identifier)) {
             iteration = 0;
             this.identifier = identifier;
