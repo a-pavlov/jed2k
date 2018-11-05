@@ -190,7 +190,6 @@ public class ServerConnection extends Connection {
         session.clientId = 0;
         session.tcpFlags = 0;
         session.auxPort = 0;
-        session.serverConection = null;
         handshakeCompleted = false;
         session.onServerConnectionClosed(this, ec);
         session.pushAlert(new ServerConectionClosed(identifier, ec));

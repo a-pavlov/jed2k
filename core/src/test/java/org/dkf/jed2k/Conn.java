@@ -256,6 +256,9 @@ public class Conn {
             if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
                 s.connectoTo("server", parts[1], Integer.parseInt((parts.length > 2)?parts[2]:"4661"));
             }
+            else if (parts[0].equals("disconnect")) {
+                s.disconnectFrom();
+            }
             else if (parts[0].compareTo("search2") == 0) {
                 try {
                     log.info("search request: game AND thrones");

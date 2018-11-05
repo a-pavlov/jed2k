@@ -65,6 +65,8 @@ public class Session extends Thread {
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
 
+    private final ServerConnectionPolicy serverConnectionPolicy = new ServerConnectionPolicy(2, 5);
+
     /**
      * async disk io futures
      */
@@ -342,8 +344,16 @@ public class Session extends Thread {
             itr.next().getValue().secondTick(accumulator, tickIntervalMS);
         }
 
-        // second tick on server connection
-        if (serverConection != null) serverConection.secondTick(tickIntervalMS);
+        // second tick on server connection or re-connect to server
+        if (serverConection != null) {
+            serverConection.secondTick(tickIntervalMS);
+        } else {
+            Pair<String, InetSocketAddress> serverConnectionCandidate = serverConnectionPolicy.getConnectCandidate(currentSessionTime);
+
+            if (serverConnectionCandidate != null) {
+                connectoTo(serverConnectionCandidate.getLeft(), serverConnectionCandidate.getRight());
+            }
+        }
 
         processDiskTasks();
 
@@ -546,9 +556,11 @@ public class Session extends Thread {
 
     protected void onServerConnectionClosed(ServerConnection sc, BaseErrorCode ec) {
 
-        if (ec.getCode() == ErrorCode.CONNECTION_TIMEOUT.getCode()) {
-
-        }
+        //if (ec.getCode() == ErrorCode.CONNECTION_TIMEOUT.getCode()) {
+            serverConnectionPolicy.setServerConnectionFailed(serverConection.getIdentifier()
+                    , serverConection.getAddress()
+                    , Time.currentTime());
+        //}
 
         serverConection = null;
     }
