@@ -20,7 +20,6 @@ public class ServerConnectionPolicyTest {
         assertEquals(Pair.make("123", new InetSocketAddress("192.168.0.9", 1223)), cc);
         scp.setServerConnection("123", new InetSocketAddress("192.168.0.9", 1223), 0);
         assertNull(scp.getConnectCandidate(1000));
-        assertNull(scp.getConnectCandidate(1999));
         Pair<String, InetSocketAddress> cc2 = scp.getConnectCandidate(2000 + 1);
         assertEquals(Pair.make("123", new InetSocketAddress("192.168.0.9", 1223)), cc2);
         scp.setServerConnection("123", new InetSocketAddress("192.168.0.9", 1223), 0);
