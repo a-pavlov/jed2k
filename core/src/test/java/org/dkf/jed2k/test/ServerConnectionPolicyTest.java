@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class ServerConnectionPolicyTest {
 
     @Test
-    public void testServerConenctionPolicyTrivial() {
+    public void testServerConenectionPolicyTrivial() {
         ServerConnectionPolicy scp = new ServerConnectionPolicy(1, 2);
         assertNull(scp.getConnectCandidate(1));
         scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.0.9", 1223), 4);
@@ -28,5 +28,21 @@ public class ServerConnectionPolicyTest {
         assertNull(scp.getConnectCandidate(2999));
         scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.0.9", 1223), 0);
         assertNotNull(scp.getConnectCandidate(1000 + 1));
+    }
+
+    @Test
+    public void testServerConnectionPolicyMultipleServers() {
+        ServerConnectionPolicy scp = new ServerConnectionPolicy(1, 2);
+        scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.1.1", 1111), 0);
+        assertEquals(Pair.make("123", new InetSocketAddress("192.168.1.1", 1111)), scp.getConnectCandidate(1));
+        scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.1.1", 1111), 1);
+        assertNull(scp.getConnectCandidate(100));
+        scp.setServerConnectionFailed("124", new InetSocketAddress("192.168.1.2", 1111), 100);
+        assertEquals(Pair.make("124", new InetSocketAddress("192.168.1.2", 1111)), scp.getConnectCandidate(101));
+        scp.setServerConnectionFailed("124", new InetSocketAddress("192.168.1.2", 1111), 101);
+        assertNull(scp.getConnectCandidate(1000));
+        assertEquals(Pair.make("124", new InetSocketAddress("192.168.1.2", 1111)), scp.getConnectCandidate(1102));
+        scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.1.1", 1111), 0);
+        assertEquals(Pair.make("123", new InetSocketAddress("192.168.1.1", 1111)), scp.getConnectCandidate(101));
     }
 }
