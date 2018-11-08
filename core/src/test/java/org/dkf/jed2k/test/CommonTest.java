@@ -1,10 +1,12 @@
 package org.dkf.jed2k.test;
 
-import lombok.extern.slf4j.Slf4j;
+
 import org.dkf.jed2k.Constants;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.internal.AssumptionViolatedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -13,8 +15,9 @@ import java.util.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-@Slf4j
 public class CommonTest {
+    static Logger log = LoggerFactory.getLogger(CommonTest.class);
+
     private static byte[] data = new byte[(int)Constants.PIECE_SIZE];
     private static ByteBuffer dataBuffer = ByteBuffer.wrap(data);
 

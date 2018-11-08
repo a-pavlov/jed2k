@@ -1,8 +1,5 @@
 package org.dkf.jed2k.test;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.Pair;
@@ -12,6 +9,8 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.util.HexDump;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -22,8 +21,9 @@ import static junit.framework.Assert.*;
 import static org.dkf.jed2k.Utils.*;
 
 
-@Slf4j
 public class UtilsTest {
+
+    static Logger log = LoggerFactory.getLogger(UtilsTest.class);
 
     @Test
     public void testIpAddressConversion() throws UnknownHostException {
@@ -150,8 +150,6 @@ public class UtilsTest {
         assertFalse(Utils.isBit(value, 1));
     }
 
-    @Data
-    @EqualsAndHashCode
     private static class Stub {
 
         public Stub(int f, int s) {
@@ -159,8 +157,14 @@ public class UtilsTest {
             second = s;
         }
 
-        private int first;
-        private int second;
+        public int first;
+        public int second;
+
+        @Override
+        public boolean equals(Object o) {
+            Stub s = (Stub)o;
+            return (first == s.first) && (second == s.second);
+        }
     }
 
     private static class StubCheck implements Checker<Stub> {
@@ -172,13 +176,12 @@ public class UtilsTest {
 
         @Override
         public boolean check(Stub stub) {
-            return stub.getFirst() == firstTarget;
+            return stub.first == firstTarget;
         }
     }
 
-    @Data
     private static class Node {
-        private boolean pinged;
+        public boolean pinged;
         public Node(boolean pinged) {
             this.pinged = pinged;
         }
@@ -208,7 +211,7 @@ public class UtilsTest {
         assertEquals(2, Utils.indexOf(nodes, new Checker<Node>() {
             @Override
             public boolean check(Node node) {
-                return !node.isPinged();
+                return !node.pinged;
             }
         }));
     }

@@ -1,6 +1,6 @@
 package org.dkf.jed2k.protocol.test;
 
-import lombok.extern.slf4j.Slf4j;
+
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.PacketHeader;
@@ -11,6 +11,8 @@ import org.dkf.jed2k.protocol.server.LoginRequest;
 import org.dkf.jed2k.protocol.server.Status;
 import org.dkf.jed2k.protocol.tag.Tag;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,8 +24,10 @@ import static junit.framework.Assert.assertTrue;
 import static org.dkf.jed2k.protocol.tag.Tag.tag;
 import static org.junit.Assert.assertFalse;
 
-@Slf4j
+
 public class PacketCombinerTest {
+
+    static Logger log = LoggerFactory.getLogger(PacketCombinerTest.class);
 
     // packet 1
     private static LoginRequest login = new LoginRequest();
