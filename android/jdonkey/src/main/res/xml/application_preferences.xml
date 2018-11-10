@@ -68,6 +68,11 @@
             android:enabled="true"/>
 
         <CheckBoxPreference
+                android:key="jmule.prefs.reconnect_to_server"
+                android:summary="@string/reconnect_to_server_summary"
+                android:title="@string/reconnect_to_server" />
+
+        <CheckBoxPreference
             android:key="jmule.prefs.show_servers_messages"
             android:summary="@string/show_server_messages_summary"
             android:title="@string/show_server_messages" />
