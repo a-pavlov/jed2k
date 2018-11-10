@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 apply from: '../../core/dependencies.gradle'
 apply from: '../dependencies.gradle'
 
-
 buildscript {
 
     repositories {

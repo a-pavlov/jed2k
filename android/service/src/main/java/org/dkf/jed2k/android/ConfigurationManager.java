@@ -253,6 +253,10 @@ public class ConfigurationManager {
         return getBoolean(Constants.PREF_KEY_CONN_SERVER_ON_START);
     }
 
+    public boolean getReconnectoToServerOnConnectionClosed() {
+        return getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER);
+    }
+
     public void setLastServerConnection(final String id, final String host, int port) {
         setString(Constants.PREF_KEY_SERVER_ID, id);
         setString(Constants.PREF_KEY_SERVER_HOST, host);
