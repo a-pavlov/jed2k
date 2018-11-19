@@ -1,11 +1,13 @@
 package org.dkf.jed2k.test.kad;
 
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,8 +21,9 @@ import static junit.framework.Assert.assertTrue;
 /**
  * Created by inkpot on 20.12.2016.
  */
-@Slf4j
+
 public class DownloadNodesTest {
+    static Logger log = LoggerFactory.getLogger(DownloadNodesTest.class);
 
     private String[] links = {"http://server-met.emulefuture.de/download.php?file=nodes.dat"};
 

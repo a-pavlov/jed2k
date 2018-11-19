@@ -1,6 +1,5 @@
 package org.dkf.jed2k.test.kad;
 
-import lombok.Data;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.kad.Timed;
 import org.dkf.jed2k.kad.traversal.TimedLinkedHashMap;
@@ -18,10 +17,9 @@ import static org.junit.Assert.assertFalse;
  */
 public class TimedLinkedHashMapTest {
 
-    @Data
     private static class TestItem implements Timed {
-        private long createTime;
-        private String value;
+        public long createTime;
+        public String value;
 
         public TestItem(long createTime, final String value) {
             this.createTime = createTime;
@@ -59,7 +57,7 @@ public class TimedLinkedHashMapTest {
         Time.updateCachedTime();
         // access to libed2k, put new element and remove invalid
         TestItem item = order.get(new KadId(Hash.LIBED2K));
-        item.setCreateTime(Time.currentTime());
+        item.createTime = Time.currentTime();
         order.put(new KadId(Hash.random(false)), new TestItem(Time.currentTime() + Time.seconds(1) + 60, "random 2"));
         assertEquals(4, order.values().size());
         assertTrue(order.containsKey(new KadId(Hash.LIBED2K)));
@@ -68,7 +66,7 @@ public class TimedLinkedHashMapTest {
         String template[] = {"terminal", "random 1", "libed2k", "random 2"};
         int i = 0;
         for(final TestItem ti: order.values()) {
-            assertEquals(template[i++], ti.getValue());
+            assertEquals(template[i++], ti.value);
         }
     }
 
