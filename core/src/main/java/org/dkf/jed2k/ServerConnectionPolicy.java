@@ -3,19 +3,19 @@ package org.dkf.jed2k;
 import java.net.InetSocketAddress;
 
 public class ServerConnectionPolicy {
-    private static final int MAX_RETRY_COUNT = 100;
     private final int reconnectSecondsTimeout;
     private final int maxReconnects;
-    private int iteration   = MAX_RETRY_COUNT;
+
+    private int iteration;
     private String identifier;
     private InetSocketAddress address;
     private long nextConnectTime = -1;
 
     public ServerConnectionPolicy(int reconnectSecondsTimeout, int maxReconnects) {
         assert reconnectSecondsTimeout >= 0;
-        assert maxReconnects < MAX_RETRY_COUNT;
         this.reconnectSecondsTimeout = reconnectSecondsTimeout;
         this.maxReconnects = maxReconnects;
+        removeConnectCandidates();
     }
 
     public void setServerConnectionFailed(String identifier, InetSocketAddress address, long currentSessionTime) {
@@ -29,11 +29,19 @@ public class ServerConnectionPolicy {
             iteration++;
         }
 
-        nextConnectTime = (iteration >= maxReconnects)?-1:currentSessionTime + iteration*reconnectSecondsTimeout*1000;
+        nextConnectTime = (hasCandidate() && hasIterations())?currentSessionTime + iteration*reconnectSecondsTimeout*1000:-1;
+    }
+
+    public boolean hasCandidate() {
+        return identifier != null && address != null;
+    }
+
+    public boolean hasIterations() {
+        return iteration < maxReconnects;
     }
 
     public void removeConnectCandidates() {
-        iteration = MAX_RETRY_COUNT;
+        iteration = maxReconnects;
         identifier = null;
         address = null;
         nextConnectTime = -1;
