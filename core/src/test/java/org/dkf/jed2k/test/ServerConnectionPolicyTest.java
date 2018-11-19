@@ -45,4 +45,18 @@ public class ServerConnectionPolicyTest {
         scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.1.1", 1111), 0);
         assertEquals(Pair.make("123", new InetSocketAddress("192.168.1.1", 1111)), scp.getConnectCandidate(101));
     }
+
+    @Test
+    public void testServerConnectionPolicyRemovedCandidates() {
+        ServerConnectionPolicy scp = new ServerConnectionPolicy(1, 12);
+        scp.setServerConnectionFailed("123", new InetSocketAddress("192.168.1.1", 1111), 0);
+        assertEquals(Pair.make("123", new InetSocketAddress("192.168.1.1", 1111)), scp.getConnectCandidate(1));
+        scp.removeConnectCandidates();
+        assertNull(scp.getConnectCandidate(12));
+        scp.setServerConnectionFailed("222", new InetSocketAddress("192.168.2.2", 2222), 10);
+        assertEquals(Pair.make("222", new InetSocketAddress("192.168.2.2", 2222)), scp.getConnectCandidate(20));
+        assertEquals(Pair.make("222", new InetSocketAddress("192.168.2.2", 2222)), scp.getConnectCandidate(11));
+        scp.removeConnectCandidates();
+        assertNull(scp.getConnectCandidate(20));
+    }
 }

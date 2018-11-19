@@ -19,6 +19,8 @@ public class ServerConnectionPolicy {
     }
 
     public void setServerConnectionFailed(String identifier, InetSocketAddress address, long currentSessionTime) {
+        assert identifier != null;
+        assert address != null;
         if (this.identifier == null || !this.identifier.equals(identifier)) {
             iteration = 0;
             this.identifier = identifier;
@@ -34,9 +36,16 @@ public class ServerConnectionPolicy {
         iteration = MAX_RETRY_COUNT;
         identifier = null;
         address = null;
+        nextConnectTime = -1;
     }
 
     public Pair<String, InetSocketAddress> getConnectCandidate(long currentSessionTime) {
-        return (nextConnectTime != -1 && nextConnectTime < currentSessionTime)?Pair.make(identifier, address):null;
+        if (nextConnectTime != -1 && nextConnectTime < currentSessionTime) {
+            assert identifier != null;
+            assert address != null;
+            return Pair.make(identifier, address);
+        }
+
+        return null;
     }
 }

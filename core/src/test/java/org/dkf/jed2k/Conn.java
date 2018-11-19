@@ -137,7 +137,7 @@ public class Conn {
         startSettings.maxConnectionsPerSecond = 10;
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
-        startSettings.serverPingTimeout = 20;
+        startSettings.serverPingTimeout = 60;
         startSettings.listenPort = GLOBAL_PORT;
         startSettings.reconnectoToServer = true;
 
