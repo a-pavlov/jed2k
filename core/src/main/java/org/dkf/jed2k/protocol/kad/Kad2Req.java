@@ -1,8 +1,5 @@
 package org.dkf.jed2k.protocol.kad;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.ReqDispatcher;
@@ -15,9 +12,6 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 21.11.2016.
  */
-@Getter
-@Setter
-@ToString
 public class Kad2Req implements Serializable, KadDispatchable {
     private byte searchType;
     private KadId target = new KadId();
@@ -48,5 +42,33 @@ public class Kad2Req implements Serializable, KadDispatchable {
     @Override
     public void dispatch(ReqDispatcher dispatcher, final InetSocketAddress address) {
         dispatcher.process(this, address);
+    }
+
+    public byte getSearchType() {
+        return this.searchType;
+    }
+
+    public KadId getTarget() {
+        return this.target;
+    }
+
+    public KadId getReceiver() {
+        return this.receiver;
+    }
+
+    public void setSearchType(byte searchType) {
+        this.searchType = searchType;
+    }
+
+    public void setTarget(KadId target) {
+        this.target = target;
+    }
+
+    public void setReceiver(KadId receiver) {
+        this.receiver = receiver;
+    }
+
+    public String toString() {
+        return "Kad2Req(searchType=" + this.getSearchType() + ", target=" + this.getTarget() + ", receiver=" + this.getReceiver() + ")";
     }
 }

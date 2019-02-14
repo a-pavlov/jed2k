@@ -1,15 +1,11 @@
 package org.dkf.jed2k;
 
-import lombok.Data;
-import lombok.ToString;
 import org.dkf.jed2k.protocol.Endpoint;
 
 /**
  * Created by inkpot on 04.07.2016.
  * information about peer
  */
-@Data
-@ToString
 public class Peer implements Comparable<Peer> {
     private long    lastConnected   = 0;
     private long    nextConnection  = 0;
@@ -53,5 +49,61 @@ public class Peer implements Comparable<Peer> {
 
     boolean hasConnection() {
         return connection != null;
+    }
+
+    public long getLastConnected() {
+        return this.lastConnected;
+    }
+
+    public long getNextConnection() {
+        return this.nextConnection;
+    }
+
+    public int getFailCount() {
+        return this.failCount;
+    }
+
+    public boolean isConnectable() {
+        return this.connectable;
+    }
+
+    public int getSourceFlag() {
+        return this.sourceFlag;
+    }
+
+    public PeerConnection getConnection() {
+        return this.connection;
+    }
+
+    public Endpoint getEndpoint() {
+        return this.endpoint;
+    }
+
+    public void setLastConnected(long lastConnected) {
+        this.lastConnected = lastConnected;
+    }
+
+    public void setNextConnection(long nextConnection) {
+        this.nextConnection = nextConnection;
+    }
+
+    public void setFailCount(int failCount) {
+        this.failCount = failCount;
+    }
+
+    public void setConnectable(boolean connectable) {
+        this.connectable = connectable;
+    }
+
+    public void setSourceFlag(int sourceFlag) {
+        this.sourceFlag = sourceFlag;
+    }
+
+    public void setConnection(PeerConnection connection) {
+        this.connection = connection;
+    }
+
+    public String toString() {
+        return "Peer(lastConnected=" + this.getLastConnected() + ", nextConnection=" + this.getNextConnection() + ", failCount=" + this.getFailCount() + ", connectable=" + this.isConnectable() + ", sourceFlag=" + this.getSourceFlag() + ", connection=" + this.getConnection() + ", endpoint=" + this.getEndpoint() + ")";
     }
 }

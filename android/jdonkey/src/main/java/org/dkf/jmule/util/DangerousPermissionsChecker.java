@@ -27,10 +27,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
+import org.slf4j.Logger;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -39,8 +39,9 @@ import java.lang.reflect.Method;
  * @author gubatron
  * @author aldenml
  */
-@Slf4j
 public final class DangerousPermissionsChecker implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(DangerousPermissionsChecker.class);
 
     public interface OnPermissionsGrantedCallback {
         void onPermissionsGranted();

@@ -1,11 +1,6 @@
 package org.dkf.jed2k;
 
-import lombok.Data;
-import lombok.ToString;
-
 // C++ like pair template
-@ToString(exclude={"cleft", "cright"})
-@Data
 public class Pair<L,R> implements Comparable<Pair<L,R>> {
     public final L left;
     public final R right;
@@ -59,4 +54,31 @@ public class Pair<L,R> implements Comparable<Pair<L,R>> {
         return (left != null?left.hashCode():0) + ((right !=null)?right.hashCode():0);
     }
 
+    public L getLeft() {
+        return this.left;
+    }
+
+    public R getRight() {
+        return this.right;
+    }
+
+    public boolean isCleft() {
+        return this.cleft;
+    }
+
+    public boolean isCright() {
+        return this.cright;
+    }
+
+    public void setCleft(boolean cleft) {
+        this.cleft = cleft;
+    }
+
+    public void setCright(boolean cright) {
+        this.cright = cright;
+    }
+
+    public String toString() {
+        return "Pair(left=" + this.getLeft() + ", right=" + this.getRight() + ")";
+    }
 }

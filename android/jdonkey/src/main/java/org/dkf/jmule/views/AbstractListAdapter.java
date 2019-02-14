@@ -29,8 +29,8 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jmule.R;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -43,8 +43,8 @@ import java.util.*;
  * @author gubatron
  * @author aldenml
  */
-@Slf4j
 public abstract class AbstractListAdapter<T> extends BaseAdapter implements Filterable {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(AbstractListAdapter.class);
     private final Context context;
     private final int viewItemId;
 

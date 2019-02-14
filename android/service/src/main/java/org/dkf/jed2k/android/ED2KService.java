@@ -17,7 +17,6 @@ import android.support.v4.provider.DocumentFile;
 import android.widget.RemoteViews;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.*;
 import org.dkf.jed2k.alert.*;
@@ -34,6 +33,7 @@ import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -49,7 +49,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Slf4j
 public class ED2KService extends Service {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
 
@@ -60,6 +59,7 @@ public class ED2KService extends Service {
     private static final String GITHUB_CFG = "https://raw.githubusercontent.com/a-pavlov/jed2k/config/config.json";
 
     private final static long[] VENEZUELAN_VIBE = buildVenezuelanVibe();
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(ED2KService.class);
 
     private Binder binder;
 

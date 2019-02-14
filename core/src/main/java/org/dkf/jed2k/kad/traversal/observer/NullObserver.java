@@ -1,16 +1,17 @@
 package org.dkf.jed2k.kad.traversal.observer;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.slf4j.Logger;
 
 /**
  * Created by inkpot on 28.11.2016.
  */
-@Slf4j
 public class NullObserver extends Observer {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(NullObserver.class);
 
     public NullObserver(final Traversal algorithm
             , final Endpoint ep

@@ -24,7 +24,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.MediaType;
@@ -32,6 +31,7 @@ import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.util.UIUtils;
+import org.slf4j.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -44,8 +44,8 @@ import java.util.*;
  *
  */
 @SuppressWarnings("WeakerAccess") // We need the class to be public so that the dialog can be rotated (via Reflection)
-@Slf4j
 public class HandpickedCollectionDownloadDialog extends AbstractConfirmListDialog<EMuleLink> {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(HandpickedCollectionDownloadDialog.class);
     private List<EMuleLink> links;
 
     public HandpickedCollectionDownloadDialog() { super();  }

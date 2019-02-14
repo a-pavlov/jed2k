@@ -1,7 +1,5 @@
 package org.dkf.jed2k.protocol.kad;
 
-import lombok.Getter;
-import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Serializable;
@@ -12,8 +10,6 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 15.11.2016.
  */
-@Getter
-@ToString
 public class Kad2SearchRes implements Serializable {
     private KadId source = new KadId();
     private KadId target = new KadId();
@@ -32,5 +28,21 @@ public class Kad2SearchRes implements Serializable {
     @Override
     public int bytesCount() {
         return source.bytesCount() * 2 + results.bytesCount();
+    }
+
+    public KadId getSource() {
+        return this.source;
+    }
+
+    public KadId getTarget() {
+        return this.target;
+    }
+
+    public Container<UInt16, KadSearchEntry> getResults() {
+        return this.results;
+    }
+
+    public String toString() {
+        return "Kad2SearchRes(source=" + this.getSource() + ", target=" + this.getTarget() + ", results=" + this.getResults() + ")";
     }
 }

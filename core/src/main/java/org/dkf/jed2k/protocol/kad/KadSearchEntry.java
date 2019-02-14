@@ -1,9 +1,5 @@
 package org.dkf.jed2k.protocol.kad;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.tag.Tag;
@@ -13,10 +9,6 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 15.11.2016.
  */
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode(exclude = "info")
 public class KadSearchEntry implements Serializable, SearchEntry {
     private KadId kid = null;
     private Container<UInt8, Tag> info = Container.makeByte(Tag.class);
@@ -118,4 +110,46 @@ public class KadSearchEntry implements Serializable, SearchEntry {
         return (t != null)?t.asStringValue():"";
     }
 
+    public KadId getKid() {
+        return this.kid;
+    }
+
+    public Container<UInt8, Tag> getInfo() {
+        return this.info;
+    }
+
+    public void setKid(KadId kid) {
+        this.kid = kid;
+    }
+
+    public void setInfo(Container<UInt8, Tag> info) {
+        this.info = info;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof KadSearchEntry)) return false;
+        final KadSearchEntry other = (KadSearchEntry) o;
+        if (!other.canEqual((Object) this)) return false;
+        final Object this$kid = this.getKid();
+        final Object other$kid = other.getKid();
+        if (this$kid == null ? other$kid != null : !this$kid.equals(other$kid)) return false;
+        return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof KadSearchEntry;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Object $kid = this.getKid();
+        result = result * PRIME + ($kid == null ? 43 : $kid.hashCode());
+        return result;
+    }
+
+    public String toString() {
+        return "KadSearchEntry(kid=" + this.getKid() + ", info=" + this.getInfo() + ")";
+    }
 }

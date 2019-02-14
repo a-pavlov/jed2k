@@ -1,6 +1,5 @@
 package org.dkf.jed2k.protocol;
 
-import lombok.Data;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -17,7 +16,6 @@ import static org.dkf.jed2k.protocol.Unsigned.*;
  * this is the same as Container class except it can store only bytes and array uses as container
  * @param <CS>
  */
-@Data
 public class ByteContainer<CS extends UNumber> implements Serializable {
     private static Logger log = LoggerFactory.getLogger(ByteBuffer.class.getName());
 
@@ -117,4 +115,40 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
         return size.bytesCount() + value.length;
     }
 
+    public CS getSize() {
+        return this.size;
+    }
+
+    public byte[] getValue() {
+        return this.value;
+    }
+
+    public void setValue(byte[] value) {
+        this.value = value;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof ByteContainer)) return false;
+        final ByteContainer<?> other = (ByteContainer<?>) o;
+        if (!other.canEqual((Object) this)) return false;
+        final Object this$size = this.getSize();
+        final Object other$size = other.getSize();
+        if (this$size == null ? other$size != null : !this$size.equals(other$size)) return false;
+        if (!java.util.Arrays.equals(this.getValue(), other.getValue())) return false;
+        return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof ByteContainer;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Object $size = this.getSize();
+        result = result * PRIME + ($size == null ? 43 : $size.hashCode());
+        result = result * PRIME + java.util.Arrays.hashCode(this.getValue());
+        return result;
+    }
 }

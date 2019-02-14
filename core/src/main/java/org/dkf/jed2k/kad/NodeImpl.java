@@ -2,8 +2,6 @@ package org.dkf.jed2k.kad;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
@@ -20,6 +18,7 @@ import org.dkf.jed2k.protocol.tag.Tag;
 import org.dkf.jed2k.util.EndpointSerializer;
 import org.dkf.jed2k.util.HashSerializer;
 import org.dkf.jed2k.util.KadIdSerializer;
+import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -27,12 +26,11 @@ import java.util.*;
 /**
  * Created by inkpot on 22.11.2016.
  */
-@Slf4j
-@Getter
 public class NodeImpl implements ReqDispatcher {
 
     private final static int SEARCH_BRANCHING = 5;
     private final static int BUCKET_SIZE = 10;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(NodeImpl.class);
     private final RpcManager rpc;
     private DhtTracker tracker = null;
     private RoutingTable table = null;
@@ -537,5 +535,37 @@ public class NodeImpl implements ReqDispatcher {
 
     public Set<Endpoint> getRouterNodes() {
         return routerNodes;
+    }
+
+    public RpcManager getRpc() {
+        return this.rpc;
+    }
+
+    public DhtTracker getTracker() {
+        return this.tracker;
+    }
+
+    public Set<Traversal> getRunningRequests() {
+        return this.runningRequests;
+    }
+
+    public KadId getSelf() {
+        return this.self;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public IndexedImpl getIndex() {
+        return this.index;
+    }
+
+    public int getLocalAddress() {
+        return this.localAddress;
+    }
+
+    public long getLastFirewalledCheck() {
+        return this.lastFirewalledCheck;
     }
 }

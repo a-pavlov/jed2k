@@ -25,7 +25,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.*;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.TransferStatus;
 import org.dkf.jed2k.Utils;
@@ -41,6 +40,7 @@ import org.dkf.jmule.views.ClickAdapter;
 import org.dkf.jmule.views.MenuAction;
 import org.dkf.jmule.views.MenuAdapter;
 import org.dkf.jmule.views.MenuBuilder;
+import org.slf4j.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -49,8 +49,8 @@ import java.util.*;
  * @author gubatron
  * @author aldenml
  */
-@Slf4j
 public class TransferListAdapter extends BaseExpandableListAdapter {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(TransferListAdapter.class);
     private final WeakReference<Context> context;
     private final OnClickListener viewOnClickListener;
     private final ViewOnLongClickListener viewOnLongClickListener;

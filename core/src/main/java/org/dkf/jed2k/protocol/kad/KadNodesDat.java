@@ -1,6 +1,5 @@
 package org.dkf.jed2k.protocol.kad;
 
-import lombok.Getter;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Serializable;
@@ -13,7 +12,6 @@ import java.util.List;
 /**
  * Created by inkpot on 15.11.2016.
  */
-@Getter
 public class KadNodesDat implements Serializable {
     private UInt32 numContacts = new UInt32();
     private UInt32 version = new UInt32();
@@ -72,5 +70,29 @@ public class KadNodesDat implements Serializable {
     @Override
     public int bytesCount() {
         return 0;
+    }
+
+    public UInt32 getNumContacts() {
+        return this.numContacts;
+    }
+
+    public UInt32 getVersion() {
+        return this.version;
+    }
+
+    public UInt32 getBootstrapEdition() {
+        return this.bootstrapEdition;
+    }
+
+    public Container<UInt32, KadEntry> getBootstrapEntries() {
+        return this.bootstrapEntries;
+    }
+
+    public List<KadEntry> getContacts() {
+        return this.contacts;
+    }
+
+    public List<KadExtEntry> getExtContacts() {
+        return this.extContacts;
     }
 }

@@ -1,6 +1,5 @@
 package org.dkf.jed2k;
 
-import lombok.Getter;
 import org.dkf.jed2k.disk.DesktopFileHandler;
 import org.dkf.jed2k.disk.FileHandler;
 import org.dkf.jed2k.exception.JED2KException;
@@ -12,7 +11,6 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 31.07.2016.
  */
-@Getter
 public class AddTransferParams implements Serializable {
     private final Hash hash = new Hash();
     private final UInt64 createTime = new UInt64();
@@ -67,5 +65,33 @@ public class AddTransferParams implements Serializable {
     @Override
     public int bytesCount() {
         return hash.bytesCount() + createTime.bytesCount() + size.bytesCount() + filepath.bytesCount() + paused.bytesCount() + resumeData.bytesCount();
+    }
+
+    public Hash getHash() {
+        return this.hash;
+    }
+
+    public UInt64 getCreateTime() {
+        return this.createTime;
+    }
+
+    public UInt64 getSize() {
+        return this.size;
+    }
+
+    public ByteContainer<UInt16> getFilepath() {
+        return this.filepath;
+    }
+
+    public UInt8 getPaused() {
+        return this.paused;
+    }
+
+    public Optional<TransferResumeData> getResumeData() {
+        return this.resumeData;
+    }
+
+    public FileHandler getHandler() {
+        return this.handler;
     }
 }

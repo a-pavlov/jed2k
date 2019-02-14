@@ -1,17 +1,18 @@
 package org.dkf.jed2k.pool;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.slf4j.Logger;
 
 import java.nio.ByteBuffer;
 
 /**
  * Created by inkpot on 08.07.2016.
  */
-@Slf4j
 public class BufferPool extends Pool<ByteBuffer> {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(BufferPool.class);
 
     public BufferPool(int maxBuffers) {
         super(maxBuffers);

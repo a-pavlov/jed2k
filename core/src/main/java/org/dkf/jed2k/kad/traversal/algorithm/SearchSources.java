@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
@@ -10,13 +9,14 @@ import org.dkf.jed2k.protocol.kad.Kad2PublishSourcesReq;
 import org.dkf.jed2k.protocol.kad.Kad2SearchSourcesReq;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
+import org.slf4j.Logger;
 
 /**
  * Created by inkpot on 08.12.2016.
  * direct search sources request
  */
-@Slf4j
 public class SearchSources extends Direct {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(SearchSources.class);
     private long size;
 
     public SearchSources(NodeImpl ni, KadId t, long size, final Listener listener) {

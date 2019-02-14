@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.Filter;
@@ -13,6 +12,7 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.ObserverCompareRef;
+import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -22,12 +22,12 @@ import java.util.List;
 /**
  * Created by inkpot on 07.12.2016.
  */
-@Slf4j
 public abstract class FindData extends Traversal {
 
     public static final byte KADEMLIA_FIND_NODE = (byte)0x0b;
     public static final byte KADEMLIA_FIND_VALUE = (byte)0x02;
     public static final byte KADEMLIA_STORE = (byte)0x04;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FindData.class);
 
     protected long size = 0;
     protected final Listener sink;

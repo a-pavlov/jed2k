@@ -1,11 +1,11 @@
 package org.dkf.jed2k.kad;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
+import org.slf4j.Logger;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,8 +14,8 @@ import java.util.List;
 /**
  * Created by inkpot on 21.11.2016.
  */
-@Slf4j
 public class RpcManager {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(RpcManager.class);
     private static int SHORT_TIMEOUT = 2;
     private static int TIMEOUT = 12;
 
