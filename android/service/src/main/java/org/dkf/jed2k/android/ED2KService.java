@@ -1058,6 +1058,10 @@ public class ED2KService extends Service {
         settings.listenPort = port;
     }
 
+    public void setServerReconnect(boolean value) {
+        settings.reconnectoToServer = value;
+    }
+
     public void setMaxPeerListSize(int maxSize) {
         settings.maxPeerListSize = maxSize;
     }

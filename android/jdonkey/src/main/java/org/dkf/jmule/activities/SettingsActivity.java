@@ -114,6 +114,7 @@ public class SettingsActivity extends PreferenceActivity {
         useDhtCheckbox();
         setupNickname();
         setupListenPort();
+        setupServerReconnect();
         setupStorageOption();
         setupOtherOptions();
         setupTransferOptions();
@@ -165,6 +166,22 @@ public class SettingsActivity extends PreferenceActivity {
                     return true;
                 }
             });
+        }
+    }
+
+    private void setupServerReconnect() {
+        final CheckBoxPreference serverReconnect = (CheckBoxPreference) findPreference(Constants.PREF_KEY_RECONNECT_TO_SERVER);
+        if (serverReconnect != null) {
+            serverReconnect.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().setReconnectToSeerver((boolean) newValue);
+                    Engine.instance().configureServices();
+                    return true;
+                }
+            });
+        } else {
+            LOG.error("Unable to find check box {}", Constants.PREF_KEY_RECONNECT_TO_SERVER);
         }
     }
 

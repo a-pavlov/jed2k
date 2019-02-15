@@ -418,6 +418,7 @@ public final class Engine implements AlertListener {
     public void setNickname(final String name) { if (service != null) service.setNickname(name); }
     public void setVibrateOnDownloadCompleted(boolean vibrate) { if (service != null) service.setVibrateOnDownloadCompleted(vibrate); }
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
+    public void setReconnectToSeerver(boolean value) { if (service != null) service.setServerReconnect(value); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
     public void useDht(boolean dht) {
