@@ -1,4 +1,4 @@
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
+    implementation 'com.android.support:appcompat-v7:23.2.1'
+    implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
 }
