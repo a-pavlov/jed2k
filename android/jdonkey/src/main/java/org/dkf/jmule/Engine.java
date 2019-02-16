@@ -280,6 +280,7 @@ public final class Engine implements AlertListener {
                     setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
                     setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
                     setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
+                    setReconnectToSeerver(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
 
                     // migrate old versions which have no saved user agent hash
                     String userAgent = ConfigurationManager.instance().getString(Constants.PREF_KEY_USER_AGENT);

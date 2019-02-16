@@ -168,7 +168,7 @@ public class ED2KService extends Service {
         log.info("[ED2K service] creating....");
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        settings.serverPingTimeout = 20;
+        settings.serverPingTimeout = 60;
     }
 
     @Override
@@ -1016,6 +1016,7 @@ public class ED2KService extends Service {
 
     public void configureSession() {
         if (session != null) {
+            log.info("configure session: {}", settings.toString());
             session.configureSession(settings);
         }
     }

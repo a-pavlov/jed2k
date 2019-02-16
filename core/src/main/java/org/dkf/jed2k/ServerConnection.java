@@ -198,7 +198,6 @@ public class ServerConnection extends Connection {
     @Override
     protected void write(Serializable packet) {
         super.write(packet);
-        lastPingTime = session.getCurrentTime();
     }
 
     @Override
@@ -326,12 +325,11 @@ public class ServerConnection extends Connection {
         if (session.settings.serverPingTimeout > 0) {
             // server ping enabled + server connection timeout verification
             long currentTime = Time.currentTime();
-
             if (getMillisecondSinceLastReceive() > session.settings.serverPingTimeout*1.5*1000) {
-                log.info("timeout on server response, close connection");
+                log.info("server connection timeout");
                 close(ErrorCode.CONNECTION_TIMEOUT);
             } else if (currentTime - lastPingTime > session.settings.serverPingTimeout*1000) {
-                log.debug("Send ping message to server");
+                log.debug("send ping message to server");
                 lastPingTime = currentTime;
                 write(new GetList());
             }
