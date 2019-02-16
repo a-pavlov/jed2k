@@ -112,6 +112,10 @@
     <string name="sever_menu_title">Operazioni del server</string>
     <string name="show_server_messages">Messaggi server</string>
     <string name="show_server_messages_summary">Mostra i messaggi dal server</string>
+    <string name="reconnect_to_server_summary">Riconnette al server quando la connessione è chiusa da peer</string>
+    <string name="reconnect_to_server">Riconnette al server</string>
+    <string name="ping_server_summary">Server Ping per prevenire la disconnessione per timeout</string>
+    <string name="ping_server">Server Ping</string>
     <string name="storage_picker_treeuri_cant_write">Mulo su Android può\n scrivere selezionato per il percorso di archiviazione</string>
     <string name="storage_picker_treeuri_error">Errore imprevisto raccolta per il percorso di archiviazione</string>
     <string name="storage_picker_treeuri_not_directory">Il percorso selezionato non è una directory</string>

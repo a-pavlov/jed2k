@@ -116,6 +116,7 @@ public class SettingsActivity extends PreferenceActivity {
         setupNickname();
         setupListenPort();
         setupServerReconnect();
+        setupPingServer();
         setupStorageOption();
         setupOtherOptions();
         setupTransferOptions();
@@ -176,13 +177,29 @@ public class SettingsActivity extends PreferenceActivity {
             serverReconnect.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    Engine.instance().setReconnectToSeerver((boolean) newValue);
+                    Engine.instance().setReconnectToServer((boolean) newValue);
                     Engine.instance().configureServices();
                     return true;
                 }
             });
         } else {
             LOG.error("Unable to find check box {}", Constants.PREF_KEY_RECONNECT_TO_SERVER);
+        }
+    }
+
+    private void setupPingServer() {
+        final CheckBoxPreference serverPing = (CheckBoxPreference) findPreference(Constants.PREF_KEY_PING_SERVER);
+        if (serverPing != null) {
+            serverPing.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().setServerPing((boolean) newValue);
+                    Engine.instance().configureServices();
+                    return true;
+                }
+            });
+        } else {
+            LOG.error("Unable to find check box {}", Constants.PREF_KEY_PING_SERVER);
         }
     }
 
@@ -379,7 +396,8 @@ public class SettingsActivity extends PreferenceActivity {
                 Engine.instance().setListenPort((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
                 Engine.instance().setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
                 Engine.instance().setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
-                Engine.instance().setReconnectToSeerver(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
+                Engine.instance().setReconnectToServer(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
+                Engine.instance().setServerPing(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_PING_SERVER));
 
                 LOG.info("configuration {} max conn {} port {} reconnect to server {}"
                         , ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME)

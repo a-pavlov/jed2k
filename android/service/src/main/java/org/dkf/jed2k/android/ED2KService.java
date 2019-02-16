@@ -168,7 +168,6 @@ public class ED2KService extends Service {
         log.info("[ED2K service] creating....");
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        settings.serverPingTimeout = 60;
     }
 
     @Override
@@ -1062,6 +1061,8 @@ public class ED2KService extends Service {
     public void setServerReconnect(boolean value) {
         settings.reconnectoToServer = value;
     }
+
+    public void setServerPing(boolean value) { settings.serverPingTimeout = value?60:0; }
 
     public void setMaxPeerListSize(int maxSize) {
         settings.maxPeerListSize = maxSize;

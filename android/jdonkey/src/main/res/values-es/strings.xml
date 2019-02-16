@@ -144,6 +144,10 @@
     <string name="sever_menu_title">Las operaciones del servidor</string>
     <string name="show_server_messages">El servidor msg</string>
     <string name="show_server_messages_summary">Mostrar mensajes desde el servidor</string>
+    <string name="reconnect_to_server_summary">Volver a conectar al servidor en la conexión cerrada por pares</string>
+    <string name="reconnect_to_server">Volver a conectar al servidor</string>
+    <string name="ping_server_summary">Servidor de Ping para evitar la desconexión por tiempo de espera</string>
+    <string name="ping_server">Servidor Ping</string>
     <string name="transfer_state_completed">Completado</string>
     <string name="transfer_state_downloading">Descargar</string>
     <string name="transfer_state_paused">Pausa</string>
