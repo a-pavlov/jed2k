@@ -1,9 +1,9 @@
 package org.dkf.jed2k.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +15,9 @@ import java.nio.channels.FileChannel;
 /**
  * Created by inkpot on 18.12.2016.
  */
-@Slf4j
 public class FUtils {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FUtils.class);
 
     public static <T extends Serializable> void read(T data, final File f) throws JED2KException {
         try (RandomAccessFile reader = new RandomAccessFile(f, "r"); FileChannel inChannel = reader.getChannel();) {

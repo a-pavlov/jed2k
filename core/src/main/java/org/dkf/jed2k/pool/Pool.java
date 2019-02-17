@@ -1,18 +1,16 @@
 package org.dkf.jed2k.pool;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.slf4j.Logger;
 
 import java.util.LinkedList;
 
 /**
  * Created by apavlov on 06.03.17.
  */
-@Getter
-@Slf4j
 public abstract class Pool<T> {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Pool.class);
     private int maxBuffersCount = 0;
     private int allocatedBuffersCount = 0;
     private int maxAllocatedCount = 0;
@@ -107,5 +105,25 @@ public abstract class Pool<T> {
     @Override
     public String toString() {
         return "buffer pool max{" + maxBuffersCount + "} allocated/maxallocated {" + allocatedBuffersCount + "/" + maxAllocatedCount + "} free {" + freeBuffers.size() + "}";
+    }
+
+    public int getMaxBuffersCount() {
+        return this.maxBuffersCount;
+    }
+
+    public int getAllocatedBuffersCount() {
+        return this.allocatedBuffersCount;
+    }
+
+    public int getMaxAllocatedCount() {
+        return this.maxAllocatedCount;
+    }
+
+    public LinkedList<T> getFreeBuffers() {
+        return this.freeBuffers;
+    }
+
+    public LinkedList<Long> getBufferReleaseTimes() {
+        return this.bufferReleaseTimes;
     }
 }

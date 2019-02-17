@@ -1,16 +1,17 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.slf4j.Logger;
 
 /**
  * Created by inkpot on 03.12.2016.
  */
-@Slf4j
 public class Refresh extends FindData {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Refresh.class);
 
     public Refresh(NodeImpl ni, KadId t) {
         super(ni, t, 0, null);

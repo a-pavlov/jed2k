@@ -162,13 +162,14 @@
 
     <string name="servers_settings">Servers settings</string>
     <string name="servers">Servers</string>
-    <string name="connect_on_start_server">Reconnect</string>
+    <string name="connect_on_start_server">Connect on startup</string>
     <string name="connect_on_start_server_summary">Connect to last connected server on start</string>
     <string name="show_server_messages_summary">Show messages from server</string>
     <string name="show_server_messages">Server msg</string>
+    <string name="reconnect_to_server_summary">Reconnect to server on connection closed by peer</string>
+    <string name="reconnect_to_server">Reconnect to server</string>
     <string name="auto_start_service_title" translatable="false">Service auto start</string>
     <string name="auto_start_service_summary" translatable="false">Start service(if it stopped) on application statup</string>
-
     <string name="forward_ports_title">Forward ports</string>
     <string name="forward_ports_summary">Forward incoming ports on my router. UPnP must be activated on router</string>
 

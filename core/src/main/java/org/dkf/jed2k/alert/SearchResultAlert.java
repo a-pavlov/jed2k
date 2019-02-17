@@ -1,7 +1,5 @@
 package org.dkf.jed2k.alert;
 
-import lombok.Getter;
-import lombok.ToString;
 import org.dkf.jed2k.protocol.SearchEntry;
 
 import java.util.List;
@@ -9,8 +7,6 @@ import java.util.List;
 /**
  * Created by inkpot on 24.07.2016.
  */
-@Getter
-@ToString
 public class SearchResultAlert extends Alert {
     private List<SearchEntry> results;
     private boolean hasMoreResults;
@@ -28,5 +24,17 @@ public class SearchResultAlert extends Alert {
     @Override
     public int category() {
         return Category.ServerNotification.value;
+    }
+
+    public List<SearchEntry> getResults() {
+        return this.results;
+    }
+
+    public boolean isHasMoreResults() {
+        return this.hasMoreResults;
+    }
+
+    public String toString() {
+        return "SearchResultAlert(results=" + this.getResults() + ", hasMoreResults=" + this.isHasMoreResults() + ")";
     }
 }

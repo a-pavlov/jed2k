@@ -25,6 +25,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.*;
@@ -114,6 +115,7 @@ public class SettingsActivity extends PreferenceActivity {
         useDhtCheckbox();
         setupNickname();
         setupListenPort();
+        setupServerReconnect();
         setupStorageOption();
         setupOtherOptions();
         setupTransferOptions();
@@ -165,6 +167,22 @@ public class SettingsActivity extends PreferenceActivity {
                     return true;
                 }
             });
+        }
+    }
+
+    private void setupServerReconnect() {
+        final CheckBoxPreference serverReconnect = (CheckBoxPreference) findPreference(Constants.PREF_KEY_RECONNECT_TO_SERVER);
+        if (serverReconnect != null) {
+            serverReconnect.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().setReconnectToSeerver((boolean) newValue);
+                    Engine.instance().configureServices();
+                    return true;
+                }
+            });
+        } else {
+            LOG.error("Unable to find check box {}", Constants.PREF_KEY_RECONNECT_TO_SERVER);
         }
     }
 
@@ -361,11 +379,13 @@ public class SettingsActivity extends PreferenceActivity {
                 Engine.instance().setListenPort((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
                 Engine.instance().setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
                 Engine.instance().setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
+                Engine.instance().setReconnectToSeerver(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
 
-                LOG.info("configuration {} max conn {} port {}"
+                LOG.info("configuration {} max conn {} port {} reconnect to server {}"
                         , ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME)
                         , (int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS)
-                        , (int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
+                        , (int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT)
+                        , ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
             }
 
             @Override

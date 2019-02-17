@@ -48,17 +48,18 @@ import org.dkf.jmule.tasks.Tasks;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.AbstractDialog.OnDialogClickListener;
 import org.dkf.jmule.views.*;
+import org.slf4j.Logger;
 
 /**
  * @author gubatron
  * @author aldenml
  */
-@Slf4j
 public final class SearchFragment extends AbstractFragment implements
         MainFragment,
         OnDialogClickListener,
         SearchProgressView.CurrentQueryReporter,
         AlertListener {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(SearchFragment.class);
     private SearchResultListAdapter adapter = null;
 
     private SearchInputView searchInput;

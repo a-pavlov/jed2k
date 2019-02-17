@@ -1,8 +1,5 @@
 package org.dkf.jed2k.protocol.kad;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Container;
 import org.dkf.jed2k.protocol.Serializable;
@@ -13,9 +10,6 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 21.11.2016.
  */
-@Getter
-@Setter
-@ToString
 public class Kad2Res implements Serializable {
     private KadId target = new KadId();
     private Container<UInt8, KadEntry> results = Container.makeByte(KadEntry.class);
@@ -33,6 +27,26 @@ public class Kad2Res implements Serializable {
     @Override
     public int bytesCount() {
         return target.bytesCount() + results.bytesCount();
+    }
+
+    public KadId getTarget() {
+        return this.target;
+    }
+
+    public Container<UInt8, KadEntry> getResults() {
+        return this.results;
+    }
+
+    public void setTarget(KadId target) {
+        this.target = target;
+    }
+
+    public void setResults(Container<UInt8, KadEntry> results) {
+        this.results = results;
+    }
+
+    public String toString() {
+        return "Kad2Res(target=" + this.getTarget() + ", results=" + this.getResults() + ")";
     }
 
     // TODO - move to rpc manager

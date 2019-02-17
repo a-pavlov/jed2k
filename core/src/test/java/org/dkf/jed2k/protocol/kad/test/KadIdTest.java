@@ -1,12 +1,12 @@
 package org.dkf.jed2k.protocol.kad.test;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -19,8 +19,9 @@ import static junit.framework.Assert.*;
 /**
  * Created by inkpot on 14.11.2016.
  */
-@Slf4j
 public class KadIdTest {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(KadIdTest.class);
 
     @Test
     public void testKadIdGet() throws JED2KException {

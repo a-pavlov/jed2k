@@ -1,11 +1,11 @@
 package org.dkf.jmule.transfers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.PeerInfo;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.TransferStatus;
 import org.dkf.jed2k.Utils;
 import org.dkf.jmule.Engine;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.Date;
@@ -16,9 +16,9 @@ import java.util.List;
  * this class is simple facade of transfer handle with cache transfer status feature to avoid
  * extra requests to session
  */
-@Slf4j
 public class ED2KTransfer implements Transfer {
 
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(ED2KTransfer.class);
     private final TransferHandle handle;
     private TransferStatus cachedStatus;
     private List<PeerInfo> cachedItems;

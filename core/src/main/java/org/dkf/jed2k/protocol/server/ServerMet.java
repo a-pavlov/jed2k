@@ -1,6 +1,5 @@
 package org.dkf.jed2k.protocol.server;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -9,6 +8,7 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.tag.Tag;
+import org.slf4j.Logger;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -16,10 +16,10 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 06.09.2016.
  */
-@Slf4j
 public class ServerMet implements Serializable {
     private static final byte  MET_HEADER  = 0x0E;
     private static final byte  MET_HEADER_WITH_LARGEFILES  = 0x0F;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(ServerMet.class);
 
     private byte header = MET_HEADER;
     private Container<UInt32, ServerMet.ServerMetEntry>   servers = Container.makeInt(ServerMet.ServerMetEntry.class);

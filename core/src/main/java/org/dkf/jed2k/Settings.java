@@ -17,10 +17,11 @@ public class Settings {
     public int minPeerReconnectTime = 10;
     public int peerConnectionTimeout = 5;
     public int sessionConnectionsLimit = 20;
-    public int bufferPoolSize = 250;    // dataSize of buffer pool in blocks of 180K
+    public int bufferPoolSize = 250;            // dataSize of buffer pool in blocks of 180K
     public int maxConnectionsPerSecond = 10;    // for testing purposes
-    public int compressionVersion = 0;  // use 1 for activate compression
-    public int serverSearchTimeout = 15;    // seconds
+    public int compressionVersion = 0;          // use 1 for activate compression
+    public int serverSearchTimeout = 15;        // seconds
+    public boolean reconnectoToServer = false;  // reconnect to server if connection was closed due to error
 
     /**
      * send ping message to server every serverPingTimeout seconds
@@ -49,6 +50,7 @@ public class Settings {
                 ", compressionVersion=" + compressionVersion +
                 ", serverSearchTimeout=" + serverSearchTimeout +
                 ", serverPingTimeout=" + serverPingTimeout +
+                ", reconnectToServer=" + (reconnectoToServer?"yes":"no") +
                 '}';
     }
 }

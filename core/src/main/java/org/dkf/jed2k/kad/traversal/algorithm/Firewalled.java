@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.Filter;
 import org.dkf.jed2k.kad.Listener;
@@ -11,15 +10,16 @@ import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.Kad2FirewalledReq;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.slf4j.Logger;
 
 import java.util.List;
 
 /**
  * Created by apavlov on 23.01.17.
  */
-@Slf4j
 public class Firewalled extends Direct {
     public static final int MAX_REASONABLE_RESPONSES = 2;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Firewalled.class);
     private int finishedCount = 0;
     private int portTcp;
     private int externalIps[] = {0, 0};

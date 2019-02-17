@@ -26,11 +26,11 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jmule.R;
 import org.dkf.jmule.dialogs.AbstractConfirmListDialog.SelectionMode;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.AbstractListAdapter;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +50,6 @@ import java.util.Map;
  * @author votaguz
  *
  */
-@Slf4j
 abstract class ConfirmListDialogDefaultAdapter<T> extends AbstractListAdapter {
     private static final int ITEM_TITLE = 0;
     private static final int ITEM_SIZE = 1;
@@ -58,6 +57,7 @@ abstract class ConfirmListDialogDefaultAdapter<T> extends AbstractListAdapter {
 
     private static final Map<SelectionMode, Integer> selectionModeToLayoutId = new HashMap<>();
     private static final Map<SelectionMode, Map<Integer,Integer>> layoutMapping = new HashMap<>();
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(ConfirmListDialogDefaultAdapter.class);
     private final SelectionMode selectionMode;
 
     static {

@@ -1,6 +1,5 @@
 package org.dkf.jed2k.test.kad;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.Filter;
@@ -10,6 +9,7 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -19,9 +19,9 @@ import static junit.framework.Assert.assertTrue;
 /**
  * Created by inkpot on 02.12.2016.
  */
-@Slf4j
 public class RoutingTableTest {
 
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(RoutingTableTest.class);
     final private KadId target = new KadId(KadId.random(false));
     final Random random = new Random();
     final Set<KadId> dict = new HashSet<>();

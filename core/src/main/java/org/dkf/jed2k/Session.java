@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Session extends Thread {
     private static Logger log = LoggerFactory.getLogger(Session.class);
     Selector selector = null;
-    private ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<Runnable>();
+    protected ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<Runnable>();
     ServerConnection serverConection = null;
     private ServerSocketChannel ssc = null;
 
@@ -64,6 +64,8 @@ public class Session extends Thread {
     private Statistics accumulator = new Statistics();
     private GatewayDiscover discover = new GatewayDiscover();
     private GatewayDevice device = null;
+
+    private final ServerConnectionPolicy serverConnectionPolicy = new ServerConnectionPolicy(5, 5);
 
     /**
      * async disk io futures
@@ -342,8 +344,24 @@ public class Session extends Thread {
             itr.next().getValue().secondTick(accumulator, tickIntervalMS);
         }
 
-        // second tick on server connection
-        if (serverConection != null) serverConection.secondTick(tickIntervalMS);
+        // second tick on server connection or re-connect to server
+        if (serverConection != null) {
+            serverConection.secondTick(tickIntervalMS);
+        } else if (settings.reconnectoToServer) {
+            Pair<String, InetSocketAddress> serverConnectionCandidate = serverConnectionPolicy.getConnectCandidate(currentSessionTime);
+
+            if (serverConnectionCandidate != null) {
+                try {
+                    serverConection = ServerConnection.makeConnection(serverConnectionCandidate.getLeft()
+                            , serverConnectionCandidate.getRight()
+                            , Session.this);
+                    serverConection.connect();
+                } catch(JED2KException e) {
+                    // emit alert - connect to server failed
+                    log.error("server connection failed {}", e);
+                }
+            }
+        }
 
         processDiskTasks();
 
@@ -478,19 +496,22 @@ public class Session extends Thread {
         }
     }
 
-    public void connectoTo(final String id, final InetSocketAddress point) {
+    public void connectoTo(final String identifier
+            , final InetSocketAddress address) {
         commands.add(new Runnable() {
             @Override
             public void run() {
+                serverConnectionPolicy.removeConnectCandidates();
+
                 if (serverConection != null) {
                     serverConection.close(ErrorCode.NO_ERROR);
                 }
 
                 try {
-                    serverConection = ServerConnection.makeConnection(id, Session.this);
-                    serverConection.connect(point);
-                    Endpoint endpoint = new Endpoint(point);
-                    log.debug("connect to server {}", endpoint);
+                    serverConection = ServerConnection.makeConnection(identifier
+                            , address
+                            , Session.this);
+                    serverConection.connect();
                 } catch(JED2KException e) {
                     // emit alert - connect to server failed
                     log.error("server connection failed {}", e);
@@ -499,23 +520,23 @@ public class Session extends Thread {
         });
     }
 
-    public void connectoTo(final String id, final String host, final int port) {
+    public void connectoTo(final String identifier, final String host, final int port) {
         commands.add(new Runnable() {
             @Override
             public void run() {
                 try {
-                    final InetSocketAddress addr = new InetSocketAddress(host, port);
+                    serverConnectionPolicy.removeConnectCandidates();
+
+                    final InetSocketAddress address = new InetSocketAddress(host, port);
 
                     if (serverConection != null) {
                         serverConection.close(ErrorCode.NO_ERROR);
                     }
 
                     try {
-                        serverConection = ServerConnection.makeConnection(id, Session.this);
-                        serverConection.connect(addr);
-                        Endpoint endpoint = new Endpoint(addr);
-                        pushAlert(new ServerConnectionAlert(id));
-                        log.debug("connect to server {}", endpoint);
+                        serverConection = ServerConnection.makeConnection(identifier, address , Session.this);
+                        serverConection.connect();
+                        pushAlert(new ServerConnectionAlert(identifier));
                     } catch(JED2KException e) {
                         // emit alert - connect to server failed
                         log.error("server connection failed {}", e);
@@ -528,10 +549,14 @@ public class Session extends Thread {
         });
     }
 
+    /**
+     * disconnect from last connected server if connection exists
+     */
     public void disconnectFrom() {
         commands.add(new Runnable() {
             @Override
             public void run() {
+                serverConnectionPolicy.removeConnectCandidates();
                 if (serverConection != null) {
                     serverConection.close(ErrorCode.NO_ERROR);
                 }
@@ -542,6 +567,17 @@ public class Session extends Thread {
     synchronized public String getConnectedServerId() {
         if (serverConection != null && serverConection.isHandshakeCompleted()) return serverConection.getIdentifier();
         return "";
+    }
+
+
+    protected void onServerConnectionClosed(ServerConnection sc, BaseErrorCode ec) {
+        if (settings.reconnectoToServer && ec.getCode() != ErrorCode.NO_ERROR.getCode()) {
+            serverConnectionPolicy.setServerConnectionFailed(serverConection.getIdentifier()
+                    , serverConection.getAddress()
+                    , Time.currentTime());
+        }
+
+        serverConection = null;
     }
 
     public void search(final SearchRequest value) {

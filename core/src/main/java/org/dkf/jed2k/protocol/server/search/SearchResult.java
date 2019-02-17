@@ -1,7 +1,5 @@
 package org.dkf.jed2k.protocol.server.search;
 
-import lombok.Getter;
-import lombok.ToString;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
@@ -12,8 +10,6 @@ import java.nio.ByteBuffer;
 
 import static org.dkf.jed2k.Utils.sizeof;
 
-@Getter
-@ToString
 public class SearchResult extends SoftSerializable implements Dispatchable {
     private final Container<UInt32, SharedFileEntry> results = Container.makeInt(SharedFileEntry.class);
     private byte moreResults = 0;
@@ -62,5 +58,17 @@ public class SearchResult extends SoftSerializable implements Dispatchable {
 
     public boolean hasMoreResults() {
         return moreResults != 0;
+    }
+
+    public Container<UInt32, SharedFileEntry> getResults() {
+        return this.results;
+    }
+
+    public byte getMoreResults() {
+        return this.moreResults;
+    }
+
+    public String toString() {
+        return "SearchResult(results=" + this.getResults() + ", moreResults=" + this.getMoreResults() + ")";
     }
 }

@@ -1,8 +1,8 @@
 package org.dkf.jed2k.disk;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,8 +12,9 @@ import java.io.IOException;
 /**
  * Created by inkpot on 30.01.2017.
  */
-@Slf4j
 public class DesktopFileHandler extends FileHandler {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(DesktopFileHandler.class);
 
     public DesktopFileHandler(final File file) {
         super(file);

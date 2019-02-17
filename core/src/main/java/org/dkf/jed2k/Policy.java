@@ -1,9 +1,9 @@
 package org.dkf.jed2k;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -11,10 +11,10 @@ import java.util.*;
  * peers management class - choose peer for connection
  * extends AbstractCollection for unit testing purposes
  */
-@Slf4j
 public class Policy extends AbstractCollection<Peer> {
     public static final int MAX_PEER_LIST_SIZE = 100;
     public static final int MIN_RECONNECT_TIMEOUT = 10;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Policy.class);
     private int roundRobin = 0;
     private ArrayList<Peer> peers = new ArrayList<Peer>();
     private Transfer transfer = null;

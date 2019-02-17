@@ -1,6 +1,5 @@
 package org.dkf.jed2k;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.disk.AsyncRelease;
@@ -13,13 +12,14 @@ import org.dkf.jed2k.protocol.BitField;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.TransferResumeData;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-@Slf4j
 public class Transfer {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Transfer.class);
     public static long INVALID_ETA = -1;
 
     /**

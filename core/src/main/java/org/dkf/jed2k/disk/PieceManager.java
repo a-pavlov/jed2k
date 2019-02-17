@@ -1,6 +1,5 @@
 package org.dkf.jed2k.disk;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.BlockManager;
 import org.dkf.jed2k.BlocksEnumerator;
 import org.dkf.jed2k.Constants;
@@ -8,6 +7,7 @@ import org.dkf.jed2k.data.PieceBlock;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +21,8 @@ import java.util.List;
  * Created by inkpot on 15.07.2016.
  * executes write data into file on disk
  */
-@Slf4j
 public class PieceManager extends BlocksEnumerator {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(PieceManager.class);
     private final FileHandler handler;
     private LinkedList<BlockManager> blockMgrs = new LinkedList<BlockManager>();
 

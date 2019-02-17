@@ -1,31 +1,25 @@
 package org.dkf.jed2k.kad;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.slf4j.Logger;
 
 import java.util.*;
 
 /**
  * Created by inkpot on 23.11.2016.
  */
-@Slf4j
 public class RoutingTable {
 
     private static final boolean RESTRICT_ROUTING_IPS = false;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(RoutingTable.class);
     private static int MAX_FAIL_COUNT = 20;
 
-    @Data
-    @EqualsAndHashCode
-    @ToString
     public static class RoutingTableBucket {
 
         @SerializedName("Replacements")
@@ -37,9 +31,73 @@ public class RoutingTable {
         @SerializedName("LastActive")
         private long lastActive = Time.currentTime();
 
+        public RoutingTableBucket() {
+        }
+
         void removeEntry(final NodeEntry e) {
             replacements.remove(e);
             liveNodes.remove(e);
+        }
+
+        public ArrayList<NodeEntry> getReplacements() {
+            return this.replacements;
+        }
+
+        public ArrayList<NodeEntry> getLiveNodes() {
+            return this.liveNodes;
+        }
+
+        public long getLastActive() {
+            return this.lastActive;
+        }
+
+        public void setReplacements(ArrayList<NodeEntry> replacements) {
+            this.replacements = replacements;
+        }
+
+        public void setLiveNodes(ArrayList<NodeEntry> liveNodes) {
+            this.liveNodes = liveNodes;
+        }
+
+        public void setLastActive(long lastActive) {
+            this.lastActive = lastActive;
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) return true;
+            if (!(o instanceof RoutingTableBucket)) return false;
+            final RoutingTableBucket other = (RoutingTableBucket) o;
+            if (!other.canEqual((Object) this)) return false;
+            final Object this$replacements = this.getReplacements();
+            final Object other$replacements = other.getReplacements();
+            if (this$replacements == null ? other$replacements != null : !this$replacements.equals(other$replacements))
+                return false;
+            final Object this$liveNodes = this.getLiveNodes();
+            final Object other$liveNodes = other.getLiveNodes();
+            if (this$liveNodes == null ? other$liveNodes != null : !this$liveNodes.equals(other$liveNodes))
+                return false;
+            if (this.getLastActive() != other.getLastActive()) return false;
+            return true;
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof RoutingTableBucket;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            final Object $replacements = this.getReplacements();
+            result = result * PRIME + ($replacements == null ? 43 : $replacements.hashCode());
+            final Object $liveNodes = this.getLiveNodes();
+            result = result * PRIME + ($liveNodes == null ? 43 : $liveNodes.hashCode());
+            final long $lastActive = this.getLastActive();
+            result = result * PRIME + (int) ($lastActive >>> 32 ^ $lastActive);
+            return result;
+        }
+
+        public String toString() {
+            return "RoutingTable.RoutingTableBucket(replacements=" + this.getReplacements() + ", liveNodes=" + this.getLiveNodes() + ", lastActive=" + this.getLastActive() + ")";
         }
     }
 

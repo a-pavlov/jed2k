@@ -137,8 +137,9 @@ public class Conn {
         startSettings.maxConnectionsPerSecond = 10;
         startSettings.sessionConnectionsLimit = 100;
         startSettings.compressionVersion = compression?1:0;
-        startSettings.serverPingTimeout = 0;
+        startSettings.serverPingTimeout = 60;
         startSettings.listenPort = GLOBAL_PORT;
+        startSettings.reconnectoToServer = true;
 
         LinkedList<Endpoint> systemPeers = new LinkedList<Endpoint>();
         String sp = System.getProperty("session.peers");
@@ -255,6 +256,9 @@ public class Conn {
             }
             if (parts[0].compareTo("connect") == 0 && parts.length >= 2) {
                 s.connectoTo("server", parts[1], Integer.parseInt((parts.length > 2)?parts[2]:"4661"));
+            }
+            else if (parts[0].equals("disconnect")) {
+                s.disconnectFrom();
             }
             else if (parts[0].compareTo("search2") == 0) {
                 try {

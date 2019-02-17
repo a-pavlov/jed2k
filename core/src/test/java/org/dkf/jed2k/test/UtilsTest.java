@@ -1,8 +1,5 @@
 package org.dkf.jed2k.test;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Checker;
 import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.Pair;
@@ -12,6 +9,7 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.util.HexDump;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -22,8 +20,9 @@ import static junit.framework.Assert.*;
 import static org.dkf.jed2k.Utils.*;
 
 
-@Slf4j
 public class UtilsTest {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(UtilsTest.class);
 
     @Test
     public void testIpAddressConversion() throws UnknownHostException {
@@ -150,8 +149,6 @@ public class UtilsTest {
         assertFalse(Utils.isBit(value, 1));
     }
 
-    @Data
-    @EqualsAndHashCode
     private static class Stub {
 
         public Stub(int f, int s) {
@@ -161,6 +158,48 @@ public class UtilsTest {
 
         private int first;
         private int second;
+
+        public int getFirst() {
+            return this.first;
+        }
+
+        public int getSecond() {
+            return this.second;
+        }
+
+        public void setFirst(int first) {
+            this.first = first;
+        }
+
+        public void setSecond(int second) {
+            this.second = second;
+        }
+
+        public String toString() {
+            return "UtilsTest.Stub(first=" + this.getFirst() + ", second=" + this.getSecond() + ")";
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) return true;
+            if (!(o instanceof Stub)) return false;
+            final Stub other = (Stub) o;
+            if (!other.canEqual((Object) this)) return false;
+            if (this.getFirst() != other.getFirst()) return false;
+            if (this.getSecond() != other.getSecond()) return false;
+            return true;
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof Stub;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            result = result * PRIME + this.getFirst();
+            result = result * PRIME + this.getSecond();
+            return result;
+        }
     }
 
     private static class StubCheck implements Checker<Stub> {
@@ -176,11 +215,42 @@ public class UtilsTest {
         }
     }
 
-    @Data
     private static class Node {
         private boolean pinged;
         public Node(boolean pinged) {
             this.pinged = pinged;
+        }
+
+        public boolean isPinged() {
+            return this.pinged;
+        }
+
+        public void setPinged(boolean pinged) {
+            this.pinged = pinged;
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) return true;
+            if (!(o instanceof Node)) return false;
+            final Node other = (Node) o;
+            if (!other.canEqual((Object) this)) return false;
+            if (this.isPinged() != other.isPinged()) return false;
+            return true;
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof Node;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            result = result * PRIME + (this.isPinged() ? 79 : 97);
+            return result;
+        }
+
+        public String toString() {
+            return "UtilsTest.Node(pinged=" + this.isPinged() + ")";
         }
     }
 
