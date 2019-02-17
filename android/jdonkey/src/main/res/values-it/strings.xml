@@ -95,7 +95,7 @@
     <string name="size_unknown">dimensione sconosciuta</string>
     <string name="storage_preference_title">Seleziona la posizione di archiviazione</string>
     <string name="storage_preference_summary">La posizione di archiviazione predefinita dove i file verranno salvati.</string>
-    <string name="ed2k" translatable="false">ED2K</string>
+    <string name="ed2k">ED2K</string>
     <string name="ed2k_network_summary">Stato della connessione</string>
     <string name="retry_search">Riprova</string>
     <string name="no_results_feedback">Nessun risultato è stato trovato.</string>
@@ -131,7 +131,7 @@
     <string name="app_shutdown_dlg_message">This will shutdown all transfers and background services. Are you sure?</string>
     <string name="dummy_build" translatable="false">[build number]</string>
     <string name="try_other_keywords">Prova parole chiave differenti</string>
-    <string name="try_frostwire_plus_for_more_results" translatable="false">Try Mule on Android for more results</string>
+    <string name="try_frostwire_plus_for_more_results">Prova Mule su Android per maggiori risultati</string>
     <string name="your_installation_is_complete">La tua installazione è completa.</string>
     <string name="thank_you">Grazie!</string>
     <string name="keep_in_touch">Rimaniamo in contatto!</string>
@@ -155,7 +155,7 @@
     <string name="listen_port">Porta in ascolto</string>
     <string name="listen_port_summary">Porta per le connessioni in arrivo</string>
 
-    <string name="NA" translatable="false">N/A</string>
+    <string name="NA">N/A</string>
     <string name="users_count">Utenti</string>
     <string name="files_count">File</string>
     <string name="user_id">ID utente</string>
@@ -170,7 +170,7 @@
     <string name="forward_ports_summary">Port forwarding. L'UPnP deve essere attivo sul router</string>
 
     <string name="service_stopped">Il servizio ED2K è fermo</string>
-    <string name="service_stopped_details" translatable="false">Please go to preferences and start ED2K service</string>
+    <string name="service_stopped_details">Per favore vai nelle Impostazioni e avvia il servizio ED2K</string>
     <string name="server_not_connected">Nessuna fonte per le ricerche</string>
     <string name="server_not_connected_det">Connettiti ad un server o avvia la rete Kademlia</string>
 
@@ -224,7 +224,7 @@
 
     <string name="dht_enable_summary">Usa Kademlia per la ricerca di più fonti</string>
     <string name="dht_enable_title">Kademlia</string>
-    <string name="dht_nodes" translatable="false">KAD: %1$s</string>
+    <string name="dht_nodes">KAD: %1$s</string>
 
     <string name="search_source_type_server">Server</string>
     <string name="search_source_type_dht">Kademlia</string>
@@ -242,6 +242,6 @@
     <string name="intent_link_parse_error">Impossibile analizzare il link</string>
     <string name="nodes_link_open_error_title">Nodi</string>
     <string name="nodes_link_open_error_text">Impossibile aggiungere nodi alla rete Kademlia - verifica che il servizio ED2K sia avviato e Kademlia sia attivo</string>
-    <string name="search_failed_title" translatable="false">Unable to start search</string>
+    <string name="search_failed_title">Impossibile avviare la ricerca</string>
     <string name="search_params_invalid_number">Numero non valido nei parametri numerici per la ricerca</string>
 </resources>
