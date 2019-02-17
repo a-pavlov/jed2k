@@ -318,5 +318,9 @@ public abstract class Connection implements Dispatcher {
         return disconnecting;
     }
 
+    long getMillisecondSinceLastReceive() {
+        return Time.currentTime() - lastReceive;
+    }
+
     abstract Endpoint getEndpoint();
 }

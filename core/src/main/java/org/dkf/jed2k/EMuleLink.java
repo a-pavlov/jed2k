@@ -1,11 +1,9 @@
 package org.dkf.jed2k;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
+import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -13,14 +11,65 @@ import java.net.URLDecoder;
 /**
  * Created by inkpot on 21.08.2016.
  */
-@EqualsAndHashCode
-@Slf4j
-@Getter
 public class EMuleLink {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(EMuleLink.class);
     private final Hash hash;
     private final long numberValue;
     private final String stringValue;
     private final LinkType type;
+
+    public Hash getHash() {
+        return this.hash;
+    }
+
+    public long getNumberValue() {
+        return this.numberValue;
+    }
+
+    public String getStringValue() {
+        return this.stringValue;
+    }
+
+    public LinkType getType() {
+        return this.type;
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof EMuleLink)) return false;
+        final EMuleLink other = (EMuleLink) o;
+        if (!other.canEqual((Object) this)) return false;
+        final Object this$hash = this.getHash();
+        final Object other$hash = other.getHash();
+        if (this$hash == null ? other$hash != null : !this$hash.equals(other$hash)) return false;
+        if (this.getNumberValue() != other.getNumberValue()) return false;
+        final Object this$stringValue = this.getStringValue();
+        final Object other$stringValue = other.getStringValue();
+        if (this$stringValue == null ? other$stringValue != null : !this$stringValue.equals(other$stringValue))
+            return false;
+        final Object this$type = this.getType();
+        final Object other$type = other.getType();
+        if (this$type == null ? other$type != null : !this$type.equals(other$type)) return false;
+        return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof EMuleLink;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Object $hash = this.getHash();
+        result = result * PRIME + ($hash == null ? 43 : $hash.hashCode());
+        final long $numberValue = this.getNumberValue();
+        result = result * PRIME + (int) ($numberValue >>> 32 ^ $numberValue);
+        final Object $stringValue = this.getStringValue();
+        result = result * PRIME + ($stringValue == null ? 43 : $stringValue.hashCode());
+        final Object $type = this.getType();
+        result = result * PRIME + ($type == null ? 43 : $type.hashCode());
+        return result;
+    }
 
     public enum LinkType {
         SERVER,

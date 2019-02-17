@@ -4,16 +4,20 @@ apply from: '../dependencies.gradle'
 
 buildscript {
     repositories {
+        google()
+        maven { url 'maven.google.com' }
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:3.1.0'
     }
 }
 
 repositories {
+    google()
     mavenCentral()
+    jcenter()
 }
 
 def manifestVersionCode() {
@@ -58,8 +62,8 @@ android {
 }
 
 dependencies {
-    compile project(':service')
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
-    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    implementation project(':service')
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
 }

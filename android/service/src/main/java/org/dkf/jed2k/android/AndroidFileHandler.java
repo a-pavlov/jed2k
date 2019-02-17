@@ -2,10 +2,10 @@ package org.dkf.jed2k.android;
 
 import android.os.ParcelFileDescriptor;
 import android.support.v4.provider.DocumentFile;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.disk.FileHandler;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,8 +15,8 @@ import java.io.IOException;
 /**
  * Created by inkpot on 31.01.2017.
  */
-@Slf4j
 public class AndroidFileHandler extends FileHandler {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(AndroidFileHandler.class);
     private final DocumentFile doc;
     private final ParcelFileDescriptor descriptor;
 

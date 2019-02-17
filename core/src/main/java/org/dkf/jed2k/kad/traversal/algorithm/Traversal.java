@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.NodeImpl;
@@ -8,14 +7,15 @@ import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.slf4j.Logger;
 
 import java.util.*;
 
 /**
  * Created by inkpot on 21.11.2016.
  */
-@Slf4j
 public abstract class Traversal {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Traversal.class);
     protected NodeImpl nodeImpl;
     protected KadId target;
     protected List<Observer> results = new ArrayList<>();

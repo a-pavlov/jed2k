@@ -18,9 +18,7 @@
 
 package org.dkf.jmule.tasks;
 
-import android.app.Activity;
 import android.content.Context;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
@@ -30,6 +28,7 @@ import org.dkf.jmule.R;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.transfers.TransferManager;
 import org.dkf.jmule.util.UIUtils;
+import org.slf4j.Logger;
 
 
 /**
@@ -38,8 +37,8 @@ import org.dkf.jmule.util.UIUtils;
  * @author aldenml
  *
  */
-@Slf4j
 public class StartDownloadTask extends ContextTask<Transfer> {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(StartDownloadTask.class);
     private final String message;
     private SearchEntry entry;
     private String link = null;

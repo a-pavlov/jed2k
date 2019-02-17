@@ -1,13 +1,13 @@
 package org.dkf.jed2k;
 
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.PacketHeader;
 import org.dkf.jed2k.protocol.Serializable;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,8 +21,8 @@ import java.util.LinkedList;
  * @author apavlov
  *
  */
-@Slf4j
 public class UDPConnection {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(UDPConnection.class);
     private ByteBuffer bufferIncoming;
     private ByteBuffer bufferOutgoing;
     private LinkedList<Pair<Serializable, Endpoint>> outgoingOrder =

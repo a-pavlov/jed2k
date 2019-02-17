@@ -1,11 +1,10 @@
 package org.dkf.jed2k.protocol.tag;
 
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.*;
+import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.BufferUnderflowException;
@@ -17,8 +16,6 @@ import java.util.Collection;
 import static org.dkf.jed2k.Utils.sizeof;
 import static org.dkf.jed2k.protocol.Unsigned.*;
 
-@Slf4j
-@EqualsAndHashCode(exclude = "value")
 public final class Tag implements Serializable {
 
     public static final byte TAGTYPE_UNDEFINED    = (byte)0x00; // special tag definition for empty objects
@@ -216,6 +213,7 @@ public final class Tag implements Serializable {
     public static final byte TAG_SOURCEPORT      = (byte)0xFD;  // <uint16>
     public static final byte TAG_SOURCEIP        = (byte)0xFE;  // <uint32>
     public static final byte TAG_SOURCETYPE      = (byte)0xFF;  // <uint8>
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Tag.class);
 
 
     public static String type2String(byte id) {
@@ -313,6 +311,28 @@ public final class Tag implements Serializable {
             case CT_MOD_VERSION: return "CT_MOD_VERSION";
             default: return String.format("Id ?: 0x%02X", ((int)id) & 0xFF);
         }
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Tag)) return false;
+        final Tag other = (Tag) o;
+        if (this.getType() != other.getType()) return false;
+        if (this.getId() != other.getId()) return false;
+        final Object this$name = this.name;
+        final Object other$name = other.name;
+        if (this$name == null ? other$name != null : !this$name.equals(other$name)) return false;
+        return true;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        result = result * PRIME + this.getType();
+        result = result * PRIME + this.getId();
+        final Object $name = this.name;
+        result = result * PRIME + ($name == null ? 43 : $name.hashCode());
+        return result;
     }
 
     public static class FloatSerial implements Serializable {

@@ -27,13 +27,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.transfers.Transfer;
 import org.dkf.jmule.views.AbstractDialog;
 import org.dkf.jmule.views.MenuAction;
+import org.slf4j.Logger;
 
 /**
  * @author gubatron
@@ -59,7 +58,6 @@ public class CancelMenuAction extends MenuAction {
                 show(((Activity)getContext()).getFragmentManager());
     }
 
-    @Getter
     public static class CancelMenuActionDialog extends AbstractDialog {
         private static Transfer transfer;
         private static boolean deleteData;
@@ -133,8 +131,8 @@ public class CancelMenuAction extends MenuAction {
         }
     }
 
-    @Slf4j
     private static class PositiveButtonOnClickListener implements View.OnClickListener {
+        private static final Logger log = org.slf4j.LoggerFactory.getLogger(PositiveButtonOnClickListener.class);
         private final Transfer transfer;
         private final boolean removeFile[];
         private final Dialog dlg;

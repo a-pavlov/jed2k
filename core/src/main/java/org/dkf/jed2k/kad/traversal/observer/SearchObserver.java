@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad.traversal.observer;
 
-import lombok.Getter;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
@@ -13,7 +12,6 @@ import java.util.List;
 /**
  * Created by inkpot on 08.12.2016.
  */
-@Getter
 public class SearchObserver extends Observer {
     private List<KadSearchEntry> entries = null;
     private int processedResponsesCount = 0;
@@ -61,5 +59,13 @@ public class SearchObserver extends Observer {
     @Override
     public boolean expectMultipleResponses() {
         return true;
+    }
+
+    public List<KadSearchEntry> getEntries() {
+        return this.entries;
+    }
+
+    public int getProcessedResponsesCount() {
+        return this.processedResponsesCount;
     }
 }

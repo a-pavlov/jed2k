@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
@@ -10,6 +9,7 @@ import org.dkf.jed2k.hash.MD4;
 import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.PacketCombiner;
 import org.dkf.jed2k.protocol.kad.*;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,8 +29,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Created by inkpot on 21.11.2016.
  */
-@Slf4j
 public class DhtTracker extends Thread {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(DhtTracker.class);
     private NodeImpl node;
     private ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<Runnable>();
     private Selector selector = null;

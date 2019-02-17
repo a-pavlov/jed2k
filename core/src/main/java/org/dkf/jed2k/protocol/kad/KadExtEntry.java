@@ -1,6 +1,5 @@
 package org.dkf.jed2k.protocol.kad;
 
-import lombok.Getter;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.UInt32;
@@ -11,7 +10,6 @@ import java.nio.ByteBuffer;
 /**
  * Created by inkpot on 15.11.2016.
  */
-@Getter
 public class KadExtEntry implements Serializable {
     private UInt32 dwKey = new UInt32();
     private UInt32 dwIp = new UInt32();
@@ -30,5 +28,17 @@ public class KadExtEntry implements Serializable {
     @Override
     public int bytesCount() {
         return dwKey.bytesCount() + dwIp.bytesCount() + verified.bytesCount();
+    }
+
+    public UInt32 getDwKey() {
+        return this.dwKey;
+    }
+
+    public UInt32 getDwIp() {
+        return this.dwIp;
+    }
+
+    public UInt8 getVerified() {
+        return this.verified;
     }
 }

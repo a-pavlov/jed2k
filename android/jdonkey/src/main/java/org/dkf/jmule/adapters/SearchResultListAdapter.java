@@ -120,8 +120,6 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Search
             fileSize.setText("...");
         }
 
-        log.info("comp sources {}", entry.getCompleteSources());
-
         TextView extra = findView(view, R.id.view_bittorrent_search_result_list_item_text_extra);
         extra.setText(FilenameUtils.getExtension(entry.getFileName()));
 

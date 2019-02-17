@@ -2,7 +2,6 @@ package org.dkf.jed2k;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bitlet.weupnp.GatewayDevice;
 import org.bitlet.weupnp.GatewayDiscover;
@@ -18,6 +17,7 @@ import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
 import org.dkf.jed2k.util.FUtils;
+import org.slf4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -39,9 +39,9 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Created by inkpot on 22.11.2016.
  */
-@Slf4j
 public class Kad {
 
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Kad.class);
     private static GatewayDevice device = null;
     private final static int port = 9999;
 

@@ -1,7 +1,7 @@
 package org.dkf.jed2k.disk;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,10 +13,10 @@ import java.nio.channels.FileChannel;
  * Created by inkpot on 30.01.2017.
  * common file interface with open and close(delete) feature
  */
-@Slf4j
 public abstract class FileHandler {
     private static final int WRITE = 0;
     private static final int READ = 1;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FileHandler.class);
     protected File file;
 
     private FileOutputStream wStream;

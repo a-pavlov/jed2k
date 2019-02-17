@@ -280,6 +280,7 @@ public final class Engine implements AlertListener {
                     setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
                     setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
                     setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
+                    setReconnectToSeerver(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
 
                     // migrate old versions which have no saved user agent hash
                     String userAgent = ConfigurationManager.instance().getString(Constants.PREF_KEY_USER_AGENT);
@@ -418,6 +419,7 @@ public final class Engine implements AlertListener {
     public void setNickname(final String name) { if (service != null) service.setNickname(name); }
     public void setVibrateOnDownloadCompleted(boolean vibrate) { if (service != null) service.setVibrateOnDownloadCompleted(vibrate); }
     public void setListenPort(int port) { if (service != null) service.setListenPort(port); }
+    public void setReconnectToSeerver(boolean value) { if (service != null) service.setServerReconnect(value); }
     public void setMaxPeersCount(int peers) { if (service != null) service.setMaxPeerListSize(peers); }
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
     public void useDht(boolean dht) {

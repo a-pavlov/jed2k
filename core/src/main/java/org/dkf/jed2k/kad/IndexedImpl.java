@@ -1,11 +1,10 @@
 package org.dkf.jed2k.kad;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.kad.traversal.TimedLinkedHashMap;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadSearchEntry;
+import org.slf4j.Logger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.Map;
 /**
  * Created by inkpot on 21.01.2017.
  */
-@Slf4j
 public class IndexedImpl implements Indexed {
     /**
      * just ported constants from aMule for KAD
@@ -42,6 +40,7 @@ public class IndexedImpl implements Indexed {
      */
     public static final int KAD_MAX_KEYWORD_FILES = 5000;
     public static final int KAD_MAX_SOURCES = 10000;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(IndexedImpl.class);
 
     private int totalKeywordFiles = 0;
     private int totalSources = 0;
@@ -99,7 +98,6 @@ public class IndexedImpl implements Indexed {
         }
     }
 
-    @Data
     public static class Published implements Timed {
         private final KadSearchEntry entry;
         private long lastActiveTime;
@@ -107,6 +105,48 @@ public class IndexedImpl implements Indexed {
         public Published(final KadSearchEntry entry, long lastActiveTime) {
             this.entry = entry;
             this.lastActiveTime = lastActiveTime;
+        }
+
+        public KadSearchEntry getEntry() {
+            return this.entry;
+        }
+
+        public long getLastActiveTime() {
+            return this.lastActiveTime;
+        }
+
+        public void setLastActiveTime(long lastActiveTime) {
+            this.lastActiveTime = lastActiveTime;
+        }
+
+        public boolean equals(final Object o) {
+            if (o == this) return true;
+            if (!(o instanceof Published)) return false;
+            final Published other = (Published) o;
+            if (!other.canEqual((Object) this)) return false;
+            final Object this$entry = this.getEntry();
+            final Object other$entry = other.getEntry();
+            if (this$entry == null ? other$entry != null : !this$entry.equals(other$entry)) return false;
+            if (this.getLastActiveTime() != other.getLastActiveTime()) return false;
+            return true;
+        }
+
+        protected boolean canEqual(final Object other) {
+            return other instanceof Published;
+        }
+
+        public int hashCode() {
+            final int PRIME = 59;
+            int result = 1;
+            final Object $entry = this.getEntry();
+            result = result * PRIME + ($entry == null ? 43 : $entry.hashCode());
+            final long $lastActiveTime = this.getLastActiveTime();
+            result = result * PRIME + (int) ($lastActiveTime >>> 32 ^ $lastActiveTime);
+            return result;
+        }
+
+        public String toString() {
+            return "IndexedImpl.Published(entry=" + this.getEntry() + ", lastActiveTime=" + this.getLastActiveTime() + ")";
         }
     }
 

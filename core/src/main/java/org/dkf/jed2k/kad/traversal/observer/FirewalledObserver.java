@@ -1,6 +1,5 @@
 package org.dkf.jed2k.kad.traversal.observer;
 
-import lombok.Getter;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
@@ -10,7 +9,6 @@ import org.dkf.jed2k.protocol.kad.KadId;
 /**
  * Created by apavlov on 23.01.17.
  */
-@Getter
 public class FirewalledObserver extends Observer {
     private int ip;
 
@@ -28,5 +26,9 @@ public class FirewalledObserver extends Observer {
     @Override
     public boolean isExpectedTransaction(Serializable s) {
         return (s instanceof Kad2FirewalledRes);
+    }
+
+    public int getIp() {
+        return this.ip;
     }
 }

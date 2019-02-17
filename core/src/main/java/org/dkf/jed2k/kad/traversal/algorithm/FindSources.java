@@ -1,18 +1,18 @@
 package org.dkf.jed2k.kad.traversal.algorithm;
 
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.Listener;
 import org.dkf.jed2k.kad.NodeImpl;
 import org.dkf.jed2k.kad.traversal.observer.Observer;
 import org.dkf.jed2k.protocol.kad.Kad2Req;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.slf4j.Logger;
 
 /**
  * Created by inkpot on 07.12.2016.
  */
-@Slf4j
 public class FindSources extends FindData {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(FindSources.class);
     private long size;
 
     public FindSources(NodeImpl ni, KadId t, long size, final Listener l) {

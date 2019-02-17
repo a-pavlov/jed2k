@@ -1,22 +1,15 @@
 package org.dkf.jed2k.kad.traversal.observer;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.kad.traversal.algorithm.Traversal;
 import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Serializable;
 import org.dkf.jed2k.protocol.kad.KadId;
+import org.slf4j.Logger;
 
 /**
  * Created by inkpot on 21.11.2016.
  */
-@Getter
-@Setter
-@ToString(exclude="algorithm")
-@Slf4j
 public abstract class Observer {
     public static final byte FLAG_QUERIED = 1;
     public static final byte FLAG_INITIAL = 2;
@@ -25,6 +18,7 @@ public abstract class Observer {
     public static final byte FLAG_FAILED = 16;
     public static final byte FLAG_ALIVE = 32;
     public static final byte FLAG_DONE = 64;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Observer.class);
 
     protected final Traversal algorithm;
     protected final Endpoint endpoint;
@@ -119,5 +113,81 @@ public abstract class Observer {
      */
     public boolean expectMultipleResponses() {
         return false;
+    }
+
+    public Traversal getAlgorithm() {
+        return this.algorithm;
+    }
+
+    public Endpoint getEndpoint() {
+        return this.endpoint;
+    }
+
+    public KadId getId() {
+        return this.id;
+    }
+
+    public int getPortTcp() {
+        return this.portTcp;
+    }
+
+    public byte getVersion() {
+        return this.version;
+    }
+
+    public long getSentTime() {
+        return this.sentTime;
+    }
+
+    public int getFlags() {
+        return this.flags;
+    }
+
+    public byte getTransactionId() {
+        return this.transactionId;
+    }
+
+    public boolean isWasAbandoned() {
+        return this.wasAbandoned;
+    }
+
+    public boolean isWasSent() {
+        return this.wasSent;
+    }
+
+    public void setId(KadId id) {
+        this.id = id;
+    }
+
+    public void setPortTcp(int portTcp) {
+        this.portTcp = portTcp;
+    }
+
+    public void setVersion(byte version) {
+        this.version = version;
+    }
+
+    public void setSentTime(long sentTime) {
+        this.sentTime = sentTime;
+    }
+
+    public void setFlags(int flags) {
+        this.flags = flags;
+    }
+
+    public void setTransactionId(byte transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public void setWasAbandoned(boolean wasAbandoned) {
+        this.wasAbandoned = wasAbandoned;
+    }
+
+    public void setWasSent(boolean wasSent) {
+        this.wasSent = wasSent;
+    }
+
+    public String toString() {
+        return "Observer(endpoint=" + this.getEndpoint() + ", id=" + this.getId() + ", portTcp=" + this.getPortTcp() + ", version=" + this.getVersion() + ", sentTime=" + this.getSentTime() + ", flags=" + this.getFlags() + ", transactionId=" + this.getTransactionId() + ", wasAbandoned=" + this.isWasAbandoned() + ", wasSent=" + this.isWasSent() + ")";
     }
 }
