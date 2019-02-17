@@ -30,7 +30,6 @@ import android.widget.*;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
