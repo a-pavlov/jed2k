@@ -60,7 +60,7 @@ public class AboutFragment extends Fragment implements MainFragment {
         title.setText("Mule on Android " + " v" + Constants.JED2K_VERSION_STRING);
 
         final TextView buildNumber = (TextView) view.findViewById(R.id.fragment_about_build_number);
-        buildNumber.setText("\nBuild " + BuildConfig.VERSION_CODE + " - SDK level " + Build.VERSION.SDK_INT + " sources on: ");
+        buildNumber.setText("\nBuild " + BuildConfig.VERSION_CODE + " Core " + org.dkf.jed2k.BuildConfig.VERSION_CODE + " - SDK level " + Build.VERSION.SDK_INT + " sources on: ");
 
         final TextView content = (TextView) view.findViewById(R.id.fragment_about_content);
         content.setText(Html.fromHtml(getAboutText()));

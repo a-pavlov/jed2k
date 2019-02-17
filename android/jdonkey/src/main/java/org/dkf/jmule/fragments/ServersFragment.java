@@ -6,12 +6,16 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -43,6 +47,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private ServersAdapter adapter;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
     private RichNotification serviceStopped;
+    AdView mAdView;
     ButtonServersParametersListener buttonServersParametersListener;
 
     public ServersFragment() {
@@ -96,18 +101,62 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         Engine.instance().setListener(this);
         invalidateServersState();
         warnServiceStopped(getView());
+        mAdView.resume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Engine.instance().removeListener(this);
+        mAdView.pause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Engine.instance().removeListener(this);
+        if (mAdView != null) {
+            mAdView.destroy();
+            mAdView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        mAdView = (AdView) rootView.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
+        mAdView.loadAd(adRequest);
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+            }
+
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+            }
+
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                mAdView.setVisibility(View.VISIBLE);
+
+            }
+        });
+        return rootView;
     }
 
     private void warnServiceStopped(View v) {

@@ -59,7 +59,7 @@ public class MainApplication extends Application {
         LeakCanary.install(this);
 
         try {
-
+            LOG.info("main application onCreate");
             Platforms.set(new AndroidPlatform(this));
             ConfigurationManager.create(this);
             NetworkManager.create(this);

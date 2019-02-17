@@ -21,7 +21,8 @@
               xmlns:frostwire="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="fill_parent"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              xmlns:ads="http://schemas.android.com/apk/res-auto">
 
     <org.dkf.jmule.views.ClearableEditTextView
             android:id="@+id/fragment_transfers_add_transfer_text_input"
@@ -121,6 +122,17 @@
         android:layout_width="match_parent"
           android:layout_height="1px"
           android:background="#ff1d2934"/>
+
+    <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            ads:adSize="SMART_BANNER"
+            ads:adUnitId="@string/banner_ad_2_id">
+    </com.google.android.gms.ads.AdView>
 
     <LinearLayout
         android:layout_width="fill_parent"

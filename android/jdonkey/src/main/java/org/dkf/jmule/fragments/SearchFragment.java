@@ -27,6 +27,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -36,6 +40,7 @@ import org.dkf.jed2k.android.MediaType;
 import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
+import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.adapters.SearchResultListAdapter;
 import org.dkf.jmule.dialogs.NewTransferDialog;
 import org.dkf.jmule.tasks.StartDownloadTask;
@@ -62,13 +67,14 @@ public final class SearchFragment extends AbstractFragment implements
     private RichNotification serverConnectionWarning;
     private SearchParametersView searchParametersView;
     private SearchProgressView searchProgress;
+    private AdView adRect;
     ButtonSearchParametersListener buttonSearchParametersListener;
     private ListView list;
     private String currentQuery;
     private final FileTypeCounter fileTypeCounter;
     private final SparseArray<Byte> toTheRightOf = new SparseArray<>(9);
     private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(9);
-
+    private int searchCount = 0;
     private boolean awaitingResults = false;
 
     public SearchFragment() {
@@ -129,6 +135,8 @@ public final class SearchFragment extends AbstractFragment implements
             refreshFileTypeCounters(true);
         }
 
+        adRect.resume();
+
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
@@ -136,18 +144,24 @@ public final class SearchFragment extends AbstractFragment implements
     public void onPause() {
         super.onPause();
         Engine.instance().removeListener(this);
+        adRect.pause();
     }
 
     @Override
     public void onDestroy() {
-        Engine.instance().removeListener(this);
         super.onDestroy();
+        Engine.instance().removeListener(this);
+        if (adRect != null) {
+            adRect.destroy();
+            adRect.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onShow() {
         warnNoServerNoDhtConnections(getView());
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
+        if (adapter != null) adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -186,6 +200,40 @@ public final class SearchFragment extends AbstractFragment implements
             @Override
             public void onSwipeRight() {
                 switchToThe(false);
+            }
+        });
+
+        adRect = (AdView)findView(view, R.id.adViewRect);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
+        adRect.loadAd(adRequest);
+        adRect.setVisibility(View.GONE);
+        adRect.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+            }
+
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+            }
+
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                if (adapter == null || adapter.isEmpty()) {
+                    adRect.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -318,6 +366,9 @@ public final class SearchFragment extends AbstractFragment implements
             currentQuery = null;
             searchProgress.setProgressEnabled(false);
             showSearchView(getView());
+            if (++searchCount % 3 == 0) {
+                ((MainActivity)getActivity()).showInterstitial();
+            }
         }
     }
 
@@ -337,13 +388,22 @@ public final class SearchFragment extends AbstractFragment implements
         refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
         showSearchView(getView());
+        if (++searchCount % 3 == 0) {
+            ((MainActivity)getActivity()).showInterstitial();
+        }
     }
 
     private void showSearchView(View view) {
         if (awaitingResults) {
+            adRect.setVisibility(View.GONE);
             switchView(view, R.id.fragment_search_search_progress);
         } else {
             switchView(view, R.id.fragment_search_list);
+            if (adapter != null && adapter.isEmpty()) {
+                adRect.setVisibility(View.VISIBLE);
+            } else {
+                adRect.setVisibility(View.GONE);
+            }
         }
     }
 

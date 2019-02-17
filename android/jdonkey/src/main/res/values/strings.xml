@@ -168,6 +168,8 @@
     <string name="show_server_messages">Server msg</string>
     <string name="reconnect_to_server_summary">Reconnect to server on connection closed by peer</string>
     <string name="reconnect_to_server">Reconnect to server</string>
+    <string name="auto_start_service_title" translatable="false">Service auto start</string>
+    <string name="auto_start_service_summary" translatable="false">Start service(if it stopped) on application statup</string>
     <string name="forward_ports_title">Forward ports</string>
     <string name="forward_ports_summary">Forward incoming ports on my router. UPnP must be activated on router</string>
 
@@ -194,6 +196,9 @@
     <string name="transfer_state_completed">Completed</string>
     <string name="transfer_state_stalled">Waiting sources</string>
     <string name="transfer_state_downloading">Downloading</string>
+    <string name="banner_ad_1_id" translatable="false">ca-app-pub-1671474838801728/9118470699</string>
+    <string name="interstitioal_ad_1_id" translatable="false">ca-app-pub-1671474838801728/1595203897</string>
+    <string name="banner_ad_2_id" translatable="false">ca-app-pub-1671474838801728/2262744691</string>
 
     <string name="server_add_name">Name</string>
     <string name="server_add_host">Host</string>

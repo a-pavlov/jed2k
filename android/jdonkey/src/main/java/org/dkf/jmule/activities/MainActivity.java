@@ -37,6 +37,10 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.*;
@@ -102,6 +106,15 @@ public class MainActivity extends AbstractActivity implements
     private final Stack<Integer> fragmentsStack;
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
+    private InterstitialAd mInterstitialAd;
+
+    private enum APP_STATE {
+        ACTIVE,
+        WAIT_SHUTDOWN,
+        WAIT_MINIMIZE
+    }
+
+    private APP_STATE appState = APP_STATE.ACTIVE;
     private ServerMet lastLoadedServers = null;
 
     public MainActivity() {
@@ -151,10 +164,8 @@ public class MainActivity extends AbstractActivity implements
     }
 
     public void shutdown() {
-        //Offers.stopAdNetworks(this);
-        //UXStats.instance().flush(true); // sends data and ends 3rd party APIs sessions.
+        if (appState == APP_STATE.WAIT_SHUTDOWN) Engine.instance().shutdown();
         finish();
-        Engine.instance().shutdown();
     }
 
     private boolean isShutdown() {
@@ -177,13 +188,13 @@ public class MainActivity extends AbstractActivity implements
         if (isShutdown()) {
             return;
         }
+
         initDrawerListener();
         leftDrawer = findView(R.id.activity_main_left_drawer);
         listMenu = findView(R.id.left_drawer);
         setupFragments();
         setupMenuItems();
         setupInitialFragment(savedInstanceState);
-        //playerSubscription = TimerService.subscribe(((PlayerNotifierView) findView(R.id.activity_main_player_notifier)).getRefresher(), 1);
         onNewIntent(getIntent());
         setupActionBar();
         setupDrawer();
@@ -430,7 +441,6 @@ public class MainActivity extends AbstractActivity implements
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_INITIAL_SETTINGS_COMPLETE)) {
             mainResume();
-            //Offers.initAdNetworks(this);
         } else if (!isShutdown()){
             controller.startWizardActivity();
         }
@@ -503,16 +513,47 @@ public class MainActivity extends AbstractActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
+        //if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
             // we are still in the wizard.
-            return;
-        }
+        //    return;
+        //}
 
         if (isShutdown()) {
             return;
         }
 
         checkExternalStoragePermissionsOrBindMusicService();
+        MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
+
+        appState = APP_STATE.ACTIVE;
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getResources().getString(R.string.interstitioal_ad_1_id));
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                if (appState == APP_STATE.ACTIVE) requestNewInterstitial();
+            }
+
+        });
+
+        requestNewInterstitial();
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6")
+                .build();
+        mInterstitialAd.loadAd(adRequest);
+    }
+
+    public boolean showInterstitial() {
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+            return true;
+        }
+
+        return false;
     }
 
     private void checkExternalStoragePermissionsOrBindMusicService() {
@@ -532,6 +573,7 @@ public class MainActivity extends AbstractActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        MobileAds.initialize(null, getResources().getString(R.string.banner_ad_1_id));
     }
 
     private void saveLastFragment(Bundle outState) {
@@ -634,15 +676,15 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void onLastDialogButtonPositive() {
-        //Offers.showInterstitial(this, false, true);
-        //Engine.instance().shutdown();
-        finish();
+        appState = APP_STATE.WAIT_MINIMIZE;
+        shutdown();
+        //if (!showInterstitial()) shutdown();
     }
 
     private void onShutdownDialogButtonPositive() {
-        Engine.instance().shutdown();
-        finish();
-        //Offers.showInterstitial(this, true, false);
+        appState = APP_STATE.WAIT_SHUTDOWN;
+        shutdown();
+        //if (!showInterstitial()) shutdown();
     }
 
     private void syncSlideMenu() {
@@ -899,7 +941,6 @@ public class MainActivity extends AbstractActivity implements
         if (checker != null) {
             checker.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        //Offers.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

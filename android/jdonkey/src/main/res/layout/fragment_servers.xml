@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:frostwire="http://schemas.android.com/apk/res-auto"
+              xmlns:ads="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="fill_parent">
@@ -24,12 +25,27 @@
         android:visibility="gone"
         />
 
-    <ListView
-        android:id="@+id/servers_list"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fastScrollEnabled="false">
+        android:layout_weight="0.1">
+        <ListView
+            android:id="@+id/servers_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fastScrollEnabled="false">
+        </ListView>
+    </LinearLayout>
 
-    </ListView>
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/banner_ad_1_id">
+    </com.google.android.gms.ads.AdView>
 
 </LinearLayout>

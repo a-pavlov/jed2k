@@ -767,7 +767,7 @@ public class ED2KService extends Service {
             public void run() {
                 refreshDhtStoragePoint();
             }
-        }, 10, 20, TimeUnit.MINUTES);
+        }, 10, 120, TimeUnit.MINUTES);
     }
 
     private void updatePermanentStatusNotification() {

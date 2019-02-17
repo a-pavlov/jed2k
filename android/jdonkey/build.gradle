@@ -66,4 +66,5 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    implementation 'com.google.firebase:firebase-ads:10.0.1'
 }
