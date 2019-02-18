@@ -42,9 +42,9 @@
     <string name="nickname">Nome utente</string>
     <string name="how_other_users_will_see_you">Come ti vedono gli altri utenti</string>
     <string name="other_settings">Altre impostazioni</string>
-    <string name="vibrate_on_finished_download">Vibra quando il download è terminato</string>
-    <string name="use_mobile_data">Usa 3G/4G per ED2K</string>
-    <string name="use_mobile_data_summary">Usa connesione mobile per i download su ED2K. Possono essere applicati costi aggiuntivi al superamento dei limiti. Usa con cautela.</string>
+    <string name="vibrate_on_finished_download">Vibra quando il download è completo</string>
+    <string name="use_mobile_data">Usa connessione mobile</string>
+    <string name="use_mobile_data_summary">Usa connesione mobile per i download su ED2K. Possono essere applicati costi aggiuntivi al superamento dei limiti di traffico del proprio piano. Usa con cautela.</string>
     <string name="cant_open_file">Mi spiace, non so come aprire questo file.</string>
     <string name="download_added_to_queue">1 file è stato aggiunto ai download</string>
     <string name="open_menu_action">Apri %s</string>
@@ -91,7 +91,7 @@
     <string name="dummy_content_description" translatable="false">[dummy description]</string>
     <string name="toast_on_disconnect">Sessione ED2K è terminata. Tutti i download sono stati fermati.</string>
     <string name="toast_on_connect">Sessione ED2K iniziata.</string>
-    <string name="seeds_n">Seed: %s</string>
+    <string name="seeds_n">Fonti complete: %s</string>
     <string name="size_unknown">dimensione sconosciuta</string>
     <string name="storage_preference_title">Seleziona la posizione di archiviazione</string>
     <string name="storage_preference_summary">La posizione di archiviazione predefinita dove i file verranno salvati.</string>
@@ -126,9 +126,9 @@
     <string name="storage_setting_confirm_dialog_title">Scheda SD</string>
     <string name="storage_setting_confirm_dialog_text">Ho capito che tutti i file scaricati sulla scheda SD da Mule su Android verranno cancellati DA ANDROID nel momento in cui Mule su Android verrà disinstallato dal dispositivo e non riterrò Mule su Android LLC colpevole della perdita dei file.</string>
     <string name="available">disponibile</string>
-    <string name="finishing">Finishing</string>
-    <string name="app_shutdown_dlg_title">Shutdown</string>
-    <string name="app_shutdown_dlg_message">This will shutdown all transfers and background services. Are you sure?</string>
+    <string name="finishing">Finendo</string>
+    <string name="app_shutdown_dlg_title">Spegni</string>
+    <string name="app_shutdown_dlg_message">Questo fermerà tutti i trasferimenti e terminerà il servizio in background. Sei sicuro?</string>
     <string name="dummy_build" translatable="false">[build number]</string>
     <string name="try_other_keywords">Prova parole chiave differenti</string>
     <string name="try_frostwire_plus_for_more_results">Prova Mule su Android per maggiori risultati</string>
