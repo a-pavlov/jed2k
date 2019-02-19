@@ -166,6 +166,11 @@
     <string name="connect_on_start_server_summary">Connetti all'ultimo server usato</string>
     <string name="show_server_messages_summary">Mostra messaggi dal server</string>
     <string name="show_server_messages">Messaggi dal server</string>
+    <string name="reconnect_to_server_summary">Connettersi al server se la connessione è caduta</string>
+    <string name="reconnect_to_server">Riconnettersi al server</string>
+    <string name="ping_server_summary">Eseguire il ping del server per impedire la chiusura del collegamento.</string>
+    <string name="ping_server">Eseguire il ping del server</string>
+
     <string name="forward_ports_title">Port forwarding</string>
     <string name="forward_ports_summary">Port forwarding. L'UPnP deve essere attivo sul router</string>
 
