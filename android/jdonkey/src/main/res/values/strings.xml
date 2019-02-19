@@ -168,6 +168,9 @@
     <string name="show_server_messages">Server msg</string>
     <string name="reconnect_to_server_summary">Reconnect to server on connection closed by peer</string>
     <string name="reconnect_to_server">Reconnect to server</string>
+    <string name="ping_server_summary">Ping server to prevent disconnection by timeout</string>
+    <string name="ping_server">Ping server</string>
+
     <string name="forward_ports_title">Forward ports</string>
     <string name="forward_ports_summary">Forward incoming ports on my router. UPnP must be activated on router</string>
 
