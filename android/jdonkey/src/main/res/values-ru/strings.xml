@@ -140,6 +140,10 @@
     <string name="sever_menu_title">Операции с серверами</string>
     <string name="show_server_messages">Сообщения</string>
     <string name="show_server_messages_summary">Показывать сообщения серверов</string>
+    <string name="reconnect_to_server_summary">Подключаться к серверу если соединение упало</string>
+    <string name="reconnect_to_server">Подключаться к серверу</string>
+    <string name="ping_server_summary">Пинговать сервер чтобы предотвратить закрытие соединения по таймауту</string>
+    <string name="ping_server">Пинговать сервер</string>
     <string name="storage_picker_treeuri_null">Путь сохранения не выбран</string>
     <string name="storage_picker_treeuri_not_directory">Указанный путь не директория</string>
     <string name="storage_picker_treeuri_error">Ошибка проверки пути</string>

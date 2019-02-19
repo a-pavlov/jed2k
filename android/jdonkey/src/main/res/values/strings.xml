@@ -170,6 +170,9 @@
     <string name="reconnect_to_server">Reconnect to server</string>
     <string name="auto_start_service_title" translatable="false">Service auto start</string>
     <string name="auto_start_service_summary" translatable="false">Start service(if it stopped) on application statup</string>
+    <string name="ping_server_summary">Ping server to prevent disconnection by timeout</string>
+    <string name="ping_server">Ping server</string>
+
     <string name="forward_ports_title">Forward ports</string>
     <string name="forward_ports_summary">Forward incoming ports on my router. UPnP must be activated on router</string>
 

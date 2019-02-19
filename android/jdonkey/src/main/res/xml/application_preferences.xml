@@ -73,6 +73,11 @@
                 android:title="@string/reconnect_to_server" />
 
         <CheckBoxPreference
+                android:key="jmule.prefs.ping_server"
+                android:summary="@string/ping_server_summary"
+                android:title="@string/ping_server" />
+
+        <CheckBoxPreference
             android:key="jmule.prefs.show_servers_messages"
             android:summary="@string/show_server_messages_summary"
             android:title="@string/show_server_messages" />
