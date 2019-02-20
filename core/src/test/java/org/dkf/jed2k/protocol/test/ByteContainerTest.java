@@ -56,4 +56,14 @@ public class ByteContainerTest{
 
         assertEquals(0, bb.remaining());
     }
+
+    @Test(expected = JED2KException.class)
+    public void testGetIncorrectSize() throws JED2KException {
+        byte[] source = { (byte)0x17, (byte)0x00, (byte)0x00, (byte)0x50,
+                (byte)0x20, (byte)0x20, (byte)0x30, (byte)0x31, (byte)0x32, (byte)0x20, (byte)0x20};
+        ByteBuffer nb = ByteBuffer.wrap(source);
+        nb.order(ByteOrder.LITTLE_ENDIAN);
+        ByteContainer<UInt32> bc = new ByteContainer<UInt32>(uint32());
+        bc.get(nb);
+    }
 }

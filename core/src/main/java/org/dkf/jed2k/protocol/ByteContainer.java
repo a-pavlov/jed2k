@@ -36,6 +36,12 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
     public ByteBuffer get(ByteBuffer src) throws JED2KException {
         size.get(src);
         if (size.intValue() > 0) {
+            // set limit to 2Kb for buffer limit to avoid OOM
+            if (size.intValue() > 2048) {
+                log.error("byte buffer size overflow {}", size.intValue());
+                throw new JED2KException(ErrorCode.BUFFER_TOO_LARGE);
+            }
+
             value = new byte[size.intValue()];
             try {
                 src.get(value);
@@ -44,6 +50,8 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
             } catch(Exception e) {
                 throw new JED2KException(ErrorCode.BUFFER_GET_EXCEPTION);
             }
+        } else {
+            log.error("byte buffer incorrect size {}", size.intValue());
         }
 
         return src;
