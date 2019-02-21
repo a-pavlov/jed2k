@@ -192,7 +192,6 @@ public class ED2KService extends JobIntentService  {
         log.info("[ED2K service] creating");
         super.onCreate();
         foregroundServiceStartForAndroidO(this);
-        //mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
     @Override

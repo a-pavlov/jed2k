@@ -265,7 +265,6 @@ public final class Engine implements AlertListener {
         log.info("start engine service");
         Intent i = new Intent();
         i.setClass(context, ED2KService.class);
-
         try {
             Engine.startService(context, i);
             context.bindService(i, connection = new ServiceConnection() {
