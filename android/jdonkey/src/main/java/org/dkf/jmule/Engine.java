@@ -18,12 +18,15 @@
 
 package org.dkf.jmule;
 
-import android.app.Application;
+import android.app.*;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
@@ -248,6 +251,14 @@ public final class Engine implements AlertListener {
         return "";
     }
 
+    public static void startService(final Context context, final Intent intent) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            ContextCompat.startForegroundService(context, intent);
+        } else {
+            context.startService(intent);
+        }
+    }
+
     /**
      * @param context This must be the application context, otherwise there will be a leak.
      */
@@ -255,7 +266,8 @@ public final class Engine implements AlertListener {
         log.info("start engine service");
         Intent i = new Intent();
         i.setClass(context, ED2KService.class);
-        context.startService(i);
+
+        Engine.startService(context, i);
         context.bindService(i, connection = new ServiceConnection() {
 
             public void onServiceDisconnected(ComponentName name) {

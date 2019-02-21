@@ -156,4 +156,6 @@ public final class Constants {
     public static final String AD_NETWORK_SHORTCODE_INMOBI = "IM";
     public static final String AD_NETWORK_SHORTCODE_REMOVEADS = "RA";
     public static final String AD_NETWORK_SHORTCODE_MOBFOX = "MF";
+
+    public static final String ED2K_NOTIFICATION_CHANNEL_ID = "ed2k";
 }

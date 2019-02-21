@@ -1,17 +1,13 @@
 package org.dkf.jed2k.android;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
+import android.app.*;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Binder;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
+import android.os.*;
+import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.provider.DocumentFile;
 import android.widget.RemoteViews;
@@ -48,8 +44,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import android.support.v4.app.JobIntentService;
 
-public class ED2KService extends Service {
+public class ED2KService extends JobIntentService  {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
 
     public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jmule.android.ACTION_SHOW_TRANSFERS";
@@ -144,7 +141,7 @@ public class ED2KService extends Service {
     /**
      * Notification manager
      */
-    private NotificationManager mNotificationManager;
+    //private NotificationManager mNotificationManager;
 
     int lastStartId = -1;
 
@@ -163,20 +160,51 @@ public class ED2KService extends Service {
         return binder;
     }
 
+    /**
+     * Whenever there's a call to ContextCompat.startForegroundService(context, intent)
+     * the service that's supposed to be started in the foreground is expected to perform
+     * a service.startForeground() call along with a notification within the next 5 seconds,
+     * otherwise you get an IllegalState exception crash for not following the 'contract'
+     * @param service
+     */
+    public static void foregroundServiceStartForAndroidO(Service service) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            log.info("foregroundServiceStartForAndroidO");
+            NotificationChannel channel = new NotificationChannel(
+                    Constants.ED2K_NOTIFICATION_CHANNEL_ID,
+                    "ED2K",
+                    NotificationManager.IMPORTANCE_LOW);
+            ((NotificationManager) service.getSystemService(Context.NOTIFICATION_SERVICE)).
+                    createNotificationChannel(channel);
+
+            Notification notification = new NotificationCompat.Builder(
+                    service,
+                    Constants.ED2K_NOTIFICATION_CHANNEL_ID).
+                    setContentTitle("").
+                    setContentText("").
+                    build();
+            service.startForeground(1338, notification);
+        }
+    }
+
     @Override
     public void onCreate() {
-        log.info("[ED2K service] creating....");
+        log.info("[ED2K service] creating");
         super.onCreate();
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        foregroundServiceStartForAndroidO(this);
+        //mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        log.info("[ED2K service] start command");
         try {
             ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
         } catch(Exception e) {
             log.warn("cancel all notifications error {}", e);
         }
+
+        foregroundServiceStartForAndroidO(this);
 
         setupNotification();
 
@@ -214,6 +242,11 @@ public class ED2KService extends Service {
         // need additional code to guarantee all alerts were processed
         if (scheduledExecutorService != null) scheduledExecutorService.shutdown();
         log.info("[ED2K service] destroyed");
+    }
+
+    @Override
+    protected void onHandleWork(@NonNull Intent intent) {
+        onStartCommand(intent, 0, 1);
     }
 
     void startSession() {
@@ -787,9 +820,18 @@ public class ED2KService extends Service {
         // Transfers status.
         notificationViews.setTextViewText(R.id.view_permanent_status_text_downloads, downloads + " @ " + sDown);
 
-        final NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.notify(ED2K_STATUS_NOTIFICATION, notificationObject);
+        NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (manager != null) {
+            log.info("permanent status notification");
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                log.info("create channel");
+                NotificationChannel channel = new NotificationChannel(Constants.ED2K_NOTIFICATION_CHANNEL_ID, "ED2K", NotificationManager.IMPORTANCE_MIN);
+                channel.setSound(null, null);
+                manager.createNotificationChannel(channel);
+            }
+
+            manager.notify(ED2K_STATUS_NOTIFICATION, notificationObject);
         }
     }
 
@@ -803,16 +845,16 @@ public class ED2KService extends Service {
         remoteViews.setOnClickPendingIntent(R.id.view_permanent_status_shutdown, shutdownIntent);
         remoteViews.setOnClickPendingIntent(R.id.view_permanent_status_text_title, showFrostWireIntent);
 
-        Notification notification = new NotificationCompat.Builder(this).
+        Notification notification = new NotificationCompat.Builder(getApplicationContext(), Constants.ED2K_NOTIFICATION_CHANNEL_ID).
                 setSmallIcon(R.drawable.notification_mule).
                 setContentIntent(showFrostWireIntent).
                 setContent(remoteViews).
                 build();
+
         notification.flags |= Notification.FLAG_NO_CLEAR;
 
         notificationViews = remoteViews;
         notificationObject = notification;
-        log.info("setup notification {} {}", notificationViews!=null?"view ok":"view null", notificationObject!=null?"notification obj ok":"notificatiob obj null");
     }
 
     private PendingIntent createShowFrostwireIntent() {
@@ -859,10 +901,44 @@ public class ED2KService extends Service {
          */
         //mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
 
+        Context context = getApplicationContext();
+        PendingIntent pi = PendingIntent.getActivity(context, 0, intentShowTransfers, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        /*Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
+                .setWhen(System.currentTimeMillis())
+                .setContentText(summary)
+                .setContentTitle(title)
+                .setSmallIcon(R.drawable.notification_mule)
+                .setContentIntent(pi)
+                .build();*/
+
+        Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.drawable.notification_mule)
+                .setContentIntent(openPending)
+                .setPriority(Notification.PRIORITY_DEFAULT)
+                .setContent(mNotificationTemplate)
+                .setUsesChronometer(true)
+                .build();
+
+        notification.vibrate = ConfigurationManager.instance().vibrateOnFinishedDownload() ? VENEZUELAN_VIBE : null;
+        //notification.number = TransferManager.instance().getDownloadsToReview();
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        if (manager != null) {
+            log.info("buildNotification");
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(Constants.ED2K_NOTIFICATION_CHANNEL_ID, "ED2K", NotificationManager.IMPORTANCE_MIN);
+                channel.setSound(null, null);
+                manager.createNotificationChannel(channel);
+            }
+            manager.notify(Constants.NOTIFICATION_DOWNLOAD_TRANSFER_FINISHED, notification);
+        }
+
         /**
          * Create notification instance
          */
-        Notification notification = notificationBuilder
+        /*Notification notification = notificationBuilder
                 .setSmallIcon(R.drawable.notification_mule)
                 .setContentIntent(openPending)
                 .setPriority(Notification.PRIORITY_DEFAULT)
@@ -871,6 +947,7 @@ public class ED2KService extends Service {
                 .build();
 
         notification.vibrate = vibrateOnDownloadCompleted?VENEZUELAN_VIBE:null;
+        */
         //notification.flags = Notification.FLAG_ONGOING_EVENT;
 
 /*
@@ -888,8 +965,8 @@ public class ED2KService extends Service {
             notification.bigContentView = mExpandedView;
         }
 */
-        if (mNotificationManager != null)
-            mNotificationManager.notify(NOTIFICATION_ID, notification);
+        //NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        //if (manager != null) manager.notify(NOTIFICATION_ID, notification);
     }
 
     public void connectoServer(final String serverId, final String host, final int port) {
@@ -1112,4 +1189,27 @@ public class ED2KService extends Service {
     public void setPermanentNotification(boolean value) {
         permanentNotification.set(value);
     }
+/*
+    private static void cancelAllNotificationsTask(EngineService engineService) {
+        try {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                notificationManager.cancelAll();
+            }
+        } catch (SecurityException ignore) {
+            // new exception in Android 7
+        }
+    }
+
+    private static void startPermanentNotificationUpdatesTask(EngineService engineService) {
+        try {
+            if (engineService.notificationUpdateDemon == null) {
+                engineService.notificationUpdateDemon = new NotificationUpdateDemon(engineService.getApplicationContext());
+            }
+            engineService.notificationUpdateDemon.start();
+        } catch (Throwable t) {
+            LOG.warn(t.getMessage(), t);
+        }
+    }
+    */
 }
