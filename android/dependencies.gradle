@@ -1,4 +1,4 @@
 dependencies {
-    implementation 'com.android.support:appcompat-v7:23.2.1'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
 }
