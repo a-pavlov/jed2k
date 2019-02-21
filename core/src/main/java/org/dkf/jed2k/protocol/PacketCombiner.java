@@ -101,6 +101,8 @@ public abstract class PacketCombiner {
                 throw new JED2KException(e, ErrorCode.GENERIC_INSTANTIATION_ERROR);
             } catch (IllegalAccessException e) {
                 throw new JED2KException(e, ErrorCode.GENERIC_ILLEGAL_ACCESS);
+            } catch(Exception e) {
+                throw new JED2KException(e, ErrorCode.INTERNAL_ERROR);
             }
         } else {
             log.error("[combiner] unable to find correspond packet for {}", header);

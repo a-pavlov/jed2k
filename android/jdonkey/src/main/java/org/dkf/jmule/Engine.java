@@ -18,12 +18,17 @@
 
 package org.dkf.jmule;
 
-import android.app.Application;
+import android.app.*;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
@@ -39,6 +44,7 @@ import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.util.ThreadPool;
 import org.dkf.jmule.transfers.ED2KTransfer;
 import org.dkf.jmule.transfers.Transfer;
+import org.dkf.jmule.util.UIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,13 +245,17 @@ public final class Engine implements AlertListener {
         }
     }
 
-    public void removeServer(final String serverId) {
-
-    }
-
     public String getCurrentServerId() {
         if (service != null) return service.getCurrentServerId();
         return "";
+    }
+
+    public static void startService(final Context context, final Intent intent) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            ContextCompat.startForegroundService(context, intent);
+        } else {
+            context.startService(intent);
+        }
     }
 
     /**
@@ -255,71 +265,78 @@ public final class Engine implements AlertListener {
         log.info("start engine service");
         Intent i = new Intent();
         i.setClass(context, ED2KService.class);
-        context.startService(i);
-        context.bindService(i, connection = new ServiceConnection() {
 
-            public void onServiceDisconnected(ComponentName name) {
-                log.info("service disconnected {}", name);
-                Engine.this.service = null;
-            }
+        try {
+            Engine.startService(context, i);
+            context.bindService(i, connection = new ServiceConnection() {
 
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                if (service instanceof ED2KService.ED2KServiceBinder) {
-                    log.info("service connected {}", name);
-                    Engine.this.service = ((ED2KService.ED2KServiceBinder) service).getService();
-                    for(final AlertListener ls: pendingListeners) {
-                        Engine.this.service.addListener(ls);
-                    }
-
-                    log.info("bind {} pending listeners", pendingListeners.size());
-                    pendingListeners.clear();
-
-                    // sync properties here
-                    setListenPort((int) ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
-                    setMaxPeersCount((int)ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
-                    setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
-                    setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
-                    setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
-                    setReconnectToServer(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
-                    setServerPing(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_PING_SERVER));
-
-                    // migrate old versions which have no saved user agent hash
-                    String userAgent = ConfigurationManager.instance().getString(Constants.PREF_KEY_USER_AGENT);
-                    if (userAgent == null || userAgent.isEmpty()) {
-                        userAgent = Hash.random(true).toString();
-                        ConfigurationManager.instance().setString(Constants.PREF_KEY_USER_AGENT, userAgent);
-                        log.info("previous user agent was not found, generate new {}", userAgent);
-                    }
-
-                    log.info("user agent {}", userAgent);
-                    setUserAgent(userAgent);
-
-                    // KAD id section
-                    String kadId = ConfigurationManager.instance().getString(Constants.PREF_KEY_KAD_ID);
-                    if (kadId == null || kadId.isEmpty()) {
-                        kadId = new KadId(Hash.random(true)).toString();
-                        ConfigurationManager.instance().setString(Constants.PREF_KEY_KAD_ID, kadId);
-                        log.info("previous kad id was not found, generate new {}", kadId);
-                    }
-
-                    log.info("kad id {}", kadId);
-                    setKadId(kadId);
-
-                    configureServices();
-
-                    if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_AUTO_START_SERVICE) && isStopped()) {
-                        startServices();
-                    }
-
-                    forwardPorts(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
-                    useDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CONNECT_DHT));
-
-                    //registerStatusReceiver(context);
-                } else {
-                    throw new IllegalArgumentException("IBinder on service connected class is not instance of ED2KService.ED2KServiceBinder");
+                public void onServiceDisconnected(ComponentName name) {
+                    log.info("service disconnected {}", name);
+                    Engine.this.service = null;
                 }
-            }
-        }, Context.BIND_AUTO_CREATE);
+
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    if (service instanceof ED2KService.ED2KServiceBinder) {
+                        log.info("service connected {}", name);
+                        Engine.this.service = ((ED2KService.ED2KServiceBinder) service).getService();
+                        for (final AlertListener ls : pendingListeners) {
+                            Engine.this.service.addListener(ls);
+                        }
+
+                        log.info("bind {} pending listeners", pendingListeners.size());
+                        pendingListeners.clear();
+
+                        // sync properties here
+                        setListenPort((int) ConfigurationManager.instance().getLong(Constants.PREF_KEY_LISTEN_PORT));
+                        setMaxPeersCount((int) ConfigurationManager.instance().getLong(Constants.PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS));
+                        setNickname(ConfigurationManager.instance().getString(Constants.PREF_KEY_NICKNAME));
+                        setVibrateOnDownloadCompleted(ConfigurationManager.instance().vibrateOnFinishedDownload());
+                        setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
+                        setReconnectToServer(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
+                        setServerPing(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_PING_SERVER));
+
+                        // migrate old versions which have no saved user agent hash
+                        String userAgent = ConfigurationManager.instance().getString(Constants.PREF_KEY_USER_AGENT);
+                        if (userAgent == null || userAgent.isEmpty()) {
+                            userAgent = Hash.random(true).toString();
+                            ConfigurationManager.instance().setString(Constants.PREF_KEY_USER_AGENT, userAgent);
+                            log.info("previous user agent was not found, generate new {}", userAgent);
+                        }
+
+                        log.info("user agent {}", userAgent);
+                        setUserAgent(userAgent);
+
+                        // KAD id section
+                        String kadId = ConfigurationManager.instance().getString(Constants.PREF_KEY_KAD_ID);
+                        if (kadId == null || kadId.isEmpty()) {
+                            kadId = new KadId(Hash.random(true)).toString();
+                            ConfigurationManager.instance().setString(Constants.PREF_KEY_KAD_ID, kadId);
+                            log.info("previous kad id was not found, generate new {}", kadId);
+                        }
+
+                        log.info("kad id {}", kadId);
+                        setKadId(kadId);
+
+                        configureServices();
+
+                        if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_AUTO_START_SERVICE) && isStopped()) {
+                            startServices();
+                        }
+
+                        forwardPorts(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_FORWARD_PORTS));
+                        useDht(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_CONNECT_DHT));
+
+                        //registerStatusReceiver(context);
+                    } else {
+                        throw new IllegalArgumentException("IBinder on service connected class is not instance of ED2KService.ED2KServiceBinder");
+                    }
+                }
+            }, Context.BIND_AUTO_CREATE);
+        } catch (SecurityException e) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(()-> UIUtils.showLongMessage(context, R.string.mule_start_engine_service_security_exception));
+            e.printStackTrace();
+        }
     }
 
     public void performSearch(
