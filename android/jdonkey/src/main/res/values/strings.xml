@@ -249,4 +249,5 @@
     <string name="nodes_link_open_error_text">Unable to add nodes to Kad - check ED2K core is started and Kademlia is activated</string>
     <string name="search_failed_title" translatable="false">Unable to start search</string>
     <string name="search_params_invalid_number">Invalid number in numeric parameters for search</string>
+    <string name="mule_start_engine_service_security_exception">Mule could not start properly due to lack of permissions. Please grant the required permissions and restart the application</string>
 </resources>

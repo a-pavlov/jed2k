@@ -249,4 +249,5 @@
     <string name="nodes_link_open_error_text">Impossibile aggiungere nodi alla rete Kademlia - verifica che il servizio ED2K sia avviato e Kademlia sia attivo</string>
     <string name="search_failed_title">Impossibile avviare la ricerca</string>
     <string name="search_params_invalid_number">Numero non valido nei parametri numerici per la ricerca</string>
+    <string name="mule_start_engine_service_security_exception">Impossibile avviare correttamente il Mulo a causa della mancanza di permessi. Concedere i permessi necessari e riavviare l\'applicazione</string>
 </resources>

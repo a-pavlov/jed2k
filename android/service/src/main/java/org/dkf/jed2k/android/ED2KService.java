@@ -803,35 +803,36 @@ public class ED2KService extends JobIntentService  {
     }
 
     private void updatePermanentStatusNotification() {
+        try {
+            if (!permanentNotification.get()) return;
 
-        if (!permanentNotification.get()) return;
-
-        if (notificationViews == null || notificationObject == null) {
-            log.warn("[ED2K service] Notification views or object are null, review your logic");
-            return;
-        }
-
-        //  format strings
-        String sDown = rate2speed(getDownloadUploadRate().left / 1024);
-
-        // number of uploads (seeding) and downloads
-        int downloads = getTransfers().size();
-
-        // Transfers status.
-        notificationViews.setTextViewText(R.id.view_permanent_status_text_downloads, downloads + " @ " + sDown);
-
-        NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (manager != null) {
-            log.info("permanent status notification");
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                log.info("create channel");
-                NotificationChannel channel = new NotificationChannel(Constants.ED2K_NOTIFICATION_CHANNEL_ID, "ED2K", NotificationManager.IMPORTANCE_MIN);
-                channel.setSound(null, null);
-                manager.createNotificationChannel(channel);
+            if (notificationViews == null || notificationObject == null) {
+                log.warn("[ED2K service] Notification views or object are null, review your logic");
+                return;
             }
 
-            manager.notify(ED2K_STATUS_NOTIFICATION, notificationObject);
+            //  format strings
+            String sDown = rate2speed(getDownloadUploadRate().left / 1024);
+
+            // number of uploads (seeding) and downloads
+            int downloads = getTransfers().size();
+
+            // Transfers status.
+            notificationViews.setTextViewText(R.id.view_permanent_status_text_downloads, downloads + " @ " + sDown);
+
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (manager != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    NotificationChannel channel = new NotificationChannel(Constants.ED2K_NOTIFICATION_CHANNEL_ID, "ED2K", NotificationManager.IMPORTANCE_MIN);
+                    channel.setSound(null, null);
+                    manager.createNotificationChannel(channel);
+                }
+
+                manager.notify(ED2K_STATUS_NOTIFICATION, notificationObject);
+            }
+        } catch (Throwable e) {
+            log.error("Permanent notification finished {}", e);
         }
     }
 
@@ -874,99 +875,101 @@ public class ED2KService extends JobIntentService  {
     }
 
     private void buildNotification(final String title, final String summary, final String extra) {
-        Intent intentShowTransfers = new Intent(ACTION_SHOW_TRANSFERS);
-        if (!extra.isEmpty()) intentShowTransfers.putExtra(extra, true);
+        try {
+            Intent intentShowTransfers = new Intent(ACTION_SHOW_TRANSFERS);
+            if (!extra.isEmpty()) intentShowTransfers.putExtra(extra, true);
 
-        /**
-         * Pending intents
-         */
-        PendingIntent openPending = PendingIntent.getActivity(getApplicationContext(), 0, intentShowTransfers, 0);
+            /**
+             * Pending intents
+             */
+            PendingIntent openPending = PendingIntent.getActivity(getApplicationContext(), 0, intentShowTransfers, 0);
 
-        /**
-         * Remote view for normal view
-         */
+            /**
+             * Remote view for normal view
+             */
+            Bitmap art = BitmapFactory.decodeResource(getResources(), R.drawable.notification_mule);
 
-        Bitmap art = BitmapFactory.decodeResource(getResources(), R.drawable.notification_mule);
+            RemoteViews mNotificationTemplate = new RemoteViews(this.getPackageName(), R.layout.notification);
+            Notification.Builder notificationBuilder = new Notification.Builder(this);
 
-        RemoteViews mNotificationTemplate = new RemoteViews(this.getPackageName(), R.layout.notification);
-        Notification.Builder notificationBuilder = new Notification.Builder(this);
+            mNotificationTemplate.setTextViewText(R.id.notification_line_one, title);
+            mNotificationTemplate.setTextViewText(R.id.notification_line_two, summary);
+            //mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.btn_playback_pause /* : R.drawable.btn_playback_play*/);
+            //mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
 
-        mNotificationTemplate.setTextViewText(R.id.notification_line_one, title);
-        mNotificationTemplate.setTextViewText(R.id.notification_line_two, summary);
-        //mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.btn_playback_pause /* : R.drawable.btn_playback_play*/);
-        //mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
+            /**
+             * OnClickPending intent for collapsed notification
+             */
+            //mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
 
-        /**
-         * OnClickPending intent for collapsed notification
-         */
-        //mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
+            Context context = getApplicationContext();
+            PendingIntent pi = PendingIntent.getActivity(context, 0, intentShowTransfers, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            /*Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentText(summary)
+                    .setContentTitle(title)
+                    .setSmallIcon(R.drawable.notification_mule)
+                    .setContentIntent(pi)
+                    .build();*/
 
-        Context context = getApplicationContext();
-        PendingIntent pi = PendingIntent.getActivity(context, 0, intentShowTransfers, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        /*Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
-                .setWhen(System.currentTimeMillis())
-                .setContentText(summary)
-                .setContentTitle(title)
-                .setSmallIcon(R.drawable.notification_mule)
-                .setContentIntent(pi)
-                .build();*/
+            Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
+                    .setWhen(System.currentTimeMillis())
+                    .setSmallIcon(R.drawable.notification_mule)
+                    .setContentIntent(openPending)
+                    .setPriority(Notification.PRIORITY_DEFAULT)
+                    .setContent(mNotificationTemplate)
+                    .setUsesChronometer(true)
+                    .build();
 
-        Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.notification_mule)
-                .setContentIntent(openPending)
-                .setPriority(Notification.PRIORITY_DEFAULT)
-                .setContent(mNotificationTemplate)
-                .setUsesChronometer(true)
-                .build();
+            notification.vibrate = ConfigurationManager.instance().vibrateOnFinishedDownload() ? VENEZUELAN_VIBE : null;
+            //notification.number = TransferManager.instance().getDownloadsToReview();
+            //notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
-        notification.vibrate = ConfigurationManager.instance().vibrateOnFinishedDownload() ? VENEZUELAN_VIBE : null;
-        //notification.number = TransferManager.instance().getDownloadsToReview();
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        if (manager != null) {
-            log.info("buildNotification");
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(Constants.ED2K_NOTIFICATION_CHANNEL_ID, "ED2K", NotificationManager.IMPORTANCE_MIN);
-                channel.setSound(null, null);
-                manager.createNotificationChannel(channel);
+            if (manager != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    NotificationChannel channel = new NotificationChannel(Constants.ED2K_NOTIFICATION_CHANNEL_ID, "ED2K", NotificationManager.IMPORTANCE_MIN);
+                    channel.setSound(null, null);
+                    manager.createNotificationChannel(channel);
+                }
+                manager.notify(Constants.NOTIFICATION_DOWNLOAD_TRANSFER_FINISHED, notification);
             }
-            manager.notify(Constants.NOTIFICATION_DOWNLOAD_TRANSFER_FINISHED, notification);
+
+            /**
+             * Create notification instance
+             */
+            /*Notification notification = notificationBuilder
+                    .setSmallIcon(R.drawable.notification_mule)
+                    .setContentIntent(openPending)
+                    .setPriority(Notification.PRIORITY_DEFAULT)
+                    .setContent(mNotificationTemplate)
+                    .setUsesChronometer(true)
+                    .build();
+
+            notification.vibrate = vibrateOnDownloadCompleted?VENEZUELAN_VIBE:null;
+            */
+            //notification.flags = Notification.FLAG_ONGOING_EVENT;
+
+    /*
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+
+                RemoteViews mExpandedView = new RemoteViews(this.getPackageName(), R.layout.notification_expanded);
+
+                mExpandedView.setTextViewText(R.id.notification_line_one, title);
+                mExpandedView.setTextViewText(R.id.notification_line_two, summary);
+                mExpandedView.setImageViewResource(R.id.notification_expanded_play, R.drawable.btn_playback_pause : R.drawable.btn_playback_play);
+                mExpandedView.setImageViewBitmap(R.id.notification_image, );
+
+                mExpandedView.setOnClickPendingIntent(R.id.notification_collapse, openPending);
+                mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, closePending);
+                notification.bigContentView = mExpandedView;
+            }
+    */
+            //NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            //if (manager != null) manager.notify(NOTIFICATION_ID, notification);
+        } catch (Throwable e) {
+            log.error("Error creating notification for download finished {}", e);
         }
-
-        /**
-         * Create notification instance
-         */
-        /*Notification notification = notificationBuilder
-                .setSmallIcon(R.drawable.notification_mule)
-                .setContentIntent(openPending)
-                .setPriority(Notification.PRIORITY_DEFAULT)
-                .setContent(mNotificationTemplate)
-                .setUsesChronometer(true)
-                .build();
-
-        notification.vibrate = vibrateOnDownloadCompleted?VENEZUELAN_VIBE:null;
-        */
-        //notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-/*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-
-            RemoteViews mExpandedView = new RemoteViews(this.getPackageName(), R.layout.notification_expanded);
-
-            mExpandedView.setTextViewText(R.id.notification_line_one, title);
-            mExpandedView.setTextViewText(R.id.notification_line_two, summary);
-            mExpandedView.setImageViewResource(R.id.notification_expanded_play, R.drawable.btn_playback_pause : R.drawable.btn_playback_play);
-            mExpandedView.setImageViewBitmap(R.id.notification_image, );
-
-            mExpandedView.setOnClickPendingIntent(R.id.notification_collapse, openPending);
-            mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, closePending);
-            notification.bigContentView = mExpandedView;
-        }
-*/
-        //NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        //if (manager != null) manager.notify(NOTIFICATION_ID, notification);
     }
 
     public void connectoServer(final String serverId, final String host, final int port) {
