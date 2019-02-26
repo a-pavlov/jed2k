@@ -44,7 +44,7 @@ android {
 
     defaultConfig {
         applicationId "org.dkf.jmule"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 26
         versionCode 19
         versionName "1.9"
