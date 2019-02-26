@@ -143,6 +143,7 @@ public class ED2KService extends JobIntentService  {
     int lastStartId = -1;
 
     private Set<String> explicitWords = new HashSet<>();
+    private Set<String> blockedHashes = new HashSet<>();
 
     public ED2KService() {
         binder = new ED2KServiceBinder();
@@ -606,14 +607,14 @@ public class ED2KService extends JobIntentService  {
             if (a instanceof ListenAlert) {
                 for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
             } else if (a instanceof SearchResultAlert) {
-                // inplace filtering bad words
-                if (!noLimitSearch) {
+                // inplace filtering bad words in case when search is limited or we have blocked hashes dictionary
+                if (!noLimitSearch || !blockedHashes.isEmpty()) {
                     log.info("words filter {}", explicitWords.size());
                     SearchResultAlert sa = (SearchResultAlert) a;
                     Iterator<SearchEntry> itr = sa.getResults().iterator();
                     while(itr.hasNext()) {
                         SearchEntry se = itr.next();
-                        if (isFiltered(se.getFileName())) {
+                        if ((!noLimitSearch && isFiltered(se.getFileName())) || isBlocked(se.getHash())) {
                             log.info("remove {}", se.getFileName());
                             itr.remove();
                         }
@@ -1176,6 +1177,14 @@ public class ED2KService extends JobIntentService  {
             }
         }
         return false;
+    }
+
+    public void blockHash(Hash hash) {
+        blockedHashes.add(hash.toString());
+    }
+
+    public boolean isBlocked(Hash hash) {
+        return blockedHashes.contains(hash.toString());
     }
 
     public void setListenPort(int port) {

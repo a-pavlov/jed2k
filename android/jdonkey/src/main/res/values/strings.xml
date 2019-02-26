@@ -49,6 +49,7 @@
     <string name="download_added_to_queue">1 file will start downloading</string>
     <string name="open_menu_action">Open %s</string>
     <string name="search_more_action">Search more</string>
+    <string name="search_block_action">Block search result</string>
 
     <string name="remove_torrent_and_data">Remove transfer</string>
     <string name="media_type_all_types">All Types</string>

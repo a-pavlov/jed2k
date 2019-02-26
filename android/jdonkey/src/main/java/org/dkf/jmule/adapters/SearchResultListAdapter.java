@@ -31,6 +31,7 @@ import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.MainActivity;
+import org.dkf.jmule.adapters.menu.BlockSearchAction;
 import org.dkf.jmule.adapters.menu.SearchMoreAction;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.AbstractListAdapter;
@@ -92,6 +93,13 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Search
     protected void populateView(View view, final SearchEntry entry) {
         maybeMarkTitleOpened(view, entry);
         populateFilePart(view, entry);
+    }
+
+    public void removeEntry(SearchEntry searchEntry) {
+        boolean removed = list.remove(searchEntry);
+        boolean removed2 = visualList.remove(searchEntry);
+        log.info("item blocked {} / {}", removed, removed2);
+        notifyDataSetChanged();
     }
 
     private void maybeMarkTitleOpened(View view, SearchEntry se) {
@@ -229,6 +237,7 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Search
         MainActivity a = (MainActivity)getContext();
         if (a != null) {
             actions.add(new SearchMoreAction(getContext(), a.getSearchFragment()));
+            actions.add(new BlockSearchAction(getContext(), a.getSearchFragment(), entry));
         }
     }
 

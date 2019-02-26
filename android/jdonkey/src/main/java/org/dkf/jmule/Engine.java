@@ -469,6 +469,14 @@ public final class Engine implements AlertListener {
         return (service != null)?service.isNoLimitSearch():false;
     }
 
+    public void blockHash(Hash hash) {
+        if (service != null) service.blockHash(hash);
+    }
+
+    public boolean isBlocked(Hash hash) {
+        return (service != null)?service.isBlocked(hash):false;
+    }
+
     public void configureServices() {
         if (service != null) service.configureSession();
     }

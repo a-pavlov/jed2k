@@ -316,6 +316,11 @@ public final class SearchFragment extends AbstractFragment implements
         }
     }
 
+    public void removeEntry(SearchEntry searchEntry) {
+        Engine.instance().blockHash(searchEntry.getHash());
+        adapter.removeEntry(searchEntry);
+    }
+
     private void cancelSearch() {
         log.info("cancel search wait res {}", awaitingResults?"YES":"NO");
         if (awaitingResults) {

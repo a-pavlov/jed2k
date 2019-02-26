@@ -62,4 +62,10 @@ public class SharedFileEntry extends UsualPacket implements SearchEntry {
     public String getMediaAlbum() {
         return "";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || (SearchEntry)o == null) return false;
+        return ((SearchEntry)o).getHash().equals(getHash());
+    }
 }
