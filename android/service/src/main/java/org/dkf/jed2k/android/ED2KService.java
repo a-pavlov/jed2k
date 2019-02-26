@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.*;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.provider.DocumentFile;
@@ -22,10 +21,7 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.kad.NodeEntry;
-import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.UInt32;
+import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -63,6 +59,7 @@ public class ED2KService extends JobIntentService  {
     private boolean vibrateOnDownloadCompleted = false;
     private boolean forwardPorts = false;
     private boolean useDht = false;
+    private boolean noLimitSearch = false;
     private KadId kadId = null;
 
     /**
@@ -145,6 +142,8 @@ public class ED2KService extends JobIntentService  {
 
     int lastStartId = -1;
 
+    private Set<String> explicitWords = new HashSet<>();
+
     public ED2KService() {
         binder = new ED2KServiceBinder();
     }
@@ -192,7 +191,20 @@ public class ED2KService extends JobIntentService  {
         log.info("[ED2K service] creating");
         super.onCreate();
         foregroundServiceStartForAndroidO(this);
-        //mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // load forbidden words
+        try (InputStream ins = getResources().openRawResource(
+                getResources().getIdentifier("explicit_words",
+                        "raw", getPackageName()))) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
+            while (reader.ready()) {
+                String line = reader.readLine();
+                explicitWords.add(line);
+            }
+
+            log.info("explicit words {}", explicitWords.size());
+        } catch (Exception e) {
+            log.error("unable to open explicit words list {}", e.getMessage());
+        }
     }
 
     @Override
@@ -594,6 +606,19 @@ public class ED2KService extends JobIntentService  {
             if (a instanceof ListenAlert) {
                 for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
             } else if (a instanceof SearchResultAlert) {
+                // inplace filtering bad words
+                if (!noLimitSearch) {
+                    log.info("words filter {}", explicitWords.size());
+                    SearchResultAlert sa = (SearchResultAlert) a;
+                    Iterator<SearchEntry> itr = sa.getResults().iterator();
+                    while(itr.hasNext()) {
+                        SearchEntry se = itr.next();
+                        if (isFiltered(se.getFileName())) {
+                            log.info("remove {}", se.getFileName());
+                            itr.remove();
+                        }
+                    }
+                }
                 for (final AlertListener ls : listeners) ls.onSearchResult((SearchResultAlert) a);
             } else if (a instanceof ServerMessageAlert) {
                 for (final AlertListener ls : listeners) ls.onServerMessage((ServerMessageAlert) a);
@@ -1132,6 +1157,25 @@ public class ED2KService extends JobIntentService  {
                 stopDht();
             }
         }
+    }
+
+    public void setNoLimitSearch(boolean value) {
+        noLimitSearch = value;
+    }
+
+    public boolean isNoLimitSearch() {
+        return noLimitSearch;
+    }
+
+    public boolean isFiltered(String value) {
+        String values[] = value.toLowerCase().split("-|\\_|\\.|,|\\s|\\}|\\{|\\(|\\)");
+        for(final String s: values) {
+            if (explicitWords.contains(s)) {
+                log.info("filtered {}", s);
+                return true;
+            }
+        }
+        return false;
     }
 
     public void setListenPort(int port) {

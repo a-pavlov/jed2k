@@ -133,18 +133,18 @@
                 android:title="@string/notify_jdonkey_is_running"
                 android:summary="@string/notify_jdonkey_is_running_summary"
                 android:enabled="true"/>
-<!--
-        <CheckBoxPreference
-            android:key="jmule.prefs.gui.auto_start_service"
-            android:title="@string/auto_start_service_title"
-            android:summary="@string/auto_start_service_summary"
-            android:enabled="true" />
-            -->
+
         <CheckBoxPreference
             android:key="jmule.prefs.gui.forward_ports"
             android:title="@string/forward_ports_title"
             android:summary="@string/forward_ports_summary"
             android:enabled="true" />
+
+        <CheckBoxPreference
+                android:key="jmule.prefs.gui.no_limit_search"
+                android:title="@string/no_limit_search"
+                android:summary="@string/no_limit_search_summary"
+                android:enabled="true" />
 
     </PreferenceScreen>
 

@@ -27,7 +27,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.Pair;
@@ -294,6 +293,7 @@ public final class Engine implements AlertListener {
                         setPermanentNotification(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ENABLE_PERMANENT_STATUS_NOTIFICATION));
                         setReconnectToServer(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_RECONNECT_TO_SERVER));
                         setServerPing(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_PING_SERVER));
+                        setNoLimitSearch(ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_NO_LIMIT_SEARCH));
 
                         // migrate old versions which have no saved user agent hash
                         String userAgent = ConfigurationManager.instance().getString(Constants.PREF_KEY_USER_AGENT);
@@ -455,6 +455,18 @@ public final class Engine implements AlertListener {
         assert s != null;
         assert !s.isEmpty();
         if (service != null) service.setKadId(KadId.fromString(s));
+    }
+
+    public void setNoLimitSearch(boolean value) {
+        if (service != null) service.setNoLimitSearch(value);
+    }
+
+    public boolean isFiltered(String value) {
+        return (service != null)?service.isFiltered(value):false;
+    }
+
+    public boolean isNoLimitSearch() {
+        return (service != null)?service.isNoLimitSearch():false;
     }
 
     public void configureServices() {

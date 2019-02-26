@@ -45,6 +45,7 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     private CheckBox checkSeedFinishedTorrentsWifiOnly;
     private CheckBox checkUpnp;
     private CheckBox checkDht;
+    private CheckBox checkShowAll;
 
     public GeneralWizardPage(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -72,9 +73,10 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     public void finish() {
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_FORWARD_PORTS, checkUpnp.isChecked());
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_CONNECT_DHT, checkDht.isChecked());
-        log.info("[wizard] upnp {}, dht {}", checkUpnp.isChecked(), checkDht.isChecked());
+        ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_GUI_NO_LIMIT_SEARCH, checkShowAll.isChecked());
         Engine.instance().forwardPorts(checkUpnp.isChecked());
         Engine.instance().useDht(checkDht.isChecked());
+        Engine.instance().setNoLimitSearch(!checkShowAll.isChecked());
     }
 
     @Override
@@ -113,6 +115,13 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
 
         checkDht = (CheckBox) findViewById(R.id.view_general_wizard_page_check_dht);
         checkDht.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                validate();
+            }
+        });
+
+        checkShowAll = (CheckBox) findViewById(R.id.view_general_wizard_page_check_show_all);
+        checkShowAll.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 validate();
             }
