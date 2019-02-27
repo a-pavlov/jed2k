@@ -404,13 +404,10 @@ public final class LollipopFileSystem implements FileSystem {
 
     private static DocumentFile getDocument(Context context, File file) {
         try {
-            String path = file.getAbsolutePath();
             String baseFolder = getExtSdCardFolder(context, file);
             if (baseFolder == null) {
                 return file.exists() ? DocumentFile.fromFile(file) : null;
             }
-
-            //baseFolder = combineRoot(baseFolder);
 
             String fullPath = file.getAbsolutePath();
             String relativePath = baseFolder.length() < fullPath.length() ? fullPath.substring(baseFolder.length() + 1) : "";
