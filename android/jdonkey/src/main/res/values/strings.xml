@@ -141,8 +141,8 @@
     <string name="request_again">Request Again</string>
     <string name="notify_jdonkey_is_running">Notify if Mule on Android is running</string>
     <string name="notify_jdonkey_is_running_summary">Show a permanent Android notification with status of transfers</string>
-    <string name="no_limit_search">Show all in search results</string>
-    <string name="no_limit_search_summary">By enabling this checkbox you agree to see any published materials and search without restrictions</string>
+    <string name="no_limit_search">Show all search results</string>
+    <string name="no_limit_search_summary">By enabling this checkbox you agree to see any published materials having been requested. Otherwise search results will filtered</string>
     <string name="storage_picker_treeuri_null">No storage path was selected</string>
     <string name="storage_picker_treeuri_not_directory">The selected path is not a directory</string>
     <string name="storage_picker_treeuri_cant_write">Mule on Android can\'t write on the selected storage path</string>
@@ -215,7 +215,7 @@
     <string name="wizard_dht_summary">Use Kademlia to find more sources. Be careful - generates service traffic.</string>
 
     <string name="wizard_show_all">Show all published materials</string>
-    <string name="wizard_show_all_summary">By enabling this checkbox you agree to see any published materials and search without restrictions</string>
+    <string name="wizard_show_all_summary">By enabling this checkbox you agree to see any published materials having been requested. Otherwise application tries to filter objectionable content.</string>
 
     <string name="usage_notes_title">Usage notes</string>
     <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service) if it is
