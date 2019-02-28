@@ -89,6 +89,7 @@ public final class Constants {
     public static final String PREF_KEY_AUTO_START_SERVICE = "jmule.prefs.gui.auto_start_service";
     public static final String PREF_KEY_FORWARD_PORTS = "jmule.prefs.gui.forward_ports";
 
+    public static final String PREF_KEY_BLOCK_HASH_LIST = "jmule.prefs.block_hash_list";
 
     public static final String PREF_KEY_TRANSFER_PREFERENCE_CATEGORY = "jmule.prefs.transfer.preference_category";
     public static final String PREF_KEY_TRANSFER_MAX_DOWNLOADS = "jmule.prefs.transfer.max_downloads";

@@ -143,7 +143,7 @@ public class ED2KService extends JobIntentService  {
     int lastStartId = -1;
 
     private Set<String> explicitWords = new HashSet<>();
-    private Set<String> blockedHashes = new HashSet<>();
+    private Set<Hash> blockedHashes = new HashSet<>();
 
     public ED2KService() {
         binder = new ED2KServiceBinder();
@@ -203,6 +203,15 @@ public class ED2KService extends JobIntentService  {
             }
 
             log.info("explicit words {}", explicitWords.size());
+
+            // loading blocked hashes
+            Container<UInt32, Hash> bh = Container.makeInt(Hash.class);
+            ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh);
+
+            for(final Hash hash: bh.getList()) {
+                blockedHashes.add(hash);
+            }
+
         } catch (Exception e) {
             log.error("unable to open explicit words list {}", e.getMessage());
         }
@@ -240,6 +249,19 @@ public class ED2KService extends JobIntentService  {
         } catch(Exception e) {
             log.error("[ED2K service] cancel all error");
         }
+
+        if (!blockedHashes.isEmpty()) {
+            log.info("[ED2K service] persist blocked hashes");
+            Container<UInt32, Hash> bh = Container.makeInt(Hash.class);
+            for(final Hash hash: blockedHashes) {
+                bh.add(hash);
+            }
+
+            ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh);
+
+            log.info("[ED2K service] store {} hashes", bh.size());
+        }
+
 
         if (session != null) {
             session.abort();
@@ -1180,11 +1202,11 @@ public class ED2KService extends JobIntentService  {
     }
 
     public void blockHash(Hash hash) {
-        blockedHashes.add(hash.toString());
+        blockedHashes.add(hash);
     }
 
     public boolean isBlocked(Hash hash) {
-        return blockedHashes.contains(hash.toString());
+        return blockedHashes.contains(hash);
     }
 
     public void setListenPort(int port) {

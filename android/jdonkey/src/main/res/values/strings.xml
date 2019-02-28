@@ -142,7 +142,7 @@
     <string name="notify_jdonkey_is_running">Notify if Mule on Android is running</string>
     <string name="notify_jdonkey_is_running_summary">Show a permanent Android notification with status of transfers</string>
     <string name="no_limit_search">Show all search results</string>
-    <string name="no_limit_search_summary">By enabling this checkbox you agree to see any published materials having been requested. Otherwise search results will filtered</string>
+    <string name="no_limit_search_summary">By enabling this checkbox you agree to see any published materials having been requested. Otherwise search results will be filtered</string>
     <string name="storage_picker_treeuri_null">No storage path was selected</string>
     <string name="storage_picker_treeuri_not_directory">The selected path is not a directory</string>
     <string name="storage_picker_treeuri_cant_write">Mule on Android can\'t write on the selected storage path</string>
