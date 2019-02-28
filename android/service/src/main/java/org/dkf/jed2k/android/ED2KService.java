@@ -59,7 +59,7 @@ public class ED2KService extends JobIntentService  {
     private boolean vibrateOnDownloadCompleted = false;
     private boolean forwardPorts = false;
     private boolean useDht = false;
-    private boolean noLimitSearch = false;
+    private boolean safeMode = false;
     private KadId kadId = null;
 
     /**
@@ -630,13 +630,13 @@ public class ED2KService extends JobIntentService  {
                 for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
             } else if (a instanceof SearchResultAlert) {
                 // inplace filtering bad words in case when search is limited or we have blocked hashes dictionary
-                if (!noLimitSearch || !blockedHashes.isEmpty()) {
+                if (safeMode || !blockedHashes.isEmpty()) {
                     log.info("words filter {}", explicitWords.size());
                     SearchResultAlert sa = (SearchResultAlert) a;
                     Iterator<SearchEntry> itr = sa.getResults().iterator();
                     while(itr.hasNext()) {
                         SearchEntry se = itr.next();
-                        if ((!noLimitSearch && isFiltered(se.getFileName())) || isBlocked(se.getHash())) {
+                        if ((safeMode && isFiltered(se.getFileName())) || isBlocked(se.getHash())) {
                             log.info("remove {}", se.getFileName());
                             itr.remove();
                         }
@@ -1182,12 +1182,12 @@ public class ED2KService extends JobIntentService  {
         }
     }
 
-    public void setNoLimitSearch(boolean value) {
-        noLimitSearch = value;
+    public void setSafeMode(boolean value) {
+        safeMode = value;
     }
 
-    public boolean isNoLimitSearch() {
-        return noLimitSearch;
+    public boolean isSafeMode() {
+        return safeMode;
     }
 
     public boolean isFiltered(String value) {

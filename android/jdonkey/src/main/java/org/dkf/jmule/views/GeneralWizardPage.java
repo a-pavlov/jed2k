@@ -73,10 +73,10 @@ public class GeneralWizardPage extends RelativeLayout implements WizardPageView 
     public void finish() {
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_FORWARD_PORTS, checkUpnp.isChecked());
         ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_CONNECT_DHT, checkDht.isChecked());
-        ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_GUI_NO_LIMIT_SEARCH, checkShowAll.isChecked());
+        ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_GUI_SAFE_MODE, checkShowAll.isChecked());
         Engine.instance().forwardPorts(checkUpnp.isChecked());
         Engine.instance().useDht(checkDht.isChecked());
-        Engine.instance().setNoLimitSearch(!checkShowAll.isChecked());
+        Engine.instance().setSafeMode(!checkShowAll.isChecked());
     }
 
     @Override

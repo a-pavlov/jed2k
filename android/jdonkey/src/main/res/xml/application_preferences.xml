@@ -141,9 +141,9 @@
             android:enabled="true" />
 
         <CheckBoxPreference
-                android:key="jmule.prefs.gui.no_limit_search"
-                android:title="@string/no_limit_search"
-                android:summary="@string/no_limit_search_summary"
+                android:key="jmule.prefs.gui.safe_mode"
+                android:title="@string/safe_mode"
+                android:summary="@string/safe_mode_summary"
                 android:enabled="true" />
 
     </PreferenceScreen>

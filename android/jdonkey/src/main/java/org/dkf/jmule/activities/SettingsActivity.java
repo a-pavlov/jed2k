@@ -329,12 +329,12 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void useWordsFilterCheckbox() {
-        final CheckBoxPreference showAll = (CheckBoxPreference) findPreference(Constants.PREF_KEY_GUI_NO_LIMIT_SEARCH);
+        final CheckBoxPreference showAll = (CheckBoxPreference) findPreference(Constants.PREF_KEY_GUI_SAFE_MODE);
         if (showAll != null) {
             showAll.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    Engine.instance().setNoLimitSearch((boolean) newValue);
+                    Engine.instance().setSafeMode((boolean) newValue);
                     return true;
                 }
             });

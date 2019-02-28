@@ -244,7 +244,7 @@ public final class SearchFragment extends AbstractFragment implements
         if (expression.isEmpty()) return;
 
         try {
-             if (Engine.instance().isNoLimitSearch() || !Engine.instance().isFiltered(expression)) {
+             if (!Engine.instance().isSafeMode() || !Engine.instance().isFiltered(expression)) {
                 // server search when one server connected and user chose server search or dht is not enabled
                 if (!Engine.instance().getCurrentServerId().isEmpty()
                         && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
