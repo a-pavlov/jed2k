@@ -169,7 +169,6 @@ public class ED2KService extends JobIntentService  {
      */
     public static void foregroundServiceStartForAndroidO(Service service) {
         if (Build.VERSION.SDK_INT >= 26) {
-            log.info("foregroundServiceStartForAndroidO");
             NotificationChannel channel = new NotificationChannel(
                     Constants.ED2K_NOTIFICATION_CHANNEL_ID,
                     "ED2K",
@@ -211,9 +210,8 @@ public class ED2KService extends JobIntentService  {
             for(final Hash hash: bh.getList()) {
                 blockedHashes.add(hash);
             }
-
         } catch (Exception e) {
-            log.error("unable to open explicit words list {}", e.getMessage());
+            log.error("unable to open explicit words or blocked words load failed {}", e.getMessage());
         }
     }
 
@@ -631,13 +629,11 @@ public class ED2KService extends JobIntentService  {
             } else if (a instanceof SearchResultAlert) {
                 // inplace filtering bad words in case when search is limited or we have blocked hashes dictionary
                 if (safeMode || !blockedHashes.isEmpty()) {
-                    log.info("words filter {}", explicitWords.size());
                     SearchResultAlert sa = (SearchResultAlert) a;
                     Iterator<SearchEntry> itr = sa.getResults().iterator();
                     while(itr.hasNext()) {
                         SearchEntry se = itr.next();
                         if ((safeMode && isFiltered(se.getFileName())) || isBlocked(se.getHash())) {
-                            log.info("remove {}", se.getFileName());
                             itr.remove();
                         }
                     }
