@@ -25,7 +25,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.*;
@@ -120,6 +119,7 @@ public class SettingsActivity extends PreferenceActivity {
         setupStorageOption();
         setupOtherOptions();
         setupTransferOptions();
+        useWordsFilterCheckbox();
     }
 
     private void setupTransferOptions() {
@@ -322,6 +322,19 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     Engine.instance().useDht((boolean) newValue);
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void useWordsFilterCheckbox() {
+        final CheckBoxPreference showAll = (CheckBoxPreference) findPreference(Constants.PREF_KEY_GUI_SAFE_MODE);
+        if (showAll != null) {
+            showAll.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().setSafeMode((boolean) newValue);
                     return true;
                 }
             });

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.*;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.provider.DocumentFile;
@@ -22,10 +21,7 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.kad.NodeEntry;
-import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.UInt32;
+import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -63,6 +59,7 @@ public class ED2KService extends JobIntentService  {
     private boolean vibrateOnDownloadCompleted = false;
     private boolean forwardPorts = false;
     private boolean useDht = false;
+    private boolean safeMode = false;
     private KadId kadId = null;
 
     /**
@@ -145,6 +142,9 @@ public class ED2KService extends JobIntentService  {
 
     int lastStartId = -1;
 
+    private Set<String> explicitWords = new HashSet<>();
+    private Set<Hash> blockedHashes = new HashSet<>();
+
     public ED2KService() {
         binder = new ED2KServiceBinder();
     }
@@ -169,7 +169,6 @@ public class ED2KService extends JobIntentService  {
      */
     public static void foregroundServiceStartForAndroidO(Service service) {
         if (Build.VERSION.SDK_INT >= 26) {
-            log.info("foregroundServiceStartForAndroidO");
             NotificationChannel channel = new NotificationChannel(
                     Constants.ED2K_NOTIFICATION_CHANNEL_ID,
                     "ED2K",
@@ -192,7 +191,28 @@ public class ED2KService extends JobIntentService  {
         log.info("[ED2K service] creating");
         super.onCreate();
         foregroundServiceStartForAndroidO(this);
-        //mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // load forbidden words
+        try (InputStream ins = getResources().openRawResource(
+                getResources().getIdentifier("explicit_words",
+                        "raw", getPackageName()))) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
+            while (reader.ready()) {
+                String line = reader.readLine();
+                explicitWords.add(line);
+            }
+
+            log.info("explicit words {}", explicitWords.size());
+
+            // loading blocked hashes
+            Container<UInt32, Hash> bh = Container.makeInt(Hash.class);
+            ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh);
+
+            for(final Hash hash: bh.getList()) {
+                blockedHashes.add(hash);
+            }
+        } catch (Exception e) {
+            log.error("unable to open explicit words or blocked words load failed {}", e.getMessage());
+        }
     }
 
     @Override
@@ -227,6 +247,19 @@ public class ED2KService extends JobIntentService  {
         } catch(Exception e) {
             log.error("[ED2K service] cancel all error");
         }
+
+        if (!blockedHashes.isEmpty()) {
+            log.info("[ED2K service] persist blocked hashes");
+            Container<UInt32, Hash> bh = Container.makeInt(Hash.class);
+            for(final Hash hash: blockedHashes) {
+                bh.add(hash);
+            }
+
+            ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh);
+
+            log.info("[ED2K service] store {} hashes", bh.size());
+        }
+
 
         if (session != null) {
             session.abort();
@@ -594,6 +627,17 @@ public class ED2KService extends JobIntentService  {
             if (a instanceof ListenAlert) {
                 for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
             } else if (a instanceof SearchResultAlert) {
+                // inplace filtering bad words in case when search is limited or we have blocked hashes dictionary
+                if (safeMode || !blockedHashes.isEmpty()) {
+                    SearchResultAlert sa = (SearchResultAlert) a;
+                    Iterator<SearchEntry> itr = sa.getResults().iterator();
+                    while(itr.hasNext()) {
+                        SearchEntry se = itr.next();
+                        if ((safeMode && isFiltered(se.getFileName())) || isBlocked(se.getHash())) {
+                            itr.remove();
+                        }
+                    }
+                }
                 for (final AlertListener ls : listeners) ls.onSearchResult((SearchResultAlert) a);
             } else if (a instanceof ServerMessageAlert) {
                 for (final AlertListener ls : listeners) ls.onServerMessage((ServerMessageAlert) a);
@@ -1132,6 +1176,33 @@ public class ED2KService extends JobIntentService  {
                 stopDht();
             }
         }
+    }
+
+    public void setSafeMode(boolean value) {
+        safeMode = value;
+    }
+
+    public boolean isSafeMode() {
+        return safeMode;
+    }
+
+    public boolean isFiltered(String value) {
+        String values[] = value.toLowerCase().split("-|\\_|\\.|,|\\s|\\}|\\{|\\(|\\)");
+        for(final String s: values) {
+            if (explicitWords.contains(s)) {
+                log.info("filtered {}", s);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void blockHash(Hash hash) {
+        blockedHashes.add(hash);
+    }
+
+    public boolean isBlocked(Hash hash) {
+        return blockedHashes.contains(hash);
     }
 
     public void setListenPort(int port) {

@@ -37,7 +37,7 @@ public class ByteContainer<CS extends UNumber> implements Serializable {
         size.get(src);
         if (size.intValue() > 0) {
             // set limit to 2Kb for buffer limit to avoid OOM
-            if (size.intValue() > 2048) {
+            if (size.intValue() > 4096) {
                 log.error("byte buffer size overflow {}", size.intValue());
                 throw new JED2KException(ErrorCode.BUFFER_TOO_LARGE);
             }

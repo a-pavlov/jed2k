@@ -250,4 +250,10 @@
     <string name="search_failed_title">Impossibile avviare la ricerca</string>
     <string name="search_params_invalid_number">Numero non valido nei parametri numerici per la ricerca</string>
     <string name="mule_start_engine_service_security_exception">Impossibile avviare correttamente il Mulo a causa della mancanza di permessi. Concedere i permessi necessari e riavviare l\'applicazione</string>
+    <string name="safe_mode_summary">Spegnendo questa casella di controllo accetti di ricevere tutti i risultati corrispondenti. In caso contrario, i risultati verranno filtrati</string>
+    <string name="safe_mode">Mostra tutto</string>
+    <string name="wizard_safe_mode">Mostra tutto</string>
+    <string name="wizard_safe_mode_summary">Spegnere questa casella accetti di ricevere tutti i risultati di ricerca corrispondenti. In caso contrario, i risultati della ricerca verranno filtrati</string>
+    <string name="search_forbidden_title">Ricerca vietata</string>
+    <string name="search_forbidden">L\'espressione di ricerca contiene parole proibite per la modalità provvisoria. Se sei sicuro, disattiva la modalità provvisoria nelle impostazioni del programma</string>
 </resources>
