@@ -258,4 +258,6 @@
     <string name="search_forbidden_title">Unable to start search</string>
     <string name="search_forbidden">Search expression contains forbidden words for Safe Mode. If you are sure please turn Safe Mode off in program setting</string>
     <string name="mule_start_engine_service_security_exception">Mule could not start properly due to lack of permissions. Please grant the required permissions and restart the application</string>
+    <string name="search_fragment_safe_mode_title">Search Safe Mode</string>
+    <string name="search_fragment_safe_mode_descr">Safe Mode for search activated. Search results can be filtered. Please check Other settings for more details</string>
 </resources>

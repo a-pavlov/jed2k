@@ -256,4 +256,6 @@
     <string name="wizard_safe_mode_summary">Spegnere questa casella accetti di ricevere tutti i risultati di ricerca corrispondenti. In caso contrario, i risultati della ricerca verranno filtrati</string>
     <string name="search_forbidden_title">Ricerca vietata</string>
     <string name="search_forbidden">L\'espressione di ricerca contiene parole proibite per la modalità provvisoria. Se sei sicuro, disattiva la modalità provvisoria nelle impostazioni del programma</string>
+    <string name="search_fragment_safe_mode_title">Modalità di ricerca sicura</string>
+    <string name="search_fragment_safe_mode_descr">Modalità di ricerca sicura attivata. Alcuni risultati possono essere filtrati. Per ulteriori informazioni, consulta le impostazioni</string>
 </resources>

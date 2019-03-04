@@ -229,4 +229,6 @@
     <string name="wizard_safe_mode_summary">Al desactivar este cheque, usted acepta recibir todos los resultados de búsqueda en la solicitud. De lo contrario, los resultados de la búsqueda se filtrarán</string>
     <string name="search_forbidden_title">Buscar denegado</string>
     <string name="search_forbidden">La expresión de búsqueda contiene palabras prohibidas para un modo Seguro. Si está seguro de desactivar el modo Seguro en la configuración del programa</string>
+    <string name="search_fragment_safe_mode_title">Modo de búsqueda seguro</string>
+    <string name="search_fragment_safe_mode_descr">El modo de búsqueda seguro está activado. Algunos resultados se pueden filtrar. Para obtener más información, consulte configuración</string>
 </resources>

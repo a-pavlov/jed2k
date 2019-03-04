@@ -60,6 +60,7 @@ public final class SearchFragment extends AbstractFragment implements
     private SearchInputView searchInput;
     private ProgressBar deepSearchProgress;
     private RichNotification serverConnectionWarning;
+    private RichNotification safeModeInfo;
     private SearchParametersView searchParametersView;
     private SearchProgressView searchProgress;
     ButtonSearchParametersListener buttonSearchParametersListener;
@@ -147,6 +148,7 @@ public final class SearchFragment extends AbstractFragment implements
     @Override
     public void onShow() {
         warnNoServerNoDhtConnections(getView());
+        warnSafeMode();
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
 
@@ -161,6 +163,9 @@ public final class SearchFragment extends AbstractFragment implements
 
         serverConnectionWarning = findView(view, R.id.fragment_search_rating_reminder_notification);
         serverConnectionWarning.setVisibility(View.GONE);
+
+        safeModeInfo = findView(view, R.id.fragment_search_safe_mode);
+        safeModeInfo.setVisibility(View.GONE);
 
         searchParametersView = findView(view, R.id.fragment_search_parameters);
         searchParametersView.setVisibility(View.GONE);
@@ -240,6 +245,7 @@ public final class SearchFragment extends AbstractFragment implements
 
     private void performSearch(String query) {
         warnNoServerNoDhtConnections(getView());
+        warnSafeMode();
         String expression = query.trim();
         if (expression.isEmpty()) return;
 
@@ -404,6 +410,15 @@ public final class SearchFragment extends AbstractFragment implements
             serverConnectionWarning.setVisibility(View.VISIBLE);
         } else {
             serverConnectionWarning.setVisibility(View.GONE);
+        }
+    }
+
+    private void warnSafeMode() {
+        if (Engine.instance().isSafeMode() && !ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ALERTED_SAFE_MODE)) {
+            safeModeInfo.setVisibility(View.VISIBLE);
+            ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_GUI_ALERTED_SAFE_MODE, true);
+        } else {
+            safeModeInfo.setVisibility(View.GONE);
         }
     }
 
