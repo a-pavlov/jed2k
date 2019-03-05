@@ -64,14 +64,17 @@ public final class StoragePicker {
     public static String handle(Context context, int requestCode, int resultCode, Intent data) {
         String result = null;
         try {
+
             if (resultCode == Activity.RESULT_OK && requestCode == SELECT_FOLDER_REQUEST_CODE) {
                 Uri treeUri = data.getData();
+
                 ContentResolver cr = context.getContentResolver();
 
+                Method takePersistableUriPermissionM = cr.getClass().getMethod("takePersistableUriPermission", Uri.class, int.class);
                 final int takeFlags = data.getFlags()
                         & (Intent.FLAG_GRANT_READ_URI_PERMISSION
                         | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                cr.takePersistableUriPermission(treeUri, takeFlags);
+                takePersistableUriPermissionM.invoke(cr, treeUri, takeFlags);
 
                 if (treeUri == null) {
                     UIUtils.showShortMessage(context, R.string.storage_picker_treeuri_null);
@@ -104,7 +107,6 @@ public final class StoragePicker {
                                     bb.flip();
                                     ah.getWriteChannel().write(bb);
                                     ah.close();
-                                    fs.delete(testFile);
                                 }
                                 else {
                                     LOG.error("unable to create file {}", testFile);
