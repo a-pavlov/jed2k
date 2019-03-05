@@ -1190,7 +1190,6 @@ public class ED2KService extends JobIntentService  {
         String values[] = value.toLowerCase().split("-|\\_|\\.|,|\\s|\\}|\\{|\\(|\\)");
         for(final String s: values) {
             if (explicitWords.contains(s)) {
-                log.info("filtered {}", s);
                 return true;
             }
         }

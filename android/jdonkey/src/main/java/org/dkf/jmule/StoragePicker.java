@@ -91,6 +91,7 @@ public final class StoragePicker {
                         if (Platforms.get().saf()) {
                             LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
                             result = fs.getTreePath(treeUri);
+                            LOG.info("result {}", result);
 
                             // TODO - remove below code - only for testing SD card writing
                             File testFile = new File(result, "test_file.txt");
@@ -107,13 +108,19 @@ public final class StoragePicker {
                                     bb.flip();
                                     ah.getWriteChannel().write(bb);
                                     ah.close();
+                                    boolean del = fs.delete(testFile);
+                                    if (!del) {
+                                        LOG.error("unable to delete file {}", testFile);
+                                    }
                                 }
                                 else {
                                     LOG.error("unable to create file {}", testFile);
+                                    result = null;
                                 }
                             } catch (Exception e) {
                                 LOG.error("unable to fill file {} error {}"
                                         , testFile, e);
+                                result = null;
                             }
                         }
                     }
