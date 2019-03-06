@@ -744,6 +744,10 @@ public class ED2KService extends JobIntentService  {
         scheduledExecutorService.submit(new Runnable() {
             @Override
             public void run() {
+                if (session == null) {
+                    log.warn("[ED2K service] session is null, stop resume data loading");
+                }
+
                 File fd = getFilesDir();
                 File[] files = fd.listFiles(new java.io.FileFilter() {
                     @Override
@@ -759,7 +763,6 @@ public class ED2KService extends JobIntentService  {
                     log.info("[ED2K service] load resume data files {}", files.length);
                 }
 
-
                 for(final File f: files) {
                     long fileSize = f.length();
                     if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
@@ -769,48 +772,46 @@ public class ED2KService extends JobIntentService  {
                     }
 
                     ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
-                    FileInputStream istream = null;
-                    try {
+                    try(FileInputStream istream = openFileInput(f.getName())) {
                         log.info("[ED2K service] load resume data {} size {}"
-                                , f.getName(), fileSize);
+                                , f.getName()
+                                , fileSize);
 
-                        if (session == null) {
-                            log.info("session null");
-                        } else {
-                            log.info("session not null");
-                        }
-                        istream = openFileInput(f.getName());
-                        istream.read(buffer.array(), 0, buffer.capacity());
+                         istream.read(buffer.array(), 0, buffer.capacity());
                         // do not flip buffer!
                         AddTransferParams atp = new AddTransferParams();
                         atp.get(buffer);
                         File file = new File(atp.getFilepath().asString());
+
+                        TransferHandle handle = null;
                         if (Platforms.get().saf()) {
                             LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
-                            android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
+                            if (fs.exists(file)) {
+                                android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
 
-                            if (resume != null && resume.second != null && resume.first != null) {
-                                atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
-                                if (session != null) {
-                                    TransferHandle handle = session.addTransfer(atp);
-                                    if (handle.isValid()) {
-                                        log.info("transfer {} is valid", handle.getHash());
-                                    } else {
-                                        log.info("transfer invalid");
-                                    }
+                                if (resume != null && resume.second != null && resume.first != null && resume.second.exists()) {
+                                    atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
+                                    handle = session.addTransfer(atp);
+                                } else {
+                                    log.error("[ED2K service] restore transfer {} failed document/parcel is null", file);
                                 }
                             } else {
-                                log.error("[ED2K service] restore transfer {} failed document/parcel is null"
-                                        , file);
+                                log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
                             }
                         } else {
-                            atp.setExternalFileHandler(new DesktopFileHandler(file));
-                            TransferHandle handle = session.addTransfer(atp);
-                            if (handle.isValid()) {
-                                log.info("transfer {} is valid", handle.getHash());
+                            if (file.exists()) {
+                                atp.setExternalFileHandler(new DesktopFileHandler(file));
+                                handle = session.addTransfer(atp);
                             } else {
-                                log.info("transfer invalid");
+                                log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
                             }
+                        }
+
+                        // log transfer handle if it has been added
+                        if (handle != null) {
+                            log.info("transfer {} is {}"
+                                    , handle.isValid() ? handle.getHash().toString() : ""
+                                    , handle.isValid() ? "valid" : "invalid");
                         }
                     }
                     catch(FileNotFoundException e) {
@@ -821,15 +822,6 @@ public class ED2KService extends JobIntentService  {
                     }
                     catch(JED2KException e) {
                         log.error("[ED2K service] load resume data {} add transfer error {}", f.getName(), e);
-                    }
-                    finally {
-                        if (istream != null) {
-                            try {
-                                istream.close();
-                            } catch(Exception e) {
-                                log.error("[ED2K service] load resume data {} close stream error {}", f.getName(), e);
-                            }
-                        }
                     }
                 }
             }
