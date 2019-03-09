@@ -23,29 +23,28 @@ import org.dkf.jmule.R;
 import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.MenuAction;
 
+import java.io.File;
+
 /**
  * @author gubatron
  * @author aldenml
  *
  */
 public class OpenMenuAction extends MenuAction {
-    private final String path;
-    private final String mime;
+    private final File file;
 
-    public OpenMenuAction(Context context, String title, String path, String mime) {
+    public OpenMenuAction(Context context, String title, File file) {
         super(context, R.drawable.ic_open_in_browser_black_24dp, R.string.open_menu_action, title);
-        this.path = path;
-        this.mime = mime;
+        this.file = file;
     }
 
-    public OpenMenuAction(Context context, String path, String mime) {
+    public OpenMenuAction(Context context, File file) {
         super(context, R.drawable.ic_open_in_browser_black_24dp, R.string.open);
-        this.path = path;
-        this.mime = mime;
+        this.file = file;
     }
 
     @Override
     protected void onClick(Context context) {
-        UIUtils.openFile(context, path, mime);
+        if (file!=null) UIUtils.openFile(context, file);
     }
 }

@@ -20,6 +20,7 @@ package org.dkf.jmule.transfers;
 
 import org.dkf.jed2k.PeerInfo;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +46,8 @@ public interface Transfer {
     public String getDisplayName();
 
     public String getFilePath();
+
+    public File getFile();
 
     public long getSize();
 
