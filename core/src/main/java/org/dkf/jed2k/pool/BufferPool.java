@@ -19,6 +19,13 @@ public class BufferPool extends Pool<ByteBuffer> {
     }
 
     @Override
+    public void deallocate(ByteBuffer buffer, long sessionTime) {
+        assert buffer != null;
+        buffer.clear();
+        super.deallocate(buffer, sessionTime);
+    }
+
+    @Override
     protected ByteBuffer createObject() throws JED2KException {
         try {
             return ByteBuffer.allocate(Constants.BLOCK_SIZE_INT);
