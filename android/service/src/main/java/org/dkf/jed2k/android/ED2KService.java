@@ -201,15 +201,18 @@ public class ED2KService extends JobIntentService  {
                 explicitWords.add(line);
             }
 
-            log.info("explicit words {}", explicitWords.size());
+            log.info("[ED2K service] explicit words {}", explicitWords.size());
 
             // loading blocked hashes
             Container<UInt32, Hash> bh = Container.makeInt(Hash.class);
-            ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh);
-
-            for(final Hash hash: bh.getList()) {
-                blockedHashes.add(hash);
+            if (ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh) != null) {
+                for (final Hash hash : bh.getList()) {
+                    blockedHashes.add(hash);
+                }
             }
+
+            log.info("[ED2K service] blocked words {}", bh.size());
+
         } catch (Exception e) {
             log.error("unable to open explicit words or blocked words load failed {}", e.getMessage());
         }
@@ -707,7 +710,70 @@ public class ED2KService extends JobIntentService  {
         }
     }
 
+    private boolean restoreTransferFromFile(File f) {
+        long fileSize = f.length();
 
+        if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
+            log.warn("[ED2K service] resume data file {} has too large size {}, skip it"
+                    , f.getName(), fileSize);
+            return false;
+        }
+
+        TransferHandle handle = null;
+        ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
+        try(FileInputStream istream = openFileInput(f.getName())) {
+            log.info("[ED2K service] load resume data {} size {}"
+                    , f.getName()
+                    , fileSize);
+
+            istream.read(buffer.array(), 0, buffer.capacity());
+            // do not flip buffer!
+            AddTransferParams atp = new AddTransferParams();
+            atp.get(buffer);
+            File file = new File(atp.getFilepath().asString());
+
+            if (Platforms.get().saf()) {
+                LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
+                if (fs.exists(file)) {
+                    android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
+
+                    if (resume != null && resume.second != null && resume.first != null && resume.second.exists()) {
+                        atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
+                        handle = session.addTransfer(atp);
+                    } else {
+                        log.error("[ED2K service] restore transfer {} failed document/parcel is null", file);
+                    }
+                } else {
+                    log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
+                }
+            } else {
+                if (file.exists()) {
+                    atp.setExternalFileHandler(new DesktopFileHandler(file));
+                    handle = session.addTransfer(atp);
+                } else {
+                    log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
+                }
+            }
+        }
+        catch(FileNotFoundException e) {
+            log.error("[ED2K service] load resume data file not found {} error {}", f.getName(), e);
+        }
+        catch(IOException e) {
+            log.error("[ED2K service] load resume data {} i/o error {}", f.getName(), e);
+        }
+        catch(JED2KException e) {
+            log.error("[ED2K service] load resume data {} add transfer error {}", f.getName(), e);
+        }
+
+        // log transfer handle if it has been added
+        if (handle != null) {
+            log.info("transfer {} is {}"
+                    , handle.isValid() ? handle.getHash().toString() : ""
+                    , handle.isValid() ? "valid" : "invalid");
+        }
+
+        return handle != null;
+    }
 
     private void startBackgroundOperations() {
         assert(session != null);
@@ -756,73 +822,14 @@ public class ED2KService extends JobIntentService  {
                     }
                 });
 
-                if (files == null) {
-                    log.info("[ED2K service] have no resume data files");
-                    return;
+                if (files != null) {
+                    for(final File resumeDataFile: files) {
+                        if (!restoreTransferFromFile(resumeDataFile)) {
+                            Platforms.fileSystem().delete(resumeDataFile);
+                        }
+                    }
                 } else {
-                    log.info("[ED2K service] load resume data files {}", files.length);
-                }
-
-                for(final File f: files) {
-                    long fileSize = f.length();
-                    if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
-                        log.warn("[ED2K service] resume data file {} has too large size {}, skip it"
-                                , f.getName(), fileSize);
-                        continue;
-                    }
-
-                    ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
-                    try(FileInputStream istream = openFileInput(f.getName())) {
-                        log.info("[ED2K service] load resume data {} size {}"
-                                , f.getName()
-                                , fileSize);
-
-                         istream.read(buffer.array(), 0, buffer.capacity());
-                        // do not flip buffer!
-                        AddTransferParams atp = new AddTransferParams();
-                        atp.get(buffer);
-                        File file = new File(atp.getFilepath().asString());
-
-                        TransferHandle handle = null;
-                        if (Platforms.get().saf()) {
-                            LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
-                            if (fs.exists(file)) {
-                                android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
-
-                                if (resume != null && resume.second != null && resume.first != null && resume.second.exists()) {
-                                    atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
-                                    handle = session.addTransfer(atp);
-                                } else {
-                                    log.error("[ED2K service] restore transfer {} failed document/parcel is null", file);
-                                }
-                            } else {
-                                log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
-                            }
-                        } else {
-                            if (file.exists()) {
-                                atp.setExternalFileHandler(new DesktopFileHandler(file));
-                                handle = session.addTransfer(atp);
-                            } else {
-                                log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
-                            }
-                        }
-
-                        // log transfer handle if it has been added
-                        if (handle != null) {
-                            log.info("transfer {} is {}"
-                                    , handle.isValid() ? handle.getHash().toString() : ""
-                                    , handle.isValid() ? "valid" : "invalid");
-                        }
-                    }
-                    catch(FileNotFoundException e) {
-                        log.error("[ED2K service] load resume data file not found {} error {}", f.getName(), e);
-                    }
-                    catch(IOException e) {
-                        log.error("[ED2K service] load resume data {} i/o error {}", f.getName(), e);
-                    }
-                    catch(JED2KException e) {
-                        log.error("[ED2K service] load resume data {} add transfer error {}", f.getName(), e);
-                    }
+                    log.info("[ED2K service] have no resume data files");
                 }
             }
         });
