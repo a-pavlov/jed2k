@@ -350,7 +350,8 @@ public class Session extends Thread {
         } else if (settings.reconnectoToServer) {
             Pair<String, InetSocketAddress> serverConnectionCandidate = serverConnectionPolicy.getConnectCandidate(currentSessionTime);
 
-            if (serverConnectionCandidate != null) {
+            // somehow second(address) is null in rare cases
+            if (serverConnectionCandidate != null && serverConnectionCandidate.left != null && serverConnectionCandidate.right != null) {
                 try {
                     serverConection = ServerConnection.makeConnection(serverConnectionCandidate.getLeft()
                             , serverConnectionCandidate.getRight()
