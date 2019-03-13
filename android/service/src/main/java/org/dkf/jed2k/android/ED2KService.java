@@ -582,10 +582,12 @@ public class ED2KService extends JobIntentService  {
     }
 
     private void createTransferNotification(final String title, final String extra, final Hash hash) {
-        TransferHandle handle = session.findTransfer(hash);
-        if (handle.isValid()) {
-            File f = handle.getFile();
-            buildNotification(title, f!=null?f.getName():"", extra);
+        if (session != null) {
+            TransferHandle handle = session.findTransfer(hash);
+            if (handle.isValid()) {
+                File f = handle.getFile();
+                buildNotification(title, f != null ? f.getName() : "", extra);
+            }
         }
     }
 
