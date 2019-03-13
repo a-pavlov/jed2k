@@ -93,12 +93,7 @@ public class ED2KService extends JobIntentService  {
     /**
      * dedicated thread executor for scan session's alerts and some other actions like resume data loading
      */
-    ScheduledExecutorService scheduledExecutorService;
-
-    /**
-     * scheduled task which scan session's alerts container and produce result for listeners
-     */
-    private ScheduledFuture scheduledFuture;
+    volatile ScheduledExecutorService scheduledExecutorService;
 
     private boolean startingInProgress = false;
     private boolean stoppingInProgress = false;
@@ -781,7 +776,7 @@ public class ED2KService extends JobIntentService  {
         assert(session != null);
         assert(scheduledExecutorService == null);
         scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 Alert a = session.popAlert();
