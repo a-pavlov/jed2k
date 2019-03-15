@@ -39,55 +39,71 @@ public class ED2KTransfer implements Transfer {
         cachedItems = handle.getPeersInfo();
     }
 
+    @Override
     public String getHash() {
         return handle.getHash().toString();
     }
 
+    @Override
     public String getName() {
         return handle.getHash().toString();
     }
 
+    @Override
     public String getDisplayName() {
         File f = handle.getFile();
         if (f != null) return f.getName();
         return "";
     }
 
+    @Override
     public String getFilePath() {
         File f = handle.getFile();
         if (f != null) return f.getAbsolutePath();
         return "";
     }
 
+    @Override
+    public File getFile() {
+        return handle.getFile();
+    }
 
+    @Override
     public long getSize() {
         return handle.getSize();
     }
 
+    @Override
     public Date getCreated() {
         return new Date(handle.getCreateTime());
     }
 
+    @Override
     public long getBytesReceived() {
         return getStatus().downloadPayload + getStatus().downloadProtocol;
     }
 
+    @Override
     public long getBytesSent() {
         return getStatus().upload;
     }
 
+    @Override
     public long getDownloadSpeed() {
         return getStatus().downloadRate;
     }
 
+    @Override
     public long getUploadSpeed() {
         return getStatus().uploadRate;
     }
 
+    @Override
     public boolean isDownloading() {
         return !isComplete();
     }
 
+    @Override
     public long getETA() {
         return getStatus().eta;
     }

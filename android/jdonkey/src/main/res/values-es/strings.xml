@@ -140,7 +140,7 @@
     <string name="server_remove_action">Quitar %1$s</string>
     <string name="servers">Servidores</string>
     <string name="servers_settings">Configuración de servidores</string>
-    <string name="service_stopped">ED2K detenido el servicio de</string>
+    <string name="service_stopped">20 / 10000 ИСПАНСКИЙ Перевести вGoogleBing ED2K detenido el servicio de</string>
     <string name="sever_menu_title">Las operaciones del servidor</string>
     <string name="show_server_messages">El servidor msg</string>
     <string name="show_server_messages_summary">Mostrar mensajes desde el servidor</string>
@@ -183,7 +183,7 @@
         final será capaz de salir de la aplicación sin necesidad de interrumpir el servicio. Para la total paralización
         del servicio y de la aplicación y seleccione salir en el menú.</string>
     <string name="usage_notes_title">Trabajar con la aplicación</string>
-    <string name="usage_proposals_summary">Envíe los deseos y los informes de problemas en el correo del desarrollador</string>
+    <string name="usage_proposals_summary">Направляйте пожелания и отчеты о проблемах на почту разработчика</string>
     <string name="usage_proposals_title">La propuesta y el mensaje de los problemas</string>
     <string name="usage_suggestions_summary">Trate de proporcionar accesible desde el exterior el puerto de las
         conexiones entrantes. Seleccione los archivos con una gran cantidad de fuentes.
@@ -223,4 +223,12 @@
     <string name="add_collection_empty">Archivo de la colección está vacía o no se puede analizar</string>
     <string name="search_params_invalid_number">Número no válido en parámetros numéricos para la búsqueda</string>
     <string name="mule_start_engine_service_security_exception">Mule no pudo iniciarse correctamente por falta de permisos. Por favor ceda los permisos necesarios y reinicie la aplicación</string>
+    <string name="safe_mode">Modo seguro</string>
+    <string name="safe_mode_summary">Al desactivar este cheque, usted acepta recibir todos los resultados de la consulta. De lo contrario, los resultados se filtrarán</string>
+    <string name="wizard_safe_mode">Modo seguro</string>
+    <string name="wizard_safe_mode_summary">Al desactivar este cheque, usted acepta recibir todos los resultados de búsqueda en la solicitud. De lo contrario, los resultados de la búsqueda se filtrarán</string>
+    <string name="search_forbidden_title">Buscar denegado</string>
+    <string name="search_forbidden">La expresión de búsqueda contiene palabras prohibidas para un modo Seguro. Si está seguro de desactivar el modo Seguro en la configuración del programa</string>
+    <string name="search_fragment_safe_mode_title">Modo de búsqueda seguro</string>
+    <string name="search_fragment_safe_mode_descr">El modo de búsqueda seguro está activado. Algunos resultados se pueden filtrar. Para obtener más información, consulte configuración</string>
 </resources>

@@ -49,6 +49,7 @@
     <string name="download_added_to_queue">1 file will start downloading</string>
     <string name="open_menu_action">Open %s</string>
     <string name="search_more_action">Search more</string>
+    <string name="search_block_action">Block search result</string>
 
     <string name="remove_torrent_and_data">Remove transfer</string>
     <string name="media_type_all_types">All Types</string>
@@ -140,6 +141,8 @@
     <string name="request_again">Request Again</string>
     <string name="notify_jdonkey_is_running">Notify if Mule on Android is running</string>
     <string name="notify_jdonkey_is_running_summary">Show a permanent Android notification with status of transfers</string>
+    <string name="safe_mode">Safe mode</string>
+    <string name="safe_mode_summary">By disabling this checkbox you agree to see any published materials having been requested. Otherwise search results will be filtered</string>
     <string name="storage_picker_treeuri_null">No storage path was selected</string>
     <string name="storage_picker_treeuri_not_directory">The selected path is not a directory</string>
     <string name="storage_picker_treeuri_cant_write">Mule on Android can\'t write on the selected storage path</string>
@@ -168,8 +171,6 @@
     <string name="show_server_messages">Server msg</string>
     <string name="reconnect_to_server_summary">Reconnect to server on connection closed by peer</string>
     <string name="reconnect_to_server">Reconnect to server</string>
-    <string name="auto_start_service_title" translatable="false">Service auto start</string>
-    <string name="auto_start_service_summary" translatable="false">Start service(if it stopped) on application statup</string>
     <string name="ping_server_summary">Ping server to prevent disconnection by timeout</string>
     <string name="ping_server">Ping server</string>
 
@@ -199,9 +200,6 @@
     <string name="transfer_state_completed">Completed</string>
     <string name="transfer_state_stalled">Waiting sources</string>
     <string name="transfer_state_downloading">Downloading</string>
-    <string name="banner_ad_1_id" translatable="false">ca-app-pub-1671474838801728/9118470699</string>
-    <string name="interstitioal_ad_1_id" translatable="false">ca-app-pub-1671474838801728/1595203897</string>
-    <string name="banner_ad_2_id" translatable="false">ca-app-pub-1671474838801728/2262744691</string>
 
     <string name="server_add_name">Name</string>
     <string name="server_add_host">Host</string>
@@ -215,6 +213,9 @@
 
     <string name="wizard_dht">Use DHT(Kademlia)</string>
     <string name="wizard_dht_summary">Use Kademlia to find more sources. Be careful - generates service traffic.</string>
+
+    <string name="wizard_safe_mode">Safe mode</string>
+    <string name="wizard_safe_mode_summary">By disabling this checkbox you agree to see any published materials having been requested. Otherwise application will filter search results</string>
 
     <string name="usage_notes_title">Usage notes</string>
     <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service) if it is
@@ -254,5 +255,9 @@
     <string name="nodes_link_open_error_text">Unable to add nodes to Kad - check ED2K core is started and Kademlia is activated</string>
     <string name="search_failed_title" translatable="false">Unable to start search</string>
     <string name="search_params_invalid_number">Invalid number in numeric parameters for search</string>
+    <string name="search_forbidden_title">Unable to start search</string>
+    <string name="search_forbidden">Search expression contains forbidden words for Safe Mode. If you are sure please turn Safe Mode off in program setting</string>
     <string name="mule_start_engine_service_security_exception">Mule could not start properly due to lack of permissions. Please grant the required permissions and restart the application</string>
+    <string name="search_fragment_safe_mode_title">Search Safe Mode</string>
+    <string name="search_fragment_safe_mode_descr">Safe Mode for search activated. Search results can be filtered. Please check Other settings for more details</string>
 </resources>

@@ -145,7 +145,6 @@ public class ServerConnection extends Connection {
 
     @Override
     public void onSearchResult(SearchResult value) throws JED2KException {
-        log.trace("search result: " + value);
         // transform server's search result to common
         List<SearchEntry> entries = new LinkedList<>();
         if (value.getResults().getList() != null) {

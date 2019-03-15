@@ -64,6 +64,7 @@ public final class SearchFragment extends AbstractFragment implements
     private SearchInputView searchInput;
     private ProgressBar deepSearchProgress;
     private RichNotification serverConnectionWarning;
+    private RichNotification safeModeInfo;
     private SearchParametersView searchParametersView;
     private SearchProgressView searchProgress;
     private AdView adRect;
@@ -159,6 +160,7 @@ public final class SearchFragment extends AbstractFragment implements
     @Override
     public void onShow() {
         warnNoServerNoDhtConnections(getView());
+        warnSafeMode();
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
         if (adapter != null) adapter.notifyDataSetChanged();
     }
@@ -174,6 +176,9 @@ public final class SearchFragment extends AbstractFragment implements
 
         serverConnectionWarning = findView(view, R.id.fragment_search_rating_reminder_notification);
         serverConnectionWarning.setVisibility(View.GONE);
+
+        safeModeInfo = findView(view, R.id.fragment_search_safe_mode);
+        safeModeInfo.setVisibility(View.GONE);
 
         searchParametersView = findView(view, R.id.fragment_search_parameters);
         searchParametersView.setVisibility(View.GONE);
@@ -287,53 +292,62 @@ public final class SearchFragment extends AbstractFragment implements
 
     private void performSearch(String query) {
         warnNoServerNoDhtConnections(getView());
+        warnSafeMode();
         String expression = query.trim();
         if (expression.isEmpty()) return;
 
         try {
-            // server search when one server connected and user chose server search or dht is not enabled
-            if (!Engine.instance().getCurrentServerId().isEmpty()
-                    && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
-                log.info("perform search on servers");
-                awaitingResults = true;
-                adapter.clear();
-                fileTypeCounter.clear();
-                refreshFileTypeCounters(false);
-                currentQuery = query;
-                boolean progressEnabled = false;
-                Engine.instance().performSearch(
-                        searchParametersView.getMinSize() * 1024 * 1024
-                        , searchParametersView.getMaxSize() * 1024 * 1024
-                        , searchParametersView.getSourcesCount()
-                        , searchParametersView.getCompleteSources()
-                        , searchParametersView.getChecked()
-                        , ""
-                        , ""
-                        , 0
-                        , 0
-                        , expression);
+             if (!Engine.instance().isSafeMode() || !Engine.instance().isFiltered(expression)) {
+                // server search when one server connected and user chose server search or dht is not enabled
+                if (!Engine.instance().getCurrentServerId().isEmpty()
+                        && (searchParametersView.isSearchByServer() || !Engine.instance().isDhtEnabled())) {
+                    log.info("perform search on servers");
+                    awaitingResults = true;
+                    adapter.clear();
+                    fileTypeCounter.clear();
+                    refreshFileTypeCounters(false);
+                    currentQuery = query;
+                    boolean progressEnabled = false;
+                    Engine.instance().performSearch(
+                            searchParametersView.getMinSize() * 1024 * 1024
+                            , searchParametersView.getMaxSize() * 1024 * 1024
+                            , searchParametersView.getSourcesCount()
+                            , searchParametersView.getCompleteSources()
+                            , searchParametersView.getChecked()
+                            , ""
+                            , ""
+                            , 0
+                            , 0
+                            , expression);
 
-                searchProgress.setProgressEnabled(true);
-                showSearchView(getView());
-            }
-            // DHT search when dht enabled and user chose kad or no one server connected
-            else if (Engine.instance().isDhtEnabled()
-                    && (!searchParametersView.isSearchByServer() || Engine.instance().getCurrentServerId().isEmpty())) {
-                log.info("perform search on DHT");
-                awaitingResults = true;
-                adapter.clear();
-                fileTypeCounter.clear();
-                refreshFileTypeCounters(false);
-                currentQuery = query;
-                // takes first item in search expression for DHT search
-                Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]
-                        , searchParametersView.getMinSize() * 1024 * 1024
-                        , searchParametersView.getMaxSize() * 1024 * 1024
-                        , searchParametersView.getSourcesCount()
-                        , searchParametersView.getCompleteSources());
-                searchProgress.setProgressEnabled(true);
-                showSearchView(getView());
-            }
+                    searchProgress.setProgressEnabled(true);
+                    showSearchView(getView());
+                }
+                // DHT search when dht enabled and user chose kad or no one server connected
+                else if (Engine.instance().isDhtEnabled()
+                        && (!searchParametersView.isSearchByServer() || Engine.instance().getCurrentServerId().isEmpty())) {
+                    log.info("perform search on DHT");
+                    awaitingResults = true;
+                    adapter.clear();
+                    fileTypeCounter.clear();
+                    refreshFileTypeCounters(false);
+                    currentQuery = query;
+                    // takes first item in search expression for DHT search
+                    Engine.instance().performSearchDhtKeyword(expression.split("\\s+")[0]
+                            , searchParametersView.getMinSize() * 1024 * 1024
+                            , searchParametersView.getMaxSize() * 1024 * 1024
+                            , searchParametersView.getSourcesCount()
+                            , searchParametersView.getCompleteSources());
+                    searchProgress.setProgressEnabled(true);
+                    showSearchView(getView());
+                }
+            } else {
+                 UIUtils.showInformationDialog(getView().getContext()
+                         , R.string.search_forbidden
+                         , R.string.search_forbidden_title
+                         , false
+                         , null);
+             }
         } catch(NumberFormatException e) {
             log.error("Number format exception on input {}", e);
             UIUtils.showInformationDialog(getView().getContext()
@@ -353,6 +367,11 @@ public final class SearchFragment extends AbstractFragment implements
             searchProgress.setProgressEnabled(true);
             showSearchView(getView());
         }
+    }
+
+    public void removeEntry(SearchEntry searchEntry) {
+        Engine.instance().blockHash(searchEntry.getHash());
+        adapter.removeEntry(searchEntry);
     }
 
     private void cancelSearch() {
@@ -450,6 +469,15 @@ public final class SearchFragment extends AbstractFragment implements
             serverConnectionWarning.setVisibility(View.VISIBLE);
         } else {
             serverConnectionWarning.setVisibility(View.GONE);
+        }
+    }
+
+    private void warnSafeMode() {
+        if (Engine.instance().isSafeMode() && !ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_ALERTED_SAFE_MODE)) {
+            safeModeInfo.setVisibility(View.VISIBLE);
+            ConfigurationManager.instance().setBoolean(Constants.PREF_KEY_GUI_ALERTED_SAFE_MODE, true);
+        } else {
+            safeModeInfo.setVisibility(View.GONE);
         }
     }
 

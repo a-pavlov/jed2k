@@ -42,54 +42,54 @@
     <string name="nickname">Nome utente</string>
     <string name="how_other_users_will_see_you">Come ti vedono gli altri utenti</string>
     <string name="other_settings">Altre impostazioni</string>
-    <string name="vibrate_on_finished_download">Vibra quando il download è completo</string>
+    <string name="vibrate_on_finished_download">Vibra quando il trasferimento è completo</string>
     <string name="use_mobile_data">Usa connessione mobile</string>
-    <string name="use_mobile_data_summary">Usa connesione mobile per i download su ED2K. Possono essere applicati costi aggiuntivi al superamento dei limiti di traffico del proprio piano. Usa con cautela.</string>
+    <string name="use_mobile_data_summary">Usa connesione mobile per i trasferimenti su ED2K. Possono essere applicati costi aggiuntivi al superamento dei limiti di traffico del proprio piano. Usa con cautela.</string>
     <string name="cant_open_file">Mi spiace, non so come aprire questo file.</string>
-    <string name="download_added_to_queue">1 file è stato aggiunto ai download</string>
+    <string name="download_added_to_queue">1 file è stato aggiunto ai trasferimenti</string>
     <string name="open_menu_action">Apri %s</string>
     <string name="search_more_action">Cerca ancora</string>
 
-    <string name="remove_torrent_and_data">Rimuovi il download</string>
+    <string name="remove_torrent_and_data">Rimuovi il trasferimento</string>
     <string name="media_type_all_types">Tutti i tipi</string>
-    <string name="media_type_documents">Libri/Documenti</string>
+    <string name="media_type_documents">Documenti</string>
     <string name="media_type_applications">Applicazioni</string>
     <string name="media_type_audio">Audio</string>
     <string name="media_type_video">Video</string>
     <string name="media_type_images">Immagini</string>
-    <string name="media_type_torrents">Torrents</string>
+    <string name="media_type_torrents">Collezioni</string>
     <string name="search">Cerca</string>
-    <string name="transfers">Transferimenti</string>
+    <string name="transfers">Trasferimenti</string>
     <string name="dummy_title" translatable="false">[Title]</string>
     <string name="dummy_status" translatable="false">[Status]</string>
     <string name="dummy_speed" translatable="false">[Speed]</string>
     <string name="dummy_size" translatable="false">[Size]</string>
     <string name="dummy_extra" translatable="false">[Extra]</string>
     <string name="dummy_seeds" translatable="false">[Seeds]</string>
-    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere e rimuovere questo download dall\'elenco?</string>
-    <string name="yes_no_cancel_delete_transfer_question">Sei sicuro di voler annullare questo download?</string>
-    <string name="yes_no_dialog_remove_file">Rimuovi file</string>
+    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere e rimuovere questo trasferimento dall\'elenco?</string>
+    <string name="yes_no_cancel_delete_transfer_question">Sei sicuro di voler annullare questo trasferimento?</string>
+    <string name="yes_no_dialog_remove_file">Rimuovi il file</string>
     <string name="pause_torrent_menu_action">Pausa</string>
     <string name="resume_torrent_menu_action">Riprendi</string>
     <string name="im_on_it">Ci sto lavorando…</string>
-    <string name="transfers_settings">Impostazioni sui download</string>
-    <string name="transfers_max_downloads_summary">Download massimi</string>
-    <string name="transfers_max_downloads">Download massimi</string>
-    <string name="transfers_max_total_connections_summary">Numero di connessioni massime</string>
-    <string name="transfers_max_total_connections">Numero di connessioni massime</string>
+    <string name="transfers_settings">Impostazioni sui trasferimenti</string>
+    <string name="transfers_max_downloads_summary">Numero massimo di trasferimenti</string>
+    <string name="transfers_max_downloads">Trasferimenti massimi</string>
+    <string name="transfers_max_total_connections_summary">Numero massimo di connessioni</string>
+    <string name="transfers_max_total_connections">Connessioni massime</string>
 
     <string name="dummy_summary" translatable="false">[Summary]</string>
     <string name="dummy_engine" translatable="false">[Engine]</string>
     <string name="complete_sources">Fonti complete %1$d</string>
     <string name="dummy_downloads_indicator" translatable="false">0 @ 0 KB/s</string>
     <string name="dummy_uploads_indicator" translatable="false">0 @ 0 KB/s</string>
-    <string name="show_transfers_on_download_start">Mostra tutti i download quando si inizia a scaricare un file</string>
+    <string name="show_transfers_on_download_start">Mostra tutti i trasferimenti quando si inizia a scaricare un file</string>
     <string name="dialog_new_transfer_text_text">Sei sicuro di voler scaricare %1$s (%2$s)</string>
     <string name="dialog_new_transfer_check_text">Mostralo la prossima volta</string>
-    <string name="show_new_transfer_dialog">Mostra la finestra di dialogo dei Download</string>
+    <string name="show_new_transfer_dialog">Mostra la finestra di dialogo dei trasferimenti</string>
     <string name="dummy_action" translatable="false">[Action]</string>
     <string name="dummy_content_description" translatable="false">[dummy description]</string>
-    <string name="toast_on_disconnect">Sessione ED2K è terminata. Tutti i download sono stati fermati.</string>
+    <string name="toast_on_disconnect">Sessione ED2K è terminata. Tutti i trasferimenti sono stati fermati.</string>
     <string name="toast_on_connect">Sessione ED2K iniziata.</string>
     <string name="seeds_n">Fonti complete: %s</string>
     <string name="size_unknown">dimensione sconosciuta</string>
@@ -100,22 +100,22 @@
     <string name="retry_search">Riprova</string>
     <string name="no_results_feedback">Nessun risultato è stato trovato.</string>
     <string name="transfers_select_all">tutti</string>
-    <string name="transfers_select_downloading">scaricando</string>
+    <string name="transfers_select_downloading">in trasferimento</string>
     <string name="transfers_select_completed">completati</string>
-    <string name="transfers_context_menu_clear_finished">Rimuovi tutti i download completati</string>
+    <string name="transfers_context_menu_clear_finished">Rimuovi tutti i trasferimenti completati</string>
     <string name="transfers_context_menu_copy_link_copied">Link copiato negli appunti</string>
     <string name="transfers_context_menu_copy_link">Copia link</string>
-    <string name="transfers_context_menu_pause_stop_all_transfers">Pausa/Ferma tutti i download</string>
-    <string name="transfers_context_resume_all_torrent_transfers">Riprendi tutti i download</string>
+    <string name="transfers_context_menu_pause_stop_all_transfers">Sospendi/Ferma tutti i trasferimenti</string>
+    <string name="transfers_context_resume_all_torrent_transfers">Riprendi tutti i trasferimenti</string>
     <string name="drawer_open">Apri menu</string>
     <string name="drawer_close">Chiudi menu</string>
-    <string name="please_check_connection_status_before_resuming_download">Per favore controlla lo stato della tua connessione ad internet prima di riprendere i download.</string>
+    <string name="please_check_connection_status_before_resuming_download">Per favore controlla lo stato della tua connessione ad internet prima di riprendere i trasferimenti.</string>
     <string name="add_transfer_label">Copia un link ED2K</string>
     <string name="please_enter_valid_url">Per favore inserisci un link valido</string>
-    <string name="magnet_url_added">Link aggiunto ai download</string>
-    <string name="torrent_url_added">Link ED2K aggiunto ai download.</string>
-    <string name="cant_resume_torrent_transfers">Impossibile riprendere i download. Controlla lo stato della connessione</string>
-    <string name="confirm_download">Conferma download</string>
+    <string name="magnet_url_added">Link aggiunto ai trasferimenti</string>
+    <string name="torrent_url_added">Link ED2K aggiunto ai trasferimenti.</string>
+    <string name="cant_resume_torrent_transfers">Impossibile riprendere i trasferimenti. Controlla lo stato della connessione</string>
+    <string name="confirm_download">Conferma trasferimento</string>
     <string name="saving_to_sd_card">Salva sulla scheda SD.</string>
     <string name="android_will_erase_files_if_frostwire_is_uninstalled">Android cancellerà i file scaricati se Mule su Android verrà disinstallato.</string>
     <string name="saving_to_internal_memory">Salva sulla memoria interna</string>
@@ -126,7 +126,7 @@
     <string name="storage_setting_confirm_dialog_title">Scheda SD</string>
     <string name="storage_setting_confirm_dialog_text">Ho capito che tutti i file scaricati sulla scheda SD da Mule su Android verranno cancellati DA ANDROID nel momento in cui Mule su Android verrà disinstallato dal dispositivo e non riterrò Mule su Android LLC colpevole della perdita dei file.</string>
     <string name="available">disponibile</string>
-    <string name="finishing">Finendo</string>
+    <string name="finishing">in chiusura</string>
     <string name="app_shutdown_dlg_title">Spegni</string>
     <string name="app_shutdown_dlg_message">Questo fermerà tutti i trasferimenti e terminerà il servizio in background. Sei sicuro?</string>
     <string name="dummy_build" translatable="false">[build number]</string>
@@ -136,17 +136,17 @@
     <string name="thank_you">Grazie!</string>
     <string name="keep_in_touch">Rimaniamo in contatto!</string>
     <string name="why_we_need_storage_permissions">Perchè abbiamo bisogno dei permessi di archiviazione.</string>
-    <string name="why_we_need_storage_permissions_summary">Mule su Android è una applicazione per il download di file, per cui è necessario avere il permesso di archiviazione.\n\nSenza permessi Mule su Android non può funzionare.\n\nVuoi riprovare?</string>
+    <string name="why_we_need_storage_permissions_summary">Mule su Android è una applicazione per il trasferimento di file, per cui è necessario avere il permesso di archiviazione.\n\nSenza permessi Mule su Android non può funzionare.\n\nVuoi riprovare?</string>
     <string name="request_again">Richiedi di nuovo</string>
     <string name="notify_jdonkey_is_running">Notifica se Mule su Android è in esecuzione</string>
-    <string name="notify_jdonkey_is_running_summary">Mostra una notifica permanente con lo stato dei download</string>
-    <string name="storage_picker_treeuri_null">Non è stato selezionato nessun percorso si archiviazione</string>
+    <string name="notify_jdonkey_is_running_summary">Mostra una notifica permanente con lo stato dei trasferimenti</string>
+    <string name="storage_picker_treeuri_null">Non è stato selezionato nessun percorso di archiviazione</string>
     <string name="storage_picker_treeuri_not_directory">Il percorso selezionato non è una cartella</string>
     <string name="storage_picker_treeuri_cant_write">Mule su Android non può scrivere sul percorso di archiviazione selezionato</string>
     <string name="storage_picker_treeuri_error">Errore imprevisto selezionato il percorso di archiviazione</string>
     <string name="selected">selezionato</string>
     <string name="check_internet_connection">Controlla la connessione ad Internet</string>
-    <string name="emule_collection">eMule collection</string>
+    <string name="emule_collection">Collezioni</string>
     <string name="pick_the_files_you_want_to_download_from_this_torrent">Seleziona i file che vuoi scaricare da questa collezione</string>
     <string name="sd_permission_no_accessible_path">Il percorso selezionato sulla scheda SD non è più accessibile. Premi OK per selezionarne un altro.</string>
     <string name="cancel">Cancella</string>
@@ -196,7 +196,7 @@
     <string name="transfer_state_paused">In pausa</string>
     <string name="transfer_state_completed">Completato</string>
     <string name="transfer_state_stalled">In attesa di fonti</string>
-    <string name="transfer_state_downloading">In download</string>
+    <string name="transfer_state_downloading">In trasferimento</string>
 
     <string name="server_add_name">Nome</string>
     <string name="server_add_host">Host</string>
@@ -212,17 +212,12 @@
     <string name="wizard_dht_summary">Usa Kademlia per trovare più fonti. Attenzione.</string>
 
     <string name="usage_notes_title">Note d\'uso</string>
-    <string name="usage_notes_summary">Before usage please go to the settings and start ED2K core(service) if it is
-        stopped. Application supports downloading in background using service. Two types of exit - shutdown all and
-        shutdown only GUI.
-        When you press back button in the end you will be able to minimize application. If you need completely shutdown
-        application and service choose exit in menu.</string>
+    <string name="usage_notes_summary">Prima dell\'uso, vai nelle Impostazioni e avvia il servizio ED2K. L\'applicazione supporta  i trasferimenti in background utilizzando quel servizio.</string>
     <string name="usage_suggestions_title">Suggerimenti d\'uso</string>
-    <string name="usage_suggestions_summary">Try to provide accessible incoming port - in this case you will have much more sources.
-        Prefer files with large sources count.</string>
+    <string name="usage_suggestions_summary">Prova a selezionare una porta aperta sul router: in questo caso avrai molte più fonti. Preferisci i file con gran numero di fonti.</string>
 
     <string name="usage_proposals_title">Proposte e comunicazione dei problemi</string>
-    <string name="usage_proposals_summary">Please, report problems and proposals to developer\'s email or by ticket in project\'s page on github</string>
+    <string name="usage_proposals_summary">Puoi segnalare problemi e fare proposte mediante e-mail allo sviluppatore o tramite ticket nella pagina del progetto su github.</string>
     <string name="wizard_previous">Precedente</string>
     <string name="wizard_next">Successivo</string>
     <string name="wizard_finish">Fine</string>
@@ -233,11 +228,11 @@
 
     <string name="search_source_type_server">Server</string>
     <string name="search_source_type_dht">Kademlia</string>
-    <string name="start_transfer_success">Un download è stato aggiunto</string>
-    <string name="start_transfer_file_error">Impossibile avviare il download a causa di una eccezione I/O</string>
+    <string name="start_transfer_success">Un trasferimento è stato aggiunto</string>
+    <string name="start_transfer_file_error">Impossibile avviare il trasferimento a causa di una eccezione I/O</string>
 
-    <string name="add_transfer_session_stopped_title">Aggiungi download</string>
-    <string name="add_transfer_session_stopped_body">Il servizio ED2K è fermo, impossibile aggiungere il download. Per favore avvia il servizio e prova ancora.</string>
+    <string name="add_transfer_session_stopped_title">Aggiungi un trasferimento</string>
+    <string name="add_transfer_session_stopped_body">Il servizio ED2K è fermo, impossibile aggiungere il trasferimento. Per favore avvia il servizio e prova ancora.</string>
     <string name="add_collection_session_stopped_title">Aggiungi collezione</string>
     <string name="add_collection_session_stopped_body">Il servizio ED2K è fermo, impossibile aggiungere la collezione. Per favore avvia il servizio e prova ancora.</string>
     <string name="add_collection_empty">Il file collezione è vuoto o non analizzabile</string>
@@ -249,5 +244,13 @@
     <string name="nodes_link_open_error_text">Impossibile aggiungere nodi alla rete Kademlia - verifica che il servizio ED2K sia avviato e Kademlia sia attivo</string>
     <string name="search_failed_title">Impossibile avviare la ricerca</string>
     <string name="search_params_invalid_number">Numero non valido nei parametri numerici per la ricerca</string>
-    <string name="mule_start_engine_service_security_exception">Impossibile avviare correttamente il Mulo a causa della mancanza di permessi. Concedere i permessi necessari e riavviare l\'applicazione</string>
+    <string name="mule_start_engine_service_security_exception">Impossibile avviare correttamente Mule su Android a causa della mancanza di permessi. Concedere i permessi necessari e riavviare l\'applicazione</string>
+    <string name="safe_mode_summary">Disattivando questa casella accetti di ricevere tutti i risultati corrispondenti. In caso contrario, i risultati verranno filtrati</string>
+    <string name="safe_mode">Mostra tutto</string>
+    <string name="wizard_safe_mode">Mostra tutto</string>
+    <string name="wizard_safe_mode_summary">Disattivando questa casella accetti di ricevere tutti i risultati di ricerca corrispondenti. In caso contrario, i risultati verranno filtrati</string>
+    <string name="search_forbidden_title">Ricerca vietata</string>
+    <string name="search_forbidden">L\'espressione di ricerca contiene parole proibite per la modalità provvisoria. Se sei sicuro, disattiva la modalità provvisoria nelle impostazioni del programma</string>
+    <string name="search_fragment_safe_mode_title">Modalità di ricerca sicura</string>
+    <string name="search_fragment_safe_mode_descr">Modalità di ricerca sicura attivata. Alcuni risultati possono essere filtrati. Per ulteriori informazioni, consulta le impostazioni</string>
 </resources>

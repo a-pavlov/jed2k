@@ -312,6 +312,11 @@ public final class TransferManager {
         public String getFilePath() { return "filepath/xx/ttt/" + getName(); }
 
         @Override
+        public File getFile() {
+            return new File("");
+        }
+
+        @Override
         public long getSize() { return size; }
 
         @Override

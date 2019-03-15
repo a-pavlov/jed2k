@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.*;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.provider.DocumentFile;
@@ -22,10 +21,7 @@ import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.kad.NodeEntry;
-import org.dkf.jed2k.protocol.Container;
-import org.dkf.jed2k.protocol.Endpoint;
-import org.dkf.jed2k.protocol.Hash;
-import org.dkf.jed2k.protocol.UInt32;
+import org.dkf.jed2k.protocol.*;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
@@ -63,6 +59,7 @@ public class ED2KService extends JobIntentService  {
     private boolean vibrateOnDownloadCompleted = false;
     private boolean forwardPorts = false;
     private boolean useDht = false;
+    private boolean safeMode = false;
     private KadId kadId = null;
 
     /**
@@ -96,12 +93,7 @@ public class ED2KService extends JobIntentService  {
     /**
      * dedicated thread executor for scan session's alerts and some other actions like resume data loading
      */
-    ScheduledExecutorService scheduledExecutorService;
-
-    /**
-     * scheduled task which scan session's alerts container and produce result for listeners
-     */
-    private ScheduledFuture scheduledFuture;
+    volatile ScheduledExecutorService scheduledExecutorService;
 
     private boolean startingInProgress = false;
     private boolean stoppingInProgress = false;
@@ -145,6 +137,9 @@ public class ED2KService extends JobIntentService  {
 
     int lastStartId = -1;
 
+    private Set<String> explicitWords = new HashSet<>();
+    private Set<Hash> blockedHashes = new HashSet<>();
+
     public ED2KService() {
         binder = new ED2KServiceBinder();
     }
@@ -169,7 +164,6 @@ public class ED2KService extends JobIntentService  {
      */
     public static void foregroundServiceStartForAndroidO(Service service) {
         if (Build.VERSION.SDK_INT >= 26) {
-            log.info("foregroundServiceStartForAndroidO");
             NotificationChannel channel = new NotificationChannel(
                     Constants.ED2K_NOTIFICATION_CHANNEL_ID,
                     "ED2K",
@@ -192,6 +186,31 @@ public class ED2KService extends JobIntentService  {
         log.info("[ED2K service] creating");
         super.onCreate();
         foregroundServiceStartForAndroidO(this);
+        // load forbidden words
+        try (InputStream ins = getResources().openRawResource(
+                getResources().getIdentifier("explicit_words",
+                        "raw", getPackageName()))) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
+            while (reader.ready()) {
+                String line = reader.readLine();
+                explicitWords.add(line);
+            }
+
+            log.info("[ED2K service] explicit words {}", explicitWords.size());
+
+            // loading blocked hashes
+            Container<UInt32, Hash> bh = Container.makeInt(Hash.class);
+            if (ConfigurationManager.instance().getSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh) != null) {
+                for (final Hash hash : bh.getList()) {
+                    blockedHashes.add(hash);
+                }
+            }
+
+            log.info("[ED2K service] blocked words {}", bh.size());
+
+        } catch (Exception e) {
+            log.error("unable to open explicit words or blocked words load failed {}", e.getMessage());
+        }
     }
 
     @Override
@@ -226,6 +245,19 @@ public class ED2KService extends JobIntentService  {
         } catch(Exception e) {
             log.error("[ED2K service] cancel all error");
         }
+
+        if (!blockedHashes.isEmpty()) {
+            log.info("[ED2K service] persist blocked hashes");
+            Container<UInt32, Hash> bh = Container.makeInt(Hash.class);
+            for(final Hash hash: blockedHashes) {
+                bh.add(hash);
+            }
+
+            ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_BLOCK_HASH_LIST, bh);
+
+            log.info("[ED2K service] store {} hashes", bh.size());
+        }
+
 
         if (session != null) {
             session.abort();
@@ -545,10 +577,12 @@ public class ED2KService extends JobIntentService  {
     }
 
     private void createTransferNotification(final String title, final String extra, final Hash hash) {
-        TransferHandle handle = session.findTransfer(hash);
-        if (handle.isValid()) {
-            File f = handle.getFile();
-            buildNotification(title, f!=null?f.getName():"", extra);
+        if (session != null) {
+            TransferHandle handle = session.findTransfer(hash);
+            if (handle.isValid()) {
+                File f = handle.getFile();
+                buildNotification(title, f != null ? f.getName() : "", extra);
+            }
         }
     }
 
@@ -593,6 +627,17 @@ public class ED2KService extends JobIntentService  {
             if (a instanceof ListenAlert) {
                 for (final AlertListener ls : listeners) ls.onListen((ListenAlert) a);
             } else if (a instanceof SearchResultAlert) {
+                // inplace filtering bad words in case when search is limited or we have blocked hashes dictionary
+                if (safeMode || !blockedHashes.isEmpty()) {
+                    SearchResultAlert sa = (SearchResultAlert) a;
+                    Iterator<SearchEntry> itr = sa.getResults().iterator();
+                    while(itr.hasNext()) {
+                        SearchEntry se = itr.next();
+                        if ((safeMode && isFiltered(se.getFileName())) || isBlocked(se.getHash())) {
+                            itr.remove();
+                        }
+                    }
+                }
                 for (final AlertListener ls : listeners) ls.onSearchResult((SearchResultAlert) a);
             } else if (a instanceof ServerMessageAlert) {
                 for (final AlertListener ls : listeners) ls.onServerMessage((ServerMessageAlert) a);
@@ -662,13 +707,76 @@ public class ED2KService extends JobIntentService  {
         }
     }
 
+    private boolean restoreTransferFromFile(File f) {
+        long fileSize = f.length();
 
+        if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
+            log.warn("[ED2K service] resume data file {} has too large size {}, skip it"
+                    , f.getName(), fileSize);
+            return false;
+        }
+
+        TransferHandle handle = null;
+        ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
+        try(FileInputStream istream = openFileInput(f.getName())) {
+            log.info("[ED2K service] load resume data {} size {}"
+                    , f.getName()
+                    , fileSize);
+
+            istream.read(buffer.array(), 0, buffer.capacity());
+            // do not flip buffer!
+            AddTransferParams atp = new AddTransferParams();
+            atp.get(buffer);
+            File file = new File(atp.getFilepath().asString());
+
+            if (Platforms.get().saf()) {
+                LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
+                if (fs.exists(file)) {
+                    android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
+
+                    if (resume != null && resume.second != null && resume.first != null && resume.second.exists()) {
+                        atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
+                        handle = session.addTransfer(atp);
+                    } else {
+                        log.error("[ED2K service] restore transfer {} failed document/parcel is null", file);
+                    }
+                } else {
+                    log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
+                }
+            } else {
+                if (file.exists()) {
+                    atp.setExternalFileHandler(new DesktopFileHandler(file));
+                    handle = session.addTransfer(atp);
+                } else {
+                    log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
+                }
+            }
+        }
+        catch(FileNotFoundException e) {
+            log.error("[ED2K service] load resume data file not found {} error {}", f.getName(), e);
+        }
+        catch(IOException e) {
+            log.error("[ED2K service] load resume data {} i/o error {}", f.getName(), e);
+        }
+        catch(JED2KException e) {
+            log.error("[ED2K service] load resume data {} add transfer error {}", f.getName(), e);
+        }
+
+        // log transfer handle if it has been added
+        if (handle != null) {
+            log.info("transfer {} is {}"
+                    , handle.isValid() ? handle.getHash().toString() : ""
+                    , handle.isValid() ? "valid" : "invalid");
+        }
+
+        return handle != null;
+    }
 
     private void startBackgroundOperations() {
         assert(session != null);
         assert(scheduledExecutorService == null);
         scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 Alert a = session.popAlert();
@@ -699,6 +807,10 @@ public class ED2KService extends JobIntentService  {
         scheduledExecutorService.submit(new Runnable() {
             @Override
             public void run() {
+                if (session == null) {
+                    log.warn("[ED2K service] session is null, stop resume data loading");
+                }
+
                 File fd = getFilesDir();
                 File[] files = fd.listFiles(new java.io.FileFilter() {
                     @Override
@@ -707,85 +819,14 @@ public class ED2KService extends JobIntentService  {
                     }
                 });
 
-                if (files == null) {
-                    log.info("[ED2K service] have no resume data files");
-                    return;
+                if (files != null) {
+                    for(final File resumeDataFile: files) {
+                        if (!restoreTransferFromFile(resumeDataFile)) {
+                            Platforms.fileSystem().delete(resumeDataFile);
+                        }
+                    }
                 } else {
-                    log.info("[ED2K service] load resume data files {}", files.length);
-                }
-
-
-                for(final File f: files) {
-                    long fileSize = f.length();
-                    if (fileSize > org.dkf.jed2k.Constants.BLOCK_SIZE_INT) {
-                        log.warn("[ED2K service] resume data file {} has too large size {}, skip it"
-                                , f.getName(), fileSize);
-                        continue;
-                    }
-
-                    ByteBuffer buffer = ByteBuffer.allocate((int)fileSize);
-                    FileInputStream istream = null;
-                    try {
-                        log.info("[ED2K service] load resume data {} size {}"
-                                , f.getName(), fileSize);
-
-                        if (session == null) {
-                            log.info("session null");
-                        } else {
-                            log.info("session not null");
-                        }
-                        istream = openFileInput(f.getName());
-                        istream.read(buffer.array(), 0, buffer.capacity());
-                        // do not flip buffer!
-                        AddTransferParams atp = new AddTransferParams();
-                        atp.get(buffer);
-                        File file = new File(atp.getFilepath().asString());
-                        if (Platforms.get().saf()) {
-                            LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
-                            android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
-
-                            if (resume != null && resume.second != null && resume.first != null) {
-                                atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
-                                if (session != null) {
-                                    TransferHandle handle = session.addTransfer(atp);
-                                    if (handle.isValid()) {
-                                        log.info("transfer {} is valid", handle.getHash());
-                                    } else {
-                                        log.info("transfer invalid");
-                                    }
-                                }
-                            } else {
-                                log.error("[ED2K service] restore transfer {} failed document/parcel is null"
-                                        , file);
-                            }
-                        } else {
-                            atp.setExternalFileHandler(new DesktopFileHandler(file));
-                            TransferHandle handle = session.addTransfer(atp);
-                            if (handle.isValid()) {
-                                log.info("transfer {} is valid", handle.getHash());
-                            } else {
-                                log.info("transfer invalid");
-                            }
-                        }
-                    }
-                    catch(FileNotFoundException e) {
-                        log.error("[ED2K service] load resume data file not found {} error {}", f.getName(), e);
-                    }
-                    catch(IOException e) {
-                        log.error("[ED2K service] load resume data {} i/o error {}", f.getName(), e);
-                    }
-                    catch(JED2KException e) {
-                        log.error("[ED2K service] load resume data {} add transfer error {}", f.getName(), e);
-                    }
-                    finally {
-                        if (istream != null) {
-                            try {
-                                istream.close();
-                            } catch(Exception e) {
-                                log.error("[ED2K service] load resume data {} close stream error {}", f.getName(), e);
-                            }
-                        }
-                    }
+                    log.info("[ED2K service] have no resume data files");
                 }
             }
         });
@@ -1131,6 +1172,32 @@ public class ED2KService extends JobIntentService  {
                 stopDht();
             }
         }
+    }
+
+    public void setSafeMode(boolean value) {
+        safeMode = value;
+    }
+
+    public boolean isSafeMode() {
+        return safeMode;
+    }
+
+    public boolean isFiltered(String value) {
+        String values[] = value.toLowerCase().split("-|\\_|\\.|,|\\s|\\}|\\{|\\(|\\)");
+        for(final String s: values) {
+            if (explicitWords.contains(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void blockHash(Hash hash) {
+        blockedHashes.add(hash);
+    }
+
+    public boolean isBlocked(Hash hash) {
+        return blockedHashes.contains(hash);
     }
 
     public void setListenPort(int port) {
