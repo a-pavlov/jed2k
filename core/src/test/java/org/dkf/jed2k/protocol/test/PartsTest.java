@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.test;
 
+import org.dkf.jed2k.data.PeerRequest;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.client.RequestParts32;
@@ -70,5 +71,31 @@ public class PartsTest {
         assertEquals(Hash.EMULE, sp32_res.hash);
         assertEquals(100000, sp32_res.beginOffset.intValue());
         assertEquals(200000, sp32_res.endOffset.intValue());
+    }
+
+    @Test
+    public void testExtreme() throws JED2KException {
+        SendingPart32 sendingPart32 = new SendingPart32();
+        final byte data[] = {
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, // hash start
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, // hash end
+                (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, // start offset
+                (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF  // end offset
+        };
+
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        sendingPart32.get(buffer);
+        assertTrue(sendingPart32.beginOffset.longValue() > 0);
+        assertTrue(sendingPart32.endOffset.longValue() > 0);
+        assertEquals(0xFFFFFFFFL, sendingPart32.beginOffset.longValue());
+
+        PeerRequest peerRequest = PeerRequest.mk_request(sendingPart32.beginOffset.longValue(), sendingPart32.endOffset.longValue());
+        assertTrue(peerRequest.piece > 0);
+        assertTrue(peerRequest.start >= 0);
+        assertEquals(0, peerRequest.length);
+        assertTrue((int)peerRequest.inBlockOffset() > 0);
     }
 }

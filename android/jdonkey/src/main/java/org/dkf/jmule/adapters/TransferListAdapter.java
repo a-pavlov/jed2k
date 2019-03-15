@@ -225,12 +225,8 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
     private String populateTransferDownloadMenuAction(Transfer download, List<MenuAction> items) {
         String title = download.getDisplayName();
 
-        //If it's a torrent download with a single file, we should be able to open it.
         if (download.isComplete()) {
-            //TransferItem transferItem = download.getItems().get(0);
-            String path = download.getFilePath();
-            String mimeType = UIUtils.getMimeType(path);
-            items.add(new OpenMenuAction(context.get(), path, mimeType));
+            items.add(new OpenMenuAction(context.get(), download.getFile()));
         }
 
 //        LOG.info("download.isComplete(): " + download.isComplete());
