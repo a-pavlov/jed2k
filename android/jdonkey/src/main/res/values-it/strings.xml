@@ -66,7 +66,7 @@
     <string name="dummy_size" translatable="false">[Size]</string>
     <string name="dummy_extra" translatable="false">[Extra]</string>
     <string name="dummy_seeds" translatable="false">[Seeds]</string>
-    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere e rimuovere questo trasferimento dall'elenco?</string>
+    <string name="yes_no_cancel_transfer_question">Sei sicuro di voler interrompere e rimuovere questo trasferimento dall\'elenco?</string>
     <string name="yes_no_cancel_delete_transfer_question">Sei sicuro di voler annullare questo trasferimento?</string>
     <string name="yes_no_dialog_remove_file">Rimuovi il file</string>
     <string name="pause_torrent_menu_action">Pausa</string>
@@ -122,7 +122,7 @@
     <string name="saving_to_internal_memory_description">Hai anche una scheda SD (%1$s free)</string>
     <string name="device_storage">Memoria sul dispositivo</string>
     <string name="sdcard_storage">Memoria sulla SD</string>
-    <string name="storage_setting_warning">ATTENZIONE: Tutti i file salvati da Mule su Android sulla scheda SD verranno cancellati DA ANDROID, non da Mule su Android, se disinstalli l'applicazione.</string>
+    <string name="storage_setting_warning">ATTENZIONE: Tutti i file salvati da Mule su Android sulla scheda SD verranno cancellati DA ANDROID, non da Mule su Android, se disinstalli l\'applicazione.</string>
     <string name="storage_setting_confirm_dialog_title">Scheda SD</string>
     <string name="storage_setting_confirm_dialog_text">Ho capito che tutti i file scaricati sulla scheda SD da Mule su Android verranno cancellati DA ANDROID nel momento in cui Mule su Android verrà disinstallato dal dispositivo e non riterrò Mule su Android LLC colpevole della perdita dei file.</string>
     <string name="available">disponibile</string>
@@ -163,7 +163,7 @@
     <string name="servers_settings">Impostazioni server</string>
     <string name="servers">Server</string>
     <string name="connect_on_start_server">Riconnetti</string>
-    <string name="connect_on_start_server_summary">Connetti all'ultimo server usato</string>
+    <string name="connect_on_start_server_summary">Connetti all\'ultimo server usato</string>
     <string name="show_server_messages_summary">Mostra messaggi dal server</string>
     <string name="show_server_messages">Messaggi dal server</string>
     <string name="reconnect_to_server_summary">Connettersi al server se la connessione è caduta</string>
@@ -172,7 +172,7 @@
     <string name="ping_server">Eseguire il ping del server</string>
 
     <string name="forward_ports_title">Port forwarding</string>
-    <string name="forward_ports_summary">Port forwarding. L'UPnP deve essere attivo sul router</string>
+    <string name="forward_ports_summary">Port forwarding. L\'UPnP deve essere attivo sul router</string>
 
     <string name="service_stopped">Il servizio ED2K è fermo</string>
     <string name="service_stopped_details">Per favore vai nelle Impostazioni e avvia il servizio ED2K</string>
@@ -206,13 +206,13 @@
     <string name="welcome_to_mule">Benvenuti in Mule su Android</string>
     <string name="storage_path">Percorso di archiviazione</string>
     <string name="upnp">Port forwarding</string>
-    <string name="upnp_summary">Aiuta ad ottenere un ID alto sui server e ottenere più fonti. Controlla che l'UPnP sia attivo sul router</string>
+    <string name="upnp_summary">Aiuta ad ottenere un ID alto sui server e ottenere più fonti. Controlla che l\'UPnP sia attivo sul router</string>
 
     <string name="wizard_dht">Usa Kademlia</string>
     <string name="wizard_dht_summary">Usa Kademlia per trovare più fonti. Attenzione.</string>
 
-    <string name="usage_notes_title">Note d'uso</string>
-    <string name="usage_notes_summary">Prima dell'uso, vai nelle Impostazioni e avvia il servizio ED2K. L'applicazione supporta  i trasferimenti in background utilizzando quel servizio.</string>
+    <string name="usage_notes_title">Note d\'uso</string>
+    <string name="usage_notes_summary">Prima dell\'uso, vai nelle Impostazioni e avvia il servizio ED2K. L\'applicazione supporta  i trasferimenti in background utilizzando quel servizio.</string>
     <string name="usage_suggestions_title">Suggerimenti d\'uso</string>
     <string name="usage_suggestions_summary">Prova a selezionare una porta aperta sul router: in questo caso avrai molte più fonti. Preferisci i file con gran numero di fonti.</string>
 
@@ -244,13 +244,13 @@
     <string name="nodes_link_open_error_text">Impossibile aggiungere nodi alla rete Kademlia - verifica che il servizio ED2K sia avviato e Kademlia sia attivo</string>
     <string name="search_failed_title">Impossibile avviare la ricerca</string>
     <string name="search_params_invalid_number">Numero non valido nei parametri numerici per la ricerca</string>
-    <string name="mule_start_engine_service_security_exception">Impossibile avviare correttamente Mule su Android a causa della mancanza di permessi. Concedere i permessi necessari e riavviare l'applicazione</string>
+    <string name="mule_start_engine_service_security_exception">Impossibile avviare correttamente Mule su Android a causa della mancanza di permessi. Concedere i permessi necessari e riavviare l\'applicazione</string>
     <string name="safe_mode_summary">Disattivando questa casella accetti di ricevere tutti i risultati corrispondenti. In caso contrario, i risultati verranno filtrati</string>
     <string name="safe_mode">Mostra tutto</string>
     <string name="wizard_safe_mode">Mostra tutto</string>
     <string name="wizard_safe_mode_summary">Disattivando questa casella accetti di ricevere tutti i risultati di ricerca corrispondenti. In caso contrario, i risultati verranno filtrati</string>
     <string name="search_forbidden_title">Ricerca vietata</string>
-    <string name="search_forbidden">L'espressione di ricerca contiene parole proibite per la modalità provvisoria. Se sei sicuro, disattiva la modalità provvisoria nelle impostazioni del programma</string>
+    <string name="search_forbidden">L\'espressione di ricerca contiene parole proibite per la modalità provvisoria. Se sei sicuro, disattiva la modalità provvisoria nelle impostazioni del programma</string>
     <string name="search_fragment_safe_mode_title">Modalità di ricerca sicura</string>
     <string name="search_fragment_safe_mode_descr">Modalità di ricerca sicura attivata. Alcuni risultati possono essere filtrati. Per ulteriori informazioni, consulta le impostazioni</string>
 </resources>
