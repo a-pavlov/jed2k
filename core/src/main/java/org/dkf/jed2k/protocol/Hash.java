@@ -14,6 +14,7 @@ import java.util.Random;
 import static org.dkf.jed2k.Utils.byte2String;
 
 public class Hash implements Serializable, Comparable<Hash> {
+    private static final Random rand = new Random();
 
     protected final byte[] value = {
             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
@@ -88,7 +89,6 @@ public class Hash implements Serializable, Comparable<Hash> {
 
     public static Hash random(boolean eMule) {
         byte[] source = new byte[MD4.HASH_SIZE];
-        Random rand = new Random();
         rand.nextBytes(source);
         if (eMule) {
             source[5] = 14;
