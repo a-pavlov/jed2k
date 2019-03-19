@@ -57,6 +57,7 @@ public enum ErrorCode implements BaseErrorCode {
     INCOMING_DIR_INACCESSIBLE(62, "Incoming directory is inaccessible"),
     BUFFER_TOO_LARGE(63, "Buffer too large"),
     NOT_CONNECTED(64, "Not connected"),
+    INTERRUPTED(65, "Interrupted"),
 
 
     PORT_MAPPING_ALREADY_MAPPED(70, "Port already mapped"),

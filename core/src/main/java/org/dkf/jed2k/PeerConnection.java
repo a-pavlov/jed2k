@@ -803,11 +803,11 @@ public class PeerConnection extends Connection {
      */
     void skipData() throws JED2KException {
         log.debug("{} skipData {} bytes", getEndpoint(), (int)recvReq.length - recvPos);
-        ByteBuffer buffer = session.allocateSkipDataBufer();
-        buffer.clear();
-        buffer.limit((int)recvReq.length - recvPos);
-
         try {
+            ByteBuffer buffer = session.allocateSkipDataBufer();
+            buffer.clear();
+            buffer.limit((int)recvReq.length - recvPos);
+
             int n = socket.read(buffer);
             if (n == -1) throw new JED2KException(ErrorCode.END_OF_STREAM);
             recvPos += n;
@@ -827,7 +827,15 @@ public class PeerConnection extends Connection {
             }
         }
         catch(IOException e) {
+            log.warn("skipData i/o error {}", e.getMessage());
             throw new JED2KException(ErrorCode.IO_EXCEPTION);
+        } catch (OutOfMemoryError e) {
+            log.warn("skipData out of memory {}", e.getMessage());
+            // throw no error code exception
+            throw new JED2KException(ErrorCode.NO_ERROR);
+        } catch (Exception e) {
+            log.warn("skipData exception {}", e.getMessage());
+            throw new JED2KException(ErrorCode.INTERNAL_ERROR);
         }
     }
 

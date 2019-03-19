@@ -111,7 +111,6 @@ public final class MimeDetector {
         map.put("i", "text/plain");
         map.put("sit", "application/x-stuffit");
         map.put("m2ts", "video/vnd.dlna.mpeg-tts");
-        map.put("asx", "video/x-ms-asf");
         map.put("t", "application/x-troff");
         map.put("s", "text/plain");
         map.put("el", "text/x-scriptelisp");
@@ -371,7 +370,6 @@ public final class MimeDetector {
         map.put("hlb", "text/x-script");
         map.put("adt", "audio/vnd.dlna.adts");
         map.put("roff", "application/x-troff");
-        map.put("snd", "audio/basic");
         map.put("rast", "image/cmu-raster");
         map.put("zip", "application/zip");
         map.put("application", "application/x-ms-application");
@@ -640,7 +638,6 @@ public final class MimeDetector {
         map.put("resjson", "text/plain");
         map.put("hxx", "text/plain");
         map.put("mht", "message/rfc822");
-        map.put("wmd", "application/x-ms-wmd");
         map.put("wmf", "image/x-wmf");
         map.put("arc", "application/octet-stream");
         map.put("cco", "application/x-cocoa");
@@ -654,7 +651,6 @@ public final class MimeDetector {
         map.put("tiff", "image/tiff");
         map.put("fpx", "image/vndfpx");
         map.put("testrunconfig", "application/xml");
-        map.put("wmx", "video/x-ms-wmx");
         map.put("arw", "image/arw");
         map.put("kar", "audio/midi");
         map.put("vsix", "application/vsix");
@@ -777,7 +773,6 @@ public final class MimeDetector {
         map.put("sdml", "text/plain");
         map.put("wmx", "video/x-ms-wmx");
         map.put("nix", "application/x-mix-transfer");
-        map.put("wmz", "application/x-ms-wmz");
         map.put("wps", "application/vndms-works");
         map.put("book", "application/book");
         map.put("group", "text/x-ms-group");

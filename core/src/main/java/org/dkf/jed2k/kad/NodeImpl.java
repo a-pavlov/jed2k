@@ -447,7 +447,7 @@ public class NodeImpl implements ReqDispatcher {
                 index.addKeyword(p.getKeywordId(), kse, Time.currentTime());
                 count++;
             } else {
-                log.debug("[node] not added {} size {}", kse);
+                log.debug("[node] not added {}", kse);
             }
         }
 
@@ -486,7 +486,7 @@ public class NodeImpl implements ReqDispatcher {
             index.addSource(p.getFileId(), p.getSource(), Time.currentTime());
             tracker.write(new Kad2PublishRes(p.getFileId(), 1), address);
         } else {
-            log.trace("[node] not indexed source ip {} port {} portTcp {} size {}", p.getSource());
+            log.trace("[node] not indexed source {}", p.getSource());
         }
     }
 

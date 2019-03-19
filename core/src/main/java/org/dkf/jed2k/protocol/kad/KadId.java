@@ -14,6 +14,7 @@ import java.util.zip.CRC32;
  * Created by inkpot on 14.11.2016.
  */
 public class KadId extends Hash {
+    private static final Random rnd = new Random();
 
     public static final int TOTAL_BITS = 128;
 
@@ -165,7 +166,6 @@ public class KadId extends Hash {
         crc.update(ip);
         long c = crc.getValue();
         KadId id = new KadId();
-        Random rnd = new Random();
         byte[] randBytes = new byte[MD4.HASH_SIZE];
         rnd.nextBytes(randBytes);
 

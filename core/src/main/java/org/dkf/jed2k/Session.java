@@ -492,8 +492,12 @@ public class Session extends Thread {
     void openConnection(Endpoint point) throws JED2KException {
         if (findPeerConnection(point) == null) {
             PeerConnection p = PeerConnection.make(Session.this, point, null, null);
-            if (p != null) connections.add(p);
-            p.connect();
+            if (p != null) {
+                connections.add(p);
+                p.connect();
+            } else {
+                log.error("unable to open connection {}", point);
+            }
         }
     }
 
@@ -666,6 +670,7 @@ public class Session extends Thread {
         }
         catch (InterruptedException e) {
             log.error("push alert interrupted {}", e);
+            //throw new JED2KException(ErrorCode.INTERRUPTED);
         }
     }
 

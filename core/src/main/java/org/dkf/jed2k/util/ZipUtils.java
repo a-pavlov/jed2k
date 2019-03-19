@@ -110,19 +110,9 @@ public final class ZipUtils {
     }
 
     private static int getItemCount(File file) throws IOException {
-        ZipFile zip = null;
-        int count = 0;
-        try {
-            zip = new ZipFile(file);
-            count = zip.size();
-        } finally {
-            try {
-                zip.close();
-            } catch (Throwable e) {
-                // ignore
-            }
+        try(ZipFile zipFile = new ZipFile(file)) {
+            return zipFile.size();
         }
-        return count;
     }
 
     public interface ZipListener {
