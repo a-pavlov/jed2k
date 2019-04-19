@@ -1,4 +1,4 @@
-  Copyright (c) 2009-2011, Lukas Eder, lukas.eder@gmail.com
+  Copyright (c) 2014-2019, Andrey Pavlov, intser79@gmail.com, dkfsoft@gmail.com
   All rights reserved.
  
   This software is licensed to you under the Apache License, Version 2.0
