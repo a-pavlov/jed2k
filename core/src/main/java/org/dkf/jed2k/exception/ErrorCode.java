@@ -53,6 +53,7 @@ public enum ErrorCode implements BaseErrorCode {
     BUFFER_TOO_LARGE(63, "Buffer too large"),
     NOT_CONNECTED(64, "Not connected"),
     BUFFER_UNDERFLOW_EXCEPTION(65, "Buffer underflow exception"),
+    BUFFER_GET_EXCEPTION(22, "Buffer get method raised common exception"),
     PACKET_HEADER_EXTRACT_ERROR(66, "Packet header extract error"),
 
 
