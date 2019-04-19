@@ -40,6 +40,7 @@ create table kad.search_statistics (
 create index ss_kad_indx on kad.search_statistics(kad_id);
 create index ss_res_count_indx on kad.search_statistics(res_count);
 
+grant usage on schema kad to kad;
 grant all on table kad.sources to kad;
 grant all on table kad.keywords to kad;
 grant all on table kad.search_statistics to kad;
