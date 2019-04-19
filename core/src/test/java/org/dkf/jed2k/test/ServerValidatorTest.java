@@ -2,11 +2,9 @@ package org.dkf.jed2k.test;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import com.sun.security.ntlm.Server;
 import org.dkf.jed2k.ServerValidator;
 import org.junit.Test;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Date;
@@ -17,7 +15,6 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.dkf.jed2k.ServerValidator.SERVERS_LIST_TYPE;
 import static org.dkf.jed2k.ServerValidator.isValidEntry;
-import static org.dkf.jed2k.ServerValidator.tsFormat;
 import static org.junit.Assert.assertFalse;
 
 public class ServerValidatorTest {

@@ -3,22 +3,21 @@ package org.dkf.jed2k;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.sun.security.ntlm.Server;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.exception.ErrorCode;
-import org.dkf.jed2k.exception.JED2KException;
-import org.dkf.jed2k.protocol.SearchEntry;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 

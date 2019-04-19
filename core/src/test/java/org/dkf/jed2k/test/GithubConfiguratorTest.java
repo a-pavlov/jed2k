@@ -3,7 +3,6 @@ package org.dkf.jed2k.test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.sun.security.ntlm.Server;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.GithubConfigurator;
 import org.dkf.jed2k.ServerValidator;
