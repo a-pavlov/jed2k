@@ -46,12 +46,12 @@ android {
         applicationId "org.dkf.jmule"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 20
-        versionName "2.0"
+        versionCode 21
+        versionName "2.1"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8 
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
