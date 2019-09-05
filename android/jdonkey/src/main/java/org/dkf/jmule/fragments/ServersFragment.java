@@ -13,9 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
+import com.inmobi.ads.InMobiBanner;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -47,7 +45,8 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private ServersAdapter adapter;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
     private RichNotification serviceStopped;
-    AdView mAdView;
+    //AdView mAdView;
+
     ButtonServersParametersListener buttonServersParametersListener;
 
     public ServersFragment() {
@@ -101,30 +100,39 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         Engine.instance().setListener(this);
         invalidateServersState();
         warnServiceStopped(getView());
-        mAdView.resume();
+        //mAdView.resume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Engine.instance().removeListener(this);
-        mAdView.pause();
+        //mAdView.pause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Engine.instance().removeListener(this);
-        if (mAdView != null) {
-            mAdView.destroy();
-            mAdView.setVisibility(View.GONE);
-        }
+        //if (mAdView != null) {
+         //   mAdView.destroy();
+        //    mAdView.setVisibility(View.GONE);
+       // }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        InMobiBanner bannerAd = (InMobiBanner)rootView.findViewById(R.id.banner);
+        if (bannerAd != null) {
+            bannerAd.load();
+        } else {
+            log.warn("Unable to load banner for servers page");
+        }
+
+
+        /*
         mAdView = (AdView) rootView.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
         mAdView.loadAd(adRequest);
@@ -156,6 +164,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
             }
         });
+        */
         return rootView;
     }
 

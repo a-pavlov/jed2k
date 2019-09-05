@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <uses-permission
             android:name="android.permission.READ_PHONE_STATE"
@@ -85,11 +86,14 @@
         <activity android:name="org.dkf.jmule.activities.WizardActivity"
                   android:label="@string/app_name" android:screenOrientation="portrait"/>
 
+        <!--
         <meta-data
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version" />
+        -->
         <provider
-                android:name="android.support.v4.content.FileProvider"
+
+                android:name="androidx.core.content.FileProvider"
                 android:authorities="${applicationId}.fileprovider"
                 android:exported="false"
                 android:grantUriPermissions="true">

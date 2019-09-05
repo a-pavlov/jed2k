@@ -39,13 +39,13 @@ def manifestVersionName() {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '28.0.2'
 
     defaultConfig {
         applicationId "org.dkf.jmule"
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 20
         versionName "2.0"
     }
@@ -64,6 +64,10 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 dependencies {
@@ -71,5 +75,19 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
-    implementation 'com.google.firebase:firebase-ads:10.0.1'
+    implementation 'com.inmobi.monetization:inmobi-ads:8.2.0'
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
+
+
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.annotation:annotation:1.0.0'
+    //implementation 'com.inmobi.monetization:inmobi-ads:8.2.0'
+
+    implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+
+    //implementation "com.facebook.fresco:fresco:0.12.0"
+    implementation "com.squareup.picasso:picasso:2.71828"
+    //implementation 'androidx.browser:browser:1.0.0'
+    //implementation 'androidx.multidex:multidex:2.0.0'
 }

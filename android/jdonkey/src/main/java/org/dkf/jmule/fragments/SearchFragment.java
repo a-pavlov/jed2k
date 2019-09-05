@@ -27,9 +27,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -67,7 +64,7 @@ public final class SearchFragment extends AbstractFragment implements
     private RichNotification safeModeInfo;
     private SearchParametersView searchParametersView;
     private SearchProgressView searchProgress;
-    private AdView adRect;
+    //private AdView adRect;
     ButtonSearchParametersListener buttonSearchParametersListener;
     private ListView list;
     private String currentQuery;
@@ -135,7 +132,7 @@ public final class SearchFragment extends AbstractFragment implements
             refreshFileTypeCounters(true);
         }
 
-        adRect.resume();
+        //adRect.resume();
 
         searchParametersView.showSearchSourceChooser(!Engine.instance().getCurrentServerId().isEmpty() && Engine.instance().isDhtEnabled());
     }
@@ -144,17 +141,17 @@ public final class SearchFragment extends AbstractFragment implements
     public void onPause() {
         super.onPause();
         Engine.instance().removeListener(this);
-        adRect.pause();
+        //adRect.pause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Engine.instance().removeListener(this);
-        if (adRect != null) {
-            adRect.destroy();
-            adRect.setVisibility(View.GONE);
-        }
+        //if (adRect != null) {
+        //    adRect.destroy();
+       //     adRect.setVisibility(View.GONE);
+        //}
     }
 
     @Override
@@ -206,7 +203,7 @@ public final class SearchFragment extends AbstractFragment implements
                 switchToThe(false);
             }
         });
-
+/*
         adRect = (AdView)findView(view, R.id.adViewRect);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
         adRect.loadAd(adRequest);
@@ -240,7 +237,7 @@ public final class SearchFragment extends AbstractFragment implements
                 }
             }
         });
-
+*/
         showSearchView(view);
     }
 
@@ -413,15 +410,15 @@ public final class SearchFragment extends AbstractFragment implements
 
     private void showSearchView(View view) {
         if (awaitingResults) {
-            adRect.setVisibility(View.GONE);
+            //adRect.setVisibility(View.GONE);
             switchView(view, R.id.fragment_search_search_progress);
         } else {
             switchView(view, R.id.fragment_search_list);
-            if (adapter != null && adapter.isEmpty()) {
-                adRect.setVisibility(View.VISIBLE);
-            } else {
-                adRect.setVisibility(View.GONE);
-            }
+            //if (adapter != null && adapter.isEmpty()) {
+            //    adRect.setVisibility(View.VISIBLE);
+            //} else {
+            //    adRect.setVisibility(View.GONE);
+            //}
         }
     }
 

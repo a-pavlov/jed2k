@@ -1,7 +1,7 @@
 package org.dkf.jed2k.android;
 
 import android.os.ParcelFileDescriptor;
-import android.support.v4.provider.DocumentFile;
+import androidx.documentfile.provider.DocumentFile;
 import org.dkf.jed2k.disk.FileHandler;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;

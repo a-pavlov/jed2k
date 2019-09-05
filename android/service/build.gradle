@@ -20,12 +20,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '28.0.2'
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 14
         versionName "1.4"
 
@@ -69,6 +69,11 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    defaultConfig {
+        multiDexEnabled true
+    }
+
 }
 
 dependencies {

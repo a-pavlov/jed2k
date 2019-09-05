@@ -23,8 +23,8 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.os.EnvironmentCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.os.EnvironmentCompat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:frostwire="http://schemas.android.com/apk/res-auto"
-              xmlns:ads="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="fill_parent">
@@ -37,6 +36,7 @@
         </ListView>
     </LinearLayout>
 
+    <!--
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
         android:layout_width="wrap_content"
@@ -47,5 +47,6 @@
         ads:adSize="SMART_BANNER"
         ads:adUnitId="@string/banner_ad_1_id">
     </com.google.android.gms.ads.AdView>
+    -->
 
 </LinearLayout>

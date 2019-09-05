@@ -29,9 +29,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.android.ConfigurationManager;
 import org.dkf.jed2k.android.Constants;
@@ -84,7 +81,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     private int totalDhtNodes = -1;
 
     private boolean showTorrentSettingsOnClick;
-    AdView mAdView;
+    //AdView mAdView;
 
     public TransfersFragment() {
         super(R.layout.fragment_transfers);
@@ -118,7 +115,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     public void onResume() {
         super.onResume();
         initStorageRelatedRichNotifications(getView());
-        if (mAdView != null) mAdView.resume();
+        //if (mAdView != null) mAdView.resume();
         onTime();
     }
 
@@ -126,7 +123,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
     public void onDestroyView() {
         super.onDestroyView();
         subscription.unsubscribe();
-        if (mAdView != null) mAdView.destroy();
+        //if (mAdView != null) mAdView.destroy();
     }
 
     @Override
@@ -142,7 +139,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
             adapter.dismissDialogs();
         }
 
-        if (mAdView != null) mAdView.pause();
+        //if (mAdView != null) mAdView.pause();
     }
 
     @Override
@@ -270,7 +267,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
         textUploads = findView(v, R.id.fragment_transfers_text_uploads);
         textDht = findView(v, R.id.fragment_transfers_dht);
         textDht.setText(getString(R.string.dht_nodes, "???"));
-
+/*
         mAdView = (AdView) findView(v, R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6").build();
         mAdView.loadAd(adRequest);
@@ -301,6 +298,7 @@ public class TransfersFragment extends AbstractFragment implements TimerObserver
                 mAdView.setVisibility(View.VISIBLE);
             }
         });
+        */
     }
 
     public void initStorageRelatedRichNotifications(View v) {

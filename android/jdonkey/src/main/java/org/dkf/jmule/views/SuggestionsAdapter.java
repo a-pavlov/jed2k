@@ -20,7 +20,7 @@ package org.dkf.jmule.views;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.widget.SimpleCursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import org.dkf.jed2k.util.HttpClientFactory;
 import org.dkf.jed2k.util.http.HttpClient;
 import org.dkf.jmule.R;

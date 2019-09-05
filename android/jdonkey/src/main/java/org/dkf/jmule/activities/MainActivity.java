@@ -25,10 +25,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.DrawerLayout.SimpleDrawerListener;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,10 +33,10 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import com.inmobi.sdk.InMobiSdk;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.*;
@@ -66,6 +62,8 @@ import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.AbstractActivity;
 import org.dkf.jmule.views.AbstractDialog;
 import org.dkf.jmule.views.preference.StoragePreference;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +104,7 @@ public class MainActivity extends AbstractActivity implements
     private final Stack<Integer> fragmentsStack;
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
-    private InterstitialAd mInterstitialAd;
+    //rivate InterstitialAd mInterstitialAd;
 
     private enum APP_STATE {
         ACTIVE,
@@ -202,7 +200,7 @@ public class MainActivity extends AbstractActivity implements
 
     private void initDrawerListener() {
         drawerLayout = findView(R.id.drawer_layout);
-        drawerLayout.setDrawerListener(new SimpleDrawerListener() {
+        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerStateChanged(int newState) {
                 refreshPlayerItem();
@@ -523,10 +521,23 @@ public class MainActivity extends AbstractActivity implements
         }
 
         checkExternalStoragePermissionsOrBindMusicService();
-        MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
 
-        appState = APP_STATE.ACTIVE;
-        mInterstitialAd = new InterstitialAd(this);
+        JSONObject consent = new JSONObject();
+        try {
+            // Provide correct consent value to sdk which is obtained by User
+            consent.put(InMobiSdk.IM_GDPR_CONSENT_AVAILABLE, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        InMobiSdk.init(getApplicationContext(), "1e9b65f1241b4f00bf62128fa89b8616", consent);
+        InMobiSdk.setLogLevel(InMobiSdk.LogLevel.DEBUG);
+        log.info("InMobi SDK: init completed");
+
+        //MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
+
+        //appState = APP_STATE.ACTIVE;
+        /*mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId(getResources().getString(R.string.interstitioal_ad_1_id));
 
         mInterstitialAd.setAdListener(new AdListener() {
@@ -538,20 +549,22 @@ public class MainActivity extends AbstractActivity implements
         });
 
         requestNewInterstitial();
+
+        */
     }
 
     private void requestNewInterstitial() {
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6")
-                .build();
-        mInterstitialAd.loadAd(adRequest);
+        //AdRequest adRequest = new AdRequest.Builder()
+        //        .addTestDevice("6613A0A1A0D4EE0FABD0193C3A450CF6")
+        //        .build();
+        //mInterstitialAd.loadAd(adRequest);
     }
 
     public boolean showInterstitial() {
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-            return true;
-        }
+        //if (mInterstitialAd.isLoaded()) {
+        //    mInterstitialAd.show();
+        //    return true;
+        //}
 
         return false;
     }
@@ -573,7 +586,7 @@ public class MainActivity extends AbstractActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MobileAds.initialize(null, getResources().getString(R.string.banner_ad_1_id));
+        //MobileAds.initialize(null, getResources().getString(R.string.banner_ad_1_id));
     }
 
     private void saveLastFragment(Bundle outState) {
@@ -956,7 +969,7 @@ public class MainActivity extends AbstractActivity implements
         private final WeakReference<MainActivity> activityRef;
 
         MenuDrawerToggle(MainActivity activity, DrawerLayout drawerLayout) {
-            super(activity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
+            super(activity, drawerLayout, /*R.drawable.ic_drawer,*/ R.string.drawer_open, R.string.drawer_close);
 
             // aldenml: even if the parent class holds a strong reference, I decided to keep a weak one
             this.activityRef = Ref.weak(activity);
