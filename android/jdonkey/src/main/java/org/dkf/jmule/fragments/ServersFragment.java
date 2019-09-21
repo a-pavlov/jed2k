@@ -127,8 +127,9 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         InMobiBanner bannerAd = (InMobiBanner)rootView.findViewById(R.id.banner);
         if (bannerAd != null) {
             bannerAd.load();
+            log.info("[InMobi] load request issued");
         } else {
-            log.warn("Unable to load banner for servers page");
+            log.warn("[InMobi] banner is null");
         }
 
 

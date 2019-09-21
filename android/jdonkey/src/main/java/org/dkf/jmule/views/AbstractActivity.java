@@ -22,6 +22,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.view.View;
+import com.inmobi.sdk.InMobiSdk;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -88,6 +91,17 @@ public abstract class AbstractActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        JSONObject consent = new JSONObject();
+        try {
+            // Provide correct consent value to sdk which is obtained by User
+            consent.put(InMobiSdk.IM_GDPR_CONSENT_AVAILABLE, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        InMobiSdk.init(getApplicationContext(), "1e9b65f1241b4f00bf62128fa89b8616", consent);
+        InMobiSdk.setLogLevel(InMobiSdk.LogLevel.DEBUG);
 
         setContentView(layoutResId);
         initComponents(savedInstanceState);

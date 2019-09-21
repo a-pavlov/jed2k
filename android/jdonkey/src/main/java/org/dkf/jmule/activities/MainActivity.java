@@ -36,7 +36,6 @@ import android.widget.RelativeLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import com.inmobi.sdk.InMobiSdk;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.*;
@@ -62,8 +61,6 @@ import org.dkf.jmule.util.UIUtils;
 import org.dkf.jmule.views.AbstractActivity;
 import org.dkf.jmule.views.AbstractDialog;
 import org.dkf.jmule.views.preference.StoragePreference;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -522,17 +519,6 @@ public class MainActivity extends AbstractActivity implements
 
         checkExternalStoragePermissionsOrBindMusicService();
 
-        JSONObject consent = new JSONObject();
-        try {
-            // Provide correct consent value to sdk which is obtained by User
-            consent.put(InMobiSdk.IM_GDPR_CONSENT_AVAILABLE, false);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        InMobiSdk.init(getApplicationContext(), "1e9b65f1241b4f00bf62128fa89b8616", consent);
-        InMobiSdk.setLogLevel(InMobiSdk.LogLevel.DEBUG);
-        log.info("InMobi SDK: init completed");
 
         //MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.banner_ad_1_id));
 
