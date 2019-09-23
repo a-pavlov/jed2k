@@ -75,19 +75,36 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
-    implementation 'com.inmobi.monetization:inmobi-ads:8.2.0'
+    //implementation 'com.inmobi.monetization:inmobi-ads:8.2.0'
     implementation fileTree(dir: 'libs', include: ['*.aar'])
 
 
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'androidx.annotation:annotation:1.0.0'
+    //implementation 'androidx.appcompat:appcompat:1.0.0'
+    //implementation 'androidx.annotation:annotation:1.0.0'
     //implementation 'com.inmobi.monetization:inmobi-ads:8.2.0'
 
-    implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    //implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    //implementation 'com.google.android.gms:play-services-location:16.0.0'
 
     //implementation "com.facebook.fresco:fresco:0.12.0"
-    implementation "com.squareup.picasso:picasso:2.71828"
+    //implementation "com.squareup.picasso:picasso:2.71828"
+    //implementation "com.android.support:customtabs:28.0.0"
     //implementation 'androidx.browser:browser:1.0.0'
     //implementation 'androidx.multidex:multidex:2.0.0'
+
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.inmobi.monetization:inmobi-ads:8.2.0'
+    
+    implementation ("com.facebook.fresco:fresco:0.12.0") {
+        exclude group: 'com.android.support', module:'support-v4'
+    }
+    
+    implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    
+    implementation "com.squareup.picasso:picasso:2.71828"
+    implementation 'androidx.browser:browser:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.0'
 }

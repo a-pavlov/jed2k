@@ -82,4 +82,6 @@ dependencies {
     androidTestImplementation 'org.mockito:mockito-core:2.+'
     // Set this dependency to use JUnit 4 rules
     androidTestImplementation 'com.android.support.test:rules:0.4'
+
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
