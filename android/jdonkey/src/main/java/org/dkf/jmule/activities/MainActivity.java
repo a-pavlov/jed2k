@@ -37,6 +37,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.android.*;
@@ -501,6 +502,12 @@ public class MainActivity extends AbstractActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        StartAppSDK.init(this, "208355668", false);
+        StartAppSDK.setUserConsent (this,
+                "pas",
+                System.currentTimeMillis(),
+                false);
+
         super.onCreate(savedInstanceState);
 
         if (!ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
