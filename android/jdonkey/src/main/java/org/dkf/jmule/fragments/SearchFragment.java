@@ -36,6 +36,7 @@ import org.dkf.jed2k.android.MediaType;
 import org.dkf.jed2k.protocol.SearchEntry;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
+import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.adapters.SearchResultListAdapter;
 import org.dkf.jmule.dialogs.NewTransferDialog;
 import org.dkf.jmule.tasks.StartDownloadTask;
@@ -355,6 +356,7 @@ public final class SearchFragment extends AbstractFragment implements
 
         refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
+        ((MainActivity)getActivity()).showInterstitial();
         showSearchView(getView());
     }
 

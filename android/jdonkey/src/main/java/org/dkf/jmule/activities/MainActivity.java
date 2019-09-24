@@ -37,6 +37,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import com.startapp.android.publish.adsCommon.StartAppAd;
 import com.startapp.android.publish.adsCommon.StartAppSDK;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
@@ -104,6 +105,8 @@ public class MainActivity extends AbstractActivity implements
     private BroadcastReceiver mainBroadcastReceiver;
     private boolean externalStoragePermissionsRequested = false;
     private ServerMet lastLoadedServers = null;
+
+    private StartAppAd startAppAd;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -507,6 +510,10 @@ public class MainActivity extends AbstractActivity implements
                 "pas",
                 System.currentTimeMillis(),
                 false);
+        StartAppAd.disableSplash();
+        StartAppAd.disableAutoInterstitial();
+
+        startAppAd = new StartAppAd(this);
 
         super.onCreate(savedInstanceState);
 
@@ -520,6 +527,10 @@ public class MainActivity extends AbstractActivity implements
         }
 
         checkExternalStoragePermissionsOrBindMusicService();
+    }
+
+    public void showInterstitial() {
+        startAppAd.showAd();
     }
 
     private void checkExternalStoragePermissionsOrBindMusicService() {
