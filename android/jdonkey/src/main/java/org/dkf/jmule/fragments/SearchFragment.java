@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import com.startapp.android.publish.ads.banner.Mrec;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jed2k.android.AlertListener;
@@ -70,6 +71,7 @@ public final class SearchFragment extends AbstractFragment implements
     private final FileTypeCounter fileTypeCounter;
     private final SparseArray<Byte> toTheRightOf = new SparseArray<>(9);
     private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(9);
+    private Mrec startAppMrec;
 
     private boolean awaitingResults = false;
 
@@ -194,6 +196,8 @@ public final class SearchFragment extends AbstractFragment implements
                 switchToThe(false);
             }
         });
+
+        startAppMrec = (Mrec)findView(view, R.id.startAppMrec);
 
         showSearchView(view);
     }
@@ -338,6 +342,7 @@ public final class SearchFragment extends AbstractFragment implements
             currentQuery = null;
             searchProgress.setProgressEnabled(false);
             showSearchView(getView());
+            startAppMrec.showBanner();
         }
     }
 
@@ -356,6 +361,7 @@ public final class SearchFragment extends AbstractFragment implements
 
         refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
+        startAppMrec.hideBanner();
         ((MainActivity)getActivity()).showInterstitial();
         showSearchView(getView());
     }

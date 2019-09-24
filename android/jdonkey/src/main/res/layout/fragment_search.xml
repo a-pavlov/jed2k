@@ -75,14 +75,19 @@
             android:background="@android:color/black"
             android:orientation="horizontal">
 
-        <com.startapp.android.publish.ads.banner.Banner
+<!--        <com.startapp.android.publish.ads.banner.Banner
                 android:id="@+id/startAppBannerSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 />
-
+-->
+        <com.startapp.android.publish.ads.banner.Mrec
+                android:id="@+id/startAppMrec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
     </LinearLayout>
 
     <org.dkf.jmule.views.SwipeLayout
