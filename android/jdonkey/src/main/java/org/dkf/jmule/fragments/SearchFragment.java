@@ -72,6 +72,7 @@ public final class SearchFragment extends AbstractFragment implements
     private final SparseArray<Byte> toTheRightOf = new SparseArray<>(9);
     private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(9);
     private Mrec startAppMrec;
+    private int searchCount = 0;
 
     private boolean awaitingResults = false;
 
@@ -355,14 +356,17 @@ public final class SearchFragment extends AbstractFragment implements
             for (SearchEntry entry : alert.getResults()) {
                 fileTypeCounter.increment(MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(entry.getFileName())));
             }
+
+            startAppMrec.hideBanner();
+            if (++searchCount % 3  == 0) {
+                ((MainActivity) getActivity()).showInterstitial();
+            }
         }
 
         adapter.setFileType(ConfigurationManager.instance().getLastMediaTypeFilter());
 
         refreshFileTypeCounters(true);
         searchProgress.setProgressEnabled(false);
-        startAppMrec.hideBanner();
-        ((MainActivity)getActivity()).showInterstitial();
         showSearchView(getView());
     }
 
