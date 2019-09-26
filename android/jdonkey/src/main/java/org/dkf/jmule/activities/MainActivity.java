@@ -501,6 +501,14 @@ public class MainActivity extends AbstractActivity implements
             saveLastFragment(outState);
             saveFragmentsStack(outState);
         }
+
+        startAppAd.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState (Bundle savedInstanceState){
+        startAppAd.onRestoreInstanceState(savedInstanceState);
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
