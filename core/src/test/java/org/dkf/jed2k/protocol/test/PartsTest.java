@@ -1,5 +1,6 @@
 package org.dkf.jed2k.protocol.test;
 
+import org.dkf.jed2k.Constants;
 import org.dkf.jed2k.data.PeerRequest;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
@@ -81,7 +82,7 @@ public class PartsTest {
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, // hash end
-                (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, // start offset
+                (byte)0xFA, (byte)0xFF, (byte)0xFF, (byte)0xFF, // start offset
                 (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF  // end offset
         };
 
@@ -90,12 +91,32 @@ public class PartsTest {
         sendingPart32.get(buffer);
         assertTrue(sendingPart32.beginOffset.longValue() > 0);
         assertTrue(sendingPart32.endOffset.longValue() > 0);
-        assertEquals(0xFFFFFFFFL, sendingPart32.beginOffset.longValue());
+        assertEquals(0xFFFFFFFAL, sendingPart32.beginOffset.longValue());
 
         PeerRequest peerRequest = PeerRequest.mk_request(sendingPart32.beginOffset.longValue(), sendingPart32.endOffset.longValue());
         assertTrue(peerRequest.piece > 0);
         assertTrue(peerRequest.start >= 0);
-        assertEquals(0, peerRequest.length);
+        assertEquals(5, peerRequest.length);
         assertTrue((int)peerRequest.inBlockOffset() > 0);
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testMakeRequestInvalidParameters_1() throws JED2KException {
+        PeerRequest peerRequest = PeerRequest.mk_request(10, 9);
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testMakeRequestInvalidParameters_2() throws JED2KException {
+        PeerRequest peerRequest = PeerRequest.mk_request(-10, -9);
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testMakeRequestInvalidParameters_3() throws JED2KException {
+        PeerRequest peerRequest = PeerRequest.mk_request(-10l, 1999999999l);
+    }
+
+    @Test(expected = JED2KException.class)
+    public void testMakeRequestInvalidParameters_4() throws JED2KException {
+        PeerRequest peerRequest = PeerRequest.mk_request(100l, Constants.PIECE_SIZE*3);
     }
 }
