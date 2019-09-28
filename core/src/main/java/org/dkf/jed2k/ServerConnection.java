@@ -25,6 +25,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.dkf.jed2k.exception.ErrorCode.INTERNAL_ERROR;
 import static org.dkf.jed2k.protocol.tag.Tag.tag;
 
 public class ServerConnection extends Connection {
@@ -54,6 +55,9 @@ public class ServerConnection extends Connection {
     public static ServerConnection makeConnection(String identifier
             , InetSocketAddress address
             , Session ses) throws JED2KException {
+        // avoid npe when null address(???) passed to connection
+        if (address == null) throw new JED2KException(INTERNAL_ERROR);
+
         try {
             ByteBuffer ibuff = ByteBuffer.allocate(1024);
             ByteBuffer obuff = ByteBuffer.allocate(1048);

@@ -79,6 +79,8 @@ public enum ErrorCode implements BaseErrorCode {
     GITHUB_CFG_IP_IS_NULL(94, "Ip is null in github kad config"),
     GITHUB_CFG_PORTS_ARE_NULL(95, "Ports are null in github kad config"),
     GITHUB_CFG_PORTS_ARE_EMPTY(96, "Ports are empty in github kad config"),
+    INVALID_PR_PARAMETER(97, "Peer request parameters are invalid"),
+    PEER_REQUEST_OVERFLOW(98, "Peer request has length greater than PIECE_SIZE"),
 
     FAIL(100, "Fail");
 
