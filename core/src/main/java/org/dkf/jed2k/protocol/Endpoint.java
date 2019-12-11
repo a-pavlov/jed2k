@@ -4,6 +4,7 @@ import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -31,8 +32,12 @@ public final class Endpoint implements Serializable, Comparable<Endpoint> {
     }
 
     public Endpoint(InetSocketAddress ep) {
-        ip  = Utils.packToNetworkByteOrder(ep.getAddress().getAddress());
-        port = (short)ep.getPort();
+        InetAddress inetAddress = ep.getAddress();
+
+        if (inetAddress != null) {
+            ip = Utils.packToNetworkByteOrder(inetAddress.getAddress());
+            port = (short) ep.getPort();
+        }
     }
 
     public Endpoint(int ip, int port) {
