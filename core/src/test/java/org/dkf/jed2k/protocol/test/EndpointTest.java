@@ -10,6 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class EndpointTest {
     @Test
@@ -30,6 +32,11 @@ public class EndpointTest {
     public void testConvertation() throws JED2KException {
         Endpoint endpoint = new Endpoint(new InetSocketAddress("192.168.0.9", 1223));
         assertEquals(new InetSocketAddress("192.168.0.9", 1223), endpoint.toInetSocketAddress());
+        assertTrue(endpoint.defined());
+        Endpoint endpoint1 = Endpoint.fromInet(new InetSocketAddress("xxx", 60077));
+        assertFalse(endpoint1.defined());
+        assertEquals(0, endpoint1.getIP());
+        assertEquals(0, endpoint1.getPort());
     }
 
     @Test
