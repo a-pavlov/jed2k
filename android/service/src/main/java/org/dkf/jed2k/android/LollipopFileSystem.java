@@ -389,6 +389,12 @@ public final class LollipopFileSystem implements FileSystem {
                 } else {
                     if (create) {
                         f = f.createFile("application/octet-stream", name);
+                        if (!f.getName().equals(name)) {
+                            boolean renamed = f.renameTo(name);
+                            if (!renamed) {
+                                LOG.warn("Unable to rename file {} to {}", f.getName(), name);
+                            }
+                        }
                     } else {
                         f = null;
                     }
