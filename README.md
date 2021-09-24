@@ -9,7 +9,7 @@ In GUI part used source code and design from [FrostWire](https://github.com/fros
 
 * [Google Play](https://play.google.com/store/apps/details?id=org.dkf.jmule&hl=en)
 * [Amazon](https://www.amazon.com/DKF-software-Mule-on-Android/dp/B01LYN526Q/ref=sr_1_1?s=mobile-apps&ie=UTF8&qid=1475048708&sr=1-1)
-* [Direct apk](https://drive.google.com/open?id=0B39-MtFuW1DTbW5LUk1IR3lsTGM)
+* [Direct apk](https://drive.google.com/file/d/0B39-MtFuW1DTbW5LUk1IR3lsTGM/view?usp=sharing&resourcekey=0-qREpSkLnU3icongW9F5N7w)
 
 ## Implemented Features
 
