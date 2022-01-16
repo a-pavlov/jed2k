@@ -1,1 +1,1 @@
-include ':service', ':jdonkey'
+include ':jdonkey'

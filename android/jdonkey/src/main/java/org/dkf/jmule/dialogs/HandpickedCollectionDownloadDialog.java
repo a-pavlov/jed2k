@@ -26,7 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import org.apache.commons.io.FilenameUtils;
 import org.dkf.jed2k.EMuleLink;
-import org.dkf.jed2k.android.MediaType;
+import org.dkf.jmule.MediaType;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;

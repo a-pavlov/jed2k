@@ -1,8 +1,25 @@
 apply plugin: 'com.android.application'
-apply from: '../../core/dependencies.gradle'
-apply from: '../dependencies.gradle'
 
 buildscript {
+    repositories {
+        // Gradle 4.1 and higher include support for Google's Maven repo using
+        // the google() method. And you need to include this repo to download
+        // Android Gradle plugin 3.0.0 or higher.
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.0.0'
+    }
+}
+
+
+//plugins {
+//    id('com.android.application') version '7.0'
+//}
+
+/*buildscript {
     repositories {
         google()
         maven { url 'maven.google.com' }
@@ -13,61 +30,82 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.1.0'
     }
 }
+*/
 
 repositories {
     google()
     mavenCentral()
     jcenter()
 }
-
+/*
 def manifestVersionCode() {
-    def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
+    def manifestFile = new File(project.projectDir.absolutePath + '/AndroidManifest.xml')
 
     def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
-    def xml = new XmlParser().parse(manifestFile)
+    def xml = new groovy.xml.XmlParser().parse(manifestFile)
 
     return Integer.parseInt(xml.attributes()[ns.versionCode].toString())
 }
 
 def manifestVersionName() {
-    def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
+    def manifestFile = new File(project.projectDir.absolutePath + '/AndroidManifest.xml')
 
     def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
-    def xml = new XmlParser().parse(manifestFile)
+    def xml = new groovy.xml.XmlParser().parse(manifestFile)
 
     return xml.attributes()[ns.versionName].toString()
 }
-
+*/
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.2'
+    compileSdkVersion 30
 
     defaultConfig {
-        applicationId "org.dkf.jmule"
+        applicationId 'org.dkf.jmule'
+        versionName 'test'
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 23
         versionName "2.3"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     sourceSets {
+        //main {
+            //manifest.srcFile 'AndroidManifest.xml'
+        //}
+
         main {
             manifest.srcFile 'AndroidManifest.xml'
+            //java {
+            //    srcDir 'src'
+            //    srcDir '../../core/src/main/java'
+            //}
         }
     }
 
     lintOptions {
         abortOnError false
     }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
 }
 
 dependencies {
-    implementation project(':service')
+    implementation project(':core')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    //api group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
+    implementation 'com.google.re2j:re2j:1.1'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'

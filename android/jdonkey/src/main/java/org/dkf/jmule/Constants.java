@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
-import org.dkf.jed2k.BuildConfig;
+import org.dkf.jmule.BuildConfig;
 
 /**
  * Static class containing all constants in one place.
@@ -31,7 +31,7 @@ public final class Constants {
     private Constants() {
     }
 
-    public static final boolean IS_GOOGLE_PLAY_DISTRIBUTION = BuildConfig.FLAVOR.equals("basic");
+    public static final boolean IS_GOOGLE_PLAY_DISTRIBUTION = true; //BuildConfig.FLAVOR.equals("basic");
 
     private static final String BUILD_PREFIX = !IS_GOOGLE_PLAY_DISTRIBUTION ? "1000" : "";
 

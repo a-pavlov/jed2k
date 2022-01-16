@@ -1,4 +1,4 @@
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
 import org.dkf.jed2k.alert.*;
 

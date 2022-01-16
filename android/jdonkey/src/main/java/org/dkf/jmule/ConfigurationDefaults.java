@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
 import android.os.Environment;
 import org.dkf.jed2k.exception.JED2KException;

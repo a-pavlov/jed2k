@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -162,7 +162,7 @@ public final class LollipopFileSystem implements FileSystem {
     }
 
     @Override
-    public File[] listFiles(File file, org.dkf.jed2k.android.FileFilter filter) {
+    public File[] listFiles(File file, org.dkf.jmule.FileFilter filter) {
         try {
             File[] files = file.listFiles(filter);
             if (files != null) {
@@ -249,7 +249,7 @@ public final class LollipopFileSystem implements FileSystem {
         try {
             final List<String> paths = new LinkedList<>();
             if (isDirectory(file)) {
-                walk(file, new org.dkf.jed2k.android.FileFilter() {
+                walk(file, new org.dkf.jmule.FileFilter() {
                     @Override
                     public boolean accept(File file) {
                         return true;
@@ -276,7 +276,7 @@ public final class LollipopFileSystem implements FileSystem {
     }
 
     @Override
-    public void walk(File file, org.dkf.jed2k.android.FileFilter filter) {
+    public void walk(File file, org.dkf.jmule.FileFilter filter) {
         DefaultFileSystem.walkFiles(this, file, filter);
     }
 

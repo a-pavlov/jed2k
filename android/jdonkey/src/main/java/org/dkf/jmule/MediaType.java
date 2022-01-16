@@ -13,9 +13,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
-import org.dkf.jed2k.R;
+import org.dkf.jmule.R;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;

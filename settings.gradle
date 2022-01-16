@@ -1,0 +1,2 @@
+rootProject.name = 'jed2k'
+include 'console', 'core', 'android:jdonkey'

@@ -39,7 +39,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
-import org.dkf.jed2k.android.*;
+import org.dkf.jmule.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.ServerMet;

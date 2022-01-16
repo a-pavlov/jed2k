@@ -31,7 +31,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-
 public class Conn {
     private static Logger log = LoggerFactory.getLogger(Conn.class);
     private static List<SearchEntry> globalSearchRes = null;

@@ -19,7 +19,7 @@ package org.dkf.jmule.activities.internal;
 
 import android.app.Fragment;
 import android.content.Intent;
-import org.dkf.jed2k.android.ConfigurationManager;
+import org.dkf.jmule.ConfigurationManager;
 import org.dkf.jmule.R;
 import org.dkf.jmule.activities.MainActivity;
 import org.dkf.jmule.activities.SettingsActivity;

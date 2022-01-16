@@ -1,4 +1,4 @@
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

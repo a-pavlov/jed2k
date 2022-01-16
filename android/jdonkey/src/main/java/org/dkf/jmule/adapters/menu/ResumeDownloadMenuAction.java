@@ -19,7 +19,7 @@
 package org.dkf.jmule.adapters.menu;
 
 import android.content.Context;
-import org.dkf.jed2k.android.NetworkManager;
+import org.dkf.jmule.NetworkManager;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
 import org.dkf.jmule.transfers.Transfer;

@@ -1,15 +1,17 @@
+plugins {
+    id 'java-library'
+}
+
 apply plugin: 'java'
-apply from: "$rootDir/dependencies.gradle"
-apply plugin: 'maven'
+apply plugin: 'application'
 
-group = 'org.dkf'
-version = '1.0'
+group = 'org.dkf.jed2k'
+version = '2.0'
 
-description = """jed2k"""
+description = "jed2k core library"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()
@@ -17,7 +19,10 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'org.slf4j', name: 'slf4j-jdk14', version:'1.7.+'
+    api group: 'org.slf4j', name: 'slf4j-jdk14', version:'1.7.+'
+    implementation 'com.google.re2j:re2j:1.1'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
     testImplementation group: 'junit', name: 'junit', version:'4.8.2'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.0.111-beta'
 }

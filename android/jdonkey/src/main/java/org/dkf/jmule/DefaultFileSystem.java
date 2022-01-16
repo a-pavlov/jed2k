@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;

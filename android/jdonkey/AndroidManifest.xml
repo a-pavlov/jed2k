@@ -91,6 +91,12 @@
                     android:resource="@xml/provider_paths" />
         </provider>
 
+        <service android:name=".android.ED2KService">
+            <intent-filter>
+                <action android:name="org.dkf.jmule.INTENT_OPEN"/>
+                <action android:name="org.dkf.jmule.INTENT_CLOSE"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package org.dkf.jed2k.android;
+package org.dkf.jmule;
 
 import android.os.ParcelFileDescriptor;
 import android.support.v4.provider.DocumentFile;
