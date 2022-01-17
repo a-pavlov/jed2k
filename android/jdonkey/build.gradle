@@ -92,13 +92,15 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            buildConfigField "String", "FLAVOR", "basic"
             //proguardFiles getDefaultProguardFile('proguard-android.txt'),
             //        'proguard-rules.pro'
-            //signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
             //multiDexKeepFile file('multidex-config.txt')
         }
         debug {
             minifyEnabled true
+            buildConfigField "String", "FLAVOR", "\"basic\""
             //proguardFiles getDefaultProguardFile('proguard-android.txt'),
             //        'proguard-rules.pro'
             //multiDexKeepFile file('multidex-config.txt')
