@@ -26,7 +26,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
+
+import androidx.core.app.ActivityCompat;
+
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;

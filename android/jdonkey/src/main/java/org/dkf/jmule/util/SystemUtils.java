@@ -22,9 +22,9 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StatFs;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.os.EnvironmentCompat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +34,9 @@ import java.util.List;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.os.EnvironmentCompat;
 
 /**
  * @author gubatron
@@ -191,5 +194,14 @@ public final class SystemUtils {
      */
     public static boolean hasKitKatOrNewer() {
         return hasSdkOrNewer(VERSION_CODE_KITKAT);
+    }
+
+    public static void postToUIThread(Runnable runnable) {
+        try {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(runnable);
+        } catch (Throwable t) {
+            LOG.error("UIUtils.postToUIThread error: " + t.getMessage());
+        }
     }
 }

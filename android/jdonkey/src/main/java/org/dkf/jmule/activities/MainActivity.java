@@ -25,10 +25,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.DrawerLayout.SimpleDrawerListener;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +36,9 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+
+import androidx.core.app.ActivityCompat;
+
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jmule.*;
@@ -91,8 +93,9 @@ public class MainActivity extends AbstractActivity implements
     private final Map<Integer, DangerousPermissionsChecker> permissionsCheckers;
     private MainController controller;
     private DrawerLayout drawerLayout;
+    private NavigationMenu navigationMenu;
 
-    private ActionBarDrawerToggle drawerToggle;
+    //private ActionBarDrawerToggle drawerToggle;
     private View leftDrawer;
     private ListView listMenu;
     private SearchFragment search;
@@ -120,7 +123,11 @@ public class MainActivity extends AbstractActivity implements
         } else if (keyCode == KeyEvent.KEYCODE_MENU) {
             toggleDrawer();
         } else {
-            return super.onKeyDown(keyCode, event);
+            try {
+                return super.onKeyDown(keyCode, event);
+            } catch (NullPointerException e) {
+                return false;
+            }
         }
 
         return true;
@@ -142,12 +149,12 @@ public class MainActivity extends AbstractActivity implements
             showLastBackDialog();
         }
 
-        syncSlideMenu();
+        //syncSlideMenu();
         updateHeader(getCurrentFragment());
     }
 
     public void onConfigurationUpdate() {
-        setupMenuItems();
+        //setupMenuItems();
     }
 
     public void shutdown() {
@@ -177,11 +184,9 @@ public class MainActivity extends AbstractActivity implements
         if (isShutdown()) {
             return;
         }
-        initDrawerListener();
-        leftDrawer = findView(R.id.activity_main_left_drawer);
-        listMenu = findView(R.id.left_drawer);
+        updateNavigationMenu();
         setupFragments();
-        setupMenuItems();
+        //setupMenuItems();
         setupInitialFragment(savedInstanceState);
         //playerSubscription = TimerService.subscribe(((PlayerNotifierView) findView(R.id.activity_main_player_notifier)).getRefresher(), 1);
         onNewIntent(getIntent());
@@ -191,6 +196,7 @@ public class MainActivity extends AbstractActivity implements
 
     private void initDrawerListener() {
         drawerLayout = findView(R.id.drawer_layout);
+        /*
         drawerLayout.setDrawerListener(new SimpleDrawerListener() {
             @Override
             public void onDrawerStateChanged(int newState) {
@@ -211,6 +217,7 @@ public class MainActivity extends AbstractActivity implements
 
             }
         });
+         */
     }
 
     private static List<EMuleLink> parseCollectionContent(Context context, Uri uri) {
@@ -236,6 +243,25 @@ public class MainActivity extends AbstractActivity implements
         }
 
         return res;
+    }
+
+    public void updateNavigationMenu(boolean updateAvailable) {
+        log.info("updateNavigationMenu(" + updateAvailable + ")");
+        if (navigationMenu == null) {
+            setupDrawer();
+        }
+        if (updateAvailable) {
+            // make sure it will remember this, even if the menu gets destroyed
+            getIntent().putExtra("updateAvailable", true);
+            navigationMenu.onUpdateAvailable();
+        }
+    }
+
+    private void updateNavigationMenu() {
+        Intent intent = getIntent();
+        if (intent != null) {
+            updateNavigationMenu(intent.getBooleanExtra("updateAvailable", false));
+        }
     }
 
     @Override
@@ -422,9 +448,10 @@ public class MainActivity extends AbstractActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-
-        initDrawerListener();
         setupDrawer();
+        syncNavigationMenu();
+        updateNavigationMenu();
+
 
         refreshPlayerItem();
 
@@ -436,7 +463,7 @@ public class MainActivity extends AbstractActivity implements
         }
 
         registerMainBroadcastReceiver();
-        syncSlideMenu();
+        //syncSlideMenu();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
             checkExternalStoragePermissionsOrBindMusicService();
@@ -543,8 +570,7 @@ public class MainActivity extends AbstractActivity implements
 
     private void mainResume() {
         checkSDPermission();
-
-        syncSlideMenu();
+        syncNavigationMenu();
         if (firstTime) {
             firstTime = false;
             Engine.instance().startServices(); // it's necessary for the first time after wizard
@@ -595,13 +621,12 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void toggleDrawer() {
-        if (drawerLayout.isDrawerOpen(leftDrawer)) {
-            drawerLayout.closeDrawer(leftDrawer);
+        if (navigationMenu.isOpen()) {
+            navigationMenu.hide();
         } else {
-            drawerLayout.openDrawer(leftDrawer);
-            syncSlideMenu();
+            navigationMenu.show();
+            syncNavigationMenu();
         }
-
         updateHeader(getCurrentFragment());
     }
 
@@ -614,7 +639,7 @@ public class MainActivity extends AbstractActivity implements
         dlg.show(getFragmentManager()); //see onDialogClick
     }
 
-    private void showShutdownDialog() {
+    public void showShutdownDialog() {
         YesNoDialog dlg = YesNoDialog.newInstance(
                 SHUTDOWN_DIALOG_ID,
                 R.string.app_shutdown_dlg_title,
@@ -645,6 +670,7 @@ public class MainActivity extends AbstractActivity implements
         //Offers.showInterstitial(this, true, false);
     }
 
+    /*
     private void syncSlideMenu() {
         listMenu.clearChoices();
         invalidateOptionsMenu();
@@ -663,7 +689,7 @@ public class MainActivity extends AbstractActivity implements
         setCheckedItem(menuId);
         updateHeader(getCurrentFragment());
     }
-
+*/
     private void setCheckedItem(int id) {
         try {
             listMenu.clearChoices();
@@ -685,9 +711,9 @@ public class MainActivity extends AbstractActivity implements
 
             invalidateOptionsMenu();
 
-            if (drawerToggle != null) {
-                drawerToggle.syncState();
-            }
+            //if (drawerToggle != null) {
+                //drawerToggle.syncState();
+            //}
         } catch (Exception e) { // protecting from weird android UI engine issues
             log.warn("Error setting slide menu item selected", e);
         }
@@ -706,7 +732,7 @@ public class MainActivity extends AbstractActivity implements
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //onItemClick(AdapterView<?> parent, View view, int position, long id)
-                syncSlideMenu();
+                //syncSlideMenu();
                 controller.closeSlideMenu();
                 try {
                     if (id == R.id.menu_main_settings) {
@@ -835,15 +861,15 @@ public class MainActivity extends AbstractActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerToggle != null) {
+        /*if (drawerToggle != null) {
             try {
-                drawerToggle.onOptionsItemSelected(item);
+                //drawerToggle.onOptionsItemSelected(item);
             } catch (Exception t) {
                 // usually java.lang.IllegalArgumentException: No drawer view found with gravity LEFT
                 return false;
             }
             return true;
-        }
+        }*/
 
         if (item == null) {
             return false;
@@ -858,13 +884,13 @@ public class MainActivity extends AbstractActivity implements
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        drawerToggle.onConfigurationChanged(newConfig);
+        //drawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
+        //drawerToggle.syncState();
     }
 
     private void setupActionBar() {
@@ -878,8 +904,9 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void setupDrawer() {
-        drawerToggle = new MenuDrawerToggle(this, drawerLayout);
-        drawerLayout.setDrawerListener(drawerToggle);
+        DrawerLayout drawerLayout = findView(R.id.drawer_layout);
+        Toolbar toolbar = findToolbar();
+        navigationMenu = new NavigationMenu(controller, drawerLayout, toolbar);
     }
 
     public void onServiceConnected(final ComponentName name, final IBinder service) {
@@ -910,7 +937,7 @@ public class MainActivity extends AbstractActivity implements
             controller.showServers();
         }
     }
-
+/*
     private static final class MenuDrawerToggle extends ActionBarDrawerToggle {
         private final WeakReference<MainActivity> activityRef;
 
@@ -947,7 +974,7 @@ public class MainActivity extends AbstractActivity implements
             }
         }
     }
-
+*/
     // TODO: refactor and move this method for a common place when needed
     private static String saveViewContent(Context context, Uri uri, String name) {
         InputStream inStream = null;
@@ -975,5 +1002,33 @@ public class MainActivity extends AbstractActivity implements
         }
 
         return "file://" + target.getAbsolutePath();
+    }
+
+    public Fragment getFragmentByNavMenuId(int id) {
+        if (id == R.id.menu_main_search) {
+            return search;
+        } else if (id == R.id.menu_main_servers) {
+            return servers;
+        } else if (id == R.id.menu_main_transfers) {
+            return transfers;
+        }
+        return null;
+    }
+
+    private int getNavMenuIdByFragment(Fragment fragment) {
+        int menuId = -1;
+        if (fragment == search) {
+            menuId = R.id.menu_main_search;
+        } else if (fragment == servers) {
+            menuId = R.id.menu_main_servers;
+        } else if (fragment == transfers) {
+            menuId = R.id.menu_main_transfers;
+        }
+        return menuId;
+    }
+
+    public void syncNavigationMenu() {
+        invalidateOptionsMenu();
+        navigationMenu.updateCheckedItem(getNavMenuIdByFragment(getCurrentFragment()));
     }
 }

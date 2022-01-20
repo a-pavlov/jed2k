@@ -19,20 +19,25 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.v4.widget.DrawerLayout
+    <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical" >
+
+            <include layout="@layout/toolbar_main" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -62,24 +67,19 @@
             </FrameLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/activity_main_left_drawer"
-            android:layout_width="@dimen/mainmenu_width"
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/activity_main_nav_view"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:orientation="vertical" >
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/nav_view_header"
+            app:itemBackground="@drawable/nav_view_background_color_selector"
+            app:itemIconTint="@color/nav_view_icon_color_selector"
+            app:itemTextColor="@color/app_text_primary"
+            app:menu="@menu/nav_view_menu">
+        </com.google.android.material.navigation.NavigationView>
 
-            <ListView
-                android:id="@+id/left_drawer"
-                style="@style/SlideMenu.List"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@color/app_dark_blue"
-                android:choiceMode="singleChoice"
-                android:divider="@android:color/transparent"
-                android:dividerHeight="0dp" />
-        </LinearLayout>
-    </android.support.v4.widget.DrawerLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 </LinearLayout>

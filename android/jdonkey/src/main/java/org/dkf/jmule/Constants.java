@@ -161,4 +161,8 @@ public final class Constants {
     public static final String AD_NETWORK_SHORTCODE_MOBFOX = "MF";
 
     public static final String ED2K_NOTIFICATION_CHANNEL_ID = "ed2k";
+
+    public static final String SUPPORT_URL = "https://github/a-pavlov/jed2k";
+    public static boolean IS_BASIC_AND_DEBUG = false;
+    public static String JED2K_GIVE_URL = "https://github/a-pavlov/jed2k";
 }

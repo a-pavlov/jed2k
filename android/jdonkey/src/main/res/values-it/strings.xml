@@ -258,4 +258,6 @@
     <string name="media_type_images">Immagini</string>
     <string name="media_type_torrents">Torrents</string>
     <string name="media_type_video">Video</string>
+    <string name="build">build</string>
+    <string name="comma">,</string>
 </resources>

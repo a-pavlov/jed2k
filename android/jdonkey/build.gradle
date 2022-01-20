@@ -36,8 +36,38 @@ def manifestVersionName() {
     return xml.attributes()[ns.versionName].toString()
 }
 
-project.ext.versionCode = manifestVersionCode()
-project.ext.versionName = manifestVersionName()
+ext {
+    buildToolsVersion = "31.0.0"
+    coreVersion = "1.4.1-alpha03"
+    extJUnitVersion = "1.1.4-alpha03"
+    runnerVersion = "1.4.1-alpha03"
+    rulesVersion = "1.4.1-alpha03"
+    versionCode = manifestVersionCode()
+    versionName = manifestVersionName()
+}
+
+def changeApkOutput(variant) {
+    def flavor = 'type'
+    def suffix = project.ext.versionName + '-b' + project.ext.versionCode + '-' + flavor
+    def name = "jed2k-android-" + variant.buildType.name + '-' + suffix
+
+    variant.outputs.all { output ->
+        outputFileName = name + '.apk'
+    }
+    variant.getAssembleProvider().configure() {
+        it.doLast {
+            assemble ->
+                copy {
+                    from variant.outputs*.outputFile
+                    into "${project.buildDir}"
+                }
+        }
+    }
+}
+
+
+//project.ext.versionCode = manifestVersionCode()
+//project.ext.versionName = manifestVersionName()
 
 boolean isAssembleRelease = gradle.startParameter.taskNames.contains("assembleRelease") || gradle.startParameter.taskNames.contains("assemblePlus1Release")
 
@@ -51,6 +81,7 @@ android {
         targetSdkVersion 30
         versionCode 23
         versionName "2.3"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -61,10 +92,19 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            //java {
-            //    srcDir 'src'
-            //    srcDir '../../core/src/main/java'
-            //}
+            java {
+                srcDir 'src/main'
+            }
+        }
+
+        androidTest {
+            java.srcDirs = ['src/androidTest']
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
         }
     }
 
@@ -113,18 +153,41 @@ android {
             //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    flavorDimensions "type"
+
+    productFlavors {
+        basic {
+            versionCode 0001 + project.ext.versionCode
+            resValue "string", "application_label", "JED2K"
+        }
+    }
+
+    applicationVariants.all { variant ->
+        changeApkOutput(variant)
+    }
 }
 
 dependencies {
     implementation project(':core')
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    //implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
     //api group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
     implementation 'com.google.re2j:re2j:1.1'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    //implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.preference:preference:1.1.1'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    testImplementation 'org.robolectric:robolectric:4.6'
+    androidTestImplementation 'androidx.test:core:' + project.ext.coreVersion;
+    androidTestImplementation 'androidx.test.ext:junit:' + project.ext.extJUnitVersion;
+    androidTestImplementation 'androidx.test:runner:' + project.ext.runnerVersion;
+    androidTestImplementation 'androidx.test:rules:' + project.ext.rulesVersion;
 }
 
 class SignatureRequester {

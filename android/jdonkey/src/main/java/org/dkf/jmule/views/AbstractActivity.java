@@ -23,6 +23,10 @@ import android.app.FragmentManager;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.widget.Toolbar;
+
+import org.dkf.jmule.R;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,5 +102,9 @@ public abstract class AbstractActivity extends Activity {
     @SuppressWarnings("unchecked")
     protected final <T extends View> T findView(int id) {
         return (T) super.findViewById(id);
+    }
+
+    public final Toolbar findToolbar() {
+        return findView(R.id.toolbar_main);
     }
 }

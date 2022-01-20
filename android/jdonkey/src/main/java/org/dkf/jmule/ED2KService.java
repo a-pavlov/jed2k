@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.*;
-import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.provider.DocumentFile;
 import android.widget.RemoteViews;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,9 +37,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import android.support.v4.app.JobIntentService;
 
-public class ED2KService extends JobIntentService  {
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
+import androidx.core.app.NotificationCompat;
+import androidx.documentfile.provider.DocumentFile;
+
+public class ED2KService extends JobIntentService {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
 
     public static final String ACTION_SHOW_TRANSFERS = "org.dkf.jmule.android.ACTION_SHOW_TRANSFERS";
@@ -732,7 +733,7 @@ public class ED2KService extends JobIntentService  {
             if (Platforms.get().saf()) {
                 LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
                 if (fs.exists(file)) {
-                    android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
+                    android.util.Pair<ParcelFileDescriptor, DocumentFile> resume = fs.openFD(file, "rw");
 
                     if (resume != null && resume.second != null && resume.first != null && resume.second.exists()) {
                         atp.setExternalFileHandler(new AndroidFileHandler(file, resume.second, resume.first));
@@ -1101,7 +1102,7 @@ public class ED2KService extends JobIntentService  {
 
             if (Platforms.get().saf()) {
                 LollipopFileSystem fs = (LollipopFileSystem)Platforms.fileSystem();
-                android.support.v4.util.Pair<ParcelFileDescriptor, DocumentFile> fd = fs.openFD(file, "rw");
+                android.util.Pair<ParcelFileDescriptor, DocumentFile> fd = fs.openFD(file, "rw");
 
                 if (fd != null && fd.second != null && fd.first != null) {
                     AndroidFileHandler handler = new AndroidFileHandler(file, fd.second, fd.first);

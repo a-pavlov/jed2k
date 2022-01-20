@@ -27,7 +27,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.content.ContextCompat;
+
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;

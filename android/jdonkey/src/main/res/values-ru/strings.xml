@@ -221,4 +221,6 @@
     <string name="media_type_archives">Архив</string>
     <string name="media_type_applications">Приложение</string>
     <string name="media_type_all_types">Все</string>
+    <string name="build">build</string>
+    <string name="comma">,</string>
 </resources>

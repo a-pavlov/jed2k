@@ -24,11 +24,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.support.v4.provider.DocumentFile;
-import android.support.v4.util.Pair;
-import org.dkf.jmule.AndroidFileHandler;
-import org.dkf.jmule.LollipopFileSystem;
-import org.dkf.jmule.Platforms;
+import android.util.Pair;
+
+import androidx.documentfile.provider.DocumentFile;
+
 import org.dkf.jmule.util.UIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

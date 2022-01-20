@@ -27,29 +27,34 @@ import org.dkf.jmule.activities.WizardActivity;
 import org.dkf.jmule.fragments.ServersFragment;
 import org.dkf.jmule.fragments.TransfersFragment;
 import org.dkf.jmule.fragments.TransfersFragment.TransferStatus;
+import org.dkf.jmule.util.Ref;
+
+import java.lang.ref.WeakReference;
 
 /**
  * @author gubatron
  * @author aldenml
  */
 public final class MainController {
-
-    private final MainActivity activity;
+    private final WeakReference<MainActivity> activityRef;
 
     public MainController(MainActivity activity) {
-        this.activity = activity;
+        activityRef = Ref.weak(activity);
     }
 
     public MainActivity getActivity() {
-        return activity;
+        return activityRef.get();
     }
 
     public void closeSlideMenu() {
-        activity.closeSlideMenu();
+        activityRef.get().closeSlideMenu();
     }
 
 
     public void switchFragment(int itemId) {
+        if (!Ref.alive(activityRef)) return;
+        MainActivity activity = activityRef.get();
+
         Fragment fragment = activity.getFragmentByMenuId(itemId);
         if (fragment != null) {
             activity.switchContent(fragment);
@@ -57,29 +62,75 @@ public final class MainController {
     }
 
     public void showPreferences() {
+        if (!Ref.alive(activityRef)) return;
+        MainActivity activity = activityRef.get();
         Intent i = new Intent(activity, SettingsActivity.class);
         activity.startActivity(i);
     }
 
     public void showTransfers(TransferStatus status) {
+        if (!Ref.alive(activityRef)) return;
+        MainActivity activity = activityRef.get();
         if (!(activity.getCurrentFragment() instanceof TransfersFragment)) {
             TransfersFragment fragment = (TransfersFragment) activity.getFragmentByMenuId(R.id.menu_main_transfers);
-            //fragment.selectStatusTab(status);
             switchFragment(R.id.menu_main_transfers);
         }
     }
 
     public void showServers() {
+        if (!Ref.alive(activityRef)) return;
+        MainActivity activity = activityRef.get();
         if (!(activity.getCurrentFragment() instanceof TransfersFragment)) {
             ServersFragment servers = (ServersFragment) activity.getFragmentByMenuId(R.id.menu_main_servers);
             switchFragment(R.id.menu_main_servers);
         }
     }
 
+    public void setTitle(CharSequence title) {
+        if (!Ref.alive(activityRef)) {
+            return;
+        }
+        MainActivity activity = activityRef.get();
+        activity.setTitle(title);
+    }
+
     public void startWizardActivity() {
+        if (!Ref.alive(activityRef)) return;
+        MainActivity activity = activityRef.get();
+
         ConfigurationManager.instance().resetToDefaults();
         Intent i = new Intent(activity, WizardActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         activity.startActivity(i);
+    }
+
+    public void showShutdownDialog() {
+        if (!Ref.alive(activityRef)) {
+            return;
+        }
+        MainActivity activity = activityRef.get();
+        activity.showShutdownDialog();
+    }
+
+    public void syncNavigationMenu() {
+        if (!Ref.alive(activityRef)) return;
+        MainActivity activity = activityRef.get();
+        activity.syncNavigationMenu();
+    }
+
+    public Fragment getFragmentByNavMenuId(int itemId) {
+        if (!Ref.alive(activityRef)) {
+            return null;
+        }
+        MainActivity activity = activityRef.get();
+        return activity.getFragmentByNavMenuId(itemId);
+    }
+
+    public void switchContent(Fragment fragment) {
+        if (!Ref.alive(activityRef)) {
+            return;
+        }
+        MainActivity activity = activityRef.get();
+        activity.switchContent(fragment);
     }
 }
