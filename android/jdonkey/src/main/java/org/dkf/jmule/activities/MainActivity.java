@@ -18,6 +18,7 @@
 
 package org.dkf.jmule.activities;
 
+import android.Manifest;
 import android.app.*;
 import android.content.*;
 import android.content.res.Configuration;
@@ -28,6 +29,8 @@ import android.os.IBinder;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+
+import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,9 +93,8 @@ public class MainActivity extends AbstractActivity implements
     private static final String LAST_BACK_DIALOG_ID = "last_back_dialog";
     private static final String SHUTDOWN_DIALOG_ID = "shutdown_dialog";
     private static boolean firstTime = true;
-    private final Map<Integer, DangerousPermissionsChecker> permissionsCheckers;
+    private final SparseArray<DangerousPermissionsChecker> permissionsCheckers;
     private MainController controller;
-    private DrawerLayout drawerLayout;
     private NavigationMenu navigationMenu;
 
     private SearchFragment search;
@@ -180,32 +182,6 @@ public class MainActivity extends AbstractActivity implements
         onNewIntent(getIntent());
         setupActionBar();
         setupDrawer();
-    }
-
-    private void initDrawerListener() {
-        drawerLayout = findView(R.id.drawer_layout);
-        /*
-        drawerLayout.setDrawerListener(new SimpleDrawerListener() {
-            @Override
-            public void onDrawerStateChanged(int newState) {
-                refreshPlayerItem();
-            }
-
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                syncSlideMenu();
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-
-            }
-        });
-         */
     }
 
     private static List<EMuleLink> parseCollectionContent(Context context, Uri uri) {
@@ -440,18 +416,13 @@ public class MainActivity extends AbstractActivity implements
         syncNavigationMenu();
         updateNavigationMenu();
 
-
-        refreshPlayerItem();
-
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_INITIAL_SETTINGS_COMPLETE)) {
             mainResume();
-            //Offers.initAdNetworks(this);
         } else if (!isShutdown()){
             controller.startWizardActivity();
         }
 
         registerMainBroadcastReceiver();
-        //syncSlideMenu();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
             checkExternalStoragePermissionsOrBindMusicService();
@@ -472,20 +443,17 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    private Map<Integer, DangerousPermissionsChecker> initPermissionsCheckers() {
-        Map<Integer, DangerousPermissionsChecker> checkers = new HashMap<>();
-
+    private SparseArray<DangerousPermissionsChecker> initPermissionsCheckers() {
+        SparseArray<DangerousPermissionsChecker> checkers = new SparseArray<>();
         // EXTERNAL STORAGE ACCESS CHECKER.
         final DangerousPermissionsChecker externalStorageChecker =
                 new DangerousPermissionsChecker(this, DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE);
         //externalStorageChecker.setPermissionsGrantedCallback(() -> {});
         checkers.put(DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE, externalStorageChecker);
-
-        // WRITE SETTINGS (Setting the default ringtone requires this)
-        final DangerousPermissionsChecker writeSettingsChecker =
-                new DangerousPermissionsChecker(this, DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE);
-        checkers.put(DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE, writeSettingsChecker);
-
+        // COARSE
+        final DangerousPermissionsChecker accessCoarseLocationChecker =
+                new DangerousPermissionsChecker(this, DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE);
+        checkers.put(DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE, accessCoarseLocationChecker);
         // add more permissions checkers if needed...
         return checkers;
     }
@@ -528,6 +496,25 @@ public class MainActivity extends AbstractActivity implements
         }
 
         checkExternalStoragePermissionsOrBindMusicService();
+    }
+
+    private void checkAccessCoarseLocationPermissions() {
+        DangerousPermissionsChecker checker = permissionsCheckers.get(DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE);
+        if (checker != null && !checker.hasAskedBefore()) {
+            checker.requestPermissions();
+            ConfigurationManager.instance().setBoolean(Constants.ASKED_FOR_ACCESS_COARSE_LOCATION_PERMISSIONS, true);
+        } else {
+            log.info("Asked for ACCESS_COARSE_LOCATION before, skipping.");
+        }
+    }
+
+    private void checkExternalStoragePermissions() {
+        DangerousPermissionsChecker checker = permissionsCheckers.get(DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE);
+        boolean shouldShowRequestPermissionRationaleForReadExternal = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (shouldShowRequestPermissionRationaleForReadExternal || (!externalStoragePermissionsRequested && checker != null && checker.noAccess())) {
+            checker.requestPermissions();
+            externalStoragePermissionsRequested = true;
+        }
     }
 
     private void checkExternalStoragePermissionsOrBindMusicService() {
@@ -647,15 +634,12 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void onLastDialogButtonPositive() {
-        //Offers.showInterstitial(this, false, true);
-        //Engine.instance().shutdown();
         finish();
     }
 
     private void onShutdownDialogButtonPositive() {
         Engine.instance().shutdown();
         finish();
-        //Offers.showInterstitial(this, true, false);
     }
 
     private void setCheckedItem(int id) {
@@ -664,11 +648,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    private void refreshPlayerItem() {
-        //if (playerItem != null) {
-        //    playerItem.refresh();
-        //}
-    }
 
     private void setupFragments() {
         servers = (ServersFragment) getFragmentManager().findFragmentById(R.id.activity_main_fragment_servers);
@@ -823,16 +802,8 @@ public class MainActivity extends AbstractActivity implements
         navigationMenu = new NavigationMenu(controller, drawerLayout, toolbar);
     }
 
-    public void onServiceConnected(final ComponentName name, final IBinder service) {
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void onServiceDisconnected(final ComponentName name) {
-       // mService = null;
-    }
+    public void onServiceConnected(final ComponentName name, final IBinder service) { }
+    public void onServiceDisconnected(final ComponentName name) { }
 
     //@Override commented override since we are in API 16, but it will in API 23
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -840,7 +811,6 @@ public class MainActivity extends AbstractActivity implements
         if (checker != null) {
             checker.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        //Offers.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -851,44 +821,7 @@ public class MainActivity extends AbstractActivity implements
             controller.showServers();
         }
     }
-/*
-    private static final class MenuDrawerToggle extends ActionBarDrawerToggle {
-        private final WeakReference<MainActivity> activityRef;
 
-        MenuDrawerToggle(MainActivity activity, DrawerLayout drawerLayout) {
-            super(activity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
-
-            // aldenml: even if the parent class holds a strong reference, I decided to keep a weak one
-            this.activityRef = Ref.weak(activity);
-        }
-
-        @Override
-        public void onDrawerClosed(View view) {
-            if (Ref.alive(activityRef)) {
-                activityRef.get().invalidateOptionsMenu();
-                activityRef.get().syncSlideMenu();
-            }
-        }
-
-        @Override
-        public void onDrawerOpened(View drawerView) {
-            if (Ref.alive(activityRef)) {
-                UIUtils.hideKeyboardFromActivity(activityRef.get());
-                activityRef.get().invalidateOptionsMenu();
-                activityRef.get().syncSlideMenu();
-            }
-        }
-
-        @Override
-        public void onDrawerStateChanged(int newState) {
-            if (Ref.alive(activityRef)) {
-                MainActivity activity = activityRef.get();
-                activity.refreshPlayerItem();
-                activity.syncSlideMenu();
-            }
-        }
-    }
-*/
     // TODO: refactor and move this method for a common place when needed
     private static String saveViewContent(Context context, Uri uri, String name) {
         InputStream inStream = null;
