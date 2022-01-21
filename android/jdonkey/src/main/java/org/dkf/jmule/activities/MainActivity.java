@@ -425,7 +425,7 @@ public class MainActivity extends AbstractActivity implements
         registerMainBroadcastReceiver();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
-            checkExternalStoragePermissionsOrBindMusicService();
+            checkExternalStoragePermissions();
         }
     }
 
@@ -495,7 +495,8 @@ public class MainActivity extends AbstractActivity implements
             return;
         }
 
-        checkExternalStoragePermissionsOrBindMusicService();
+        checkExternalStoragePermissions();//OrBindMusicService();
+        checkAccessCoarseLocationPermissions();
     }
 
     private void checkAccessCoarseLocationPermissions() {
@@ -517,6 +518,7 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
+    /*
     private void checkExternalStoragePermissionsOrBindMusicService() {
         DangerousPermissionsChecker checker = permissionsCheckers.get(DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE);
         if (!externalStoragePermissionsRequested && checker != null && checker.noAccess()) {
@@ -525,7 +527,7 @@ public class MainActivity extends AbstractActivity implements
         }// else if (mToken == null && checker != null && !checker.noAccess()) {
         //    mToken = MusicUtils.bindToService(this, this);
         //}
-    }
+    }*/
 
     private void onNotifySdCardMounted() {
         //transfers.initStorageRelatedRichNotifications(null);
@@ -647,7 +649,6 @@ public class MainActivity extends AbstractActivity implements
             navigationMenu.updateCheckedItem(id);
         }
     }
-
 
     private void setupFragments() {
         servers = (ServersFragment) getFragmentManager().findFragmentById(R.id.activity_main_fragment_servers);
