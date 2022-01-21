@@ -112,12 +112,7 @@ public final class NavigationMenu {
             // Prep title and version
             TextView title = navViewHeader.findViewById(R.id.nav_view_header_main_title);
             TextView version = navViewHeader.findViewById(R.id.nav_view_header_main_version);
-            String basicOrPlus = ""; //(String) activity.getText(Constants.IS_GOOGLE_PLAY_DISTRIBUTION ? R.string.basic : R.string.plus);
-            boolean isDevelopment = Constants.IS_BASIC_AND_DEBUG;
-            if (isDevelopment) {
-                basicOrPlus = "Developer";
-            }
-            title.setText("JED2K " + basicOrPlus);
+            title.setText("Mule on Android");
             version.setText(" v" + Constants.JED2K_VERSION_STRING);
             TextView build = navViewHeader.findViewById(R.id.nav_view_header_main_build);
             build.setText(activity.getText(R.string.build) + " " + BuildConfig.VERSION_CODE);

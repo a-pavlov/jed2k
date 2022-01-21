@@ -65,10 +65,6 @@ def changeApkOutput(variant) {
     }
 }
 
-
-//project.ext.versionCode = manifestVersionCode()
-//project.ext.versionName = manifestVersionName()
-
 boolean isAssembleRelease = gradle.startParameter.taskNames.contains("assembleRelease") || gradle.startParameter.taskNames.contains("assemblePlus1Release")
 
 android {
@@ -159,7 +155,7 @@ android {
     productFlavors {
         basic {
             versionCode 0001 + project.ext.versionCode
-            resValue "string", "application_label", "JED2K"
+            resValue "string", "application_label", "Mule"
         }
     }
 

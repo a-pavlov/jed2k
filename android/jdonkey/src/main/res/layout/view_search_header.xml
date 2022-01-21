@@ -33,9 +33,7 @@
         style="@style/MainFragmentSimpleHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:paddingRight="40dp"
         android:layout_centerInParent="true"
+        android:paddingRight="40dp"
         android:text="@null" />
 </RelativeLayout>

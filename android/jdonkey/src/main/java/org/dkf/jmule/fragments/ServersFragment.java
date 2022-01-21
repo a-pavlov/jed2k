@@ -279,16 +279,12 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     }
 
-
     @Override
     public View getHeader(Activity activity) {
         LayoutInflater inflater = LayoutInflater.from(activity);
-
         View header = inflater.inflate(R.layout.view_servers_header, null);
-
         TextView text = (TextView) header.findViewById(R.id.view_servers_header_text_title);
         text.setText(R.string.servers);
-
         ImageButton buttonMenu = (ImageButton) header.findViewById(R.id.view_servers_header_more_parameters);
         buttonMenu.setOnClickListener(buttonServersParametersListener);
         return header;

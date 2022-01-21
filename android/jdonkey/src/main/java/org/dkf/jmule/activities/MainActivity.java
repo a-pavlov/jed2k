@@ -797,20 +797,22 @@ public class MainActivity extends AbstractActivity implements
 
     private void updateHeader(Fragment fragment) {
         try {
-            RelativeLayout placeholder = (RelativeLayout) getActionBar().getCustomView();
-            if (placeholder != null && placeholder.getChildCount() > 0) {
-                placeholder.removeAllViews();
+            Toolbar toolbar = findToolbar();
+            if (toolbar == null) {
+                log.warn("updateHeader(): Check your logic, no actionBar available");
+                return;
             }
-
             if (fragment instanceof MainFragment) {
                 View header = ((MainFragment) fragment).getHeader(this);
-                if (placeholder != null && header != null) {
-                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                    params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-                    placeholder.addView(header, params);
+                if (header != null) {
+                    setToolbarView(header);
                 }
             }
-        } catch (Exception e) {
+            if (navigationMenu != null) {
+                MenuItem item = navigationMenu.getCheckedItem();
+                setTitle(item.getTitle());
+            }
+        } catch (Throwable e) {
             log.error("Error updating main header", e);
         }
     }
