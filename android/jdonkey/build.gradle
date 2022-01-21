@@ -10,14 +10,13 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0'
+        classpath 'com.android.tools.build:gradle:7.0.4'
     }
 }
 
 repositories {
     google()
     mavenCentral()
-    jcenter()
 }
 
 def manifestVersionCode() {
@@ -47,8 +46,7 @@ ext {
 }
 
 def changeApkOutput(variant) {
-    def flavor = 'type'
-    def suffix = project.ext.versionName + '-b' + project.ext.versionCode + '-' + flavor
+    def suffix = project.ext.versionName + '-b' + project.ext.versionCode + '-' + variant.productFlavors[0].name
     def name = "jed2k-android-" + variant.buildType.name + '-' + suffix
 
     variant.outputs.all { output ->
@@ -65,10 +63,10 @@ def changeApkOutput(variant) {
     }
 }
 
-boolean isAssembleRelease = gradle.startParameter.taskNames.contains("assembleRelease") || gradle.startParameter.taskNames.contains("assemblePlus1Release")
+boolean isAssembleRelease = gradle.startParameter.taskNames.contains("assembleRelease") || gradle.startParameter.taskNames.contains("assembleBasicRelease")
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId 'org.dkf.jmule'
@@ -111,7 +109,7 @@ android {
     signingConfigs {
         release {
             if (isAssembleRelease) {
-                storeFile file("../../../dev/jdonkey.keystore")
+                storeFile file("/home/inkpot/dev/jdonkey.keystore")
                 def sigRequester = new SignatureRequester()
                 sigRequester.ask()
                 storePassword sigRequester.keyPassword()
@@ -128,7 +126,7 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            buildConfigField "String", "FLAVOR", "basic"
+            buildConfigField "String", "FLAVOR", "\"basic\""
             //proguardFiles getDefaultProguardFile('proguard-android.txt'),
             //        'proguard-rules.pro'
             signingConfig signingConfigs.release
@@ -150,7 +148,7 @@ android {
         }
     }
 
-    flavorDimensions "type"
+    flavorDimensions "app"
 
     productFlavors {
         basic {
@@ -167,10 +165,10 @@ android {
 dependencies {
     implementation project(':core')
     //implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     //api group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
-    implementation 'com.google.re2j:re2j:1.1'
-    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.google.re2j:re2j:1.6'
+    implementation 'com.google.code.gson:gson:2.8.8'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'androidx.documentfile:documentfile:1.0.1'
     //implementation 'com.google.android.material:material:1.3.0'
@@ -180,10 +178,10 @@ dependencies {
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'org.robolectric:robolectric:4.6'
-    androidTestImplementation 'androidx.test:core:' + project.ext.coreVersion;
-    androidTestImplementation 'androidx.test.ext:junit:' + project.ext.extJUnitVersion;
-    androidTestImplementation 'androidx.test:runner:' + project.ext.runnerVersion;
-    androidTestImplementation 'androidx.test:rules:' + project.ext.rulesVersion;
+    androidTestImplementation 'androidx.test:core:' + project.ext.coreVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + project.ext.extJUnitVersion
+    androidTestImplementation 'androidx.test:runner:' + project.ext.runnerVersion
+    androidTestImplementation 'androidx.test:rules:' + project.ext.rulesVersion
 }
 
 class SignatureRequester {

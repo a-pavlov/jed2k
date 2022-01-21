@@ -19,10 +19,10 @@ repositories {
 }
 
 dependencies {
-    api group: 'org.slf4j', name: 'slf4j-jdk14', version:'1.7.+'
-    implementation 'com.google.re2j:re2j:1.1'
-    implementation 'com.google.code.gson:gson:2.7'
+    api group: 'org.slf4j', name: 'slf4j-jdk14', version:'1.7.33'
+    implementation 'com.google.re2j:re2j:1.6'
+    implementation 'com.google.code.gson:gson:2.8.8'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    testImplementation group: 'junit', name: 'junit', version:'4.8.2'
+    testImplementation group: 'junit', name: 'junit', version:'4.13.2'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.0.111-beta'
 }
