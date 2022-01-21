@@ -46,11 +46,6 @@ public final class MainController {
         return activityRef.get();
     }
 
-    public void closeSlideMenu() {
-        activityRef.get().closeSlideMenu();
-    }
-
-
     public void switchFragment(int itemId) {
         if (!Ref.alive(activityRef)) return;
         MainActivity activity = activityRef.get();

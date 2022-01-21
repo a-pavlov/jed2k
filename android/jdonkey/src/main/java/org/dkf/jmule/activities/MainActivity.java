@@ -95,9 +95,6 @@ public class MainActivity extends AbstractActivity implements
     private DrawerLayout drawerLayout;
     private NavigationMenu navigationMenu;
 
-    //private ActionBarDrawerToggle drawerToggle;
-    private View leftDrawer;
-    private ListView listMenu;
     private SearchFragment search;
     private ServersFragment servers;
     private TransfersFragment transfers;
@@ -149,17 +146,10 @@ public class MainActivity extends AbstractActivity implements
             showLastBackDialog();
         }
 
-        //syncSlideMenu();
         updateHeader(getCurrentFragment());
     }
 
-    public void onConfigurationUpdate() {
-        //setupMenuItems();
-    }
-
     public void shutdown() {
-        //Offers.stopAdNetworks(this);
-        //UXStats.instance().flush(true); // sends data and ends 3rd party APIs sessions.
         finish();
         Engine.instance().shutdown();
     }
@@ -186,9 +176,7 @@ public class MainActivity extends AbstractActivity implements
         }
         updateNavigationMenu();
         setupFragments();
-        //setupMenuItems();
         setupInitialFragment(savedInstanceState);
-        //playerSubscription = TimerService.subscribe(((PlayerNotifierView) findView(R.id.activity_main_player_notifier)).getRefresher(), 1);
         onNewIntent(getIntent());
         setupActionBar();
         setupDrawer();
@@ -670,52 +658,9 @@ public class MainActivity extends AbstractActivity implements
         //Offers.showInterstitial(this, true, false);
     }
 
-    /*
-    private void syncSlideMenu() {
-        listMenu.clearChoices();
-        invalidateOptionsMenu();
-
-        Fragment fragment = getCurrentFragment();
-        int menuId = R.id.menu_main_search;
-        if (fragment instanceof ServersFragment) {
-            menuId = R.id.menu_main_servers;
-        }
-        if (fragment instanceof SearchFragment) {
-            menuId = R.id.menu_main_search;
-        } else if (fragment instanceof TransfersFragment) {
-            menuId = R.id.menu_main_transfers;
-        }
-
-        setCheckedItem(menuId);
-        updateHeader(getCurrentFragment());
-    }
-*/
     private void setCheckedItem(int id) {
-        try {
-            listMenu.clearChoices();
-            ((MainMenuAdapter) listMenu.getAdapter()).notifyDataSetChanged();
-
-            int position = 0;
-            MainMenuAdapter adapter = (MainMenuAdapter) listMenu.getAdapter();
-            for (int i = 0; i < adapter.getCount(); i++) {
-                listMenu.setItemChecked(i, false);
-                if (adapter.getItemId(i) == id) {
-                    position = i;
-                    break;
-                }
-            }
-
-            if (id != -1) {
-                listMenu.setItemChecked(position, true);
-            }
-
-            invalidateOptionsMenu();
-
-            //if (drawerToggle != null) {
-                //drawerToggle.syncState();
-            //}
-        } catch (Exception e) { // protecting from weird android UI engine issues
-            log.warn("Error setting slide menu item selected", e);
+        if (navigationMenu != null) {
+            navigationMenu.updateCheckedItem(id);
         }
     }
 
@@ -723,31 +668,6 @@ public class MainActivity extends AbstractActivity implements
         //if (playerItem != null) {
         //    playerItem.refresh();
         //}
-    }
-
-    private void setupMenuItems() {
-        listMenu.setAdapter(new MainMenuAdapter(this));
-        listMenu.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-        listMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //onItemClick(AdapterView<?> parent, View view, int position, long id)
-                //syncSlideMenu();
-                controller.closeSlideMenu();
-                try {
-                    if (id == R.id.menu_main_settings) {
-                        controller.showPreferences();
-                    } else if (id == R.id.menu_main_shutdown) {
-                        showShutdownDialog();
-                    } else {
-                        listMenu.setItemChecked(position, true);
-                        controller.switchFragment((int) id);
-                    }
-                } catch (Exception e) { // protecting from weird android UI engine issues
-                    log.error("Error clicking slide menu item", e);
-                }
-            }
-        });
     }
 
     private void setupFragments() {
@@ -855,44 +775,36 @@ public class MainActivity extends AbstractActivity implements
         return currentFragment;
     }
 
-    public void closeSlideMenu() {
-        drawerLayout.closeDrawer(leftDrawer);
-    }
-
     public SearchFragment getSearchFragment() { return search; }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /*if (drawerToggle != null) {
+        if (navigationMenu != null) {
             try {
-                //drawerToggle.onOptionsItemSelected(item);
-            } catch (Exception t) {
+                navigationMenu.onOptionsItemSelected(item);
+            } catch (Throwable t) {
                 // usually java.lang.IllegalArgumentException: No drawer view found with gravity LEFT
                 return false;
             }
-            return true;
-        }*/
-
+            return false;
+        }
         if (item == null) {
             return false;
         }
 
-        switch (item.getItemId()) {
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        //drawerToggle.onConfigurationChanged(newConfig);
+        navigationMenu.syncState();
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        //drawerToggle.syncState();
+        navigationMenu.syncState();
     }
 
     private void setupActionBar() {
@@ -912,7 +824,7 @@ public class MainActivity extends AbstractActivity implements
     }
 
     public void onServiceConnected(final ComponentName name, final IBinder service) {
-        //mService = IApolloService.Stub.asInterface(service);
+
     }
 
     /**
