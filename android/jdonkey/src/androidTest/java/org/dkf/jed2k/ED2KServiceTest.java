@@ -1,12 +1,15 @@
 package org.dkf.jed2k;
 
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import org.dkf.jed2k.alert.*;
 import org.dkf.jmule.AlertListener;
 import org.dkf.jmule.ED2KService;
+import org.dkf.jmule.ResumeDataDbHelper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.TestCase.assertTrue;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ServiceTestRule;
@@ -38,12 +41,12 @@ public class ED2KServiceTest {
     ED2KService service;
 
     @Before
-    public void setUp() throws  Exception {
-        IBinder binder = null;
+    public void setUp() throws  TimeoutException {
+        IBinder binder;
         int it = 0;
 
         while((binder = mServiceRule.bindService(
-                new Intent(InstrumentationRegistry.getTargetContext(),
+                new Intent(getApplicationContext(),
                         ED2KService.class))) == null && it < MAX_ITERATION){
             it++;
         }
@@ -56,7 +59,7 @@ public class ED2KServiceTest {
     @Test
     public void testService() throws TimeoutException, InterruptedException {
         assertTrue(service != null);
-        Thread.sleep(4000);
+        Thread.sleep(1000);
         Log.v("testService", "finished");
     }
 
@@ -131,5 +134,13 @@ public class ED2KServiceTest {
         });
 
         Thread.sleep(2000);
+    }
+
+    @Test
+    public void testDbHelper() {
+        //ResumeDataDbHelper dbHelper = service.getDBHelper();
+        service.setNickname("xx");
+        service.getTransfers();
+        //service.test();
     }
 }

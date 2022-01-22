@@ -34,7 +34,6 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -55,7 +54,13 @@ public class ED2KService extends JobIntentService {
     private final static long[] VENEZUELAN_VIBE = buildVenezuelanVibe();
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(ED2KService.class);
 
-    private Binder binder;
+    public class ED2KServiceBinder extends Binder {
+        public ED2KService getService() {
+            return ED2KService.this;
+        }
+    }
+
+    private IBinder binder = new ED2KServiceBinder();
 
     private boolean vibrateOnDownloadCompleted = false;
     private boolean forwardPorts = false;
@@ -120,6 +125,8 @@ public class ED2KService extends JobIntentService {
 
     public static final String GENERAL_UNIT_KBPSEC = "KB/s";
 
+    ResumeDataDbHelper dbHelper;
+
     static {
         NUMBER_FORMAT0 = NumberFormat.getNumberInstance(Locale.getDefault());
         NUMBER_FORMAT0.setMaximumFractionDigits(0);
@@ -140,16 +147,6 @@ public class ED2KService extends JobIntentService {
 
     private Set<String> explicitWords = new HashSet<>();
     private Set<Hash> blockedHashes = new HashSet<>();
-
-    public ED2KService() {
-        binder = new ED2KServiceBinder();
-    }
-
-    public class ED2KServiceBinder extends Binder {
-        public ED2KService getService() {
-            return ED2KService.this;
-        }
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -1175,6 +1172,10 @@ public class ED2KService extends JobIntentService {
         }
     }
 
+    public void test() {
+        System.out.println("test");
+    }
+
     public void setSafeMode(boolean value) {
         safeMode = value;
     }
@@ -1258,6 +1259,10 @@ public class ED2KService extends JobIntentService {
      */
     public void setPermanentNotification(boolean value) {
         permanentNotification.set(value);
+    }
+
+    public ResumeDataDbHelper getDBHelper() {
+        return dbHelper;
     }
 /*
     private static void cancelAllNotificationsTask(EngineService engineService) {

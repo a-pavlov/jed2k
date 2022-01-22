@@ -38,6 +38,7 @@ public class ResumeDataDbHelper extends SQLiteOpenHelper implements Iterable {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        log.info("onCreate: create table {}", CREATE_RD_TABLE);
         sqLiteDatabase.execSQL(CREATE_RD_TABLE);
     }
 
