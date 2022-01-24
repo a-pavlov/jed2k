@@ -104,13 +104,20 @@ final class ConfigurationDefaults {
         // servers section
         ServerMet sm = new ServerMet();
         try {
-            sm.addServer(ServerMet.ServerMetEntry.create("176.103.48.36", 4184, "TV Underground", "Operated by TVUnderground.org.ru"));
-            sm.addServer(ServerMet.ServerMetEntry.create("176.103.56.135", 2442, "eDonkey Server No2", "eDonkey.Network"));
-            sm.addServer(ServerMet.ServerMetEntry.create("91.226.212.11", 2442, "eDonkey Server No3", "eDonkey.Network"));
-            sm.addServer(ServerMet.ServerMetEntry.create("80.208.228.241", 8369, "eMule Security", "www.emule-security.org"));
-            sm.addServer(ServerMet.ServerMetEntry.create("176.103.50.225", 2442, "eDonkey Server No1", "eDonkey.Network"));
+            sm.addServer(ServerMet.ServerMetEntry.create("5.45.85.226", 6584, "eMule Security", "www.emule-security.org"));
+            sm.addServer(ServerMet.ServerMetEntry.create("176.123.5.89", 4725, "eMule Sunrise", "Not perfect, but real"));
             sm.addServer(ServerMet.ServerMetEntry.create("46.105.126.71", 4661, "GrupoTS Server", "El foro de las series"));
-            sm.addServer(ServerMet.ServerMetEntry.create("183.136.232.234", 4244, "WEB", "eserver 17.15"));
+            sm.addServer(ServerMet.ServerMetEntry.create("37.221.65.76", 4232, "!! Sharing-Devils No.2 !!", "https://forum.sharing-devils.to"));
+            sm.addServer(ServerMet.ServerMetEntry.create("213.252.245.239", 43333, "Astra-3", "Astra-3"));
+            sm.addServer(ServerMet.ServerMetEntry.create("95.217.134.86", 22888, "Astra-2", "Astra-2 Server"));
+            sm.addServer(ServerMet.ServerMetEntry.create("185.105.3.69", 9191, "eDonkey Server No1", "eDonkey Server No1"));
+            sm.addServer(ServerMet.ServerMetEntry.create("92.38.163.210", 35037, "Astra-6", "Astra-6 Server"));
+            sm.addServer(ServerMet.ServerMetEntry.create("213.252.245.239", 33333, "Astra-5", "Astra-5 Server"));
+            sm.addServer(ServerMet.ServerMetEntry.create("45.142.215.35", 42011, "Pentium Pilat 2022", "Pentium Pilat 2022 Server"));
+            sm.addServer(ServerMet.ServerMetEntry.create("92.38.184.138", 51127, "Astra-1", "Astra-1 Server"));
+            sm.addServer(ServerMet.ServerMetEntry.create("5.188.6.125", 31031, "Gaal", "Gaal Server"));
+            sm.addServer(ServerMet.ServerMetEntry.create("185.105.3.69", 9797, "eDonkey Server No2", "eDonkey Server No2"));
+            sm.addServer(ServerMet.ServerMetEntry.create("180.166.24.38", 14142, "Poor-eServer-1", "Poor-eServer-1"));
             defaultValues.put(Constants.PREF_KEY_SERVERS_LIST, sm);
         } catch(JED2KException e) {
             // wtf?

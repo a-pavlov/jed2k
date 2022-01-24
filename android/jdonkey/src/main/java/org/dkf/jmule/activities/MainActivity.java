@@ -19,41 +19,46 @@
 package org.dkf.jmule.activities;
 
 import android.Manifest;
-import android.app.*;
-import android.content.*;
+import android.app.ActionBar;
+import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
-import org.dkf.jmule.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.ServerMet;
-import org.dkf.jed2k.util.Ref;
+import org.dkf.jmule.AndroidPlatform;
+import org.dkf.jmule.ConfigurationManager;
+import org.dkf.jmule.Constants;
+import org.dkf.jmule.ED2KService;
 import org.dkf.jmule.Engine;
+import org.dkf.jmule.Platforms;
 import org.dkf.jmule.R;
 import org.dkf.jmule.StoragePicker;
 import org.dkf.jmule.activities.internal.MainController;
-import org.dkf.jmule.activities.internal.MainMenuAdapter;
 import org.dkf.jmule.dialogs.HandpickedCollectionDownloadDialog;
 import org.dkf.jmule.dialogs.SDPermissionDialog;
 import org.dkf.jmule.dialogs.YesNoDialog;
@@ -70,12 +75,18 @@ import org.dkf.jmule.views.preference.StoragePreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.lang.ref.WeakReference;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * @author gubatron

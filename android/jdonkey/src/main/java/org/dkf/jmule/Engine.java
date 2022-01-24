@@ -445,7 +445,10 @@ public final class Engine implements AlertListener {
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
     public void useDht(boolean dht) {
         log.info("[engine] use dht {}", dht);
-        if (service != null) service.useDht(dht); }
+        if (service != null) {
+            service.useDht(dht);
+        }
+    }
 
     public void setUserAgent(final String s) {
         assert s != null;

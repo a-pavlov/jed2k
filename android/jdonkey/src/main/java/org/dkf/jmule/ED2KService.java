@@ -283,6 +283,7 @@ public class ED2KService extends JobIntentService {
         startingInProgress = true;
         session = new Session(settings);
         session.start();
+        initializeDatabase();
         startBackgroundOperations();
         startingInProgress = false;
 
@@ -334,6 +335,14 @@ public class ED2KService extends JobIntentService {
 
             stoppingInProgress = false;
         }
+    }
+
+    public ResumeDataDbHelper initializeDatabase() {
+        if (dbHelper == null) {
+            dbHelper = new ResumeDataDbHelper(getApplicationContext());
+        }
+
+        return dbHelper;
     }
 
     /**
@@ -572,6 +581,7 @@ public class ED2KService extends JobIntentService {
      */
     private void removeResumeDataFile(final Hash hash) {
         deleteFile("rd_" + hash.toString());
+        dbHelper.removeResumeData(hash);
     }
 
     private void createTransferNotification(final String title, final String extra, final Hash hash) {
@@ -585,6 +595,7 @@ public class ED2KService extends JobIntentService {
     }
 
     private void saveResumeData(final TransferResumeDataAlert alert) {
+        /*
         FileOutputStream stream = null;
         try {
             stream = openFileOutput("rd_" + alert.hash.toString(), MODE_PRIVATE);
@@ -617,6 +628,16 @@ public class ED2KService extends JobIntentService {
                             , e.toString());
                 }
             }
+        }
+        */
+        try {
+            log.info("save resume data {}", alert.hash);
+            dbHelper.saveResumeData(alert.trd);
+        } catch (JED2KException e) {
+            log.error("[ED2K service] save resume data {} failed {}"
+                    , alert.hash, e);
+        } catch (Throwable e) {
+            log.error("save resume data error {}", e.getMessage());
         }
     }
 
@@ -705,6 +726,47 @@ public class ED2KService extends JobIntentService {
         }
     }
 
+    private void restoreTransfersFromDB() {
+        try (ResumeDataDbHelper.ATPIterator itrAtp = dbHelper.iterator()) {
+            while (itrAtp.hasNext()) {
+                AddTransferParams atp = itrAtp.next();
+                TransferHandle handle = null;
+
+                if (atp != null) {
+                    File file = new File(atp.getFilepath().asString());
+                    if (Platforms.get().saf()) {
+                        log.info("[ED2k service] restore file {}", file.getName());
+                        LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
+                        android.util.Pair<ParcelFileDescriptor, DocumentFile> targetFile = fs.openFD(file, "rw");
+                        if (targetFile != null && targetFile.second != null && targetFile.first != null && targetFile.second.exists()) {
+                            atp.setExternalFileHandler(new AndroidFileHandler(file, targetFile.second, targetFile.first));
+                            handle = session.addTransfer(atp);
+                        } else {
+                            log.error("[ED2K service] restore transfer {} failed document/parcel is null", file);
+                        }
+                    } else {
+                        if (file.exists()) {
+                            atp.setExternalFileHandler(new DesktopFileHandler(file));
+                            handle = session.addTransfer(atp);
+                        } else {
+                            log.warn("[ED2K service] unable to restore transfer {}: file not exists", file);
+                        }
+                    }
+                }
+
+                if (handle != null) {
+                    log.info("transfer {} is {}"
+                            , handle.isValid() ? handle.getHash().toString() : ""
+                            , handle.isValid() ? "valid" : "invalid");
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    // obsolete method - after restore transfers from file file will be removed
+    // save resume data saves data to database
     private boolean restoreTransferFromFile(File f) {
         long fileSize = f.length();
 
@@ -826,6 +888,9 @@ public class ED2KService extends JobIntentService {
                 } else {
                     log.info("[ED2K service] have no resume data files");
                 }
+
+                // restore transfers from database
+                restoreTransfersFromDB();
             }
         });
 
@@ -1170,10 +1235,6 @@ public class ED2KService extends JobIntentService {
                 stopDht();
             }
         }
-    }
-
-    public void test() {
-        System.out.println("test");
     }
 
     public void setSafeMode(boolean value) {

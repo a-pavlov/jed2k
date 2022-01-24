@@ -116,10 +116,7 @@ public class SearchInputView extends LinearLayout {
         textInput.setOnKeyListener(textInputListener);
         textInput.setOnActionListener(textInputListener);
         textInput.setOnItemClickListener(textInputListener);
-
-        if (!Constants.IS_GOOGLE_PLAY_DISTRIBUTION) {
-            textInput.setAdapter(adapter);
-        }
+        textInput.setAdapter(adapter);
 
         updateHint(mediaTypeId);
 
