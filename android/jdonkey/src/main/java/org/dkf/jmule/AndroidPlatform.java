@@ -20,6 +20,8 @@ package org.dkf.jmule;
 
 import android.content.Context;
 import android.os.Build;
+
+import org.dkf.jmule.util.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,9 +142,19 @@ public final class AndroidPlatform {
      * @return
      */
     public static boolean saf(File f) {
+        if (SystemUtils.hasAndroid11OrNewer()) {
+            // We should have File operations back again on Android 11
+            return false;
+        }
+
         AndroidPlatform p = Platforms.get();
 
         if (!(p.fileSystem() instanceof LollipopFileSystem)) {
+            return false;
+        }
+
+        if (f.getPath().contains("/Android/data/org.dkf.jmule/")) {
+            // private file, FUSE give us standard POSIX operations
             return false;
         }
 

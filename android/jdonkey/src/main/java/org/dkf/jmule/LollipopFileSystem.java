@@ -332,8 +332,7 @@ public final class LollipopFileSystem implements FileSystem {
                 }
             }
 
-            //baseFolder = combineRoot(baseFolder);
-
+            baseFolder = combineRoot(baseFolder);
             String fullPath = dir.getAbsolutePath();
             String relativePath = baseFolder.length() < fullPath.length() ? fullPath.substring(baseFolder.length() + 1) : "";
 

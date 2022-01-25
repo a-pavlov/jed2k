@@ -47,6 +47,7 @@ public final class SystemUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SystemUtils.class);
 
     private static final int VERSION_CODE_KITKAT = 19;
+    private static final int VERSION_SDK_NOUGAT_7_0 = 24;
 
     private SystemUtils() {
     }
@@ -210,5 +211,23 @@ public final class SystemUtils {
         } catch (Throwable t) {
             LOG.error("UIUtils.postToUIThread error: " + t.getMessage());
         }
+    }
+
+    /**
+     * Used to determine if the device is running
+     * Nougat (Android 7.0) or greater.
+     *
+     * @return {@code true} if the device is running KitKat or greater,
+     * {@code false} otherwise
+     */
+    public static boolean hasNougatOrNewer() {
+        return hasSdkOrNewer(VERSION_SDK_NOUGAT_7_0);
+    }
+
+    /**
+     * Used to determine if the device is running Android11 or greater
+     */
+    public static boolean hasAndroid11OrNewer() {
+        return hasSdkOrNewer(30); //Build.VERSION_CODES.R
     }
 }

@@ -19,25 +19,15 @@
 package org.dkf.jmule;
 
 import android.app.Application;
-import android.view.ViewConfiguration;
 import com.squareup.leakcanary.LeakCanary;
-import org.apache.commons.io.FileUtils;
-import org.dkf.jmule.AndroidPlatform;
-import org.dkf.jmule.ConfigurationManager;
-import org.dkf.jmule.NetworkManager;
-import org.dkf.jmule.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.lang.reflect.Field;
 
 /**
  * @author gubatron
  * @author aldenml
  */
 public class MainApplication extends Application {
-
     private static final Logger LOG = LoggerFactory.getLogger(MainApplication.class);
 
     @Override
@@ -64,30 +54,6 @@ public class MainApplication extends Application {
             ConfigurationManager.create(this);
             NetworkManager.create(this);
             Engine.create(this);
-            /*
-            PlayStore.getInstance().initialize(this); // as early as possible
-
-            ignoreHardwareMenu();
-            installHttpCache();
-
-            ConfigurationManager.create(this);
-
-            Platforms.set(new AndroidPlatform(this));
-
-            NetworkManager.create(this);
-            Librarian.create(this);
-            Engine.create(this);
-
-            ImageLoader.getInstance(this);
-            CrawlPagedWebSearchPerformer.setCache(new DiskCrawlCache(this));
-            CrawlPagedWebSearchPerformer.setMagnetDownloader(null); // this effectively turn off magnet downloads
-
-            LocalSearchEngine.create();
-
-            cleanTemp();
-
-            Librarian.instance().syncMediaStore();
-            */
         } catch (Exception e) {
             throw new RuntimeException("Unable to initialized main components", e);
         }
@@ -95,42 +61,6 @@ public class MainApplication extends Application {
 
     @Override
     public void onLowMemory() {
-        //ImageCache.getInstance(this).evictAll();
-        //ImageLoader.getInstance(this).clear();
         super.onLowMemory();
-    }
-
-    private void ignoreHardwareMenu() {
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field f = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if (f != null) {
-                f.setAccessible(true);
-                f.setBoolean(config, false);
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-    }
-
-    private void installHttpCache() {
-        /*
-        try {
-            HttpResponseCache.install(this);
-        } catch (IOException e) {
-            LOG.error("Unable to install global http cache", e);
-        }
-        */
-    }
-
-    private void cleanTemp() {
-        try {
-            File tmp = Platforms.get().systemPaths().temp();
-            if (tmp.exists()) {
-                FileUtils.cleanDirectory(tmp);
-            }
-        } catch (Exception e) {
-            LOG.error("Error during setup of temp directory", e);
-        }
     }
 }

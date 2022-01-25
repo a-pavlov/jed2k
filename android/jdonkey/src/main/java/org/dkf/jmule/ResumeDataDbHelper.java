@@ -1,7 +1,5 @@
 package org.dkf.jmule;
 
-import static org.dkf.jmule.util.Asyncs.async;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.dkf.jed2k.AddTransferParams;
-import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
@@ -46,15 +43,16 @@ public class ResumeDataDbHelper extends SQLiteOpenHelper implements Iterable {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        // do nothing here
-    }
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) { }
 
     @Override
-    public void onOpen(SQLiteDatabase sqLiteDatabase) {
-        log.info("opened db read only: {}", sqLiteDatabase.isReadOnly() ? "true": "false");
-    }
+    public void onOpen(SQLiteDatabase sqLiteDatabase) { }
 
+    /**
+     * insert new resume data into database or update existing
+     * @param atp - transfer metadata
+     * @throws JED2KException
+     */
     public void saveResumeData(AddTransferParams atp) throws JED2KException {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -80,8 +78,10 @@ public class ResumeDataDbHelper extends SQLiteOpenHelper implements Iterable {
     public void removeResumeData(Hash hash) {
         SQLiteDatabase db = getWritableDatabase();
         int count = db.delete(TABLE_NAME, CNAME_HASH + " = ?", new String[]{hash.toString()});
+        if (count <= 0) {
+            log.warn("remove resume data affects nothing");
+        }
     }
-
 
     public class ATPIterator implements Iterator<AddTransferParams>, AutoCloseable {
         private Cursor cur;
@@ -119,7 +119,6 @@ public class ResumeDataDbHelper extends SQLiteOpenHelper implements Iterable {
         public void close() throws Exception {
             if (cur != null && !cur.isClosed()) {
                 cur.close();
-                log.info("cur closed");
             }
         }
     }

@@ -631,7 +631,6 @@ public class ED2KService extends JobIntentService {
         }
         */
         try {
-            log.info("save resume data {}", alert.hash);
             dbHelper.saveResumeData(alert.trd);
         } catch (JED2KException e) {
             log.error("[ED2K service] save resume data {} failed {}"
