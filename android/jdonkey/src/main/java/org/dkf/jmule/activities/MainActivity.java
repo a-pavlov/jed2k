@@ -529,17 +529,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    /*
-    private void checkExternalStoragePermissionsOrBindMusicService() {
-        DangerousPermissionsChecker checker = permissionsCheckers.get(DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE);
-        if (!externalStoragePermissionsRequested && checker != null && checker.noAccess()) {
-            checker.requestPermissions();
-            externalStoragePermissionsRequested = true;
-        }// else if (mToken == null && checker != null && !checker.noAccess()) {
-        //    mToken = MusicUtils.bindToService(this, this);
-        //}
-    }*/
-
     private void onNotifySdCardMounted() {
         //transfers.initStorageRelatedRichNotifications(null);
     }

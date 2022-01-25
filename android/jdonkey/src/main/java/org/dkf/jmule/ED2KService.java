@@ -997,24 +997,10 @@ public class ED2KService extends JobIntentService {
 
             mNotificationTemplate.setTextViewText(R.id.notification_line_one, title);
             mNotificationTemplate.setTextViewText(R.id.notification_line_two, summary);
-            //mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.btn_playback_pause /* : R.drawable.btn_playback_play*/);
-            //mNotificationTemplate.setImageViewBitmap(R.id.notification_image, art);
-
-            /**
-             * OnClickPending intent for collapsed notification
-             */
-            //mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, openPending);
 
             Context context = getApplicationContext();
             PendingIntent pi = PendingIntent.getActivity(context, 0, intentShowTransfers, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            /*Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
-                    .setWhen(System.currentTimeMillis())
-                    .setContentText(summary)
-                    .setContentTitle(title)
-                    .setSmallIcon(R.drawable.notification_mule)
-                    .setContentIntent(pi)
-                    .build();*/
 
             Notification notification = new NotificationCompat.Builder(context, Constants.ED2K_NOTIFICATION_CHANNEL_ID)
                     .setWhen(System.currentTimeMillis())
@@ -1026,8 +1012,6 @@ public class ED2KService extends JobIntentService {
                     .build();
 
             notification.vibrate = ConfigurationManager.instance().vibrateOnFinishedDownload() ? VENEZUELAN_VIBE : null;
-            //notification.number = TransferManager.instance().getDownloadsToReview();
-            //notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
             if (manager != null) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -1037,39 +1021,6 @@ public class ED2KService extends JobIntentService {
                 }
                 manager.notify(Constants.NOTIFICATION_DOWNLOAD_TRANSFER_FINISHED, notification);
             }
-
-            /**
-             * Create notification instance
-             */
-            /*Notification notification = notificationBuilder
-                    .setSmallIcon(R.drawable.notification_mule)
-                    .setContentIntent(openPending)
-                    .setPriority(Notification.PRIORITY_DEFAULT)
-                    .setContent(mNotificationTemplate)
-                    .setUsesChronometer(true)
-                    .build();
-
-            notification.vibrate = vibrateOnDownloadCompleted?VENEZUELAN_VIBE:null;
-            */
-            //notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-    /*
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-
-                RemoteViews mExpandedView = new RemoteViews(this.getPackageName(), R.layout.notification_expanded);
-
-                mExpandedView.setTextViewText(R.id.notification_line_one, title);
-                mExpandedView.setTextViewText(R.id.notification_line_two, summary);
-                mExpandedView.setImageViewResource(R.id.notification_expanded_play, R.drawable.btn_playback_pause : R.drawable.btn_playback_play);
-                mExpandedView.setImageViewBitmap(R.id.notification_image, );
-
-                mExpandedView.setOnClickPendingIntent(R.id.notification_collapse, openPending);
-                mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, closePending);
-                notification.bigContentView = mExpandedView;
-            }
-    */
-            //NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            //if (manager != null) manager.notify(NOTIFICATION_ID, notification);
         } catch (Throwable e) {
             log.error("Error creating notification for download finished {}", e);
         }
@@ -1325,27 +1276,4 @@ public class ED2KService extends JobIntentService {
     public ResumeDataDbHelper getDBHelper() {
         return dbHelper;
     }
-/*
-    private static void cancelAllNotificationsTask(EngineService engineService) {
-        try {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                notificationManager.cancelAll();
-            }
-        } catch (SecurityException ignore) {
-            // new exception in Android 7
-        }
-    }
-
-    private static void startPermanentNotificationUpdatesTask(EngineService engineService) {
-        try {
-            if (engineService.notificationUpdateDemon == null) {
-                engineService.notificationUpdateDemon = new NotificationUpdateDemon(engineService.getApplicationContext());
-            }
-            engineService.notificationUpdateDemon.start();
-        } catch (Throwable t) {
-            LOG.warn(t.getMessage(), t);
-        }
-    }
-    */
 }

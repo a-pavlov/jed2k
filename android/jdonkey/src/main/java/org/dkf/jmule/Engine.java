@@ -200,14 +200,6 @@ public final class Engine implements AlertListener {
                 }
             }
 
-            /*if (receiver != null) {
-                try {
-                    getApplication().unregisterReceiver(receiver);
-                } catch (IllegalArgumentException e) {
-                }
-            }
-            */
-
             service.shutdown();
         }
     }
