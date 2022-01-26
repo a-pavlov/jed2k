@@ -336,6 +336,7 @@ public class DhtTracker extends Thread {
                 for(final KadEntry e: entries) {
                     try {
                         node.addKadNode(e);
+                        log.info("add kad entry {}", e.toString());
                         ++i;
                         //if (i > 100) break;
                     } catch(JED2KException ex) {

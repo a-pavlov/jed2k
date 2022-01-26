@@ -147,6 +147,7 @@ public class Kad {
         log.info("[KAD] local host {}", InetAddress.getLocalHost());
 
         String sp = System.getProperty("storage.point");
+
         InetSocketAddress spAddress = null;
         if (sp != null) {
             String[] parts = sp.split(":");
@@ -158,6 +159,8 @@ public class Kad {
             }
         } else {
             log.info("no storage point");
+            spAddress = new InetSocketAddress("localhost", 30001);
+            log.info("set SP to {}", spAddress);
         }
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
@@ -166,11 +169,11 @@ public class Kad {
 
         DhtInitialData idata = new DhtInitialData();
 
-        try {
+        /*try {
             FUtils.read(idata, new File(dir.resolve("dht_status.dat").toString()));
         } catch(JED2KException e) {
             log.error("[KAD] unable to load initial data {}", e);
-        }
+        }*/
 
         if (idata.getTarget().isAllZeros()) {
             idata.setTarget(new KadId(KadId.random(false)));
@@ -180,6 +183,21 @@ public class Kad {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         DhtTracker tracker = new DhtTracker(port, idata.getTarget(), spAddress);
         tracker.start();
+
+        try {
+            byte[] data = IOUtils.toByteArray(new URI("http://server-met.emulefuture.de/download.php?file=nodes.dat"));
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            log.debug("[Kad2] downloaded nodes.dat size {}", buffer.remaining());
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            KadNodesDat nodes = new KadNodesDat();
+            nodes.get(buffer);
+            log.info(" bootstrap nodes: {}", nodes.getBootstrapEntries()!=null?nodes.getBootstrapEntries().size():0);
+            tracker.addKadEntries(nodes.getContacts());
+            tracker.addKadEntries(nodes.getBootstrapEntries().getList());
+        } catch (Exception e) {
+            log.error("can not download dht bootstrapping file {}", e.getMessage());
+        }
+
         if (idata.getEntries().getList() != null) {
             tracker.addEntries(idata.getEntries().getList());
         } else {

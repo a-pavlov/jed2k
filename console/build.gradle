@@ -10,7 +10,30 @@ sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 application {
-    mainClass = 'org.dkf.jed2k.Conn'
+    mainClass = 'org.dkf.jed2k.Kad'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.dkf.jed2k.Kad'
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest.from jar.manifest
+    classifier = 'all'
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
+}
+
+artifacts {
+    archives fatJar
 }
 
 repositories {
