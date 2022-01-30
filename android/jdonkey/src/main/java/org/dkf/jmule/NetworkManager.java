@@ -28,7 +28,7 @@ import java.io.File;
  * @author gubatron
  * @author aldenml
  */
-public final class NetworkManager {
+public final class  NetworkManager {
 
     private final Application context;
 

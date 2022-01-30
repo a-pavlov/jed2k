@@ -270,6 +270,7 @@ public class RoutingTable {
     }
 
     public boolean addNode(final NodeEntry e) {
+        log.trace("[table] call add node {}", e.getId());
         if (routerNodes.contains(e.getEndpoint())) return false;
 
         boolean ret = needBootstrap();

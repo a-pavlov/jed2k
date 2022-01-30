@@ -186,6 +186,8 @@ public class Kad {
 
         try {
             byte[] data = IOUtils.toByteArray(new URI("http://server-met.emulefuture.de/download.php?file=nodes.dat"));
+            //byte[] data = IOUtils.toByteArray(new URI("http://upd.emule-security.net/nodes.dat"));
+            //byte[] data = IOUtils.toByteArray(new URI("http://upd.emule-security.net/nodes.dat"));
             ByteBuffer buffer = ByteBuffer.wrap(data);
             log.debug("[Kad2] downloaded nodes.dat size {}", buffer.remaining());
             buffer.order(ByteOrder.LITTLE_ENDIAN);

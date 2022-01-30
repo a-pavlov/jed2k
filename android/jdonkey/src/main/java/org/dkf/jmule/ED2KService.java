@@ -352,20 +352,17 @@ public class ED2KService extends JobIntentService {
         if (useDht) {
             dhtTracker = new DhtTracker(settings.listenPort, kadId, null);
             dhtTracker.start();
+            session.setDhtTracker(dhtTracker);
             Container<UInt32, NodeEntry> entries = loadDhtEntries();
             if (entries != null && entries.getList() != null) {
                 dhtTracker.addEntries(entries.getList());
-            }
-
-            session.setDhtTracker(dhtTracker);
-            // unsynchronized check here - actually executor service must be created already
-            if (scheduledExecutorService != null) {
-                scheduledExecutorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshDhtStoragePoint();
-                    }
-                });
+                log.info("[ED2K service] DHT load {} endpoints from previous run ", entries.size());
+            } else {
+                log.info("[ED2K service] DHT start from external endpoints list");
+                // unsynchronized check here - actually executor service must be created already
+                if (scheduledExecutorService != null) {
+                    scheduledExecutorService.submit(new Initiator(session));
+                }
             }
         }
     }
@@ -442,6 +439,8 @@ public class ED2KService extends JobIntentService {
         return gson.fromJson(s, GithubConfigurator.class);
     }
 
+    /*
+    do not use it anymore
     private void refreshDhtStoragePoint() {
         try {
             GithubConfigurator ghCfg = getConfiguration(GITHUB_CFG);
@@ -450,7 +449,7 @@ public class ED2KService extends JobIntentService {
         } catch(Exception e) {
             log.error("unable to refresh kad storage point {}", e);
         }
-    }
+    }*/
 
     /**
      *
@@ -835,37 +834,26 @@ public class ED2KService extends JobIntentService {
         assert(session != null);
         assert(scheduledExecutorService == null);
         scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
+        scheduledExecutorService.scheduleWithFixedDelay(() -> {
                 Alert a = session.popAlert();
                 while(a != null) {
                     processAlert(a);
                     a = session.popAlert();
                 }
-            }
-        },  100, 2000, TimeUnit.MILLISECONDS);
+            },  100, 2000, TimeUnit.MILLISECONDS);
 
         // save resume data every 200 seconds
-        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
+        scheduledExecutorService.scheduleWithFixedDelay(() -> {
                 session.saveResumeData();
                 saveDhtState();
-            }
         }, 60, 200, TimeUnit.SECONDS);
 
         // every 5 seconds execute permanent notification
-        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
+        scheduledExecutorService.scheduleWithFixedDelay(() -> {
                 updatePermanentStatusNotification();
-            }
         }, 1, 6, TimeUnit.SECONDS);
 
-        scheduledExecutorService.submit(new Runnable() {
-            @Override
-            public void run() {
+        scheduledExecutorService.submit(() -> {
                 if (session == null) {
                     log.warn("[ED2K service] session is null, stop resume data loading");
                 }
@@ -890,18 +878,10 @@ public class ED2KService extends JobIntentService {
 
                 // restore transfers from database
                 restoreTransfersFromDB();
-            }
         });
 
-        // every 1 minute execute bootstrapping check
-        scheduledExecutorService.scheduleWithFixedDelay(new Initiator(session), 1, 1, TimeUnit.MINUTES);
-
-        scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                refreshDhtStoragePoint();
-            }
-        }, 10, 20, TimeUnit.MINUTES);
+        // every 5 minutes execute bootstrapping check
+        scheduledExecutorService.scheduleWithFixedDelay(new Initiator(session), 1, 5, TimeUnit.MINUTES);
     }
 
     private void updatePermanentStatusNotification() {
