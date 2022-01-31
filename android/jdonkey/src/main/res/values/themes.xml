@@ -18,19 +18,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.FrostWire" parent="android:Theme.Holo.Light">
-        <item name="android:actionBarStyle">@style/ActionBar</item>
-        <item name="android:homeAsUpIndicator">@drawable/home_as_up_padding</item>
-        <item name="android:actionOverflowButtonStyle">@style/ActionButton.Overflow</item>
-        <item name="android:windowBackground">@color/app_background</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:listViewStyle">@style/TransparentListView</item>
-        <item name="android:expandableListViewStyle">@style/TransparentExpandableListView</item>
-        <item name="android:checkboxStyle">@style/Widget.CompoundButton.CheckBox</item>
-        <item name="android:buttonStyle">@style/Widget.Button</item>
+    <style name="Theme.FrostWire" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/basic_blue</item>
+        <item name="colorPrimaryDark">@color/basic_blue_dark</item>
+        <item name="colorAccent">@color/basic_blue_highlight_dark</item>
         <item name="android:textColorPrimary">@color/app_text_primary</item>
+        <item name="android:textColorSecondary">@color/app_text_secondary</item>
+        <item name="toolbarNavigationButtonStyle">@style/ToolbarNavigationButtonStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:listPreferredItemPaddingLeft">16dp</item>
+        <item name="android:listPreferredItemPaddingRight">16dp</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/ActionModeStyle</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+
+    <style name="ActionModeStyle" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="background">@color/app_toolbar_background</item>
+        <item name="titleTextStyle">@style/ActionModeStyle.Title</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
+
+    <style name="ActionModeStyle.Title">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/app_text_white</item>
+    </style>
+
+    <style name="SplashScreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/background_splash</item>
+        <item name="colorPrimaryDark">@color/basic_blue_highlight_dark</item>
+    </style>
+
+    <style name="Button" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="colorButtonNormal">@color/basic_gray_dark</item>
+        <item name="colorAccent">@color/basic_gray_medium</item>
+    </style>
+
+    <style name="PreferenceThemeOverlay" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceCategoryStyle">@style/Preference.Category.Material</item>
+    </style>
+
+    <style name="Preference.Category.Material" tools:ignore="PrivateResource">
+        <item name="android:layout">@layout/view_preference_category_material</item>
+        <item name="android:textColor">@color/basic_blue_highlight_dark</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

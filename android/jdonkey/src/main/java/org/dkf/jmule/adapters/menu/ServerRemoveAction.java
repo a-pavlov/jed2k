@@ -1,8 +1,8 @@
 package org.dkf.jmule.adapters.menu;
 
 import android.content.Context;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Constants;
+import org.dkf.jmule.ConfigurationManager;
+import org.dkf.jmule.Constants;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;

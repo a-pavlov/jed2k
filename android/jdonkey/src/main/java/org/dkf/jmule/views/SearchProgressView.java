@@ -27,7 +27,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import org.dkf.jed2k.android.Constants;
+import org.dkf.jmule.Constants;
 import org.dkf.jmule.R;
 import org.dkf.jmule.util.UIUtils;
 

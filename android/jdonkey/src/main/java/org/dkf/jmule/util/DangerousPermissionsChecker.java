@@ -26,11 +26,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import org.dkf.jed2k.util.Ref;
+import org.dkf.jmule.ConfigurationManager;
+import org.dkf.jmule.Constants;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
+import org.dkf.jmule.fragments.ServersFragment;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -41,15 +49,17 @@ import java.lang.reflect.Method;
  */
 public final class DangerousPermissionsChecker implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(DangerousPermissionsChecker.class);
-
-    public interface OnPermissionsGrantedCallback {
-        void onPermissionsGranted();
+    public boolean hasAskedBefore() {
+        return requestCode == ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE && ConfigurationManager.instance().getBoolean(Constants.ASKED_FOR_ACCESS_COARSE_LOCATION_PERMISSIONS);
     }
 
+    private static final Logger log = LoggerFactory.getLogger(DangerousPermissionsChecker.class);
+
+    /**
+     * Asks for both READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE
+     */
     public static final int EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE = 0x000A;
-    public static final int WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE = 0x000B;
-    public static final int ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE = 0x000C;
+    public static final int ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE = 0x000B;
 
     // HACK: just couldn't find another way, and this saved a lot of overcomplicated logic in the onActivityResult handling activities.
     static long AUDIO_ID_FOR_WRITE_SETTINGS_RINGTONE_CALLBACK = -1;
@@ -57,7 +67,6 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
 
     private final WeakReference<Activity> activityRef;
     private final int requestCode;
-    private OnPermissionsGrantedCallback onPermissionsGrantedCallback;
 
     public DangerousPermissionsChecker(Activity activity, int requestCode) {
         if (activity instanceof ActivityCompat.OnRequestPermissionsResultCallback) {
@@ -83,21 +92,14 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
         String[] permissions = null;
         switch (requestCode) {
             case EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE:
-                permissions = new String[]{
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                };
-                break;
-            case WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE:
-                if (Build.VERSION.SDK_INT >= 23) {
-                    requestWriteSettingsPermissionsAPILevel23(activity);
-                    return;
+                if (SystemUtils.hasAndroid10OrNewer()) {
+                    permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
+                } else {
+                    permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
                 }
-                // this didn't fly on my Android with API Level 23
-                // it might fly on previous versions.
-                permissions = new String[] {
-                        Manifest.permission.WRITE_SETTINGS
-                };
+                break;
+            case ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE:
+                permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION};
                 break;
         }
 
@@ -107,26 +109,16 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        boolean permissionWasGranted = false;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE:
-                permissionWasGranted = onExternalStoragePermissionsResult(permissions, grantResults);
+                onExternalStoragePermissionsResult(permissions, grantResults);
                 break;
-            case WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE:
-                permissionWasGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                break;
+            case ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE:
+                onAccessCoarseLocationPermissionsResult(permissions, grantResults);
             default:
                 break;
         }
-
-        if (this.onPermissionsGrantedCallback != null && permissionWasGranted) {
-            onPermissionsGrantedCallback.onPermissionsGranted();
-        }
-    }
-
-    public void setPermissionsGrantedCallback(OnPermissionsGrantedCallback onPermissionsGrantedCallback) {
-        this.onPermissionsGrantedCallback = onPermissionsGrantedCallback;
     }
 
     // EXTERNAL STORAGE PERMISSIONS
@@ -141,8 +133,11 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
             return true;
         }
         Activity activity = activityRef.get();
-        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED ||
-                ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED;
+        if (SystemUtils.hasAndroid10OrNewer()) {
+            return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED;
+        }
+        return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED ||
+                ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED;
     }
 
     public static boolean handleOnWriteSettingsActivityResult(Activity handlerActivity) {
@@ -167,52 +162,23 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
     }
 
     public static boolean hasPermissionToWriteSettings(Context context) {
-        return (Build.VERSION.SDK_INT >= 23) ?
-                DangerousPermissionsChecker.canWriteSettingsAPILevel23(context) :
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_SETTINGS) == PackageManager.PERMISSION_GRANTED;
+        return DangerousPermissionsChecker.canWriteSettingsAPILevel24andUp(context);
     }
 
-    private static boolean canWriteSettingsAPILevel23(Context context) {
-        if (context == null || Build.VERSION.SDK_INT < 23) {
-            return false;
-        }
+    private static boolean canWriteSettingsAPILevel24andUp(Context context) {
+        //TODO: See what's up with this reflection hack, this smell like a bug waiting to happen if it's not happening already
         try {
-            final Class<?> SystemClass = Class.forName("android.provider.Settings$System");
+            final Class<?> SystemClass = android.provider.Settings.System.class;
             final Method canWriteMethod = SystemClass.getMethod("canWrite", Context.class);
-            return (boolean) canWriteMethod.invoke(null, context);
-        } catch (Exception e) {
-            log.error("canWriteSettingsAPILevel23 error {}", e);
+            Object boolResult = canWriteMethod.invoke(null, context);
+            if (boolResult == null) {
+                return false;
+            }
+            return (boolean) boolResult;
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
         }
         return false;
-    }
-
-    /**
-     * This method will invoke an activity that shows the WRITE_SETTINGS capabilities
-     * of our app.
-     *
-     * More unnecessary distractions and time wasting for developers
-     * courtesy of Google.
-     *
-     * https://commonsware.com/blog/2015/08/17/random-musings-android-6p0-sdk.html
-     *
-     * > Several interesting new Settings screens are now accessible
-     * > via Settings action strings. One that will get a lot of
-     * > attention is ACTION_MANAGE_WRITE_SETTINGS, where users can indicate
-     * > whether apps can write to system settings or not.
-     * > If your app requests the WRITE_SETTINGS permission, you may appear
-     * > on this list, and you can call canWrite() on Settings.System to
-     * > see if you were granted permission.
-     *
-     * Google geniuses, Make up your minds please.
-     */
-    private void requestWriteSettingsPermissionsAPILevel23(Activity activity) {
-        // Settings.ACTION_MANAGE_WRITE_SETTINGS - won't build if the
-        // intellij sdk is set to API 16 Platform, so I'll just hardcode
-        // the value.
-        // Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-        Intent intent = new Intent("android.settings.action.MANAGE_WRITE_SETTINGS");
-        intent.setData(Uri.parse("package:" + activity.getPackageName()));
-        activity.startActivityForResult(intent, DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE);
     }
 
     private boolean onExternalStoragePermissionsResult(String[] permissions, int[] grantResults) {
@@ -222,37 +188,29 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
         final Activity activity = activityRef.get();
         for (int i = 0; i < permissions.length; i++) {
             if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
-                        permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (permissions[i].equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setIcon(R.drawable.sd_card_notification);
                     builder.setTitle(R.string.why_we_need_storage_permissions);
                     builder.setMessage(R.string.why_we_need_storage_permissions_summary);
-                    builder.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            shutdownMule();
-                        }
-                    });
-                    builder.setPositiveButton(R.string.request_again, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            requestPermissions();
-                        }
-                    });
+                    builder.setNegativeButton(R.string.exit, (dialog, which) -> shutdownMule());
+                    builder.setPositiveButton(R.string.request_again, (dialog, which) -> requestPermissions());
                     AlertDialog alertDialog = builder.create();
                     alertDialog.show();
                     return false;
                 }
             }
         }
+
+
+        log.info("onExternalStoragePermissionsResult() " + Manifest.permission.READ_EXTERNAL_STORAGE + " granted");
         return true;
     }
 
     private boolean onAccessCoarseLocationPermissionsResult(String[] permissions, int[] grantResults) {
         for (int i = 0; i < permissions.length; i++) {
             if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                log.info("ACCESS_COARSE_LOCATION permission granted? {}", (grantResults[i] == PackageManager.PERMISSION_GRANTED));
+                log.info("ACCESS_COARSE_LOCATION permission granted? " + (grantResults[i] == PackageManager.PERMISSION_GRANTED));
                 return grantResults[i] == PackageManager.PERMISSION_GRANTED;
             }
         }
@@ -264,8 +222,6 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
             return;
         }
         final Activity activity = activityRef.get();
-
-        //Offers.stopAdNetworks(activity);
         activity.finish();
         Engine.instance().shutdown();
     }

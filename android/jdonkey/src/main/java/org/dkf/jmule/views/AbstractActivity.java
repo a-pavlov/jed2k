@@ -21,7 +21,14 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
+import androidx.appcompat.widget.Toolbar;
+
+import org.dkf.jmule.R;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -98,5 +105,28 @@ public abstract class AbstractActivity extends Activity {
     @SuppressWarnings("unchecked")
     protected final <T extends View> T findView(int id) {
         return (T) super.findViewById(id);
+    }
+
+    public final Toolbar findToolbar() {
+        return findView(R.id.toolbar_main);
+    }
+
+    protected final void setToolbarView(View view, int gravity) {
+        FrameLayout placeholder = findView(R.id.toolbar_main_placeholder);
+        if (placeholder != null) {
+            placeholder.removeAllViews();
+        }
+        if (view != null && placeholder != null) {
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.gravity = gravity;
+            placeholder.addView(view, params);
+            placeholder.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected final void setToolbarView(View view) {
+        setToolbarView(view, Gravity.START | Gravity.CENTER_VERTICAL);
     }
 }

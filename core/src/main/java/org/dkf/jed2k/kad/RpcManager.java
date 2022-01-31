@@ -17,7 +17,7 @@ import java.util.List;
 public class RpcManager {
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(RpcManager.class);
     private static int SHORT_TIMEOUT = 2;
-    private static int TIMEOUT = 12;
+    private static int TIMEOUT_SEC = 12;
 
     private boolean destructing = false;
     private List<Observer> transactions = new LinkedList<>();
@@ -100,7 +100,11 @@ public class RpcManager {
 
     public void tick() {
         //	look for observers that have timed out
-        if (transactions.isEmpty()) return;
+        if (transactions.isEmpty()) {
+            log.trace("[rpc] no active transactions");
+            return;
+        }
+
         log.trace("[rpc] transactions size {}", transactions.size());
 
         List<Observer> timeouts = new LinkedList<>();
@@ -120,8 +124,8 @@ public class RpcManager {
             // break, because every observer after this one will
             // also not have timed out yet
             long diff = now - o.getSentTime();
-            if (diff < Time.seconds(TIMEOUT)) {
-                log.debug("[rpc] no timeout {} < {} time {}, send time {}", diff, Time.seconds(TIMEOUT), now, o.getSentTime());
+            if (diff < Time.seconds(TIMEOUT_SEC)) {
+                log.debug("[rpc] no timeout {} < {} time {}, send time {}", diff, Time.seconds(TIMEOUT_SEC), now, o.getSentTime());
                 break;
             }
 
@@ -155,5 +159,9 @@ public class RpcManager {
             o.shortTimeout();
         }
 
+    }
+
+    public int getTransactionsCount() {
+        return transactions.size();
     }
 }

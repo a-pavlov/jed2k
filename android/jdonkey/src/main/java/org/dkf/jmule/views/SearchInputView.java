@@ -27,8 +27,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Constants;
+import org.dkf.jmule.ConfigurationManager;
+import org.dkf.jmule.Constants;
 import org.dkf.jed2k.util.Ref;
 import org.dkf.jmule.R;
 import org.dkf.jmule.views.ClearableEditTextView.OnActionListener;
@@ -116,10 +116,7 @@ public class SearchInputView extends LinearLayout {
         textInput.setOnKeyListener(textInputListener);
         textInput.setOnActionListener(textInputListener);
         textInput.setOnItemClickListener(textInputListener);
-
-        if (!Constants.IS_GOOGLE_PLAY_DISTRIBUTION) {
-            textInput.setAdapter(adapter);
-        }
+        textInput.setAdapter(adapter);
 
         updateHint(mediaTypeId);
 

@@ -1,5 +1,9 @@
 package org.dkf.jed2k.protocol.test;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 import org.dkf.jed2k.AddTransferParams;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.data.PieceBlock;
@@ -12,10 +16,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Iterator;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 /**
  * Created by inkpot on 01.07.2016.
@@ -79,4 +79,12 @@ public class ResumeDataTest {
         assertEquals(atp.getSize().longValue(), atp2.getSize().longValue());
     }
 
+    @Test
+    public void testAtpBytesCountSerialize() throws JED2KException {
+        AddTransferParams atp = new AddTransferParams(Hash.EMULE, Time.currentTimeMillis(), 100500L, new File("xxxx"), false);
+        ByteBuffer bb = ByteBuffer.allocate(atp.bytesCount());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        atp.put(bb);
+        bb.flip();
+    }
 }

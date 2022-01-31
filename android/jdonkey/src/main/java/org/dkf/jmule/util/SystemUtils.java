@@ -22,9 +22,9 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StatFs;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.os.EnvironmentCompat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +35,9 @@ import java.util.List;
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP;
 
+import androidx.core.content.ContextCompat;
+import androidx.core.os.EnvironmentCompat;
+
 /**
  * @author gubatron
  * @author aldenml
@@ -44,6 +47,7 @@ public final class SystemUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SystemUtils.class);
 
     private static final int VERSION_CODE_KITKAT = 19;
+    private static final int VERSION_SDK_NOUGAT_7_0 = 24;
 
     private SystemUtils() {
     }
@@ -178,6 +182,13 @@ public final class SystemUtils {
         }
     }
 
+    /**
+     * Used to determine if the device is running Android11 or greater
+     */
+    public static boolean hasAndroid10OrNewer() {
+        return hasSdkOrNewer(Build.VERSION_CODES.Q);
+    }
+
     private static boolean hasSdkOrNewer(int versionCode) {
         return Build.VERSION.SDK_INT >= versionCode;
     }
@@ -191,5 +202,32 @@ public final class SystemUtils {
      */
     public static boolean hasKitKatOrNewer() {
         return hasSdkOrNewer(VERSION_CODE_KITKAT);
+    }
+
+    public static void postToUIThread(Runnable runnable) {
+        try {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(runnable);
+        } catch (Throwable t) {
+            LOG.error("UIUtils.postToUIThread error: " + t.getMessage());
+        }
+    }
+
+    /**
+     * Used to determine if the device is running
+     * Nougat (Android 7.0) or greater.
+     *
+     * @return {@code true} if the device is running KitKat or greater,
+     * {@code false} otherwise
+     */
+    public static boolean hasNougatOrNewer() {
+        return hasSdkOrNewer(VERSION_SDK_NOUGAT_7_0);
+    }
+
+    /**
+     * Used to determine if the device is running Android11 or greater
+     */
+    public static boolean hasAndroid11OrNewer() {
+        return hasSdkOrNewer(30); //Build.VERSION_CODES.R
     }
 }

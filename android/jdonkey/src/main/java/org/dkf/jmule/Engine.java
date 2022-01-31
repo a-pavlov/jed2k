@@ -27,15 +27,17 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.content.ContextCompat;
+
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
 import org.dkf.jed2k.alert.*;
-import org.dkf.jed2k.android.AlertListener;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Constants;
-import org.dkf.jed2k.android.ED2KService;
+import org.dkf.jmule.AlertListener;
+import org.dkf.jmule.ConfigurationManager;
+import org.dkf.jmule.Constants;
+import org.dkf.jmule.ED2KService;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -197,14 +199,6 @@ public final class Engine implements AlertListener {
                 } catch (IllegalArgumentException e) {
                 }
             }
-
-            /*if (receiver != null) {
-                try {
-                    getApplication().unregisterReceiver(receiver);
-                } catch (IllegalArgumentException e) {
-                }
-            }
-            */
 
             service.shutdown();
         }
@@ -443,7 +437,10 @@ public final class Engine implements AlertListener {
     public void forwardPorts(boolean forward) { if (service != null) service.setForwardPort(forward);}
     public void useDht(boolean dht) {
         log.info("[engine] use dht {}", dht);
-        if (service != null) service.useDht(dht); }
+        if (service != null) {
+            service.useDht(dht);
+        }
+    }
 
     public void setUserAgent(final String s) {
         assert s != null;

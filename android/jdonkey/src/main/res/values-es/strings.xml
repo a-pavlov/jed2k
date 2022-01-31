@@ -42,13 +42,6 @@
     <string name="cant_open_file">Lo siento, no sé cómo abrir este archivo.</string>
     <string name="download_added_to_queue">1 archivo comenzará a descargarse</string>
     <string name="open_menu_action">Abrir %s</string>
-    <string name="media_type_all_types">Todos los Tipos</string>
-    <string name="media_type_documents">Libros/Docs</string>
-    <string name="media_type_applications">Aplicaciones</string>
-    <string name="media_type_audio">Audio</string>
-    <string name="media_type_video">Video</string>
-    <string name="media_type_images">Imágenes</string>
-    <string name="media_type_torrents">Torrents</string>
     <string name="search">Buscar</string>
     <string name="transfers">Transferencias</string>
     <string name="yes_no_cancel_transfer_question">¿Seguro que quieres parar y eliminar esta descarga de la lista?</string>
@@ -231,4 +224,18 @@
     <string name="search_forbidden">La expresión de búsqueda contiene palabras prohibidas para un modo Seguro. Si está seguro de desactivar el modo Seguro en la configuración del programa</string>
     <string name="search_fragment_safe_mode_title">Modo de búsqueda seguro</string>
     <string name="search_fragment_safe_mode_descr">El modo de búsqueda seguro está activado. Algunos resultados se pueden filtrar. Para obtener más información, consulte configuración</string>
+    <string name="jed2k_is_running">ED2K servicio se está ejecutando</string>
+    <string name="transfer_finished">Descarga completada</string>
+    <string name="transfer_io_error">Error de e/S</string>
+    <string name="media_type_all_types">Todos Los Tipos</string>
+    <string name="media_type_applications">Aplicaciones</string>
+    <string name="media_type_archives">Los archivos</string>
+    <string name="media_type_audio">Audio</string>
+    <string name="media_type_cd_images">CD</string>
+    <string name="media_type_documents">Libros/Docs</string>
+    <string name="media_type_images">Imágenes</string>
+    <string name="media_type_torrents">Torrents</string>
+    <string name="media_type_video">Video</string>
+    <string name="build">build</string>
+    <string name="comma">,</string>
 </resources>

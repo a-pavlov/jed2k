@@ -2,6 +2,8 @@ package org.dkf.jed2k.kad;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.Time;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.exception.ErrorCode;
@@ -43,6 +45,7 @@ public class NodeImpl implements ReqDispatcher {
     private long lastFirewalledCheck = 0;
     private InetSocketAddress storagePoint;
     private Set<Endpoint> routerNodes = new TreeSet<>();
+    boolean initialBootstrapRequired = true;
 
     public NodeImpl(final DhtTracker tracker
             , final KadId id
@@ -107,11 +110,33 @@ public class NodeImpl implements ReqDispatcher {
 
     public void tick() {
         assert !isAborted();
-
         rpc.tick();
+        log.trace("[node] routing table size {}", table.getSize());
+
         if (!runningRequests.isEmpty()) {
             log.trace("[node] running requests {}", runningRequests.size());
+        } else {
+            if (initialBootstrapRequired) {
+                List<Endpoint> endpoints = new LinkedList<>();
+                Pair<Integer, Integer> size = table.getSize();
+                if ((rpc.getTransactionsCount() == 0) && (size.left > 0) && (size.right < 10)) {
+                    table.forEach(e -> {
+                        log.info("[table fun] {} {}", e.getId(), e.getEndpoint());
+                        endpoints.add(e.getEndpoint());
+                    });
+
+                    try {
+                        log.info("[node] start initial bootstrapping");
+                        bootstrap(endpoints);
+                    } catch (JED2KException e) {
+                        log.error("[node] initial bootstrap failed {}", e.getMessage());
+                    }
+
+                    initialBootstrapRequired = false;
+                }
+            }
         }
+
         KadId target = table.needRefresh();
         try {
             if (target != null) refresh(target);
@@ -174,7 +199,7 @@ public class NodeImpl implements ReqDispatcher {
     }
 
     public void bootstrap(final List<Endpoint> nodes) throws JED2KException {
-        log.debug("[node] bootstrap with {} nodes", nodes.size());
+        log.debug("[node] bootstrap with {} nodes {} router nodes", nodes.size(), routerNodes.size());
         Traversal t = new Bootstrap(this, self);
         for(Endpoint ep: nodes) {
             t.addEntry(new KadId(), ep, Observer.FLAG_INITIAL, 0, (byte)0);

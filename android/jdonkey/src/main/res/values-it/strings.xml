@@ -51,13 +51,6 @@
     <string name="search_more_action">Cerca ancora</string>
 
     <string name="remove_torrent_and_data">Rimuovi il trasferimento</string>
-    <string name="media_type_all_types">Tutti i tipi</string>
-    <string name="media_type_documents">Documenti</string>
-    <string name="media_type_applications">Applicazioni</string>
-    <string name="media_type_audio">Audio</string>
-    <string name="media_type_video">Video</string>
-    <string name="media_type_images">Immagini</string>
-    <string name="media_type_torrents">Collezioni</string>
     <string name="search">Cerca</string>
     <string name="transfers">Trasferimenti</string>
     <string name="dummy_title" translatable="false">[Title]</string>
@@ -253,4 +246,18 @@
     <string name="search_forbidden">L\'espressione di ricerca contiene parole proibite per la modalità provvisoria. Se sei sicuro, disattiva la modalità provvisoria nelle impostazioni del programma</string>
     <string name="search_fragment_safe_mode_title">Modalità di ricerca sicura</string>
     <string name="search_fragment_safe_mode_descr">Modalità di ricerca sicura attivata. Alcuni risultati possono essere filtrati. Per ulteriori informazioni, consulta le impostazioni</string>
+    <string name="jed2k_is_running">ED2K servizio è in esecuzione</string>
+    <string name="transfer_finished">Download completato</string>
+    <string name="transfer_io_error">Errore di I/O</string>
+    <string name="media_type_all_types">Tutti I Tipi</string>
+    <string name="media_type_applications">Applicazioni</string>
+    <string name="media_type_archives">Archivi</string>
+    <string name="media_type_audio">Audio</string>
+    <string name="media_type_cd_images">CD</string>
+    <string name="media_type_documents">Libri/Docs</string>
+    <string name="media_type_images">Immagini</string>
+    <string name="media_type_torrents">Torrents</string>
+    <string name="media_type_video">Video</string>
+    <string name="build">build</string>
+    <string name="comma">,</string>
 </resources>

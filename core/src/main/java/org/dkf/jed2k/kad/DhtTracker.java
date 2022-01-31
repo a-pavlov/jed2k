@@ -309,15 +309,12 @@ public class DhtTracker extends Thread {
      */
     public void addEntries(final List<NodeEntry> entries) {
         assert entries != null;
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                for(final NodeEntry e: entries) {
-                    try {
-                        node.addNode(e.getEndpoint(), e.getId());
-                    } catch(JED2KException ex) {
-                        log.error("[tracker] unable to add node {} due to error {}", e, ex);
-                    }
+        commands.add(() -> {
+            for(final NodeEntry e: entries) {
+                try {
+                    node.addNode(e.getEndpoint(), e.getId());
+                } catch(JED2KException ex) {
+                    log.error("[tracker] unable to add node {} due to error {}", e, ex);
                 }
             }
         });
@@ -329,18 +326,16 @@ public class DhtTracker extends Thread {
      */
     public void addKadEntries(final List<KadEntry> entries) {
         assert entries != null;
-        commands.add(new Runnable() {
-            @Override
-            public void run() {
-                int i = 0;
-                for(final KadEntry e: entries) {
-                    try {
-                        node.addKadNode(e);
-                        ++i;
-                        //if (i > 100) break;
-                    } catch(JED2KException ex) {
-                        log.error("[tracker] unable to add kad node {} due to error {}", e, ex);
-                    }
+        commands.add(() -> {
+            int i = 0;
+            for(final KadEntry e: entries) {
+                try {
+                    node.addKadNode(e);
+                    log.trace("add kad entry {}", e.toString());
+                    ++i;
+                    //if (i > 100) break;
+                } catch(JED2KException ex) {
+                    log.error("[tracker] unable to add kad node {} due to error {}", e, ex);
                 }
             }
         });

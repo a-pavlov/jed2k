@@ -18,37 +18,47 @@
 
 package org.dkf.jmule.activities;
 
-import android.app.*;
-import android.content.*;
+import android.Manifest;
+import android.app.ActionBar;
+import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.DrawerLayout.SimpleDrawerListener;
+import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import org.apache.commons.io.IOUtils;
 import org.dkf.jed2k.EMuleLink;
-import org.dkf.jed2k.android.*;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.ServerMet;
-import org.dkf.jed2k.util.Ref;
+import org.dkf.jmule.AndroidPlatform;
+import org.dkf.jmule.ConfigurationManager;
+import org.dkf.jmule.Constants;
+import org.dkf.jmule.ED2KService;
 import org.dkf.jmule.Engine;
+import org.dkf.jmule.Platforms;
 import org.dkf.jmule.R;
 import org.dkf.jmule.StoragePicker;
 import org.dkf.jmule.activities.internal.MainController;
-import org.dkf.jmule.activities.internal.MainMenuAdapter;
 import org.dkf.jmule.dialogs.HandpickedCollectionDownloadDialog;
 import org.dkf.jmule.dialogs.SDPermissionDialog;
 import org.dkf.jmule.dialogs.YesNoDialog;
@@ -65,12 +75,18 @@ import org.dkf.jmule.views.preference.StoragePreference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.lang.ref.WeakReference;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * @author gubatron
@@ -88,13 +104,10 @@ public class MainActivity extends AbstractActivity implements
     private static final String LAST_BACK_DIALOG_ID = "last_back_dialog";
     private static final String SHUTDOWN_DIALOG_ID = "shutdown_dialog";
     private static boolean firstTime = true;
-    private final Map<Integer, DangerousPermissionsChecker> permissionsCheckers;
+    private final SparseArray<DangerousPermissionsChecker> permissionsCheckers;
     private MainController controller;
-    private DrawerLayout drawerLayout;
+    private NavigationMenu navigationMenu;
 
-    private ActionBarDrawerToggle drawerToggle;
-    private View leftDrawer;
-    private ListView listMenu;
     private SearchFragment search;
     private ServersFragment servers;
     private TransfersFragment transfers;
@@ -120,7 +133,11 @@ public class MainActivity extends AbstractActivity implements
         } else if (keyCode == KeyEvent.KEYCODE_MENU) {
             toggleDrawer();
         } else {
-            return super.onKeyDown(keyCode, event);
+            try {
+                return super.onKeyDown(keyCode, event);
+            } catch (NullPointerException e) {
+                return false;
+            }
         }
 
         return true;
@@ -142,17 +159,10 @@ public class MainActivity extends AbstractActivity implements
             showLastBackDialog();
         }
 
-        syncSlideMenu();
         updateHeader(getCurrentFragment());
     }
 
-    public void onConfigurationUpdate() {
-        setupMenuItems();
-    }
-
     public void shutdown() {
-        //Offers.stopAdNetworks(this);
-        //UXStats.instance().flush(true); // sends data and ends 3rd party APIs sessions.
         finish();
         Engine.instance().shutdown();
     }
@@ -177,40 +187,12 @@ public class MainActivity extends AbstractActivity implements
         if (isShutdown()) {
             return;
         }
-        initDrawerListener();
-        leftDrawer = findView(R.id.activity_main_left_drawer);
-        listMenu = findView(R.id.left_drawer);
+        updateNavigationMenu();
         setupFragments();
-        setupMenuItems();
         setupInitialFragment(savedInstanceState);
-        //playerSubscription = TimerService.subscribe(((PlayerNotifierView) findView(R.id.activity_main_player_notifier)).getRefresher(), 1);
         onNewIntent(getIntent());
         setupActionBar();
         setupDrawer();
-    }
-
-    private void initDrawerListener() {
-        drawerLayout = findView(R.id.drawer_layout);
-        drawerLayout.setDrawerListener(new SimpleDrawerListener() {
-            @Override
-            public void onDrawerStateChanged(int newState) {
-                refreshPlayerItem();
-            }
-
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                syncSlideMenu();
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-
-            }
-        });
     }
 
     private static List<EMuleLink> parseCollectionContent(Context context, Uri uri) {
@@ -236,6 +218,25 @@ public class MainActivity extends AbstractActivity implements
         }
 
         return res;
+    }
+
+    public void updateNavigationMenu(boolean updateAvailable) {
+        log.info("updateNavigationMenu(" + updateAvailable + ")");
+        if (navigationMenu == null) {
+            setupDrawer();
+        }
+        if (updateAvailable) {
+            // make sure it will remember this, even if the menu gets destroyed
+            getIntent().putExtra("updateAvailable", true);
+            navigationMenu.onUpdateAvailable();
+        }
+    }
+
+    private void updateNavigationMenu() {
+        Intent intent = getIntent();
+        if (intent != null) {
+            updateNavigationMenu(intent.getBooleanExtra("updateAvailable", false));
+        }
     }
 
     @Override
@@ -422,24 +423,20 @@ public class MainActivity extends AbstractActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-
-        initDrawerListener();
         setupDrawer();
-
-        refreshPlayerItem();
+        syncNavigationMenu();
+        updateNavigationMenu();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_INITIAL_SETTINGS_COMPLETE)) {
             mainResume();
-            //Offers.initAdNetworks(this);
         } else if (!isShutdown()){
             controller.startWizardActivity();
         }
 
         registerMainBroadcastReceiver();
-        syncSlideMenu();
 
         if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_TOS_ACCEPTED)) {
-            checkExternalStoragePermissionsOrBindMusicService();
+            checkExternalStoragePermissions();
         }
     }
 
@@ -457,20 +454,17 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    private Map<Integer, DangerousPermissionsChecker> initPermissionsCheckers() {
-        Map<Integer, DangerousPermissionsChecker> checkers = new HashMap<>();
-
+    private SparseArray<DangerousPermissionsChecker> initPermissionsCheckers() {
+        SparseArray<DangerousPermissionsChecker> checkers = new SparseArray<>();
         // EXTERNAL STORAGE ACCESS CHECKER.
         final DangerousPermissionsChecker externalStorageChecker =
                 new DangerousPermissionsChecker(this, DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE);
         //externalStorageChecker.setPermissionsGrantedCallback(() -> {});
         checkers.put(DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE, externalStorageChecker);
-
-        // WRITE SETTINGS (Setting the default ringtone requires this)
-        final DangerousPermissionsChecker writeSettingsChecker =
-                new DangerousPermissionsChecker(this, DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE);
-        checkers.put(DangerousPermissionsChecker.WRITE_SETTINGS_PERMISSIONS_REQUEST_CODE, writeSettingsChecker);
-
+        // COARSE
+        final DangerousPermissionsChecker accessCoarseLocationChecker =
+                new DangerousPermissionsChecker(this, DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE);
+        checkers.put(DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE, accessCoarseLocationChecker);
         // add more permissions checkers if needed...
         return checkers;
     }
@@ -512,17 +506,27 @@ public class MainActivity extends AbstractActivity implements
             return;
         }
 
-        checkExternalStoragePermissionsOrBindMusicService();
+        checkExternalStoragePermissions();//OrBindMusicService();
+        checkAccessCoarseLocationPermissions();
     }
 
-    private void checkExternalStoragePermissionsOrBindMusicService() {
+    private void checkAccessCoarseLocationPermissions() {
+        DangerousPermissionsChecker checker = permissionsCheckers.get(DangerousPermissionsChecker.ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE);
+        if (checker != null && !checker.hasAskedBefore()) {
+            checker.requestPermissions();
+            ConfigurationManager.instance().setBoolean(Constants.ASKED_FOR_ACCESS_COARSE_LOCATION_PERMISSIONS, true);
+        } else {
+            log.info("Asked for ACCESS_COARSE_LOCATION before, skipping.");
+        }
+    }
+
+    private void checkExternalStoragePermissions() {
         DangerousPermissionsChecker checker = permissionsCheckers.get(DangerousPermissionsChecker.EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE);
-        if (!externalStoragePermissionsRequested && checker != null && checker.noAccess()) {
+        boolean shouldShowRequestPermissionRationaleForReadExternal = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (shouldShowRequestPermissionRationaleForReadExternal || (!externalStoragePermissionsRequested && checker != null && checker.noAccess())) {
             checker.requestPermissions();
             externalStoragePermissionsRequested = true;
-        }// else if (mToken == null && checker != null && !checker.noAccess()) {
-        //    mToken = MusicUtils.bindToService(this, this);
-        //}
+        }
     }
 
     private void onNotifySdCardMounted() {
@@ -543,8 +547,7 @@ public class MainActivity extends AbstractActivity implements
 
     private void mainResume() {
         checkSDPermission();
-
-        syncSlideMenu();
+        syncNavigationMenu();
         if (firstTime) {
             firstTime = false;
             Engine.instance().startServices(); // it's necessary for the first time after wizard
@@ -595,13 +598,12 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void toggleDrawer() {
-        if (drawerLayout.isDrawerOpen(leftDrawer)) {
-            drawerLayout.closeDrawer(leftDrawer);
+        if (navigationMenu.isOpen()) {
+            navigationMenu.hide();
         } else {
-            drawerLayout.openDrawer(leftDrawer);
-            syncSlideMenu();
+            navigationMenu.show();
+            syncNavigationMenu();
         }
-
         updateHeader(getCurrentFragment());
     }
 
@@ -614,7 +616,7 @@ public class MainActivity extends AbstractActivity implements
         dlg.show(getFragmentManager()); //see onDialogClick
     }
 
-    private void showShutdownDialog() {
+    public void showShutdownDialog() {
         YesNoDialog dlg = YesNoDialog.newInstance(
                 SHUTDOWN_DIALOG_ID,
                 R.string.app_shutdown_dlg_title,
@@ -634,94 +636,18 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void onLastDialogButtonPositive() {
-        //Offers.showInterstitial(this, false, true);
-        //Engine.instance().shutdown();
         finish();
     }
 
     private void onShutdownDialogButtonPositive() {
         Engine.instance().shutdown();
         finish();
-        //Offers.showInterstitial(this, true, false);
-    }
-
-    private void syncSlideMenu() {
-        listMenu.clearChoices();
-        invalidateOptionsMenu();
-
-        Fragment fragment = getCurrentFragment();
-        int menuId = R.id.menu_main_search;
-        if (fragment instanceof ServersFragment) {
-            menuId = R.id.menu_main_servers;
-        }
-        if (fragment instanceof SearchFragment) {
-            menuId = R.id.menu_main_search;
-        } else if (fragment instanceof TransfersFragment) {
-            menuId = R.id.menu_main_transfers;
-        }
-
-        setCheckedItem(menuId);
-        updateHeader(getCurrentFragment());
     }
 
     private void setCheckedItem(int id) {
-        try {
-            listMenu.clearChoices();
-            ((MainMenuAdapter) listMenu.getAdapter()).notifyDataSetChanged();
-
-            int position = 0;
-            MainMenuAdapter adapter = (MainMenuAdapter) listMenu.getAdapter();
-            for (int i = 0; i < adapter.getCount(); i++) {
-                listMenu.setItemChecked(i, false);
-                if (adapter.getItemId(i) == id) {
-                    position = i;
-                    break;
-                }
-            }
-
-            if (id != -1) {
-                listMenu.setItemChecked(position, true);
-            }
-
-            invalidateOptionsMenu();
-
-            if (drawerToggle != null) {
-                drawerToggle.syncState();
-            }
-        } catch (Exception e) { // protecting from weird android UI engine issues
-            log.warn("Error setting slide menu item selected", e);
+        if (navigationMenu != null) {
+            navigationMenu.updateCheckedItem(id);
         }
-    }
-
-    private void refreshPlayerItem() {
-        //if (playerItem != null) {
-        //    playerItem.refresh();
-        //}
-    }
-
-    private void setupMenuItems() {
-        listMenu.setAdapter(new MainMenuAdapter(this));
-        listMenu.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-        listMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //onItemClick(AdapterView<?> parent, View view, int position, long id)
-                syncSlideMenu();
-                controller.closeSlideMenu();
-                try {
-                    if (id == R.id.menu_main_settings) {
-                        controller.showPreferences();
-                    } else if (id == R.id.menu_main_shutdown) {
-                        showShutdownDialog();
-                    } else {
-                        listMenu.setItemChecked(position, true);
-                        controller.switchFragment((int) id);
-                    }
-                } catch (Exception e) { // protecting from weird android UI engine issues
-                    log.error("Error clicking slide menu item", e);
-                }
-            }
-        });
     }
 
     private void setupFragments() {
@@ -771,20 +697,22 @@ public class MainActivity extends AbstractActivity implements
 
     private void updateHeader(Fragment fragment) {
         try {
-            RelativeLayout placeholder = (RelativeLayout) getActionBar().getCustomView();
-            if (placeholder != null && placeholder.getChildCount() > 0) {
-                placeholder.removeAllViews();
+            Toolbar toolbar = findToolbar();
+            if (toolbar == null) {
+                log.warn("updateHeader(): Check your logic, no actionBar available");
+                return;
             }
-
             if (fragment instanceof MainFragment) {
                 View header = ((MainFragment) fragment).getHeader(this);
-                if (placeholder != null && header != null) {
-                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                    params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-                    placeholder.addView(header, params);
+                if (header != null) {
+                    setToolbarView(header);
                 }
             }
-        } catch (Exception e) {
+            if (navigationMenu != null) {
+                MenuItem item = navigationMenu.getCheckedItem();
+                setTitle(item.getTitle());
+            }
+        } catch (Throwable e) {
             log.error("Error updating main header", e);
         }
     }
@@ -827,44 +755,36 @@ public class MainActivity extends AbstractActivity implements
         return currentFragment;
     }
 
-    public void closeSlideMenu() {
-        drawerLayout.closeDrawer(leftDrawer);
-    }
-
     public SearchFragment getSearchFragment() { return search; }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerToggle != null) {
+        if (navigationMenu != null) {
             try {
-                drawerToggle.onOptionsItemSelected(item);
-            } catch (Exception t) {
+                navigationMenu.onOptionsItemSelected(item);
+            } catch (Throwable t) {
                 // usually java.lang.IllegalArgumentException: No drawer view found with gravity LEFT
                 return false;
             }
-            return true;
+            return false;
         }
-
         if (item == null) {
             return false;
         }
 
-        switch (item.getItemId()) {
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        drawerToggle.onConfigurationChanged(newConfig);
+        navigationMenu.syncState();
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
+        navigationMenu.syncState();
     }
 
     private void setupActionBar() {
@@ -878,20 +798,13 @@ public class MainActivity extends AbstractActivity implements
     }
 
     private void setupDrawer() {
-        drawerToggle = new MenuDrawerToggle(this, drawerLayout);
-        drawerLayout.setDrawerListener(drawerToggle);
+        DrawerLayout drawerLayout = findView(R.id.drawer_layout);
+        Toolbar toolbar = findToolbar();
+        navigationMenu = new NavigationMenu(controller, drawerLayout, toolbar);
     }
 
-    public void onServiceConnected(final ComponentName name, final IBinder service) {
-        //mService = IApolloService.Stub.asInterface(service);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void onServiceDisconnected(final ComponentName name) {
-       // mService = null;
-    }
+    public void onServiceConnected(final ComponentName name, final IBinder service) { }
+    public void onServiceDisconnected(final ComponentName name) { }
 
     //@Override commented override since we are in API 16, but it will in API 23
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -899,7 +812,6 @@ public class MainActivity extends AbstractActivity implements
         if (checker != null) {
             checker.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        //Offers.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -908,43 +820,6 @@ public class MainActivity extends AbstractActivity implements
             ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, lastLoadedServers);
             servers.setupAdapter();
             controller.showServers();
-        }
-    }
-
-    private static final class MenuDrawerToggle extends ActionBarDrawerToggle {
-        private final WeakReference<MainActivity> activityRef;
-
-        MenuDrawerToggle(MainActivity activity, DrawerLayout drawerLayout) {
-            super(activity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
-
-            // aldenml: even if the parent class holds a strong reference, I decided to keep a weak one
-            this.activityRef = Ref.weak(activity);
-        }
-
-        @Override
-        public void onDrawerClosed(View view) {
-            if (Ref.alive(activityRef)) {
-                activityRef.get().invalidateOptionsMenu();
-                activityRef.get().syncSlideMenu();
-            }
-        }
-
-        @Override
-        public void onDrawerOpened(View drawerView) {
-            if (Ref.alive(activityRef)) {
-                UIUtils.hideKeyboardFromActivity(activityRef.get());
-                activityRef.get().invalidateOptionsMenu();
-                activityRef.get().syncSlideMenu();
-            }
-        }
-
-        @Override
-        public void onDrawerStateChanged(int newState) {
-            if (Ref.alive(activityRef)) {
-                MainActivity activity = activityRef.get();
-                activity.refreshPlayerItem();
-                activity.syncSlideMenu();
-            }
         }
     }
 
@@ -975,5 +850,33 @@ public class MainActivity extends AbstractActivity implements
         }
 
         return "file://" + target.getAbsolutePath();
+    }
+
+    public Fragment getFragmentByNavMenuId(int id) {
+        if (id == R.id.menu_main_search) {
+            return search;
+        } else if (id == R.id.menu_main_servers) {
+            return servers;
+        } else if (id == R.id.menu_main_transfers) {
+            return transfers;
+        }
+        return null;
+    }
+
+    private int getNavMenuIdByFragment(Fragment fragment) {
+        int menuId = -1;
+        if (fragment == search) {
+            menuId = R.id.menu_main_search;
+        } else if (fragment == servers) {
+            menuId = R.id.menu_main_servers;
+        } else if (fragment == transfers) {
+            menuId = R.id.menu_main_transfers;
+        }
+        return menuId;
+    }
+
+    public void syncNavigationMenu() {
+        invalidateOptionsMenu();
+        navigationMenu.updateCheckedItem(getNavMenuIdByFragment(getCurrentFragment()));
     }
 }

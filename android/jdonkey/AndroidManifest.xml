@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.dkf.jmule" >
-
-    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="23"/>
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.dkf.jmule"
+    android:installLocation="auto"
+    android:versionCode="30"
+    android:versionName="30">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -19,7 +21,8 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.FrostWire">
+        android:theme="@style/Theme.FrostWire"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <activity
             android:name="org.dkf.jmule.activities.SplashActivity"
@@ -80,17 +83,22 @@
 
         <activity android:name="org.dkf.jmule.activities.WizardActivity"
                   android:label="@string/app_name" android:screenOrientation="portrait"/>
-
         <provider
-                android:name="android.support.v4.content.FileProvider"
-                android:authorities="${applicationId}.fileprovider"
-                android:exported="false"
-                android:grantUriPermissions="true">
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
-                    android:name="android.support.FILE_PROVIDER_PATHS"
-                    android:resource="@xml/provider_paths" />
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
         </provider>
 
+        <service android:name="org.dkf.jmule.ED2KService">
+            <intent-filter>
+                <action android:name="org.dkf.jmule.INTENT_OPEN"/>
+                <action android:name="org.dkf.jmule.INTENT_CLOSE"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

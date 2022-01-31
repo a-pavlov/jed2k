@@ -1,74 +1,228 @@
 apply plugin: 'com.android.application'
-apply from: '../../core/dependencies.gradle'
-apply from: '../dependencies.gradle'
 
 buildscript {
     repositories {
+        // Gradle 4.1 and higher include support for Google's Maven repo using
+        // the google() method. And you need to include this repo to download
+        // Android Gradle plugin 3.0.0 or higher.
         google()
-        maven { url 'maven.google.com' }
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.android.tools.build:gradle:7.0.4'
     }
 }
 
 repositories {
     google()
     mavenCentral()
-    jcenter()
 }
 
 def manifestVersionCode() {
-    def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
-
+    def manifestFile = new File(project.projectDir.absolutePath + '/AndroidManifest.xml')
     def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
-    def xml = new XmlParser().parse(manifestFile)
-
+    def xml = new groovy.xml.XmlParser().parse(manifestFile)
+    //System.out.println("manifestVersionCode: xml.attributes()[ns.versionCode].toString()=" + xml.attributes()[ns.versionCode].toString())
     return Integer.parseInt(xml.attributes()[ns.versionCode].toString())
 }
 
 def manifestVersionName() {
     def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
-
     def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
-    def xml = new XmlParser().parse(manifestFile)
-
+    def xml = new groovy.xml.XmlParser().parse(manifestFile)
+    //System.out.println("manifestVersionName: " + xml.attributes()[ns.versionName].toString())
     return xml.attributes()[ns.versionName].toString()
 }
 
+ext {
+    buildToolsVersion = "31.0.0"
+    coreVersion = "1.4.1-alpha03"
+    extJUnitVersion = "1.1.4-alpha03"
+    runnerVersion = "1.4.1-alpha03"
+    rulesVersion = "1.4.1-alpha03"
+    versionCode = manifestVersionCode()
+    versionName = manifestVersionName()
+}
+
+def changeApkOutput(variant) {
+    def suffix = project.ext.versionName + '-b' + project.ext.versionCode + '-' + variant.productFlavors[0].name
+    def name = "jed2k-android-" + variant.buildType.name + '-' + suffix
+
+    variant.outputs.all { output ->
+        outputFileName = name + '.apk'
+    }
+    variant.getAssembleProvider().configure() {
+        it.doLast {
+            assemble ->
+                copy {
+                    from variant.outputs*.outputFile
+                    into "${project.buildDir}"
+                }
+        }
+    }
+}
+
+boolean isAssembleRelease = gradle.startParameter.taskNames.contains("assembleRelease") || gradle.startParameter.taskNames.contains("assembleBasicRelease")
+
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.2'
+    compileSdkVersion 31
 
     defaultConfig {
-        applicationId "org.dkf.jmule"
+        applicationId 'org.dkf.jmule'
+        versionName project.ext.versionName
         minSdkVersion 16
-        targetSdkVersion 28
-        versionCode 23
-        versionName "2.3"
+        targetSdkVersion 30
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
+            java {
+                srcDir 'src/main'
+            }
+        }
+
+        androidTest {
+            java.srcDirs = ['src/androidTest']
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
         }
     }
 
     lintOptions {
         abortOnError false
     }
+
+    signingConfigs {
+        release {
+            if (isAssembleRelease) {
+                storeFile file("/home/inkpot/dev/jdonkey.keystore")
+                def sigRequester = new SignatureRequester()
+                sigRequester.ask()
+                storePassword sigRequester.keyPassword()
+                keyAlias sigRequester.keyAlias()
+                keyPassword sigRequester.keyPassword()
+            } else {
+                storePassword ''
+                keyAlias ''
+                keyPassword ''
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            buildConfigField "String", "FLAVOR", "\"basic\""
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'),
+            //        'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            //multiDexKeepFile file('multidex-config.txt')
+        }
+        debug {
+            minifyEnabled true
+            buildConfigField "String", "FLAVOR", "\"basic\""
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'),
+            //        'proguard-rules.pro'
+            //multiDexKeepFile file('multidex-config.txt')
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "app"
+
+    productFlavors {
+        basic {
+            versionCode 0001 + project.ext.versionCode
+            resValue "string", "application_label", "Mule"
+        }
+    }
+
+    applicationVariants.all { variant ->
+        changeApkOutput(variant)
+    }
 }
 
 dependencies {
-    implementation project(':service')
+    implementation project(':core')
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    //api group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
+    implementation 'com.google.re2j:re2j:1.6'
+    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.preference:preference:1.1.1'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    testImplementation 'org.robolectric:robolectric:4.6'
+    androidTestImplementation 'androidx.test:core:' + project.ext.coreVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + project.ext.extJUnitVersion
+    androidTestImplementation 'androidx.test:runner:' + project.ext.runnerVersion
+    androidTestImplementation 'androidx.test:rules:' + project.ext.rulesVersion
 }
+
+class SignatureRequester {
+    String myKeyAlias = ""
+    String myKeyPassword = ""
+
+    void ask() {
+        System.setProperty('java.awt.headless', 'false')
+        if (System.console() == null) { // this is always the case on macOS at least
+            new groovy.swing.SwingBuilder().edt {
+                dialog(modal: true,
+                        title: 'Enter keystore data',
+                        alwaysOnTop: true,
+                        resizable: true,
+                        locationRelativeTo: null,
+                        show: true,
+                        size: [215, 147]
+                ) {
+                    vbox {
+                        label(text: "Key Alias:")
+                        inputAlias = textField()
+                        label(text: "Key Password:")
+                        inputPassword = passwordField()
+                        button(defaultButton: true, text: 'OK', actionPerformed: {
+                            this.myKeyAlias = inputAlias.text
+                            this.myKeyPassword = new String(inputPassword.password)
+                            dispose()
+                        })
+                    }
+                }
+            }
+        } else {
+            this.myKeyAlias = System.console().readPassword("\nKey Alias: ")
+            this.myKeyAlias = new String(myKeyAlias)
+            this.myKeyPassword = System.console().readPassword("\nKey Password: ")
+            this.myKeyPassword = new String(myKeyPassword)
+        }
+    }
+
+    String keyAlias() {
+        this.myKeyAlias
+    }
+
+    String keyPassword() {
+        this.myKeyPassword
+    }
+}
+

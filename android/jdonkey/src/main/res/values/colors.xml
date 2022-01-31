@@ -24,24 +24,44 @@
     <color name="basic_white">@android:color/white</color>
     <color name="basic_blue">#ff38536a</color>
     <color name="basic_blue_highlight">#ff33b5e5</color>
+    <color name="basic_blue_highlight_dark">#2e9ec7</color>
     <color name="basic_blue_darker_highlight">#2e9ec7</color>
+    <color name="basic_blue_transparent">#642889AC</color>
+    <color name="basic_blue_dark">#264053</color>
+    <color name="basic_blue_dark_highlight">#21313f</color>
     <color name="basic_gray">#ffeceff1</color>
     <color name="basic_gray_lighter">#f5f5f7f8</color>
-    <color name="basic_gray_light">#c8efefef</color>
-    <color name="basic_gray_medium">#d1dddddd</color>
-    <color name="basic_gray_dark">#76dddddd</color>
+    <color name="basic_yellow">#ffe16a</color>
+    <color name="basic_green">#0FC486</color>
+    <color name="basic_green_dark">#05a751</color>
+    <color name="basic_gray_light">#F2F2F2</color>
+    <color name="basic_gray_medium">#e7e7e7</color>
+    <color name="basic_gray_dark">#b5b5b5</color>
+    <color name="basic_gray_text_dark">#2b2b2b</color>
+    <color name="basic_gray_text_medium">#686868</color>
+    <color name="basic_gray_text_light">#b5b5b5</color>
 
     <!-- General app colors -->
-    <color name="app_background">@color/basic_blue</color>
-    <color name="app_text_primary">#2b2b2b</color>
     <color name="app_text_secondary_dark">#4d4d4d</color>
-    <color name="app_text_secondary">#767676</color>
-    <color name="app_text_disabled">#ffb5b5b5</color>
     <color name="action_bar_background">@color/basic_blue</color>
     <color name="body_background_white">@color/basic_white</color>
     <color name="body_background_gray">@color/basic_gray</color>
     <color name="body_background_gray_light">@color/basic_gray_lighter</color>
-    <color name="app_rich_notification_background">#ffffe16a</color>
+
+    <!-- GENERAL APP COLORS -->
+    <!-- Background Colors -->
+    <color name="app_background_white">@color/basic_white</color>
+    <color name="app_background">@color/basic_blue</color>
+    <color name="app_background_dark">@color/basic_blue_dark</color>
+    <color name="app_background_dark_highlight">@color/basic_blue_dark_highlight</color>
+    <color name="app_background_body_light">@color/basic_gray_light</color>
+    <color name="app_background_body_dark">@color/basic_gray_medium</color>
+    <color name="app_toolbar_background">@color/basic_blue</color>
+    <color name="app_toolbar_background_bottom">@color/basic_blue_dark_highlight</color>
+    <color name="app_selection_background">@color/basic_gray_light</color>
+    <color name="app_rich_notification_background">@color/basic_yellow</color>
+    <color name="app_browse_thumbnail_background">@color/basic_gray_medium</color>
+    <color name="app_grid_selected_background">@color/basic_blue_transparent</color>
 
     <!-- Other colors (old) -->
     <color name="frostwire_light_blue">#ff7adafa</color>
@@ -91,8 +111,20 @@
 
     <!-- A dark Holo shade of orange -->
 
+    <!-- Text Colors -->
+    <color name="app_text_primary">@color/basic_gray_text_dark</color>
+    <color name="app_text_secondary">@color/basic_gray_text_medium</color>
+    <color name="app_text_disabled">@color/basic_gray_text_light</color>
+    <color name="app_text_white">@color/basic_white</color>
+    <color name="app_text_light">@color/basic_gray_text_light</color>
+    <color name="app_text_highlight">@color/basic_blue_highlight_dark</color>
+    <color name="app_text_wizard">#abb3bc</color>
+    <color name="app_text_wizard_dark">#ff6f7d88</color>
+
     <!-- Other colors (old) -->
     <color name="frostwire_orange">#ffe9a54c</color>
     <color name="frostwire_gray_explanation_text">#abb3bc</color>
     <color name="frostwire_gray_explanation_text_dark">#ff6f7d88</color>
+    <!-- The action bar title color -->
+    <color name="action_bar_title">@color/white</color>
 </resources>

@@ -14,9 +14,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import org.dkf.jed2k.Utils;
 import org.dkf.jed2k.alert.*;
-import org.dkf.jed2k.android.AlertListener;
-import org.dkf.jed2k.android.ConfigurationManager;
-import org.dkf.jed2k.android.Constants;
+import org.dkf.jmule.AlertListener;
+import org.dkf.jmule.ConfigurationManager;
+import org.dkf.jmule.Constants;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
@@ -279,16 +279,12 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
 
     }
 
-
     @Override
     public View getHeader(Activity activity) {
         LayoutInflater inflater = LayoutInflater.from(activity);
-
         View header = inflater.inflate(R.layout.view_servers_header, null);
-
         TextView text = (TextView) header.findViewById(R.id.view_servers_header_text_title);
         text.setText(R.string.servers);
-
         ImageButton buttonMenu = (ImageButton) header.findViewById(R.id.view_servers_header_more_parameters);
         buttonMenu.setOnClickListener(buttonServersParametersListener);
         return header;

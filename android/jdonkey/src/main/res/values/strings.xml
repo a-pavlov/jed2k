@@ -49,16 +49,7 @@
     <string name="download_added_to_queue">1 file will start downloading</string>
     <string name="open_menu_action">Open %s</string>
     <string name="search_more_action">Search more</string>
-    <string name="search_block_action">Block search result</string>
-
     <string name="remove_torrent_and_data">Remove transfer</string>
-    <string name="media_type_all_types">All Types</string>
-    <string name="media_type_documents">Books/Docs</string>
-    <string name="media_type_applications">Applications</string>
-    <string name="media_type_audio">Audio</string>
-    <string name="media_type_video">Video</string>
-    <string name="media_type_images">Images</string>
-    <string name="media_type_torrents">Torrents</string>
     <string name="search">Search</string>
     <string name="transfers">Transfers</string>
     <string name="dummy_title" translatable="false">[Title]</string>
@@ -78,12 +69,10 @@
     <string name="transfers_max_downloads">Max Downloads</string>
     <string name="transfers_max_total_connections_summary">Max Total Connections</string>
     <string name="transfers_max_total_connections">Max Total Connections</string>
-
+    <string name="search_block_action">Block search result</string>
     <string name="dummy_summary" translatable="false">[Summary]</string>
     <string name="dummy_engine" translatable="false">[Engine]</string>
     <string name="complete_sources">Complete %1$d</string>
-    <string name="dummy_downloads_indicator" translatable="false">0 @ 0 KB/s</string>
-    <string name="dummy_uploads_indicator" translatable="false">0 @ 0 KB/s</string>
     <string name="show_transfers_on_download_start">Show Transfers On Download Start</string>
     <string name="dialog_new_transfer_text_text">Are you sure you want to download %1$s (%2$s)</string>
     <string name="dialog_new_transfer_check_text">Show this next time</string>
@@ -260,4 +249,22 @@
     <string name="mule_start_engine_service_security_exception">Mule could not start properly due to lack of permissions. Please grant the required permissions and restart the application</string>
     <string name="search_fragment_safe_mode_title">Search Safe Mode</string>
     <string name="search_fragment_safe_mode_descr">Safe Mode for search activated. Search results can be filtered. Please check Other settings for more details</string>
+    <string name="INTENT_OPEN" translatable="false">org.dkf.jmule.INTENT_OPEN</string>
+    <string name="INTENT_CLOSE" translatable="false">org.dkf.jmule.INTENT_CLOSE</string>
+    <string name="media_type_all_types">All Types</string>
+    <string name="media_type_documents">Books/Docs</string>
+    <string name="media_type_applications">Applications</string>
+    <string name="media_type_audio">Audio</string>
+    <string name="media_type_video">Video</string>
+    <string name="media_type_images">Images</string>
+    <string name="media_type_torrents">Torrents</string>
+    <string name="media_type_archives">Archives</string>
+    <string name="media_type_cd_images">CD Images</string>
+    <string name="transfer_finished">Download completed</string>
+    <string name="transfer_io_error">I/O error</string>
+    <string name="jed2k_is_running">ED2K service is running</string>
+    <string name="dummy_downloads_indicator" translatable="false">0 @ 0 KB/s</string>
+    <string name="dummy_uploads_indicator" translatable="false">0 @ 0 KB/s</string>
+    <string name="build">build</string>
+    <string name="comma">,</string>
 </resources>
