@@ -82,16 +82,15 @@ Main goal - native application for Android platform. Lighter, faster, more user 
 * Completed KAD support including firewalled usage and buddy system.
 * Support publishing in KAD and responses to search requests
 
-## Building Maven/Gradle
-Few dependencies in pom.xml - Mockito for unit tests and slf4j logging facade.
+## Building Gradle
+Maven build was removed. Gradle is only supported build system.
 
-1. clone project
-2. cd jed2k && mvn package
+1. cd jed2k
+2. open multi module Gradle project - settings.gradle
 
-If you prefer Gradle - use gradle build on second step.
 
 ## Testing
-You can use simple console downloader class org.jed2k.Conn. Before usage you have to set incoming directory as first parameter.
+You can use simple console downloader module "console". Before usage you have to set incoming directory as first parameter.
 Do not use double quotes in commands below - there are for mark parameters.
 Some commands(much more available - see in code):
 
