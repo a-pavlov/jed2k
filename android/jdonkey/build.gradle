@@ -73,8 +73,6 @@ android {
         versionName project.ext.versionName
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 23
-        versionName "2.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
