@@ -6,24 +6,25 @@ Application for Android platform to work in ED2K(eDonkey2000) networks. Based on
 In GUI part used source code and design from [FrostWire](https://github.com/frostwire/frostwire) project for Android.
 
 ## Links
-
-* [Google Play](https://play.google.com/store/apps/details?id=org.dkf.jmule&hl=en)
-* [Amazon](https://www.amazon.com/DKF-software-Mule-on-Android/dp/B01LYN526Q/ref=sr_1_1?s=mobile-apps&ie=UTF8&qid=1475048708&sr=1-1)
-* [Direct apk](https://drive.google.com/file/d/0B39-MtFuW1DTbW5LUk1IR3lsTGM/view?usp=sharing&resourcekey=0-qREpSkLnU3icongW9F5N7w)
+* [Google Play](https://play.google.com/store/apps/details?id=org.dkf.jmule&hl=en) Obsolete
+* [Amazon](https://www.amazon.com/DKF-software-Mule-on-Android/dp/B01LYN526Q/ref=sr_1_1?s=mobile-apps&ie=UTF8&qid=1475048708&sr=1-1) Obsolete
+* [Direct apk Release ver 30](https://github.com/a-pavlov/jed2k/releases/download/3.0/jdonkey-release.apk)
 
 ## Implemented Features
 
 * Searching files on servers and using Kademlia by keywords
-* Searching sources for file using KAD and servers
+* Searching sources for file using KAD(DHT) and servers
 * Downloading files
 * Internationalization
 
-## Features in plans
+## Version 3.0(30) release
+The Android SDK total update and fix some common issued implemented in latests version 30 release.
 
-* Completed KAD support including firewalled checking and buddy system
-* Playing file during downloading
+Screen             |  Screen           |  Screen
+:-------------------------:|:-------------------------: |:-------------------------:
+[![S1](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/V2_Screenshot_1643647316.png)](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/V2_Screenshot_1643647316.png) | [![S1](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/V2_Screenshot_1643647325.png)](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/V2_Screenshot_1643647325.png) | [![S1](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/V2_Screenshot_1643647372.png)](https://raw.githubusercontent.com/a-pavlov/jed2k/master/android/docs/V2_Screenshot_1643647372.png)
 
-## Screenshots
+## Screenshots(obsolete)
 
 Transfers             |  Search           |  Servers
 :-------------------------:|:-------------------------: |:-------------------------:
