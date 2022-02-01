@@ -21,6 +21,10 @@
 <resources>
     <dimen name="mainmenu_width">250dp</dimen>
 
+    <dimen name="title_text">20sp</dimen>
+    <dimen name="subtitle_text">16sp</dimen>
+    <dimen name="body_text">14sp</dimen>
+
     <!-- Donations View -->
 
     <!-- Promotions -->

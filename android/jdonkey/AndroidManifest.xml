@@ -81,8 +81,11 @@
                   android:label="@string/activity_preferences_name"
                   android:theme="@style/Preferences"/>
 
-        <activity android:name="org.dkf.jmule.activities.WizardActivity"
-                  android:label="@string/app_name" android:screenOrientation="portrait"/>
+        <activity
+            android:name="org.dkf.jmule.activities.WizardActivity"
+            android:label="@string/app_name"
+            android:theme="@style/WizardActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

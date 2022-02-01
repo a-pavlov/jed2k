@@ -398,33 +398,73 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
-
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
 
+    <!-- Scrollview Style -->
+    <style name="scrollbar_default_style" parent="Theme.FrostWire">
+        <item name="android:overScrollHeader">@null</item>
+        <item name="android:overScrollFooter">@null</item>
+        <item name="android:fadeScrollbars">true</item>
+        <item name="android:scrollbarFadeDuration">0</item>
+        <item name="android:scrollbarDefaultDelayBeforeFade">0</item>
+    </style>
+
+
     <!-- Wizard Activity -->
+
+    <style name="WizardActivity" parent="Theme.FrostWire">
+        <item name="android:textColorSecondary">@color/app_text_wizard</item>
+        <item name="android:windowBackground">@color/app_background</item>
+    </style>
+
     <style name="WizardTitle">
-        <item name="android:textSize">@dimen/text_size_x_large</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingBottom">3dp</item>
+        <item name="android:paddingTop">15dp</item>
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/title_text</item>
     </style>
-    <style name="WizardText">
-        <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:textColor">@color/frostwire_gray_explanation_text</item>
-    </style>
+
     <style name="WizardSubTitle">
-        <item name="android:textSize">@dimen/text_size_medium</item>
-        <item name="android:fontFamily">sans-serif-regular</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/subtitle_text</item>
+        <item name="android:textStyle">normal</item>
     </style>
-    <style name="WizardButton">
-        <item name="android:background">@drawable/wizard_button_selector</item>
+
+    <style name="WizardText">
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/body_text</item>
+    </style>
+
+    <style name="WizardText.Header">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="WizardText.Sub">
+        <item name="android:textColor">@color/app_text_wizard</item>
+    </style>
+
+    <style name="WizardText.Terms">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+    </style>
+
+    <style name="WizardDivider">
+        <item name="android:background">@color/basic_blue_dark</item>
+        <item name="android:height">1dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+    </style>
+    <style name="WizardDivider.Bottom">
+        <item name="android:height">1dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
     </style>
 
     <style name="ToolbarNavigationButtonStyle" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
@@ -441,5 +481,51 @@
         <item name="contentInsetStartWithNavigation">0dp</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
+    </style>
+
+    <!-- Notification bar event text -->
+    <style name="NotificationText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:color">#ffffff</item>
+    </style>
+
+    <!-- Notification bar actions -->
+    <style name="NotificationAction">
+        <item name="android:layout_width">@dimen/notification_action_width</item>
+        <item name="android:layout_height">@dimen/notification_action_height</item>
+        <item name="android:gravity">center|right</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:padding">@dimen/notification_action_padding</item>
+        <item name="android:background">?android:selectableItemBackground</item>
+    </style>
+
+    <style name="NotificationAction.Previous" parent="@style/NotificationAction">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="NotificationAction.Play" parent="@style/NotificationAction">
+    </style>
+
+    <style name="NotificationAction.Next" parent="@style/NotificationAction">
+    </style>
+
+    <style name="NotificationAction.Collapse" parent="@style/NotificationAction">
+    </style>
+
+    <style name="TransfersNotificationTitle">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="TransfersNotificationSub">
+        <item name="android:textColor">@color/app_dark_grey_text</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
     </style>
  </resources>

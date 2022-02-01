@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 /*
  * Created by Angel Leon (@gubatron), Alden Torres (aldenml)
  * Copyright (c) 2011-2013, FrostWire(R). All rights reserved.
@@ -18,59 +17,67 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/view_intent_wizard_page_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="10dp"
-        android:text="@string/usage_notes_title"
-        style="@style/WizardSubTitle" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
 
-    <TextView android:id="@+id/view_intent_wizard_page_text_tos"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/usage_notes_summary"
-              android:clickable="true"
-              style="@style/WizardText"
-              android:layout_marginLeft="5dp" />
+        <TextView
+            android:id="@+id/view_intent_wizard_page_text"
+            style="@style/WizardSubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/usage_notes_title" />
 
-    <TextView
+        <TextView
+            android:id="@+id/view_intent_wizard_page_text_tos"
+            style="@style/WizardText.Sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:clickable="true"
+            android:text="@string/usage_notes_summary" />
+
+        <TextView
             android:id="@+id/view_intent_wizard_page_text2"
+            style="@style/WizardSubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:layout_marginBottom="10dp"
-            android:text="@string/usage_suggestions_title"
-            style="@style/WizardSubTitle" />
+            android:text="@string/usage_suggestions_title" />
 
-    <TextView android:id="@+id/view_intent_wizard_page_text_tos2"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/usage_suggestions_summary"
-              android:clickable="true"
-              style="@style/WizardText"
-              android:layout_marginLeft="5dp" />
+        <TextView
+            android:id="@+id/view_intent_wizard_page_text_tos2"
+            style="@style/WizardText.Sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:clickable="true"
+            android:text="@string/usage_suggestions_summary" />
 
-    <TextView
+        <TextView
             android:id="@+id/view_intent_wizard_page_text3"
+            style="@style/WizardSubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:layout_marginBottom="10dp"
-            android:text="@string/usage_proposals_title"
-            style="@style/WizardSubTitle" />
+            android:text="@string/usage_proposals_title" />
 
-    <TextView android:id="@+id/view_intent_wizard_page_text_tos3"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/usage_proposals_summary"
-              android:clickable="true"
-              style="@style/WizardText"
-              android:layout_marginLeft="5dp" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/view_intent_wizard_page_text_tos3"
+            style="@style/WizardText.Sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:clickable="true"
+            android:text="@string/usage_proposals_summary" />
+    </LinearLayout>
+</ScrollView>

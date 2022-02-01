@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -52,7 +55,7 @@
 
     <TextView
         android:id="@+id/view_general_wizard_page_storage_path_textview"
-        style="@style/WizardText"
+        style="@style/WizardText.Sub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
@@ -79,7 +82,7 @@
         android:text="@string/upnp" />
 
     <TextView
-        style="@style/WizardText"
+        style="@style/WizardText.Sub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -95,7 +98,7 @@
             android:text="@string/wizard_dht" />
 
     <TextView
-            style="@style/WizardText"
+            style="@style/WizardText.Sub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
@@ -111,7 +114,7 @@
             android:text="@string/wizard_safe_mode" />
 
     <TextView
-            style="@style/WizardText"
+            style="@style/WizardText.Sub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
@@ -119,3 +122,4 @@
             android:text="@string/wizard_safe_mode_summary" />
 
 </LinearLayout>
+</ScrollView>

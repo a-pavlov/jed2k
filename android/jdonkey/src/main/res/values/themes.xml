@@ -2,7 +2,8 @@
 <!--
 /*
  * Created by Angel Leon (@gubatron), Alden Torres (aldenml)
- * Copyright (c) 2011-2014, FrostWire(R). All rights reserved.
+ * Marcelina Knitter (@marcelinkaaa)
+ * Copyright (c) 2011-2017, FrostWire(R). All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,11 +55,6 @@
         <item name="colorPrimaryDark">@color/basic_blue_highlight_dark</item>
     </style>
 
-    <style name="Button" parent="ThemeOverlay.AppCompat.Dark">
-        <item name="colorButtonNormal">@color/basic_gray_dark</item>
-        <item name="colorAccent">@color/basic_gray_medium</item>
-    </style>
-
     <style name="PreferenceThemeOverlay" parent="PreferenceThemeOverlay.v14.Material">
         <item name="preferenceCategoryStyle">@style/Preference.Category.Material</item>
     </style>
@@ -69,4 +65,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="Button" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="colorButtonNormal">@color/basic_gray_dark</item>
+        <item name="colorAccent">@color/basic_gray_medium</item>
+    </style>
 </resources>
