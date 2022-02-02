@@ -129,6 +129,7 @@
     <string name="server_remove_action">Удалить %1$s</string>
     <string name="servers">Серверы</string>
     <string name="servers_settings">Настройки серверов</string>
+    <string name="server_renew">Обновить лист серверов</string>
     <string name="service_stopped">ED2K сервис остановлен</string>
     <string name="sever_menu_title">Операции с серверами</string>
     <string name="show_server_messages">Сообщения</string>

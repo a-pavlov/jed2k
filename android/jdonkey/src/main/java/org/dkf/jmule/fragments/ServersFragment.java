@@ -1,13 +1,18 @@
 package org.dkf.jmule.fragments;
 
+import static android.content.Intent.ACTION_VIEW;
+
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -20,6 +25,8 @@ import org.dkf.jmule.Constants;
 import org.dkf.jed2k.protocol.server.ServerMet;
 import org.dkf.jmule.Engine;
 import org.dkf.jmule.R;
+import org.dkf.jmule.activities.MainActivity;
+import org.dkf.jmule.activities.SettingsActivity;
 import org.dkf.jmule.adapters.menu.ServerConnectAction;
 import org.dkf.jmule.adapters.menu.ServerDisconnectAction;
 import org.dkf.jmule.adapters.menu.ServerRemoveAction;
@@ -44,6 +51,7 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
     private RichNotification serviceStopped;
     ButtonServersParametersListener buttonServersParametersListener;
+    private Button buttonServersRenew;
 
     public ServersFragment() {
         super(R.layout.fragment_servers);
@@ -88,6 +96,16 @@ public class ServersFragment extends AbstractFragment implements MainFragment, A
         serverAddView.setVisibility(View.GONE);
         serverAddView.setOnClickListener(this);
         serviceStopped = (RichNotification)findView(rootView, R.id.fragment_servers_service_stopped_notification);
+        buttonServersRenew = (Button) findView(rootView, R.id.fragment_servers_renew_list);
+        buttonServersRenew.setOnClickListener(v -> renewServersList());
+    }
+
+    private void renewServersList() {
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.setAction(ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setData(Uri.parse(Constants.ED2K_SERVERS_LIST_URL));
+        getActivity().startActivity(intent);
     }
 
     @Override

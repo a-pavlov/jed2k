@@ -127,6 +127,7 @@ public class ServerMet implements Serializable {
         }
         if (header != MET_HEADER && header != MET_HEADER_WITH_LARGEFILES) {
             log.warn("server met file header is incorrect: {}", (int)header);
+            header = MET_HEADER;
         }
 
         return servers.get(src);

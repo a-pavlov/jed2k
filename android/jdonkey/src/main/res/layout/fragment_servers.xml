@@ -24,6 +24,11 @@
         android:visibility="gone"
         />
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:orientation="horizontal">
     <ListView
         android:id="@+id/servers_list"
         android:layout_width="match_parent"
@@ -31,5 +36,21 @@
         android:fastScrollEnabled="false">
 
     </ListView>
+    </LinearLayout>>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/fragment_servers_renew_list"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_weight="0.5"
+            android:text="@string/server_renew"
+            style="@style/Button"
+            android:layout_margin="5dp" />
+    </LinearLayout>
 
 </LinearLayout>

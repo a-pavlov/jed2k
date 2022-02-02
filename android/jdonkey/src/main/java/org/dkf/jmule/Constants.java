@@ -165,5 +165,6 @@ public final class Constants {
     public static final String SUPPORT_URL = "https://github/a-pavlov/jed2k";
     public static boolean IS_BASIC_AND_DEBUG = false;
     public static String JED2K_GIVE_URL = "https://github/a-pavlov/jed2k";
+    public static String ED2K_SERVERS_LIST_URL = "ed2k://|serverlist|http://upd.emule-security.org/server.met|/";
     public static final String ASKED_FOR_ACCESS_COARSE_LOCATION_PERMISSIONS = "org.dkf.jmule.asked_for_access_coarse_location_permissions";
 }

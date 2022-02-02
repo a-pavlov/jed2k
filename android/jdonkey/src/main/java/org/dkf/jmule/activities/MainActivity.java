@@ -820,6 +820,7 @@ public class MainActivity extends AbstractActivity implements
             ConfigurationManager.instance().setSerializable(Constants.PREF_KEY_SERVERS_LIST, lastLoadedServers);
             servers.setupAdapter();
             controller.showServers();
+            lastLoadedServers = null;
         }
     }
 

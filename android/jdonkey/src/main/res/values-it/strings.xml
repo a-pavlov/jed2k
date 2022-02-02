@@ -195,6 +195,7 @@
     <string name="server_add_host">Host</string>
     <string name="server_add_port">Porta</string>
     <string name="server_add_descr">Descrizione</string>
+    <string name="server_renew">Rinnova elenco server</string>
 
     <string name="welcome_to_mule">Benvenuti in Mule su Android</string>
     <string name="storage_path">Percorso di archiviazione</string>
