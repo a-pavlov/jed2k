@@ -275,8 +275,11 @@ public abstract class Connection implements Dispatcher {
         try {
             socket.connect(address);
         } catch(IOException e) {
-           log.error("[connection connect] {} connect error {}", getEndpoint(), e);
+           log.error("[connection connect] {} connect I/O error {}", getEndpoint(), e);
            close(ErrorCode.IO_EXCEPTION);
+        } catch(Exception e) {
+            log.error("[connection connect] {} connect error {}", getEndpoint(), e);
+            close(ErrorCode.INTERNAL_ERROR);
         }
     }
 
