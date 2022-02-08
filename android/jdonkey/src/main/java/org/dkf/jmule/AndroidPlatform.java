@@ -166,15 +166,14 @@ public final class AndroidPlatform {
     private static FileSystem buildFileSystem(Context app) {
         FileSystem fs;
 
-        if (Build.VERSION.SDK_INT >= VERSION_CODE_LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= VERSION_CODE_LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             LollipopFileSystem lfs = new LollipopFileSystem(app);
-            //LibTorrent.setPosixWrapper(new PosixCalls(lfs));
             fs = lfs;
         } else {
             fs = new DefaultFileSystem() {
                 @Override
                 public void scan(File file) {
-                    //Librarian.instance().scan(file);
+                    // do nothing
                 }
             };
         }
