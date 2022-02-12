@@ -32,6 +32,7 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.server.SharedFileEntry;
 import org.dkf.jmule.Engine;
+import org.dkf.jmule.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,7 @@ public final class TransferManager {
     }
 
     public Transfer download(final Hash hash, long size, final String fileName) throws JED2KException {
-        return Engine.instance().startDownload(hash, size, new File(ConfigurationManager.instance().getStoragePath(), fileName));
+        return Engine.instance().startDownload(hash, size, new File(Platforms.data(), fileName));
         /*
         os = null;
         FileChannel channel = null;

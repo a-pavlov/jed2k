@@ -56,7 +56,7 @@ import java.util.List;
  */
 public class StoragePreference extends DialogPreference {
 
-    private final Logger log = LoggerFactory.getLogger(StoragePreference.class);
+    private static final Logger log = LoggerFactory.getLogger(StoragePreference.class);
     private AlertDialog confirmDlg;
     private String selectedPath;
 

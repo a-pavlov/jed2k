@@ -376,7 +376,7 @@ public final class Engine implements AlertListener {
         try {
             return new ED2KTransfer(service.addTransfer(link.getHash()
                     , link.getNumberValue()
-                    , new File(ConfigurationManager.instance().getStoragePath(), link.getStringValue())));
+                    , new File(Platforms.data(), link.getStringValue())));
         } catch(JED2KException e) {
             log.error("download link error {}", e);
         } catch(Exception e) {
@@ -393,7 +393,7 @@ public final class Engine implements AlertListener {
                 if (link.getType().equals(EMuleLink.LinkType.FILE)) {
                     return new ED2KTransfer(service.addTransfer(link.getHash()
                             , link.getNumberValue()
-                            , new File(ConfigurationManager.instance().getStoragePath(), link.getStringValue())));
+                            , new File(Platforms.data(), link.getStringValue())));
                 } else {
                     // message to userv link is incorrect type
                 }

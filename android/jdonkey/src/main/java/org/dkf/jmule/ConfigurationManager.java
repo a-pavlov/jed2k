@@ -77,6 +77,13 @@ public class ConfigurationManager {
         return preferences.getString(key, "");
     }
 
+    public String getString(String key, String defValue) {
+        if (preferences == null) {
+            throw new IllegalStateException("getString(key=" + key + ") failed, preferences:SharedPreferences is null");
+        }
+        return preferences.getString(key, defValue);
+    }
+
     public void setString(String key, String value) {
         editor.putString(key, value);
         editor.commit();

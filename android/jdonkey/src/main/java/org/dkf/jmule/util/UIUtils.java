@@ -273,8 +273,11 @@ public final class UIUtils {
     public static void openFile(Context context, String filePath, String mime, boolean useFileProvider) {
         try {
             if (filePath != null) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setDataAndType(getFileUri(context, filePath, useFileProvider), Intent.normalizeMimeType(mime));
+                Intent i = new Intent(Constants.MIME_TYPE_ANDROID_PACKAGE_ARCHIVE.equals(mime) ?
+                        Intent.ACTION_INSTALL_PACKAGE : Intent.ACTION_VIEW);
+                Uri fileUri = getFileUri(context, filePath, useFileProvider);
+                LOG.info("openFile(...) -> fileUri=" + fileUri.toString(), true);
+                i.setDataAndType(fileUri, Intent.normalizeMimeType(mime));
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 context.startActivity(i);
             }
