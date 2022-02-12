@@ -18,8 +18,6 @@
 
 package org.dkf.jmule;
 
-import android.content.Context;
-
 import java.io.File;
 
 /**
@@ -65,34 +63,7 @@ public final class Platforms {
         return get().appSettings();
     }
 
-    /**
-     * Shortcut to current platform file system data method.
-     *
-     * @return
-     */
-    //public static File data(Context ctx) {
-    //    return get().systemPaths().data(ctx);
-    //}
-
     public static File data() {
         return get().systemPaths().data();
     }
-
-    /**
-     * Shortcut to current platform file system torrents method.
-     *
-     * @return
-     */
-    //public static File metadata(Context ctx) {
-    //    return get().systemPaths().metadata(ctx);
-    //}
-
-    /**
-     * Shortcut to current platform file system temp method.
-     *
-     * @return
-     */
-    //public static File temp() {
-    //    return get().systemPaths().temp();
-    //}
 }

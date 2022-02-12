@@ -388,13 +388,7 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
        if (requestCode == StoragePicker.SELECT_FOLDER_REQUEST_CODE) {
             StoragePreference.onDocumentTreeActivityResult(this, requestCode, resultCode, data);
-        }/* else if (requestCode == BuyActivity.PURCHASE_SUCCESSFUL_RESULT_CODE &&
-                data != null &&
-                data.hasExtra(BuyActivity.EXTRA_KEY_PURCHASE_TIMESTAMP)) {
-            // We (onActivityResult) are invoked before onResume()
-            removeAdsPurchaseTime = data.getLongExtra(BuyActivity.EXTRA_KEY_PURCHASE_TIMESTAMP, 0);
-            LOG.info("onActivityResult: User just purchased something. removeAdsPurchaseTime="+removeAdsPurchaseTime);
-        }*/
+        }
         else {
             super.onActivityResult(requestCode, resultCode, data);
         }

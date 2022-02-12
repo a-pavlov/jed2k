@@ -824,35 +824,6 @@ public class MainActivity extends AbstractActivity implements
         }
     }
 
-    // TODO: refactor and move this method for a common place when needed
-    /*private static String saveViewContent(Context context, Uri uri, String name) {
-        InputStream inStream = null;
-        OutputStream outStream = null;
-        if (!Platforms.temp().exists()) {
-            Platforms.temp().mkdirs();
-        }
-        File target = new File(Platforms.temp(), name);
-        try {
-            inStream = context.getContentResolver().openInputStream(uri);
-            outStream = new FileOutputStream(target);
-
-            byte[] buffer = new byte[16384]; // MAGIC_NUMBER
-            int bytesRead;
-            while ((bytesRead = inStream.read(buffer)) != -1) {
-                outStream.write(buffer, 0, bytesRead);
-            }
-
-        } catch (Exception e) {
-            log.error("Error when copying file from " + uri + " to temp/" + name, e);
-            return null;
-        } finally {
-            IOUtils.closeQuietly(inStream);
-            IOUtils.closeQuietly(outStream);
-        }
-
-        return "file://" + target.getAbsolutePath();
-    }*/
-
     public Fragment getFragmentByNavMenuId(int id) {
         if (id == R.id.menu_main_search) {
             return search;
