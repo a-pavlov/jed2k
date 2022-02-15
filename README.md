@@ -6,9 +6,10 @@ Application for Android platform to work in ED2K(eDonkey2000) networks. Based on
 In GUI part used source code and design from [FrostWire](https://github.com/frostwire/frostwire) project for Android.
 
 ## Links
-* [Google Play](https://play.google.com/store/apps/details?id=org.dkf.jmule&hl=en) Obsolete
+* [Google Play](https://play.google.com/store/apps/details?id=org.dkf.jmule&hl=en)
 * [Amazon](https://www.amazon.com/DKF-software-Mule-on-Android/dp/B01LYN526Q/ref=sr_1_1?s=mobile-apps&ie=UTF8&qid=1475048708&sr=1-1) Obsolete
 * [Direct apk Release ver 30](https://github.com/a-pavlov/jed2k/releases/download/3.0/jdonkey-release.apk)
+* [Direct apk Release ver 20 latest Google Play version before 30](https://github.com/a-pavlov/jed2k/releases/download/2.0_res/jdonkey-release-restore.apk)
 
 ## Implemented Features
 
