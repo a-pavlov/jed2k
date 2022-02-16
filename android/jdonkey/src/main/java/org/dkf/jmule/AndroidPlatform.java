@@ -20,6 +20,7 @@ package org.dkf.jmule;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Looper;
 
 import org.dkf.jmule.util.SystemUtils;
 import org.slf4j.Logger;
@@ -173,11 +174,15 @@ public final class AndroidPlatform {
             fs = new DefaultFileSystem() {
                 @Override
                 public void scan(File file) {
-                    // do nothing
+                    Librarian.instance().scan(app, file);
                 }
             };
         }
 
         return fs;
+    }
+
+    public boolean isUIThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
     }
 }
