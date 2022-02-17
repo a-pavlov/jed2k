@@ -77,6 +77,7 @@ public final class Constants {
     public static final String PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG = "jmule.prefs.gui.show_new_transfer_dialog";
     public static final String PREF_KEY_GUI_SAFE_MODE = "jmule.prefs.gui.safe_mode";
     public static final String PREF_KEY_GUI_ALERTED_SAFE_MODE = "jmule.prefs.gui.alerted.safe_mode";
+    public static final String PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS = "jmule.prefs.gui.share_media_downloads";
 
     // ed2k common and servers
     public static final String PREF_KEY_USER_AGENT = "jmule.prefs.user_agent";

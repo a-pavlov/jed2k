@@ -146,6 +146,12 @@
                 android:summary="@string/safe_mode_summary"
                 android:enabled="true" />
 
+        <CheckBoxPreference
+            android:key="jmule.prefs.gui.share_media_downloads"
+            android:title="@string/share_media_downloads"
+            android:summary="@string/share_media_downloads_summary"
+            android:enabled="true" />
+
     </PreferenceScreen>
 
     <PreferenceCategory android:key="jmule.prefs.dht">

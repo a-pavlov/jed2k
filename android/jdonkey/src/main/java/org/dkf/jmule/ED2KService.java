@@ -691,6 +691,14 @@ public class ED2KService extends JobIntentService {
                         createTransferNotification(getResources().getString(R.string.transfer_finished), EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION, ((TransferFinishedAlert) a).hash);
                     }
                 });
+
+                if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS)) {
+                    log.info("[ED2K service] publish completed transfer");
+                    TransferHandle handle = session.findTransfer(((TransferFinishedAlert) a).hash);
+                    if (handle.isValid()) {
+                        Platforms.fileSystem().scan(handle.getFile());
+                    }
+                }
             } else if (a instanceof TransferDiskIOErrorAlert) {
                 TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert) a;
                 log.error("[ED2K service] disk i/o error: {}", errorAlert.ec);

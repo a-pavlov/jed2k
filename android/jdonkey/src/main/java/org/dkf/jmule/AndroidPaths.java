@@ -114,22 +114,23 @@ public final class AndroidPaths {
         String fileTypeSubfolder = AndroidPaths.getFileTypeExternalRelativeFolderName(fileType);
 
         // "Music/FrostWire"
-        String mediaStoreFolderPrefix = fileTypeSubfolder + "/FrostWire";
+        String mediaStoreFolderPrefix = fileTypeSubfolder + "/JED2K";
         mediaStoreFolderPrefix = mediaStoreFolderPrefix.replace("//","/");
+        return mediaStoreFolderPrefix;
 
-        String fullOriginalFilePath = f.getAbsolutePath();
+        //String fullOriginalFilePath = f.getAbsolutePath();
 
         // BTEngine.ctx.dataDir -> /storage/emulated/0/Android/data/com.frostwire.android/files/FrostWire/TorrentData
         // Let's remove this from the fullOriginalFilePath and we should now have only either the file name by itself
         // or the torrent folders and sub-folders containing it
-        String removedDataPathFromFilePath = fullOriginalFilePath.replace(Platforms.data().getAbsolutePath() + "/", "");
+        //String removedDataPathFromFilePath = fullOriginalFilePath.replace(Platforms.data().getAbsolutePath() + "/", "");
 
         // Single file download, not contained by folders or sub-folders
-        if (removedDataPathFromFilePath.equals(f.getName())) {
-            return mediaStoreFolderPrefix;
-        }
+        //if (removedDataPathFromFilePath.equals(f.getName())) {
+        //    return mediaStoreFolderPrefix;
+        //}
 
-        String fileFoldersWithoutDataPath = removedDataPathFromFilePath.replace(f.getName(), "");
-        return (mediaStoreFolderPrefix + "/" + fileFoldersWithoutDataPath).replace("//","/");
+        //String fileFoldersWithoutDataPath = removedDataPathFromFilePath.replace(f.getName(), "");
+        //return (mediaStoreFolderPrefix + "/" + fileFoldersWithoutDataPath).replace("//","/");
     }
 }

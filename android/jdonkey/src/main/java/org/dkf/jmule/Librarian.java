@@ -533,6 +533,7 @@ public final class Librarian {
         if (srcFile.isDirectory()) {
             return;
         }
+
         Uri audioUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
         // Add to MediaStore
@@ -567,6 +568,7 @@ public final class Librarian {
         }
 
         values.put(MediaColumns.DISPLAY_NAME, srcFile.getName());
+        values.put(MediaColumns.TITLE, srcFile.getName());
         values.put(MediaColumns.MIME_TYPE, MimeDetector.getMimeType(FilenameUtils.getExtension(srcFile.getName())));
         values.put(MediaColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
         values.put(MediaColumns.DATE_MODIFIED, System.currentTimeMillis() / 1000);
@@ -584,6 +586,9 @@ public final class Librarian {
         } else {
             values.put(MediaColumns.TITLE, srcFile.getName());
         }
+
+        LOG.info("DISPLAY_NAME: {} TITLE {}", values.get(MediaColumns.DISPLAY_NAME), values.get(MediaColumns.TITLE));
+
         Uri insertedUri = resolver.insert(mediaStoreCollectionUri, values);
         if (insertedUri == null) {
             LOG.error("mediaStoreInsert -> could not perform media store insertion");
@@ -601,8 +606,8 @@ public final class Librarian {
         // let's fix our relativePath search to be only from "com.frostwire.android/..."
         String normalizedRelativePath = relativeFolderPath;
 
-        if (normalizedRelativePath.contains("com.frostwire.android")) {
-            normalizedRelativePath = relativeFolderPath.substring(relativeFolderPath.indexOf("com.frostwire.android"));
+        if (normalizedRelativePath.contains("org.dkf.jmule")) {
+            normalizedRelativePath = relativeFolderPath.substring(relativeFolderPath.indexOf("org.dkf.jmule"));
         }
 
         String normalizedDisplayName = displayName;

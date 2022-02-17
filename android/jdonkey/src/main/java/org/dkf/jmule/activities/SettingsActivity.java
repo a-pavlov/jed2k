@@ -120,6 +120,7 @@ public class SettingsActivity extends PreferenceActivity {
         setupOtherOptions();
         setupTransferOptions();
         useWordsFilterCheckbox();
+        shareMediaDownloadsCheckbox();
     }
 
     private void setupTransferOptions() {
@@ -335,6 +336,18 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     Engine.instance().setSafeMode((boolean) newValue);
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void shareMediaDownloadsCheckbox() {
+        final CheckBoxPreference shareMediaDownloads = (CheckBoxPreference) findPreference(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS);
+        if (shareMediaDownloads != null) {
+            shareMediaDownloads.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
                     return true;
                 }
             });

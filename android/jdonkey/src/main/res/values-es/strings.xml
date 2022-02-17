@@ -219,6 +219,8 @@
     <string name="mule_start_engine_service_security_exception">Mule no pudo iniciarse correctamente por falta de permisos. Por favor ceda los permisos necesarios y reinicie la aplicación</string>
     <string name="safe_mode">Modo seguro</string>
     <string name="safe_mode_summary">Al desactivar este cheque, usted acepta recibir todos los resultados de la consulta. De lo contrario, los resultados se filtrarán</string>
+    <string name="share_media_downloads">Publicar descargas de medios</string>
+    <string name="share_media_downloads_summary">Compartir archivos multimedia descargados en la biblioteca multimedia de Android</string>
     <string name="wizard_safe_mode">Modo seguro</string>
     <string name="wizard_safe_mode_summary">Al desactivar este cheque, usted acepta recibir todos los resultados de búsqueda en la solicitud. De lo contrario, los resultados de la búsqueda se filtrarán</string>
     <string name="search_forbidden_title">Buscar denegado</string>
