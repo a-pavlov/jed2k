@@ -734,12 +734,14 @@ public class ED2KService extends JobIntentService {
 
     private void restoreTransfersFromDB() {
         try (ResumeDataDbHelper.ATPIterator itrAtp = dbHelper.iterator()) {
+            List<File> toPublishMedia = new LinkedList<>();
             while (itrAtp.hasNext()) {
                 AddTransferParams atp = itrAtp.next();
                 TransferHandle handle = null;
+                File file = null;
 
                 if (atp != null) {
-                    File file = new File(atp.getFilepath().asString());
+                    file = new File(atp.getFilepath().asString());
                     if (Platforms.get().saf()) {
                         log.info("[ED2k service] restore file {}", file.getName());
                         LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
@@ -764,10 +766,17 @@ public class ED2KService extends JobIntentService {
                     log.info("transfer {} is {}"
                             , handle.isValid() ? handle.getHash().toString() : ""
                             , handle.isValid() ? "valid" : "invalid");
+
+                    if (handle.isValid() && handle.isFinished() && file != null) {
+                        toPublishMedia.add(file);
+                    }
                 }
             }
+            if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS)) {
+                Platforms.fileSystem().scan(toPublishMedia);
+            }
         } catch (Exception e) {
-
+            log.error("restore transfer and publish error {}", e.getMessage());
         }
     }
 

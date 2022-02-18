@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @author gubatron
@@ -175,6 +176,11 @@ public final class AndroidPlatform {
                 @Override
                 public void scan(File file) {
                     Librarian.instance().scan(app, file);
+                }
+
+                @Override
+                public void scan(List<File> files) {
+                    Librarian.instance().scanMulti(app, files);
                 }
             };
         }

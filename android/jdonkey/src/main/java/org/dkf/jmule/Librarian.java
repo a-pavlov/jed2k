@@ -252,6 +252,17 @@ public final class Librarian {
                 new UIUtils.IntentByteExtra(Constants.EXTRA_REFRESH_FILE_TYPE, fileType));
     }
 
+
+    // must not be called from main thread
+    public void scanMulti(final Context context, List<File> files) {
+        for (File file: files) {
+            scan(context, file, Collections.emptySet());
+            if (context != null) {
+                UIUtils.broadcastAction(context, Constants.ACTION_FILE_ADDED_OR_REMOVED);
+            }
+        }
+    }
+
     /**
      * @see org.dkf.jmule.transfers.Transfer finished() calls this when a torrent download ends
      * on both the torrents folder and the data folder.

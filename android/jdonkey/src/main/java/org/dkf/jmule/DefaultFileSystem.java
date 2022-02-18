@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author gubatron
@@ -112,6 +113,11 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     public void scan(File file) {
         LOG.warn("Default filesystem: Scan of file is not implemented");
+    }
+
+    @Override
+    public void scan(List<File> files) {
+        LOG.warn("Default filesystem: Scan of files list is not implemented");
     }
 
     @Override

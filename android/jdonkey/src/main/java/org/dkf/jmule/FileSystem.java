@@ -19,6 +19,7 @@
 package org.dkf.jmule;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @author gubatron
@@ -59,6 +60,8 @@ public interface FileSystem {
      * @param file the file to scan.
      */
     void scan(File file);
+
+    void scan(List<File> files);
 
     void walk(File file, FileFilter filter);
 }
