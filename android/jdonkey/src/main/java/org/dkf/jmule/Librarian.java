@@ -560,6 +560,7 @@ public final class Librarian {
         Uri mediaStoreCollectionUri = Objects.requireNonNull(fetcher).getExternalContentUri();
         String relativeFolderPath = AndroidPaths.getRelativeFolderPath(srcFile);
 
+        //LOG.info("mediaStoreInsert -> rel path {}", relativeFolderPath);
         if (alreadyInMediaStore(context, fetcher, srcFile.getName(), relativeFolderPath)) {
             LOG.info("mediaStoreInsert: alreadyInMediaStore skipping " + srcFile.getAbsolutePath());
             return;
@@ -598,14 +599,12 @@ public final class Librarian {
             values.put(MediaColumns.TITLE, srcFile.getName());
         }
 
-        LOG.info("DISPLAY_NAME: {} TITLE {}", values.get(MediaColumns.DISPLAY_NAME), values.get(MediaColumns.TITLE));
-
         Uri insertedUri = resolver.insert(mediaStoreCollectionUri, values);
         if (insertedUri == null) {
             LOG.error("mediaStoreInsert -> could not perform media store insertion");
             return;
         }
-        LOG.info("mediaStoreInsert -> insertedUri = " + insertedUri);
+
         copyFileBytesToMediaStore(resolver, srcFile, values, insertedUri);
     }
 
@@ -615,11 +614,7 @@ public final class Librarian {
         // but the database may have relative paths stored like:
         // Documents/FrostWire/(invalid)/storage/emulated/0/Android/data/com.frostwire.android/files/FrostWire/Torrents/
         // let's fix our relativePath search to be only from "com.frostwire.android/..."
-        String normalizedRelativePath = relativeFolderPath;
-
-        if (normalizedRelativePath.contains("org.dkf.jmule")) {
-            normalizedRelativePath = relativeFolderPath.substring(relativeFolderPath.indexOf("org.dkf.jmule"));
-        }
+        String normalizedRelativePath = relativeFolderPath; // as is
 
         String normalizedDisplayName = displayName;
         String extension = FilenameUtils.getExtension(displayName);
@@ -652,7 +647,7 @@ public final class Librarian {
             ContentResolver cr = context.getContentResolver();
             Cursor cursor = null;
             try {
-                cursor = cr.query(volumeUri, projection, selection, new String[]{"%" + normalizedDisplayName + "%", "%" + normalizedRelativePath}, null);
+                cursor = cr.query(volumeUri, projection, selection, new String[]{"%" + normalizedDisplayName + "%", "%" + normalizedRelativePath + "%"}, null);
             } catch (Throwable t) {
                 LOG.error("alreadyInMediaStore: " + t.getMessage(), t);
             }
@@ -679,6 +674,7 @@ public final class Librarian {
                 // If the display name without the extension is a prefix of the current row, we have a duplicate
                 // <normalized display name> (N).<ext>
                 String currentDisplayName = cursor.getString(displayNameColIndex);
+
                 if (!currentDisplayName.equals(displayName) && currentDisplayName.startsWith(normalizedDisplayName)) {
                     int idColumnIndex = cursor.getColumnIndex(MediaColumns._ID);
                     long fileId = cursor.getLong(idColumnIndex);
