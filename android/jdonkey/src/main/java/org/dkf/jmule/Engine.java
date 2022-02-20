@@ -18,7 +18,7 @@
 
 package org.dkf.jmule;
 
-import android.app.*;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,11 +33,19 @@ import androidx.core.content.ContextCompat;
 import org.dkf.jed2k.EMuleLink;
 import org.dkf.jed2k.Pair;
 import org.dkf.jed2k.TransferHandle;
-import org.dkf.jed2k.alert.*;
-import org.dkf.jmule.AlertListener;
-import org.dkf.jmule.ConfigurationManager;
-import org.dkf.jmule.Constants;
-import org.dkf.jmule.ED2KService;
+import org.dkf.jed2k.alert.ListenAlert;
+import org.dkf.jed2k.alert.PortMapAlert;
+import org.dkf.jed2k.alert.SearchResultAlert;
+import org.dkf.jed2k.alert.ServerConectionClosed;
+import org.dkf.jed2k.alert.ServerConnectionAlert;
+import org.dkf.jed2k.alert.ServerIdAlert;
+import org.dkf.jed2k.alert.ServerMessageAlert;
+import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.dkf.jed2k.alert.TransferAddedAlert;
+import org.dkf.jed2k.alert.TransferDiskIOErrorAlert;
+import org.dkf.jed2k.alert.TransferPausedAlert;
+import org.dkf.jed2k.alert.TransferRemovedAlert;
+import org.dkf.jed2k.alert.TransferResumedAlert;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.kad.KadId;
@@ -500,5 +508,11 @@ public final class Engine implements AlertListener {
 
     public void setPermanentNotification(boolean v) {
         if (service != null) service.setPermanentNotification(v);
+    }
+
+    public void publishDownloadedFile(boolean value) {
+        if (value) {
+            service.publishDownloadedFilesBkg();
+        }
     }
 }
