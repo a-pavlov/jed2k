@@ -25,6 +25,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.StatFs;
+
+import org.dkf.jmule.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,5 +231,34 @@ public final class SystemUtils {
      */
     public static boolean hasAndroid11OrNewer() {
         return hasSdkOrNewer(30); //Build.VERSION_CODES.R
+    }
+
+    /**
+     * We call it "safe" because if any exceptions are thrown,
+     * they are caught in order to not crash the handler thread.
+     */
+    public static void exceptionSafePost(Handler handler, Runnable r) {
+        if (handler != null) {
+            // We are already in the Handler thread, just go!
+            if (Thread.currentThread() == handler.getLooper().getThread()) {
+                try {
+                    r.run();
+                } catch (Throwable t) {
+                    LOG.error("safePost() " + t.getMessage(), t);
+                }
+            } else {
+                handler.post(() -> {
+                    try {
+                        r.run();
+                    } catch (Throwable t) {
+                        LOG.error("safePost() " + t.getMessage(), t);
+                    }
+                });
+            }
+        }
+    }
+
+    public static boolean isUIThread() {
+        return Platforms.get().isUIThread();
     }
 }

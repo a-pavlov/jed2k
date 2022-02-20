@@ -23,12 +23,15 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Environment;
 
+import org.apache.commons.io.FilenameUtils;
 import org.dkf.jmule.fragments.TransfersFragment;
 import org.dkf.jmule.util.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author gubatron
@@ -38,6 +41,9 @@ import java.io.File;
 public final class AndroidPaths {
     private static final boolean USE_EXTERNAL_STORAGE_DIR_ON_OR_AFTER_ANDROID_10 = true;
     private final Context context;
+
+    private static final Map<Byte, String> fileTypeFolders = new HashMap<>();
+    private static final Object fileTypeFoldersLock = new Object();
 
     public AndroidPaths(Context app) {
         this.context = app;
@@ -55,5 +61,54 @@ public final class AndroidPaths {
          */
         String path = ConfigurationManager.instance().getStoragePath();
         return new File(ConfigurationManager.instance().getStoragePath());
+    }
+
+    public static byte getFileType(String filePath, boolean returnTorrentsAsDocument) {
+        byte result = Constants.FILE_TYPE_UNKNOWN;
+
+        MediaType mt = MediaType.getMediaTypeForExtension(FilenameUtils.getExtension(filePath));
+
+        if (mt != null) {
+            result = (byte) mt.getId();
+        }
+
+        if (returnTorrentsAsDocument && result == Constants.FILE_TYPE_TORRENTS) {
+            result = Constants.FILE_TYPE_DOCUMENTS;
+        }
+
+        return result;
+    }
+
+
+    /**
+     * FILE_TYPE_AUDIO -> "Music"
+     * FILE_TYPE_VIDEOS -> "Movies"
+     * ...
+     * Based on Android's Environment.DIRECTORY_XXX constants
+     * We'll use these for MediaStore relative path prefixes concatenated to "/FrostWire" so the user
+     * can easily find what's been downloaded with FrostWire in external folders.
+     */
+    private static String getFileTypeExternalRelativeFolderName(byte fileType) {
+        synchronized (fileTypeFoldersLock) {
+            // thread safe lazy load check
+            if (fileTypeFolders.size() == 0) {
+                fileTypeFolders.put(Constants.FILE_TYPE_AUDIO, Environment.DIRECTORY_MUSIC);
+                fileTypeFolders.put(Constants.FILE_TYPE_VIDEOS, Environment.DIRECTORY_MOVIES);
+                fileTypeFolders.put(Constants.FILE_TYPE_RINGTONES, Environment.DIRECTORY_RINGTONES);
+                fileTypeFolders.put(Constants.FILE_TYPE_PICTURES, Environment.DIRECTORY_PICTURES);
+                fileTypeFolders.put(Constants.FILE_TYPE_TORRENTS, Environment.DIRECTORY_DOWNLOADS);
+                fileTypeFolders.put(Constants.FILE_TYPE_DOCUMENTS, Environment.DIRECTORY_DOCUMENTS);
+            }
+        }
+        return fileTypeFolders.get(fileType);
+    }
+
+    public static String getRelativeFolderPath(File f) {
+        byte fileType = AndroidPaths.getFileType(f.getAbsolutePath(), true);
+        // "Music","Movies","Pictures","Download"
+        String fileTypeSubfolder = AndroidPaths.getFileTypeExternalRelativeFolderName(fileType);
+        String mediaStoreFolderPrefix = fileTypeSubfolder + "/JED2K";
+        mediaStoreFolderPrefix = mediaStoreFolderPrefix.replace("//","/");
+        return mediaStoreFolderPrefix;
     }
 }

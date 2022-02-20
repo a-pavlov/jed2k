@@ -131,6 +131,8 @@
     <string name="notify_jdonkey_is_running">Notify if Mule on Android is running</string>
     <string name="notify_jdonkey_is_running_summary">Show a permanent Android notification with status of transfers</string>
     <string name="safe_mode">Safe mode</string>
+    <string name="share_media_downloads">Publish downloads</string>
+    <string name="share_media_downloads_summary">Add downloaded media files to Android media library to provide access to files from other applications</string>
     <string name="safe_mode_summary">By disabling this checkbox you agree to see any published materials having been requested. Otherwise search results will be filtered</string>
     <string name="storage_picker_treeuri_null">No storage path was selected</string>
     <string name="storage_picker_treeuri_not_directory">The selected path is not a directory</string>

@@ -203,6 +203,8 @@
     <string name="mule_start_engine_service_security_exception">Mule не может запуститься из-за отсутствия разрешений. Дайте необходимые разрешения и попробуйте снова</string>
     <string name="safe_mode_summary">Выключая этот чек бокс вы соглашаетесь получать все результаты соответствующие запросу. В противном случае результаты будут фильтроваться</string>
     <string name="safe_mode">Безопасный режим</string>
+    <string name="share_media_downloads">Публивать загрузки</string>
+    <string name="share_media_downloads_summary">Публиковать скачанные медиа файлы в медиа библиотеке Android для доступа из других приложений</string>
     <string name="wizard_safe_mode">Безопасный режим</string>
     <string name="wizard_safe_mode_summary">Выключая этот чек бокс вы соглашаетесь получать все результаты поиска соответствующие запросу. В противном случае результаты поиска будут фильтроваться</string>
     <string name="search_forbidden_title">Поиск запрещен</string>

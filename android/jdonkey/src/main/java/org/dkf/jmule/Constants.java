@@ -77,6 +77,7 @@ public final class Constants {
     public static final String PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG = "jmule.prefs.gui.show_new_transfer_dialog";
     public static final String PREF_KEY_GUI_SAFE_MODE = "jmule.prefs.gui.safe_mode";
     public static final String PREF_KEY_GUI_ALERTED_SAFE_MODE = "jmule.prefs.gui.alerted.safe_mode";
+    public static final String PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS = "jmule.prefs.gui.share_media_downloads";
 
     // ed2k common and servers
     public static final String PREF_KEY_USER_AGENT = "jmule.prefs.user_agent";
@@ -117,6 +118,7 @@ public final class Constants {
     public static final String EXTRA_DOWNLOAD_COMPLETE_PATH = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_PATH";
     public static final String EXTRA_REFRESH_FILE_TYPE = "org.dkf.jmule.EXTRA_REFRESH_FILE_TYPE";
     public static final String EXTRA_FINISH_MAIN_ACTIVITY = "org.dkf.jmule.EXTRA_FINISH_MAIN_ACTIVITY";
+    public static final String ACTION_FILE_ADDED_OR_REMOVED = "org.dkf.jmule.ACTION_FILE_ADDED_OR_REMOVED";
 
     public static final String BROWSE_PEER_FRAGMENT_LISTVIEW_FIRST_VISIBLE_POSITION = "org.dkf.jmule.BROWSE_PEER_FRAGMENT_LISTVIEW_FIRST_VISIBLE_POSITION.";
 
@@ -128,10 +130,12 @@ public final class Constants {
     public static final byte FILE_TYPE_VIDEOS = 0x02;
     public static final byte FILE_TYPE_DOCUMENTS = 0x03;
     public static final byte FILE_TYPE_APPLICATIONS = 0x04;
+    public static final byte FILE_TYPE_RINGTONES = 0x05;
     public static final byte FILE_TYPE_TORRENTS = 0x06;
     public static final byte FILE_TYPE_ARCHIVE = 0x7;
     public static final byte FILE_TYPE_CD_IMAGE = 0x8;
     public static final byte FILE_TYPE_OTHERS = 0x9;
+    public static final byte FILE_TYPE_UNKNOWN = 0x10;
 
     public static final String MIME_TYPE_ANDROID_PACKAGE_ARCHIVE = "application/vnd.android.package-archive";
     public static final String MIME_TYPE_BITTORRENT = "application/x-bittorrent";

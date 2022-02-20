@@ -1,46 +1,97 @@
 package org.dkf.jmule;
 
-import android.app.*;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.*;
+import android.os.Binder;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.widget.RemoteViews;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
+import androidx.core.app.NotificationCompat;
+import androidx.documentfile.provider.DocumentFile;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.apache.commons.io.IOUtils;
-import org.dkf.jed2k.*;
-import org.dkf.jed2k.alert.*;
+import org.dkf.jed2k.AddTransferParams;
+import org.dkf.jed2k.GithubConfigurator;
+import org.dkf.jed2k.Pair;
+import org.dkf.jed2k.Session;
+import org.dkf.jed2k.Settings;
+import org.dkf.jed2k.TransferHandle;
+import org.dkf.jed2k.alert.Alert;
+import org.dkf.jed2k.alert.ListenAlert;
+import org.dkf.jed2k.alert.PortMapAlert;
+import org.dkf.jed2k.alert.SearchResultAlert;
+import org.dkf.jed2k.alert.ServerConectionClosed;
+import org.dkf.jed2k.alert.ServerConnectionAlert;
+import org.dkf.jed2k.alert.ServerIdAlert;
+import org.dkf.jed2k.alert.ServerMessageAlert;
+import org.dkf.jed2k.alert.ServerStatusAlert;
+import org.dkf.jed2k.alert.TransferAddedAlert;
+import org.dkf.jed2k.alert.TransferDiskIOErrorAlert;
+import org.dkf.jed2k.alert.TransferFinishedAlert;
+import org.dkf.jed2k.alert.TransferPausedAlert;
+import org.dkf.jed2k.alert.TransferRemovedAlert;
+import org.dkf.jed2k.alert.TransferResumeDataAlert;
+import org.dkf.jed2k.alert.TransferResumedAlert;
 import org.dkf.jed2k.disk.DesktopFileHandler;
 import org.dkf.jed2k.exception.ErrorCode;
 import org.dkf.jed2k.exception.JED2KException;
 import org.dkf.jed2k.kad.DhtTracker;
 import org.dkf.jed2k.kad.Initiator;
 import org.dkf.jed2k.kad.NodeEntry;
-import org.dkf.jed2k.protocol.*;
+import org.dkf.jed2k.protocol.Container;
+import org.dkf.jed2k.protocol.Endpoint;
+import org.dkf.jed2k.protocol.Hash;
+import org.dkf.jed2k.protocol.SearchEntry;
+import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.JobIntentService;
-import androidx.core.app.NotificationCompat;
-import androidx.documentfile.provider.DocumentFile;
 
 public class ED2KService extends JobIntentService {
     public final static int ED2K_STATUS_NOTIFICATION = 0x7ada5021;
@@ -81,7 +132,7 @@ public class ED2KService extends JobIntentService {
     /**
      * main ed2k session
      */
-    private Session session;
+    private Session session;    // lock on access is required!
 
     private DhtTracker dhtTracker;
 
@@ -691,6 +742,14 @@ public class ED2KService extends JobIntentService {
                         createTransferNotification(getResources().getString(R.string.transfer_finished), EXTRA_DOWNLOAD_COMPLETE_NOTIFICATION, ((TransferFinishedAlert) a).hash);
                     }
                 });
+
+                if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS)) {
+                    log.info("[ED2K service] publish completed transfer");
+                    TransferHandle handle = session.findTransfer(((TransferFinishedAlert) a).hash);
+                    if (handle.isValid()) {
+                        Platforms.fileSystem().scan(handle.getFile());
+                    }
+                }
             } else if (a instanceof TransferDiskIOErrorAlert) {
                 TransferDiskIOErrorAlert errorAlert = (TransferDiskIOErrorAlert) a;
                 log.error("[ED2K service] disk i/o error: {}", errorAlert.ec);
@@ -726,12 +785,14 @@ public class ED2KService extends JobIntentService {
 
     private void restoreTransfersFromDB() {
         try (ResumeDataDbHelper.ATPIterator itrAtp = dbHelper.iterator()) {
+            List<File> toPublishMedia = new LinkedList<>();
             while (itrAtp.hasNext()) {
                 AddTransferParams atp = itrAtp.next();
                 TransferHandle handle = null;
+                File file = null;
 
                 if (atp != null) {
-                    File file = new File(atp.getFilepath().asString());
+                    file = new File(atp.getFilepath().asString());
                     if (Platforms.get().saf()) {
                         log.info("[ED2k service] restore file {}", file.getName());
                         LollipopFileSystem fs = (LollipopFileSystem) Platforms.fileSystem();
@@ -756,10 +817,17 @@ public class ED2KService extends JobIntentService {
                     log.info("transfer {} is {}"
                             , handle.isValid() ? handle.getHash().toString() : ""
                             , handle.isValid() ? "valid" : "invalid");
+
+                    if (handle.isValid() && handle.isFinished() && file != null) {
+                        toPublishMedia.add(file);
+                    }
                 }
             }
+            if (ConfigurationManager.instance().getBoolean(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS)) {
+                Platforms.fileSystem().scan(toPublishMedia);
+            }
         } catch (Exception e) {
-
+            log.error("restore transfer and publish error {}", e.getMessage());
         }
     }
 
@@ -1254,5 +1322,30 @@ public class ED2KService extends JobIntentService {
 
     public ResumeDataDbHelper getDBHelper() {
         return dbHelper;
+    }
+
+    public void publishDownloadedFilesBkg() {
+        if (session != null) {
+            scheduledExecutorService.submit(() -> {
+                List<TransferHandle> transfers = session.getTransfers();
+                if (session == null) {
+                    log.warn("[ED2K service] session is null, stop resume data loading");
+                    return;
+                }
+
+                log.info("[ED2K service] publish {} transfers", transfers.size());
+
+                List<File> files = new LinkedList<>();
+
+                for(TransferHandle handle: transfers) {
+                    if (handle.isValid() && handle.isFinished()) {
+                        files.add(handle.getFile());
+                    }
+                }
+
+                log.info("[ED2K service] publish {} files", files.size());
+                Platforms.fileSystem().scan(files);
+            });
+        }
     }
 }

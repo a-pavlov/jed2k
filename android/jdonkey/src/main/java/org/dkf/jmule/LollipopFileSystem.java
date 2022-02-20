@@ -278,6 +278,13 @@ public final class LollipopFileSystem implements FileSystem {
     }
 
     @Override
+    public void scan(List<File> files) {
+        for(File file: files) {
+            scan(file);
+        }
+    }
+
+    @Override
     public void walk(File file, org.dkf.jmule.FileFilter filter) {
         DefaultFileSystem.walkFiles(this, file, filter);
     }

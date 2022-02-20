@@ -241,6 +241,8 @@
     <string name="mule_start_engine_service_security_exception">Impossibile avviare correttamente Mule su Android a causa della mancanza di permessi. Concedere i permessi necessari e riavviare l\'applicazione</string>
     <string name="safe_mode_summary">Disattivando questa casella accetti di ricevere tutti i risultati corrispondenti. In caso contrario, i risultati verranno filtrati</string>
     <string name="safe_mode">Mostra tutto</string>
+    <string name="share_media_downloads">Pubblica download</string>
+    <string name="share_media_downloads_summary">Aggiungi i file multimediali scaricati alla libreria multimediale Android per fornire laccesso ai file da altre applicazioni</string>
     <string name="wizard_safe_mode">Mostra tutto</string>
     <string name="wizard_safe_mode_summary">Disattivando questa casella accetti di ricevere tutti i risultati di ricerca corrispondenti. In caso contrario, i risultati verranno filtrati</string>
     <string name="search_forbidden_title">Ricerca vietata</string>

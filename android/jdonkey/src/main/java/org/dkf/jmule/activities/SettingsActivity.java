@@ -27,8 +27,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,6 +43,7 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+
 import org.dkf.jmule.AndroidPlatform;
 import org.dkf.jmule.ConfigurationManager;
 import org.dkf.jmule.Constants;
@@ -120,6 +127,7 @@ public class SettingsActivity extends PreferenceActivity {
         setupOtherOptions();
         setupTransferOptions();
         useWordsFilterCheckbox();
+        shareMediaDownloadsCheckbox();
     }
 
     private void setupTransferOptions() {
@@ -335,6 +343,19 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     Engine.instance().setSafeMode((boolean) newValue);
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void shareMediaDownloadsCheckbox() {
+        final CheckBoxPreference shareMediaDownloads = (CheckBoxPreference) findPreference(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS);
+        if (shareMediaDownloads != null) {
+            shareMediaDownloads.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Engine.instance().publishDownloadedFile((boolean) newValue);
                     return true;
                 }
             });
