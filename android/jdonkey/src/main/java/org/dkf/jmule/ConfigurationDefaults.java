@@ -66,7 +66,7 @@ final class ConfigurationDefaults {
         defaultValues.put(Constants.PREF_KEY_GUI_SHOW_NEW_TRANSFER_DIALOG, true);
         defaultValues.put(Constants.PREF_KEY_GUI_SAFE_MODE, true);
         defaultValues.put(Constants.PREF_KEY_GUI_ALERTED_SAFE_MODE, false);
-        defaultValues.put(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS, true);
+        defaultValues.put(Constants.PREF_KEY_GUI_SHARE_MEDIA_DOWNLOADS, false);
 
         defaultValues.put(Constants.PREF_KEY_SEARCH_COUNT_DOWNLOAD_FOR_TORRENT_DEEP_SCAN, 20);
         defaultValues.put(Constants.PREF_KEY_SEARCH_COUNT_ROUNDS_FOR_TORRENT_DEEP_SCAN, 10);
