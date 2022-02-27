@@ -9,13 +9,15 @@ description = "jed2k console application"
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
+//applicationDefaultJvmArgs = ["-Djava.util.logging.config.file=/home/inkpot/dev/jed2k/core/src/main/resources/logging.properties", "-ea"]
+
 application {
-    mainClass = 'org.dkf.jed2k.Kad'
+    mainClass = 'org.dkf.jed2k.Conn'
 }
 
 jar {
     manifest {
-        attributes 'Main-Class': 'org.dkf.jed2k.Kad'
+        attributes 'Main-Class': 'org.dkf.jed2k.Conn'
     }
 }
 

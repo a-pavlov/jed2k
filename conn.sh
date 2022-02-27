@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gradle -q :console:run --args="/tmp" --console=plain
+gradle -q :console:run --args="/tmp/jed2k" --console=plain

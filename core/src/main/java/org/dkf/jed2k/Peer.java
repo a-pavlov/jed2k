@@ -104,6 +104,6 @@ public class Peer implements Comparable<Peer> {
     }
 
     public String toString() {
-        return "Peer(lastConnected=" + this.getLastConnected() + ", nextConnection=" + this.getNextConnection() + ", failCount=" + this.getFailCount() + ", connectable=" + this.isConnectable() + ", sourceFlag=" + this.getSourceFlag() + ", connection=" + this.getConnection() + ", endpoint=" + this.getEndpoint() + ")";
+        return "Peer(lastConnected=" + this.getLastConnected() + ", nextConnection=" + this.getNextConnection() + ", failCount=" + this.getFailCount() + ", connectable=" + this.isConnectable() + ", sourceFlag=" + this.getSourceFlag() + ", endpoint=" + this.getEndpoint() + ")";
     }
 }

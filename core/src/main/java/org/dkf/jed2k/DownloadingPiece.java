@@ -59,7 +59,7 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
             assert downloadersCount >= 0;
 
             if (downloadersCount > 0) downloadersCount--;
-            if (lastDownloader != null && lastDownloader == p) lastDownloader = null;
+            if (lastDownloader != null && lastDownloader.equals(p)) lastDownloader = null;
 
             if (downloadersCount == 0) {
                 state = BlockState.STATE_NONE;
@@ -192,7 +192,7 @@ public class DownloadingPiece implements Iterable<DownloadingPiece.Block> {
             }
 
             if (endGame && blocks[i].isRequested()) {
-                if (blocks[i].getDownloadersCount() < 2 && blocks[i].getDownloadingSpeed().compareTo(speed) < 0 && peer != blocks[i].getLastDownloader()) {
+                if (blocks[i].getDownloadersCount() < 2 && blocks[i].getDownloadingSpeed().compareTo(speed) < 0 && !peer.equals(blocks[i].getLastDownloader())) {
                     blocks[i].request(peer, speed);
                     rq.add(new PieceBlock(pieceIndex, i));
                     ++res;

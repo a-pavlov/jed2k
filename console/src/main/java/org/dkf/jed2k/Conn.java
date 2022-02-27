@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.LogManager;
 
 public class Conn {
     private static Logger log = LoggerFactory.getLogger(Conn.class);
@@ -107,6 +108,14 @@ public class Conn {
         if (args.length < 1) {
             log.warn("[CONN] specify incoming directory");
             return;
+        }
+
+        try(InputStream inputStream = Conn.class.getResourceAsStream("/logging.properties")) {
+            LogManager.getLogManager().readConfiguration(inputStream);
+            log.info("logging.properties file was loaded");
+        }
+        catch (final IOException e) {
+            System.out.println("Unable to load logging.properties file " + e.getMessage());
         }
 
         incomingDirectory = FileSystems.getDefault().getPath(args[0]);
@@ -270,7 +279,7 @@ public class Conn {
             else if (parts[0].compareTo("search") == 0 && parts.length > 1) {
                 String searchExpression = parts[1];
                 long maxSize = 0;
-                int sources = 0;
+                int sources = 20;
                 if (parts.length > 3) {
                     if (parts[2].compareTo("dataSize") == 0) {
                         maxSize = Integer.parseInt(parts[3])*1024*1024;
@@ -279,7 +288,7 @@ public class Conn {
                 log.info("search expression: {} max dataSize {}", searchExpression, maxSize);
                 try {
                     log.info("search request: " + s);
-                    s.search(SearchRequest.makeRequest(0, maxSize, 0, 0, "", "", "", 0, 0, searchExpression));
+                    s.search(SearchRequest.makeRequest(0, maxSize, 30, 0, "", "", "", 0, 0, searchExpression));
                 } catch(JED2KException e) {
                     log.error("[CONN] {}", e);
                 }

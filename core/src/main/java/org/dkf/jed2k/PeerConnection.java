@@ -999,6 +999,8 @@ public class PeerConnection extends Connection {
         if (transfer != null) {
             long downloadRate = statistics().downloadPayloadRate();
             long transferDownloadRate = transfer.statistics().downloadPayloadRate();
+            log.debug("peer {} download rate {} transfer download rate {}"
+                    , peerInfo, downloadRate, transferDownloadRate);
 
             if (downloadRate > 512 && downloadRate > transferDownloadRate / 16)
                 speed = PeerSpeed.FAST;
@@ -1008,6 +1010,8 @@ public class PeerConnection extends Connection {
                 speed = PeerSpeed.MEDIUM;
             else
                 speed = PeerSpeed.SLOW;
+
+            log.debug("result speed {}", speed.name());
         }
 
         return this.speed;
