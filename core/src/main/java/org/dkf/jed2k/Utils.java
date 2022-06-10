@@ -6,7 +6,10 @@ import org.dkf.jed2k.protocol.Endpoint;
 import org.dkf.jed2k.protocol.Hash;
 import org.dkf.jed2k.protocol.Serializable;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Comparator;
@@ -227,11 +230,11 @@ public final class Utils {
     }
 
     public static String formatLink(final String fileName, long fileSize, final Hash hash) {
-        return "ed2k://|file|" +
-                fileName + "|" +
-                fileSize + "|" +
-                hash.toString() +
-                "|/";
+        return "ed2k://|file|"
+                    +  fileName.replace(" ", "%20")
+                    + "|" + fileSize
+                    + "|" + hash.toString()
+                    + "|/";
     }
 
     public static boolean isBit(int value, int mask) {

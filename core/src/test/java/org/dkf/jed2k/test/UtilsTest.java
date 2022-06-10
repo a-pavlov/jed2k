@@ -133,6 +133,7 @@ public class UtilsTest {
     @Test
     public void testLinksGeneration() {
         assertEquals("ed2k://|file|some_file|100|31D6CFE0D16AE931B73C59D7E0C089C0|/", Utils.formatLink("some_file", 100L, Hash.TERMINAL));
+        assertEquals("ed2k://|file|Sinuhe%20L'egiziano%20(1954)%20(DVDRip.x264.ITA.ENG)%20(Ebleep).mkv|2277521653|157958B871FEE3017661FB1F6BC3C138|/", Utils.formatLink("Sinuhe L'egiziano (1954) (DVDRip.x264.ITA.ENG) (Ebleep).mkv", 2277521653L, Hash.fromString("157958B871FEE3017661FB1F6BC3C138")));
     }
 
     @Test
