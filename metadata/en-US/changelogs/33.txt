@@ -1,0 +1,2 @@
+* Initial librarian usage
+* Initial F-Droid release
