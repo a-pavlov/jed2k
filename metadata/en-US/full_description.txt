@@ -1,0 +1,12 @@
+Application to work in ED2K(eDonkey2000) networks. Based on the ED2K library.
+
+Implemented Features
+* Searching files on servers and using Kademlia by keywords
+* Searching sources for file using KAD(DHT) and servers
+* Downloading files
+* Internationalization
+
+AntiFeatures:
+* NonFreeNet - it connects to emulefuture.de and Github to get nodes/servers addresses
+* Tracking - suggestions in search input box are from Google.com
+
