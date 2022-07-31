@@ -77,7 +77,10 @@ final class ConfigurationDefaults {
         defaultValues.put(Constants.PREF_KEY_SEARCH_FULLTEXT_SEARCH_RESULTS_LIMIT, 256);
 
         defaultValues.put(Constants.PREF_KEY_NETWORK_USE_MOBILE_DATA, true);
+        defaultValues.put(Constants.PREF_KEY_NETWORK_USE_WIFI_ONLY, false);
+        defaultValues.put(Constants.PREF_KEY_NETWORK_BITTORRENT_ON_VPN_ONLY, false);
         defaultValues.put(Constants.PREF_KEY_NETWORK_MAX_CONCURRENT_UPLOADS, 3);
+
 
         defaultValues.put(Constants.PREF_KEY_STORAGE_PATH, Environment.getExternalStorageDirectory().getAbsolutePath()); // /mnt/sdcard
 

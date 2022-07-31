@@ -97,6 +97,8 @@ public final class Constants {
     public static final String PREF_KEY_TRANSFER_MAX_DOWNLOADS = "jmule.prefs.transfer.max_downloads";
     public static final String PREF_KEY_TRANSFER_MAX_TOTAL_CONNECTIONS = "jmule.prefs.transfer.max_total_connections";
     public static final String PREF_KEY_NETWORK_USE_MOBILE_DATA = "jmule.prefs.network.use_mobile_data";
+    public static final String PREF_KEY_NETWORK_USE_WIFI_ONLY = "jmule.prefs.network.use_wifi_only";
+    public static final String PREF_KEY_NETWORK_BITTORRENT_ON_VPN_ONLY = "jmule.prefs.network.bittorrent_on_vpn_only";
 
     // ed2k DHT settings
     public static final String PREF_KEY_CONNECT_DHT = "jmule.prefs.connect_dht";

@@ -53,7 +53,7 @@ public class MainApplication extends Application {
             Platforms.set(new AndroidPlatform(this));
             ConfigurationManager.create(this);
             NetworkManager.create(this);
-            Engine.create(this);
+            Engine.instance().onApplicationCreate(this);
         } catch (Exception e) {
             throw new RuntimeException("Unable to initialized main components", e);
         }
