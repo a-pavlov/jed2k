@@ -45,7 +45,7 @@ public final class ResumeDownloadMenuAction extends MenuAction {
         if (isDisconnected) {
             UIUtils.showLongMessage(context, R.string.cant_resume_torrent_transfers);
         } else {
-            if (NetworkManager.instance().isDataUp()) {
+            if (NetworkManager.instance().isInternetDataConnectionUp()) {
                 if (download.isPaused()) {
                     download.resume();
                 }

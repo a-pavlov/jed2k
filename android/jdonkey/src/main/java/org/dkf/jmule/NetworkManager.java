@@ -18,25 +18,43 @@
 
 package org.dkf.jmule;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import org.dkf.jmule.util.Ref;
 
 /**
  * @author gubatron
  * @author aldenml
  */
-public final class  NetworkManager {
+public final class NetworkManager {
 
-    private final Application context;
-
+    private final Context appContext;
     private boolean tunnelUp;
 
+    private WeakReference<ConnectivityManager> connManRef;
+
+    // this is one of the few justified occasions in which
+    // holding a context in a static field has no problems,
+    // this is a reference to the application context and
+    // greatly improve the API design
+    @SuppressLint("StaticFieldLeak")
     private static NetworkManager instance;
 
-    public synchronized static void create(Application context) {
+    public synchronized static void create(Context context) {
         if (instance != null) {
             return;
         }
@@ -50,66 +68,90 @@ public final class  NetworkManager {
         return instance;
     }
 
-    private NetworkManager(Application context) {
-        this.context = context;
+    private NetworkManager(Context context) {
+        this.appContext = context.getApplicationContext();
     }
 
-    public boolean isInternetDown() {
-        return !isDataWIFIUp() && !isDataMobileUp() && !isDataWiMAXUp();
-    }
+    public boolean isInternetDataConnectionUp() {
+        ConnectivityManager connectivityManager = getConnectivityManager();
 
-    public boolean isDataUp() {
+        boolean wifiUp = isNetworkTypeUp(connectivityManager, ConnectivityManager.TYPE_WIFI);
+        boolean mobileUp = isNetworkTypeUp(connectivityManager, ConnectivityManager.TYPE_MOBILE);
+
         // boolean logic trick, since sometimes android reports WIFI and MOBILE up at the same time
-        return (isDataWIFIUp() != isDataMobileUp()) || isDataWiMAXUp();
+        return wifiUp != mobileUp;
+    }
+
+    private boolean isNetworkTypeUp(ConnectivityManager connectivityManager, final int networkType) {
+        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(networkType);
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
     }
 
     public boolean isDataMobileUp() {
         ConnectivityManager connectivityManager = getConnectivityManager();
-        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+        return isNetworkTypeUp(connectivityManager, ConnectivityManager.TYPE_MOBILE);
     }
 
     public boolean isDataWIFIUp() {
         ConnectivityManager connectivityManager = getConnectivityManager();
-        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
-    }
-
-    public boolean isDataWiMAXUp() {
-        ConnectivityManager connectivityManager = getConnectivityManager();
-        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIMAX);
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+        return isNetworkTypeUp(connectivityManager, ConnectivityManager.TYPE_WIFI);
     }
 
     private ConnectivityManager getConnectivityManager() {
-        return (ConnectivityManager) context.getSystemService(Application.CONNECTIVITY_SERVICE);
+        if (!Ref.alive(connManRef)) {
+            connManRef = Ref.weak((ConnectivityManager) appContext.getSystemService(Application.CONNECTIVITY_SERVICE));
+        }
+        return connManRef.get();
     }
 
     public boolean isTunnelUp() {
         return tunnelUp;
     }
 
-    // eventually move this to the Platform framework
-    public void detectTunnel() {
-        tunnelUp = isValidInterfaceName("tun0");
+    private void detectTunnel() {
+        List<String> names = getInterfaceNames();
+        tunnelUp = interfaceNameExists(names, "tun0") ||
+                interfaceNameExists(names, "tun1") ||
+                interfaceNameExists(names, "tap0") ||
+                interfaceNameExists(names, "tap1");
     }
 
-    private static boolean isValidInterfaceName(String interfaceName) {
-        try {
-            String[] arr = new File("/sys/class/net").list();
-            if (arr == null) {
-                return false;
+    private static boolean interfaceNameExists(List<String> names, String name) {
+        for (String s : names) {
+            if (s.contains(name)) {
+                return true;
             }
-            for (int i = 0; i < arr.length; i++) {
-                String validName = arr[i];
-                if (interfaceName.equals(validName)) {
-                    return true;
-                }
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
         }
 
         return false;
+    }
+
+    private static List<String> getInterfaceNames() {
+        List<String> names = new LinkedList<>();
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            if (networkInterfaces != null) {
+                while (networkInterfaces.hasMoreElements()) {
+                    NetworkInterface networkInterface = networkInterfaces.nextElement();
+                    String name = networkInterface.getName();
+                    if (name != null) {
+                        names.add(name);
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            // ignore
+            // important, but no need to crash the app
+        }
+
+        return names;
+    }
+
+    public static void queryNetworkStatusBackground(NetworkManager manager) {
+        boolean isDataUp = manager.isInternetDataConnectionUp();
+        manager.detectTunnel();
+        Intent intent = new Intent(Constants.ACTION_NOTIFY_DATA_INTERNET_CONNECTION);
+        intent.putExtra("isDataUp", isDataUp);
+        LocalBroadcastManager.getInstance(manager.appContext).sendBroadcast(intent);
     }
 }

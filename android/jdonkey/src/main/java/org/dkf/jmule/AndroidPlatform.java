@@ -115,22 +115,6 @@ public final class AndroidPlatform {
         return sdk;
     }
 
-    public AndroidPlatform.NetworkType networkType() {
-        if (NetworkManager.instance().isDataMobileUp()) {
-            return AndroidPlatform.NetworkType.MOBILE;
-        }
-
-        if (NetworkManager.instance().isDataWIFIUp()) {
-            return AndroidPlatform.NetworkType.WIFI;
-        }
-
-        if (NetworkManager.instance().isDataWiMAXUp()) {
-            return AndroidPlatform.NetworkType.WIMAX;
-        }
-
-        return AndroidPlatform.NetworkType.NONE;
-    }
-
     public static boolean saf() {
         AndroidPlatform p = Platforms.get();
         return p.fileSystem() instanceof LollipopFileSystem;

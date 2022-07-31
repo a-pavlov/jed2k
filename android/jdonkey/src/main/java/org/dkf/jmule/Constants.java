@@ -115,6 +115,7 @@ public final class Constants {
     public static final String ACTION_SETTINGS_SELECT_STORAGE = "org.dkf.jmule.ACTION_SETTINGS_SELECT_STORAGE";
     public static final String ACTION_SETTINGS_OPEN_TORRENT_SETTINGS = "org.dkf.jmule.ACTION_SETTINGS_OPEN_TORRENT_SETTINGS";
     public static final String ACTION_NOTIFY_SDCARD_MOUNTED = "org.dkf.jmule.ACTION_NOTIFY_SDCARD_MOUNTED";
+    public static final String ACTION_NOTIFY_DATA_INTERNET_CONNECTION = "org.dkf.jmule.NOTIFY_CHECK_INTERNET_CONNECTION";
     public static final String EXTRA_DOWNLOAD_COMPLETE_PATH = "org.dkf.jmule.EXTRA_DOWNLOAD_COMPLETE_PATH";
     public static final String EXTRA_REFRESH_FILE_TYPE = "org.dkf.jmule.EXTRA_REFRESH_FILE_TYPE";
     public static final String EXTRA_FINISH_MAIN_ACTIVITY = "org.dkf.jmule.EXTRA_FINISH_MAIN_ACTIVITY";
