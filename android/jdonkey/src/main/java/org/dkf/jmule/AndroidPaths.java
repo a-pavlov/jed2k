@@ -59,11 +59,6 @@ public final class AndroidPaths {
             return android11AndUpStorage();
         }
 
-        if (SystemUtils.hasAndroid10OrNewer()) {
-            File externalDir = app.getExternalFilesDir(null);
-            return USE_EXTERNAL_STORAGE_DIR_ON_OR_AFTER_ANDROID_10 ? externalDir : app.getFilesDir();
-        }
-
         /* For Older versions of Android where we used to have access to write to external storage
          *  <externalStoragePath>/Download/FrostWire/
          */
