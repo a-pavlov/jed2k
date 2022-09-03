@@ -40,27 +40,34 @@ import java.util.Map;
  */
 public final class AndroidPaths {
     private static final boolean USE_EXTERNAL_STORAGE_DIR_ON_OR_AFTER_ANDROID_10 = true;
-    private final Context context;
+    private final Application app;
 
     private static final Map<Byte, String> fileTypeFolders = new HashMap<>();
     private static final Object fileTypeFoldersLock = new Object();
 
-    public AndroidPaths(Context app) {
-        this.context = app;
+    public AndroidPaths(Application app) {
+        this.app = app;
     }
 
     public File data() {
         if (SystemUtils.hasAndroid10OrNewer()) {
-            File externalDir = context.getExternalFilesDir(null);
-            return USE_EXTERNAL_STORAGE_DIR_ON_OR_AFTER_ANDROID_10 ? externalDir : context.getFilesDir();
+            if (SystemUtils.hasAndroid10()) {
+                return app.getExternalFilesDir(null);
+            }
 
+            // On Android 11 and up, they finally let us use File objects in the public download directory as long as we have permission from the user
+            return android11AndUpStorage();
+        }
+
+        if (SystemUtils.hasAndroid10OrNewer()) {
+            File externalDir = app.getExternalFilesDir(null);
+            return USE_EXTERNAL_STORAGE_DIR_ON_OR_AFTER_ANDROID_10 ? externalDir : app.getFilesDir();
         }
 
         /* For Older versions of Android where we used to have access to write to external storage
-         *  <externalStoragePath>
+         *  <externalStoragePath>/Download/FrostWire/
          */
-        String path = ConfigurationManager.instance().getStoragePath();
-        return new File(ConfigurationManager.instance().getStoragePath());
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
     }
 
     public static byte getFileType(String filePath, boolean returnTorrentsAsDocument) {
@@ -77,6 +84,10 @@ public final class AndroidPaths {
         }
 
         return result;
+    }
+
+    public static File android11AndUpStorage() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 
 

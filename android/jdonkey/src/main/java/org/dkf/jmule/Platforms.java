@@ -19,12 +19,15 @@
 package org.dkf.jmule;
 
 import java.io.File;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author gubatron
  * @author aldenml
  */
 public final class Platforms {
+    private static final Logger LOG = LoggerFactory.getLogger(Platforms.class);
 
     private static AndroidPlatform platform;
 
@@ -64,6 +67,8 @@ public final class Platforms {
     }
 
     public static File data() {
-        return get().systemPaths().data();
+        File f = get().systemPaths().data();
+        LOG.warn("PLATFORM FILE " + f.getAbsolutePath());
+        return f;
     }
 }

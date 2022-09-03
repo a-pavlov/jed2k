@@ -50,6 +50,10 @@ public final class SystemUtils {
 
     private static final int VERSION_CODE_KITKAT = 19;
     private static final int VERSION_SDK_NOUGAT_7_0 = 24;
+    private static final int VERSION_SDK_NOUGAT_7_0_N = 24;
+    private static final int VERSION_SDK_ANDROID_10_Q = 29;
+    private static final int VERSION_SDK_ANDROID_11_R = 30;
+    private static final int VERSION_SDK_ANDROID_12_S = 31;
 
     private SystemUtils() {
     }
@@ -195,6 +199,23 @@ public final class SystemUtils {
         return Build.VERSION.SDK_INT >= versionCode;
     }
 
+    @SuppressWarnings("SameParameterValue")
+    private static boolean hasSdk(int versionCode) {
+        return Build.VERSION.SDK_INT == versionCode;
+    }
+
+
+    public static boolean hasAndroid10() {
+        return hasSdk(VERSION_SDK_ANDROID_10_Q);
+    }
+
+    /**
+     * Used to determine if the device is running Android11 or greater
+     */
+    public static boolean hasAndroid11OrNewer() {
+        return hasSdkOrNewer(VERSION_SDK_ANDROID_11_R);
+    }
+
     /**
      * Used to determine if the device is running
      * KitKat (Android 4.4) or greater
@@ -226,12 +247,6 @@ public final class SystemUtils {
         return hasSdkOrNewer(VERSION_SDK_NOUGAT_7_0);
     }
 
-    /**
-     * Used to determine if the device is running Android11 or greater
-     */
-    public static boolean hasAndroid11OrNewer() {
-        return hasSdkOrNewer(30); //Build.VERSION_CODES.R
-    }
 
     /**
      * We call it "safe" because if any exceptions are thrown,

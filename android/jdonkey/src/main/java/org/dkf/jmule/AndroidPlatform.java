@@ -18,6 +18,7 @@
 
 package org.dkf.jmule;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
@@ -88,7 +89,7 @@ public final class AndroidPlatform {
 
     private final int sdk;
 
-    public AndroidPlatform(Context app) {
+    public AndroidPlatform(Application app) {
         fileSystem = buildFileSystem(app);
         systemPaths = new AndroidPaths(app);
         appSettings = new AndroidSettings();

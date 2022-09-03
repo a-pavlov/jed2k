@@ -263,4 +263,6 @@
     <string name="media_type_video">Video</string>
     <string name="build">build</string>
     <string name="comma">,</string>
+    <string name="transfers_context_menu_show_path_title">Il percorso del file</string>
+    <string name="transfers_context_menu_show_path_body">Dir di base: %1$s\\nFile:%2$s</string>
 </resources>
