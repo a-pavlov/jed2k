@@ -1,0 +1,253 @@
+<resources>
+    <!-- Important: Android is buggy with HTML, do not put HTML tags right next to text, leave a space, as it seems the text wrapping logic is considering HTML as visible text and you get premature wrapping. -->
+
+    <!-- non HTML tags. -->
+    <string name="app_name">安卓版电骡</string>
+    <string name="activity_preferences_name">设置</string>
+    <string name="exit">出口</string>
+    <string name="search_label">搜索</string>
+    <string name="audio">声音的</string>
+    <string name="video">视频</string>
+    <string name="applications">应用</string>
+    <string name="pictures">图片</string>
+    <string name="documents">文件</string>
+    <string name="select_all">全选</string>
+    <string name="about">关于</string>
+    <string name="settings">设置</string>
+    <string name="files">文件</string>
+    <string name="minimize_application">在 Android 上最小化 Mule</string>
+    <string name="are_you_sure_you_wanna_leave">您确定要返回主屏幕吗？</string>
+    <string name="unknown">未知</string>
+    <string name="open">打开</string>
+    <string name="nickname">昵称</string>
+    <string name="how_other_users_will_see_you">其他用户将如何看待您</string>
+    <string name="other_settings">其他设置</string>
+    <string name="vibrate_on_finished_download">下载完成时振动</string>
+    <string name="use_mobile_data">ED2K使用移动网络</string>
+    <string name="use_mobile_data_summary">使用移动网络进行 ed2k 下载。可能会收取数据超额费用。小心使用。</string>
+    <string name="cant_open_file">抱歉，不知道如何打开此文件。</string>
+    <string name="download_added_to_queue">1 个文件将开始下载</string>
+    <string name="open_menu_action">打开 %s</string>
+    <string name="search_more_action">搜索更多</string>
+    <string name="remove_torrent_and_data">删除转移</string>
+    <string name="search">搜索</string>
+    <string name="transfers">转移</string>
+    <string name="dummy_title" translatable="false">[Title]</string>
+    <string name="dummy_status" translatable="false">[Status]</string>
+    <string name="dummy_speed" translatable="false">[Speed]</string>
+    <string name="dummy_size" translatable="false">[Size]</string>
+    <string name="dummy_extra" translatable="false">[Extra]</string>
+    <string name="dummy_seeds" translatable="false">[Seeds]</string>
+    <string name="yes_no_cancel_transfer_question">您确定要停止并从列表中删除此下载吗？</string>
+    <string name="yes_no_cancel_delete_transfer_question">您确定要取消此下载吗？</string>
+    <string name="yes_no_dialog_remove_file">删除文件</string>
+    <string name="pause_torrent_menu_action">暂停</string>
+    <string name="resume_torrent_menu_action">恢复</string>
+    <string name="im_on_it">我在上……</string>
+    <string name="transfers_settings">传输设置</string>
+    <string name="transfers_max_downloads_summary">最大下载量</string>
+    <string name="transfers_max_downloads">最大下载量</string>
+    <string name="transfers_max_total_connections_summary">最大总连接数</string>
+    <string name="transfers_max_total_connections">最大总连接数</string>
+    <string name="search_block_action">屏蔽搜索结果</string>
+    <string name="dummy_summary" translatable="false">[Summary]</string>
+    <string name="dummy_engine" translatable="false">[Engine]</string>
+    <string name="complete_sources">完成 %1$d</string>
+    <string name="show_transfers_on_download_start">在下载开始时显示传输</string>
+    <string name="dialog_new_transfer_text_text">您确定要下载 %1$s (%2$s)</string>
+    <string name="dialog_new_transfer_check_text">下次显示这个</string>
+    <string name="show_new_transfer_dialog">显示新传输对话框</string>
+    <string name="dummy_action" translatable="false">[Action]</string>
+    <string name="dummy_content_description" translatable="false">[dummy description]</string>
+    <string name="toast_on_disconnect">ED2K 会话停止。所有转移都已停止。</string>
+    <string name="toast_on_connect">ED2K 会话开始。</string>
+    <string name="seeds_n">种子：%s</string>
+    <string name="size_unknown">尺寸未知</string>
+    <string name="storage_preference_title">选择存储位置</string>
+    <string name="storage_preference_summary">将保存文件的默认存储位置。</string>
+    <string name="ed2k" translatable="false">ED2K</string>
+    <string name="ed2k_network_summary">连接状态</string>
+    <string name="retry_search">重试</string>
+    <string name="no_results_feedback">没有找到任何结果。</string>
+    <string name="transfers_select_all">全部</string>
+    <string name="transfers_select_downloading">下载</string>
+    <string name="transfers_select_completed">完全的</string>
+    <string name="transfers_context_menu_clear_finished">清除所有已完成的传输</string>
+    <string name="transfers_context_menu_copy_link_copied">链接已复制到剪贴板</string>
+    <string name="transfers_context_menu_copy_link">复制链接</string>
+    <string name="transfers_context_menu_pause_stop_all_transfers">暂停/停止所有传输</string>
+    <string name="transfers_context_resume_all_torrent_transfers">恢复所有洪流传输</string>
+    <string name="drawer_open">打开导航抽屉</string>
+    <string name="drawer_close">关闭导航抽屉</string>
+    <string name="please_check_connection_status_before_resuming_download">请在恢复之前检查您的互联网连接状态。</string>
+    <string name="add_transfer_label">粘贴 ED2K 链接</string>
+    <string name="please_enter_valid_url">请输入有效链接</string>
+    <string name="magnet_url_added">添加到转移的链接</string>
+    <string name="torrent_url_added">ED2K 链接添加到传输。</string>
+    <string name="cant_resume_torrent_transfers"><![CDATA[无法恢复洪流传输。检查“设置”>“BitTorrent 连接状态”的状态]]></string>
+    <string name="confirm_download">确认下载</string>
+    <string name="saving_to_sd_card">保存到 SD 卡。</string>
+    <string name="android_will_erase_files_if_frostwire_is_uninstalled">如果 Android 上的 Mule 被卸载，Android 将删除下载的文件。</string>
+    <string name="saving_to_internal_memory">保存到内存</string>
+    <string name="saving_to_internal_memory_description">您还有一张 SD 卡（%1$s 免费）</string>
+    <string name="device_storage">设备的存储</string>
+    <string name="sdcard_storage">SD\的存储</string>
+    <string name="storage_setting_warning">警告：如果您卸载应用程序，Android 上的 Mule 保存到 SD 卡上的所有文件都将由 ANDROID 删除，而不是 Android 上的 Mule。</string>
+    <string name="storage_setting_confirm_dialog_title">SD卡</string>
+    <string name="storage_setting_confirm_dialog_text">我了解，一旦从该设备上卸载 Mule on Android 应用程序，Android 上的 Mule 下载到 SD 卡的所有文件都将被 ANDROID 删除，我不会要求 Mule on Android LLC 对丢失的任何文件负责。</string>
+    <string name="available">可用的</string>
+    <string name="finishing">精加工</string>
+    <string name="app_shutdown_dlg_title">关闭</string>
+    <string name="app_shutdown_dlg_message">这将关闭所有传输和后台服务。你确定吗？</string>
+    <string name="dummy_build" translatable="false">[build number]</string>
+    <string name="try_other_keywords">尝试更少/不同的关键字</string>
+    <string name="try_frostwire_plus_for_more_results" translatable="false">Try Mule on Android for more results</string>
+    <string name="your_installation_is_complete">您的安装已完成。</string>
+    <string name="thank_you">谢谢！</string>
+    <string name="keep_in_touch">保持联系！</string>
+    <string name="why_we_need_storage_permissions">为什么我们需要存储权限。</string>
+    <string name="why_we_need_storage_permissions_summary">Android 上的 Mule 是一个文件下载器应用程序，因此它需要能够访问您的磁盘。\n\n没有您的权限，Android 上的 Mule 无法工作。\n\n要再试一次吗？</string>
+    <string name="request_again">再次请求</string>
+    <string name="notify_jdonkey_is_running">通知 Android 上的 Mule 是否正在运行</string>
+    <string name="notify_jdonkey_is_running_summary">显示带有转移状态的永久 Android 通知</string>
+    <string name="safe_mode">安全模式</string>
+    <string name="share_media_downloads">发布下载</string>
+    <string name="share_media_downloads_summary">将下载的媒体文件添加到 Android 媒体库，以提供对来自其他应用程序的文件的访问权限</string>
+    <string name="safe_mode_summary">通过禁用此复选框，您同意查看已请求的任何已发布材料。否则搜索结果将被过滤</string>
+    <string name="storage_picker_treeuri_null">未选择存储路径</string>
+    <string name="storage_picker_treeuri_not_directory">选择的路径不是目录</string>
+    <string name="storage_picker_treeuri_cant_write">Android 上的 Mule 无法在选定的存储路径上写入</string>
+    <string name="storage_picker_treeuri_error">拾取存储路径时出现意外错误</string>
+    <string name="selected">选择</string>
+    <string name="check_internet_connection">检查互联网连接</string>
+    <string name="emule_collection">骡子集合</string>
+    <string name="pick_the_files_you_want_to_download_from_this_torrent">从此集合中选择要下载的文件</string>
+    <string name="sd_permission_no_accessible_path">您在 SD 中选择的路径不再可访问。按 OK 再次选择。</string>
+    <string name="cancel">取消</string>
+
+    <string name="common_settings">常用设置</string>
+    <string name="listen_port">监听端口</string>
+    <string name="listen_port_summary">传入连接的端口</string>
+
+    <string name="NA" translatable="false">N/A</string>
+    <string name="users_count">用户</string>
+    <string name="files_count">文件</string>
+    <string name="user_id">用户身份</string>
+
+    <string name="servers_settings">服务器设置</string>
+    <string name="servers">服务器</string>
+    <string name="connect_on_start_server">启动时连接</string>
+    <string name="connect_on_start_server_summary">在启动时连接到最后连接的服务器</string>
+    <string name="show_server_messages_summary">显示来自服务器的消息</string>
+    <string name="show_server_messages">服务器消息</string>
+    <string name="reconnect_to_server_summary">在对等方关闭的连接上重新连接到服务器</string>
+    <string name="reconnect_to_server">重新连接到服务器</string>
+    <string name="ping_server_summary">Ping 服务器以防止超时断开连接</string>
+    <string name="ping_server">Ping 服务器</string>
+
+    <string name="forward_ports_title">转发端口</string>
+    <string name="forward_ports_summary">在我的路由器上转发传入端口。必须在路由器上激活 UPnP</string>
+
+    <string name="service_stopped">ED2K 服务停止</string>
+    <string name="service_stopped_details" translatable="false">Please go to preferences and start ED2K service</string>
+    <string name="server_not_connected">没有搜索来源</string>
+    <string name="server_not_connected_det">请连接到服务器或启动 Kademlia</string>
+    <string name="server_renew">更新服务器列表</string>
+
+    <string name="search_parameter_min_size">最小尺寸，Mb</string>
+    <string name="search_parameter_max_size">最大尺寸，Mb</string>
+    <string name="search_parameter_sources">来源</string>
+    <string name="search_parameter_complete_sources">完整的来源</string>
+    <string name="search_item_source_server">服务器</string>
+    <string name="search_item_sources">来源 %1$d</string>
+
+    <string name="peer_speed">速度 %1$s</string>
+    <string name="peer_total_bytes_download">总字节数 %1$s</string>
+    <string name="sever_menu_title">服务器操作</string>
+    <string name="server_remove_action">删除%1$s</string>
+    <string name="server_connect_action">连接到 %1$s</string>
+    <string name="server_disconnect_action">断开与 %1$s 的连接</string>
+
+    <string name="transfer_state_paused">暂停</string>
+    <string name="transfer_state_completed">完全的</string>
+    <string name="transfer_state_stalled">等待来源</string>
+    <string name="transfer_state_downloading">下载</string>
+
+    <string name="server_add_name">姓名</string>
+    <string name="server_add_host">主持人</string>
+    <string name="server_add_port">港口</string>
+    <string name="server_add_descr">描述</string>
+
+    <string name="welcome_to_mule">欢迎使用 Android 上的 Mule</string>
+    <string name="storage_path">存储路径</string>
+    <string name="upnp">我路由器上的转发端口</string>
+    <string name="upnp_summary">如果您有路由器，您可以转发路由器上的传入端口。这将有助于在服务器上获取 HiID 并找到更多来源。请检查您的路由器上的 UPnP 功能是否已激活</string>
+
+    <string name="wizard_dht">使用 DHT(Kademlia)</string>
+    <string name="wizard_dht_summary">使用 Kademlia 查找更多资源。小心 - 产生服务流量。</string>
+
+    <string name="wizard_safe_mode">安全模式</string>
+    <string name="wizard_safe_mode_summary">通过禁用此复选框，您同意查看已请求的任何已发布材料。否则应用程序将过滤搜索结果</string>
+
+    <string name="usage_notes_title">使用说明</string>
+    <string name="usage_notes_summary">使用前请进入设置并启动 ED2K core(service) 如果是
+        停了下来。应用程序支持使用服务在后台下载。两种类型的退出 - 全部关闭和
+        仅关闭 GUI。
+        当您最后按下后退按钮时，您将能够最小化应用程序。如果您需要完全关机
+        应用程序和服务在菜单中选择退出。</string>
+    <string name="usage_suggestions_title">使用建议</string>
+    <string name="usage_suggestions_summary">尝试提供可访问的传入端口 - 在这种情况下，您将拥有更多来源。
+        首选具有大量来源的文件。</string>
+
+    <string name="usage_proposals_title">建议和问题报告</string>
+    <string name="usage_proposals_summary">请将问题和建议报告给开发者的电子邮件或通过 github 上项目页面中的票证</string>
+    <string name="wizard_previous">以前的</string>
+    <string name="wizard_next">下一个</string>
+    <string name="wizard_finish">结束</string>
+
+    <string name="dht_enable_summary">DHT(Kademlia) 用于搜索更多资源</string>
+    <string name="dht_enable_title">dht</string>
+    <string name="dht_nodes" translatable="false">KAD: %1$s</string>
+
+    <string name="search_source_type_server">服务器</string>
+    <string name="search_source_type_dht">dht</string>
+    <string name="start_transfer_success">已添加转移</string>
+    <string name="start_transfer_file_error">由于 I/O 异常而无法开始传输</string>
+
+    <string name="add_transfer_session_stopped_title">添加转移</string>
+    <string name="add_transfer_session_stopped_body">ED2K 内核停止，无法添加传输。请启用核心并重试。</string>
+    <string name="add_collection_session_stopped_title">添加收藏</string>
+    <string name="add_collection_session_stopped_body">ED2K 核心已停止，无法添加收藏。请启用核心并重试。</string>
+    <string name="add_collection_empty">集合文件为空或无法解析</string>
+    <string name="link_download_failed">无法从链接下载或解析数据，请稍后重试</string>
+    <string name="add_servers_list_text">新服务器已下载。替换当前服务器列表？</string>
+    <string name="add_servers_list_title">服务器</string>
+    <string name="intent_link_parse_error">无法解析链接</string>
+    <string name="nodes_link_open_error_title">节点</string>
+    <string name="nodes_link_open_error_text">无法将节点添加到 Kad - 检查 ED2K 核心是否已启动并且 Kademlia 是否已激活</string>
+    <string name="search_failed_title" translatable="false">Unable to start search</string>
+    <string name="search_params_invalid_number">用于搜索的数字参数中的数字无效</string>
+    <string name="search_forbidden_title">无法开始搜索</string>
+    <string name="search_forbidden">搜索表达式包含安全模式的禁用词。如果您确定请在程序设置中关闭安全模式</string>
+    <string name="mule_start_engine_service_security_exception">由于缺少权限，Mule 无法正常启动。请授予所需的权限并重新启动应用程序</string>
+    <string name="search_fragment_safe_mode_title">搜索安全模式</string>
+    <string name="search_fragment_safe_mode_descr">搜索的安全模式已激活。可以过滤搜索结果。请查看其他设置以获取更多详细信息</string>
+    <string name="INTENT_OPEN" translatable="false">org.dkf.jmule.INTENT_OPEN</string>
+    <string name="INTENT_CLOSE" translatable="false">org.dkf.jmule.INTENT_CLOSE</string>
+    <string name="media_type_all_types">所有类型</string>
+    <string name="media_type_documents">书籍/文件</string>
+    <string name="media_type_applications">应用</string>
+    <string name="media_type_audio">声音的</string>
+    <string name="media_type_video">视频</string>
+    <string name="media_type_images">图片</string>
+    <string name="media_type_torrents">bt</string>
+    <string name="media_type_archives">档案</string>
+    <string name="media_type_cd_images">光盘映像</string>
+    <string name="transfer_finished">下载完成</string>
+    <string name="transfer_io_error">输入输出错误</string>
+    <string name="jed2k_is_running">ED2K 服务正在运行</string>
+    <string name="dummy_downloads_indicator" translatable="false">0 @ 0 KB/s</string>
+    <string name="dummy_uploads_indicator" translatable="false">0 @ 0 KB/s</string>
+    <string name="build">编译</string>
+    <string name="comma">,</string>
+</resources>
