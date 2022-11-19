@@ -1189,7 +1189,13 @@ public class ED2KService extends JobIntentService {
                     throw new JED2KException(ErrorCode.IO_EXCEPTION);
                 }
             } else {
-                return session.addTransfer(hash, fileSize, file);
+                try {
+                    file.createNewFile();
+                    return session.addTransfer(hash, fileSize, file);
+                } catch (IOException e) {
+                    log.error("unable to create target file {}", e);
+                    throw new JED2KException(ErrorCode.IO_EXCEPTION);
+                }
             }
         }
 
