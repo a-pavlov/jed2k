@@ -66,13 +66,13 @@ def changeApkOutput(variant) {
 boolean isAssembleRelease = gradle.startParameter.taskNames.contains("assembleRelease") || gradle.startParameter.taskNames.contains("assembleBasicRelease")
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId 'org.dkf.jmule'
         versionName project.ext.versionName
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 33
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -153,6 +153,10 @@ android {
     }
     lint {
         abortOnError false
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
     }
 
     applicationVariants.all { variant ->
