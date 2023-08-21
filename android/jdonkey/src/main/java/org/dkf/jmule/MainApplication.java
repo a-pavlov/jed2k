@@ -19,7 +19,6 @@
 package org.dkf.jmule;
 
 import android.app.Application;
-import com.squareup.leakcanary.LeakCanary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,20 +39,12 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return;
-        }
-
-        LeakCanary.install(this);
-
         try {
 
             Platforms.set(new AndroidPlatform(this));
             ConfigurationManager.create(this);
             NetworkManager.create(this);
-            Engine.create(this);
+            Engine.instance().onApplicationCreate(this);
         } catch (Exception e) {
             throw new RuntimeException("Unable to initialized main components", e);
         }

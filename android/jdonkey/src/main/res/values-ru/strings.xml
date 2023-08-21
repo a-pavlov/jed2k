@@ -226,4 +226,6 @@
     <string name="media_type_all_types">Все</string>
     <string name="build">build</string>
     <string name="comma">,</string>
+    <string name="transfers_context_menu_show_path_title">La ruta del archivo</string>
+    <string name="transfers_context_menu_show_path_body">Directorio: %1$s\\nArchivo:%2$s</string>
 </resources>

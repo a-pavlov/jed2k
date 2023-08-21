@@ -18,6 +18,7 @@
 
 package org.dkf.jmule;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
@@ -88,7 +89,7 @@ public final class AndroidPlatform {
 
     private final int sdk;
 
-    public AndroidPlatform(Context app) {
+    public AndroidPlatform(Application app) {
         fileSystem = buildFileSystem(app);
         systemPaths = new AndroidPaths(app);
         appSettings = new AndroidSettings();
@@ -113,22 +114,6 @@ public final class AndroidPlatform {
 
     public int androidVersion() {
         return sdk;
-    }
-
-    public AndroidPlatform.NetworkType networkType() {
-        if (NetworkManager.instance().isDataMobileUp()) {
-            return AndroidPlatform.NetworkType.MOBILE;
-        }
-
-        if (NetworkManager.instance().isDataWIFIUp()) {
-            return AndroidPlatform.NetworkType.WIFI;
-        }
-
-        if (NetworkManager.instance().isDataWiMAXUp()) {
-            return AndroidPlatform.NetworkType.WIMAX;
-        }
-
-        return AndroidPlatform.NetworkType.NONE;
     }
 
     public static boolean saf() {

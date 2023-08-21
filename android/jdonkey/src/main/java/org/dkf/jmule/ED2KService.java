@@ -61,6 +61,7 @@ import org.dkf.jed2k.protocol.UInt32;
 import org.dkf.jed2k.protocol.kad.KadId;
 import org.dkf.jed2k.protocol.kad.KadNodesDat;
 import org.dkf.jed2k.protocol.server.search.SearchRequest;
+import org.dkf.jmule.activities.MainActivity;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
@@ -1011,17 +1012,33 @@ public class ED2KService extends JobIntentService {
     private PendingIntent createShowFrostwireIntent() {
         return PendingIntent.getActivity(getApplicationContext(),
                 0,
+                new Intent(getApplicationContext(),
+                        MainActivity.class).
+                        setAction(ACTION_SHOW_TRANSFERS).
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                PendingIntent.FLAG_IMMUTABLE);
+
+        /*return PendingIntent.getActivity(getApplicationContext(),
+                0,
                 new Intent(ACTION_SHOW_TRANSFERS)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK),
-                0);
+                0);*/
     }
 
     private PendingIntent createShutdownIntent() {
         return PendingIntent.getActivity(getApplicationContext(),
                 1,
+                new Intent(getApplicationContext(),
+                        MainActivity.class).
+                        setAction(ACTION_REQUEST_SHUTDOWN).
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                PendingIntent.FLAG_IMMUTABLE);
+        /*
+        return PendingIntent.getActivity(getApplicationContext(),
+                1,
                 new Intent(ACTION_REQUEST_SHUTDOWN).
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK),
-                0);
+                0);*/
     }
 
     private void buildNotification(final String title, final String summary, final String extra) {
@@ -1172,7 +1189,13 @@ public class ED2KService extends JobIntentService {
                     throw new JED2KException(ErrorCode.IO_EXCEPTION);
                 }
             } else {
-                return session.addTransfer(hash, fileSize, file);
+                try {
+                    file.createNewFile();
+                    return session.addTransfer(hash, fileSize, file);
+                } catch (IOException e) {
+                    log.error("unable to create target file {}", e);
+                    throw new JED2KException(ErrorCode.IO_EXCEPTION);
+                }
             }
         }
 

@@ -1,16 +1,16 @@
+import groovy.swing.SwingBuilder
+import groovy.xml.Namespace
 apply plugin: 'com.android.application'
 
 buildscript {
     repositories {
-        // Gradle 4.1 and higher include support for Google's Maven repo using
-        // the google() method. And you need to include this repo to download
-        // Android Gradle plugin 3.0.0 or higher.
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath 'org.codehaus.groovy:groovy-all:3.0.9'
     }
 }
 
@@ -21,7 +21,7 @@ repositories {
 
 def manifestVersionCode() {
     def manifestFile = new File(project.projectDir.absolutePath + '/AndroidManifest.xml')
-    def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
+    def ns = new Namespace("http://schemas.android.com/apk/res/android", "android")
     def xml = new groovy.xml.XmlParser().parse(manifestFile)
     //System.out.println("manifestVersionCode: xml.attributes()[ns.versionCode].toString()=" + xml.attributes()[ns.versionCode].toString())
     return Integer.parseInt(xml.attributes()[ns.versionCode].toString())
@@ -29,7 +29,7 @@ def manifestVersionCode() {
 
 def manifestVersionName() {
     def manifestFile = file(project.projectDir.absolutePath + '/AndroidManifest.xml')
-    def ns = new groovy.xml.Namespace("http://schemas.android.com/apk/res/android", "android")
+    def ns = new Namespace("http://schemas.android.com/apk/res/android", "android")
     def xml = new groovy.xml.XmlParser().parse(manifestFile)
     //System.out.println("manifestVersionName: " + xml.attributes()[ns.versionName].toString())
     return xml.attributes()[ns.versionName].toString()
@@ -66,13 +66,13 @@ def changeApkOutput(variant) {
 boolean isAssembleRelease = gradle.startParameter.taskNames.contains("assembleRelease") || gradle.startParameter.taskNames.contains("assembleBasicRelease")
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId 'org.dkf.jmule'
         versionName project.ext.versionName
-        minSdkVersion 16
-        targetSdkVersion 30
+        minSdkVersion 21
+        targetSdkVersion 33
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -100,9 +100,6 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     signingConfigs {
         release {
@@ -154,6 +151,13 @@ android {
             resValue "string", "application_label", "Mule"
         }
     }
+    lint {
+        abortOnError false
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
 
     applicationVariants.all { variant ->
         changeApkOutput(variant)
@@ -162,17 +166,17 @@ android {
 
 dependencies {
     implementation project(':core')
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    //api group: 'org.slf4j', name: 'slf4j-android', version: '1.7.+'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.re2j:re2j:1.6'
     implementation 'com.google.code.gson:gson:2.8.8'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'androidx.documentfile:documentfile:1.0.1'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.preference:preference:1.1.1'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
-    testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    implementation 'com.google.android.material:material:1.7.0'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
     testImplementation 'org.robolectric:robolectric:4.6'
     androidTestImplementation 'androidx.test:core:' + project.ext.coreVersion
     androidTestImplementation 'androidx.test.ext:junit:' + project.ext.extJUnitVersion
@@ -187,7 +191,7 @@ class SignatureRequester {
     void ask() {
         System.setProperty('java.awt.headless', 'false')
         if (System.console() == null) { // this is always the case on macOS at least
-            new groovy.swing.SwingBuilder().edt {
+            new SwingBuilder().edt {
                 dialog(modal: true,
                         title: 'Enter keystore data',
                         alwaysOnTop: true,

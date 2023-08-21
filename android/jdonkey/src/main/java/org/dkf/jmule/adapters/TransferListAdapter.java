@@ -257,6 +257,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
                 R.string.transfers_context_menu_copy_link_copied, download.toLink()));
 
         items.add(new CancelMenuAction(context.get(), download, !download.isComplete()));
+        items.add(new ShowThePathMenuAction(context.get(), download));
         return title;
     }
 
@@ -333,7 +334,7 @@ public class TransferListAdapter extends BaseExpandableListAdapter {
         setProgress(progress, download.getProgress());
         title.setCompoundDrawables(null, null, null, null);
 
-        if (NetworkManager.instance().isInternetDown()) {
+        if (!NetworkManager.instance().isInternetDataConnectionUp()) {
             status.setText(R.string.check_internet_connection);
             seeds.setText("");
         } else {
