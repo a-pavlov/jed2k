@@ -90,17 +90,20 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
         }
         Activity activity = activityRef.get();
         String[] permissions = null;
-        switch (requestCode) {
-            case EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE:
-                if (SystemUtils.hasAndroid10OrNewer()) {
-                    permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
-                } else {
-                    permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                }
-                break;
-            case ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE:
-                permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION};
-                break;
+        if (requestCode == EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE) {
+            if (SystemUtils.hasAndroid13OrNewer()) {
+                // As of Android13 the geniuses at Android decided yet another change
+                // on how to ask for permissions, now we have to be more granular about it
+                permissions = new String[]{Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.READ_MEDIA_IMAGES};
+            } else if (SystemUtils.hasAndroid11OrNewer()) {
+                // no more need for WRITE_EXTERNAL_STORAGE permission on Android 11,
+                // android:requestLegacyExternalStorage does nothing for android11 and up
+                // and it's ok because they finally let you use File API on the public downloads folders
+                permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
+            } else {
+                // Android 10 (29) + android:requestLegacyExternalStorage should make it work
+                permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            }
         }
 
         if (permissions != null) {
@@ -110,14 +113,8 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE:
-                onExternalStoragePermissionsResult(permissions, grantResults);
-                break;
-            case ACCESS_COARSE_LOCATION_PERMISSIONS_REQUEST_CODE:
-                onAccessCoarseLocationPermissionsResult(permissions, grantResults);
-            default:
-                break;
+        if (requestCode == EXTERNAL_STORAGE_PERMISSIONS_REQUEST_CODE) {
+            onExternalStoragePermissionsResult(permissions, grantResults);
         }
     }
 
@@ -205,16 +202,6 @@ public final class DangerousPermissionsChecker implements ActivityCompat.OnReque
 
         log.info("onExternalStoragePermissionsResult() " + Manifest.permission.READ_EXTERNAL_STORAGE + " granted");
         return true;
-    }
-
-    private boolean onAccessCoarseLocationPermissionsResult(String[] permissions, int[] grantResults) {
-        for (int i = 0; i < permissions.length; i++) {
-            if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                log.info("ACCESS_COARSE_LOCATION permission granted? " + (grantResults[i] == PackageManager.PERMISSION_GRANTED));
-                return grantResults[i] == PackageManager.PERMISSION_GRANTED;
-            }
-        }
-        return false;
     }
 
     private void shutdownMule() {
