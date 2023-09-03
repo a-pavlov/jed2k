@@ -9,7 +9,7 @@ In GUI part used source code and design from [FrostWire](https://github.com/fros
 * [Google Play](https://play.google.com/store/apps/details?id=org.dkf.jmule)
 * [F-Droid](https://f-droid.org/packages/org.dkf.jmule/)
 * [Amazon](https://www.amazon.com/DKF-software-Mule-on-Android/dp/B01LYN526Q) Obsolete
-* [Direct apk Release ver 30](https://github.com/a-pavlov/jed2k/releases/download/3.0/jdonkey-release.apk)
+* [Direct apk Release ver 38](https://github.com/a-pavlov/jed2k/releases/download/3.8/jed2k-android-release-38-b38-basic.apk)
 * [Direct apk Release ver 20 latest Google Play version before 30](https://github.com/a-pavlov/jed2k/releases/download/2.0_res/jdonkey-release-restore.apk)
 
 ## Implemented Features
