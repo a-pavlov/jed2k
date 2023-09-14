@@ -156,7 +156,11 @@ public final class AndroidPlatform {
         if (Build.VERSION.SDK_INT >= VERSION_CODE_LOLLIPOP && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             LollipopFileSystem lfs = new LollipopFileSystem(app);
             fs = lfs;
-        } else {
+        }
+        else if (SystemUtils.hasAndroid10()) {
+            fs = new Android10QFileSystem(app);
+        }
+        else {
             fs = new DefaultFileSystem() {
                 @Override
                 public void scan(File file) {

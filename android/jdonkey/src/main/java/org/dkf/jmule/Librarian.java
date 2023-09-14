@@ -287,6 +287,134 @@ public final class Librarian {
         SystemUtils.exceptionSafePost(handler, () -> syncMediaStoreSupport(contextRef));
     }
 
+
+    /**
+     * This method assumes you did the logic to determine the target location in Downloads.
+     * Meaning, "destInDownloads" doesn't exist yet, but this is where you'd like it to be saved at.
+     *
+     * @param src             The actual file wherever else it exists, usually in an internal/external app folder
+     * @param destInDownloads The final desired location of the file in the public Downloads folder
+     * @return
+     */
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public static boolean mediaStoreSaveToDownloads(final Context context, File src, File destInDownloads, boolean copyBytesToMediaStore) {
+        LOG.info("Librarian::mediaStoreSaveToDownloads trying to save " + src.getAbsolutePath() + " into " + destInDownloads.getAbsolutePath());
+
+        if (context == null) {
+            LOG.info("Librarian::mediaStoreSaveToDownloads aborting. ApplicationContext reference is null, not ready yet.");
+            return false;
+        }
+
+        String relativePath = AndroidPaths.getRelativeFolderPathFromFileInDownloads(destInDownloads);
+
+        if (Librarian.mediaStoreFileExists(context, destInDownloads)) {
+            LOG.info("Librarian::mediaStoreSaveToDownloads aborting. " + relativePath + "/" + destInDownloads.getName() + " already exists on the media store db");
+            return false;
+        }
+
+        return mediaStoreInsert(context, src, relativePath, copyBytesToMediaStore);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public static boolean mediaStoreFileExists(final Context context, File destInDownloads) {
+        String relativePath = AndroidPaths.getRelativeFolderPathFromFileInDownloads(destInDownloads);
+        String displayName = destInDownloads.getName();
+        Uri downloadsExternalUri = MediaStore.Downloads.getContentUri("external");
+        ContentResolver contentResolver = context.getContentResolver();
+        String selection = MediaColumns.DISPLAY_NAME + " = ? AND " +
+                MediaColumns.RELATIVE_PATH + " LIKE ?";
+        String[] selectionArgs = new String[]{displayName, '%' + relativePath + '%'};
+        Cursor query = contentResolver.query(downloadsExternalUri, null, selection, selectionArgs, null);
+        if (query == null) {
+            LOG.info("Librarian::mediaStoreFileExists -> null query for " + displayName);
+            return false;
+        }
+        boolean fileFound = query.getCount() > 0;
+        query.close();
+        LOG.info("Librarian::mediaStoreFileExists() -> " + fileFound);
+        return fileFound;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private static boolean mediaStoreInsert(Context context, File srcFile, String relativeFolderPath, boolean copyBytesToMediaStore) {
+        if (srcFile.isDirectory()) {
+            return false;
+        }
+        // Add to MediaStore
+        ContentResolver resolver = context.getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put(MediaColumns.IS_PENDING, copyBytesToMediaStore ? 1 : 0);
+
+        if (!StringUtils.isNullOrEmpty(relativeFolderPath)) {
+            LOG.info("Librarian::mediaStoreInsert using relative path " + relativeFolderPath);
+            values.put(MediaColumns.RELATIVE_PATH, relativeFolderPath);
+        } else {
+            LOG.info("WARNING, relative relativeFolderPath is null for " + srcFile.getAbsolutePath());
+        }
+
+        values.put(MediaColumns.DISPLAY_NAME, srcFile.getName());
+        values.put(MediaColumns.MIME_TYPE, MimeDetector.getMimeType(FilenameUtils.getExtension(srcFile.getName())));
+        values.put(MediaColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
+        values.put(MediaColumns.DATE_MODIFIED, System.currentTimeMillis() / 1000);
+        values.put(MediaColumns.SIZE, srcFile.length());
+
+        byte fileType = AndroidPaths.getFileType(srcFile.getAbsolutePath(), true);
+        if (fileType == Constants.FILE_TYPE_AUDIO || fileType == Constants.FILE_TYPE_VIDEOS) {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            boolean illegalArgumentCaught = false;
+            try {
+                mmr.setDataSource(srcFile.getAbsolutePath());
+            } catch (Throwable ignored) {
+                // at first we tried catching illegal argument exception
+                // then we started seeing Runtime Exception errors being thrown here.
+                illegalArgumentCaught = true;
+            }
+            String title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            String artistName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            String albumArtistName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
+            String albumName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+            String durationString = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            if (title != null) {
+                LOG.info("mediaStoreInsert title (MediaDataRetriever): " + title);
+                values.put(MediaColumns.TITLE, title);
+                values.put(MediaColumns.DISPLAY_NAME, srcFile.getName());
+
+                if (SystemUtils.hasAndroid11OrNewer() && fileType == Constants.FILE_TYPE_AUDIO) {
+                    values.put(MediaColumns.ARTIST, artistName);
+                    values.put(MediaColumns.ALBUM_ARTIST, albumArtistName);
+                    values.put(MediaColumns.ALBUM, albumName);
+                    if (!StringUtils.isNullOrEmpty(durationString)) {
+                        values.put(MediaColumns.DURATION, Long.parseLong(durationString));
+                    }
+                }
+            } else if (illegalArgumentCaught && title == null) {
+                // Something went wrong with mmr.setDataSource()
+                // Happens in Android 10
+                String fileNameWithoutExtension = srcFile.getName().replace(
+                        FilenameUtils.getExtension(srcFile.getName()), "");
+                values.put(MediaColumns.TITLE, fileNameWithoutExtension);
+                values.put(MediaColumns.DISPLAY_NAME, fileNameWithoutExtension);
+            }
+        } else {
+            values.put(MediaColumns.TITLE, srcFile.getName());
+        }
+        Uri downloadsExternalUri = MediaStore.Downloads.getContentUri("external");
+        try {
+            Uri insertedUri = resolver.insert(downloadsExternalUri, values);
+            if (insertedUri == null) {
+                LOG.error("mediaStoreInsert -> could not perform media store insertion");
+                return false;
+            }
+            LOG.info("mediaStoreInsert -> insertedUri = " + insertedUri);
+            if (copyBytesToMediaStore) {
+                return copyFileBytesToMediaStore(resolver, srcFile, values, insertedUri);
+            }
+        } catch (Throwable t) {
+            return false;
+        }
+        return true;
+    }
+
     /*
     public EphemeralPlaylist createEphemeralPlaylist(final Context context, FWFileDescriptor fd) {
 
@@ -516,27 +644,28 @@ public final class Librarian {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
-    private void copyFileBytesToMediaStore(ContentResolver contentResolver,
-                                           File srcFile,
-                                           ContentValues values,
-                                           Uri insertedUri) {
+    private static boolean copyFileBytesToMediaStore(ContentResolver contentResolver,
+                                                     File srcFile,
+                                                     ContentValues values,
+                                                     Uri insertedUri) {
         try {
             OutputStream outputStream = contentResolver.openOutputStream(insertedUri);
             if (outputStream == null) {
-                LOG.error("copyFileBytesToMediaStore failed, could not get an output stream from insertedUri=" + insertedUri);
-                return;
+                LOG.error("Librarian::copyFileBytesToMediaStore failed, could not get an output stream from insertedUri=" + insertedUri);
+                return false;
             }
             BufferedSink sink = Okio.buffer(Okio.sink(outputStream));
             sink.writeAll(Okio.source(srcFile));
             sink.flush();
             sink.close();
         } catch (Throwable t) {
-            LOG.error("copyFileBytesToMediaStore error: " + t.getMessage(), t);
-            return;
+            LOG.error("Librarian::copyFileBytesToMediaStore error: " + t.getMessage(), t);
+            return false;
         }
         values.clear();
         values.put(MediaColumns.IS_PENDING, 0);
         contentResolver.update(insertedUri, values, null, null);
+        return true;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)

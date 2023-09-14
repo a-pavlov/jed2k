@@ -19,6 +19,8 @@
 package org.dkf.jmule;
 
 import android.app.Application;
+import android.content.Context;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

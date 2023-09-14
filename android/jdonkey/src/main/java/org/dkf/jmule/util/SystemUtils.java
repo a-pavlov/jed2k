@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StatFs;
 
+import org.dkf.jmule.MainApplication;
 import org.dkf.jmule.Platforms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,7 @@ public final class SystemUtils {
     private static final int VERSION_SDK_ANDROID_12_S = 31;
     private static final int VERSION_SDK_ANDROID_13_TIRAMISU = 33;
 
-    private SystemUtils() {
-    }
+    private SystemUtils() { }
 
     public static File getCacheDir(Context context, String directory) {
         File cache;

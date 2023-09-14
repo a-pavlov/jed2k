@@ -117,4 +117,37 @@ public final class AndroidPaths {
         mediaStoreFolderPrefix = mediaStoreFolderPrefix.replace("//","/");
         return mediaStoreFolderPrefix;
     }
+
+    public static String getRelativeFolderPathFromFileInDownloads(File f) {
+        // "Download/FrostWire"
+        String commonRelativePrefix = Environment.DIRECTORY_DOWNLOADS + "/JED2K";
+        commonRelativePrefix = commonRelativePrefix.replace("//", "/").replaceAll("/\\z", "");
+        return commonRelativePrefix;
+        /*
+        String fullOriginalFilePath = f.getAbsolutePath();
+
+        // Let's remove this from the fullOriginalFilePath and we should now have only either the file name by itself
+        // or the torrent folders and sub-folders containing it
+        String removedDataPathFromFilePath = fullOriginalFilePath;
+        if (SystemUtils.hasAndroid10()) {
+            // in case it's an internal file (android 10)
+            removedDataPathFromFilePath = fullOriginalFilePath.
+                    replace(BTEngine.ctx.dataDir.getAbsolutePath() + "/", "");
+        }
+
+        // this is the most likely prefix (android 11+)
+        removedDataPathFromFilePath = removedDataPathFromFilePath.
+                replace("/storage/emulated/0/", "");
+
+
+        // Single file download, not contained by folders or sub-folders
+        if (removedDataPathFromFilePath.equals(f.getName())) {
+            return commonRelativePrefix;
+        }
+
+        String result = removedDataPathFromFilePath.replace(f.getName(), "").
+                replaceAll("/\\z", ""); // remove trailing slash
+        return result;
+         */
+    }
 }
